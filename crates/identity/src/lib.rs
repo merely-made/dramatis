@@ -67,6 +67,46 @@ pub use crate::vault::{
     ProfileId, ProfileSummary, ProtocolKey, SecretBytes, UnlockTier,
 };
 
+/// Identity of a persona — the user's mode-scoped identity boundary.
+///
+/// v0 uses [`PersonaId::default_persona`] for every session. v1 promotes
+/// this into user-managed persona manifests and per-persona vault roots.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+pub struct PersonaId(pub uuid::Uuid);
+
+impl PersonaId {
+    /// Mint a fresh persona id.
+    pub fn new() -> Self {
+        Self(uuid::Uuid::new_v4())
+    }
+
+    /// Wrap an existing UUID as a persona id.
+    pub fn from_uuid(uuid: uuid::Uuid) -> Self {
+        Self(uuid)
+    }
+
+    /// Borrow the underlying UUID.
+    pub fn as_uuid(&self) -> &uuid::Uuid {
+        &self.0
+    }
+
+    /// The single default persona used by every session in v0.
+    ///
+    /// Fixed UUID so manifests are stable across app restarts before personas
+    /// become user-managed.
+    pub fn default_persona() -> Self {
+        Self(uuid::Uuid::from_u128(
+            0x0000_0000_0000_0000_0000_0000_0000_0001,
+        ))
+    }
+}
+
+impl Default for PersonaId {
+    fn default() -> Self {
+        Self::default_persona()
+    }
+}
+
 /// Crate version.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 

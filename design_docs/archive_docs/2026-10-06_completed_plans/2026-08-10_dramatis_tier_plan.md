@@ -79,11 +79,11 @@ tulpa pattern, MIT/Apache, ed2024), local repo `repos/dramatis` *(historical cit
       sealer is the seal seam itself and the store logic is sequenced filesystem
       effects rather than a model. That crate is now
       [pandect](https://crates.io/crates/pandect). One question spun out and was
-      answered 2026-08-11 in [device grants and delegation certificates](../technical_architecture/2026-08-11_device_grant_delegation_reconciliation.md).
+      answered 2026-08-11 in [device grants and delegation certificates](../../mere_docs/technical_architecture/2026-08-11_device_grant_delegation_reconciliation.md).
       Mark settled the migration posture 2026-08-12 (re-issue now, no legacy
       decoder, the window being open only while every grant holder is a machine
       he can reach) and the work ran to completion the same day; its
-      [migration plan](../../archive_docs/2026-08-18_completed_plans/2026-08-12_device_grant_certificate_migration_plan.md)
+      [migration plan](../2026-08-18_completed_plans/2026-08-12_device_grant_certificate_migration_plan.md)
       was archived 2026-08-18 with nothing carried forward.
 - [x] The credential-manager port (see direction below).
       **Founded 2026-08-14** as [castellan](https://crates.io/crates/castellan);
@@ -134,7 +134,7 @@ shown; what lands in someone else's gaz) to tier vocabulary; both claimed
 same day (0.0.1 reservations under crates/dramatis, Mark authorized).
 
 Both this direction and the gazette's feed direction are fleshed out in the
-[credential port + gazette brief](../research/2026-08-10_credential_port_gazette_brief.md),
+[credential port + gazette brief](../../mere_docs/research/2026-08-10_credential_port_gazette_brief.md),
 which owns the standards inventory and the open questions until dated plans
 supersede it.
 

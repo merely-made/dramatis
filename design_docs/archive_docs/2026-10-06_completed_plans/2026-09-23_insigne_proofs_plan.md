@@ -15,7 +15,7 @@ personae; then let gaz keep the proofs it receives.
 
 - [crate consolidation plan](../../mere_docs/implementation_strategy/2026-09-23_crate_consolidation_plan.md),
   insigne row: the move this plan executes.
-- [gaz founding plan](2026-08-08_gaz_founding_plan.md), M2: gaz keeps the
+- [gaz founding plan](../../dramatis_docs/implementation_strategy/2026-08-08_gaz_founding_plan.md), M2: gaz keeps the
   proofs themselves (Mark, 2026-09-23), implemented by phase D of this plan.
 - [device-grant delegation reconciliation](../../mere_docs/technical_architecture/2026-08-11_device_grant_delegation_reconciliation.md):
   it put the delegation grammar in personae. This plan changes where the
@@ -391,6 +391,17 @@ Remaining sibling repin handoff (source census, not compiler receipts):
 - mer3ly: `crates/repo-graph/src/lib.rs` (test dependency).
 - Cleromancy has no proof-type import to migrate in the tracked Rust source.
 
+**Corrected 2026-10-06 (S14 pass):** Turnstone has repinned. Turnstone
+`d6b62ad` (2026-09-29) adopted Insigne at Mere `ca2351b3`, since moved to
+`bd5912fb`, and both contain `7926d3a8`; its denizen and identity modules
+import from `insigne`, and no `personae::` proof imports remain. The open
+repins are Hocket, Woodshed and mer3ly. Hocket and mer3ly pin Mere
+`d82afa17`, which predates phase A. Woodshed's root workspace pins
+`8106c7c2`, which lacks phase C; its separate Hocket workspace (under
+woodshed's ports directory, excluded from the root workspace), where the two
+Hocket files above live, pins `d82afa17`, and its `handoff.rs` still calls
+`verify(&salt)`.
+
 At each repin, add Insigne from the exact same Mere revision as Personae.
 Import `DerivedKeyAttestation` from `insigne` and the delegation data/helpers
 from `insigne::delegation`; retain `Issue`, `DelegationError`,
@@ -506,8 +517,10 @@ after recording its gates; receipts are retained.
 
 **2026-10-01.** Mark ruled the `dramatis` facade real for repos outside mere
 (ruling 8 in the
-[dramatis tier architecture](../technical_architecture/2026-09-30_dramatis_tier_architecture.md)):
+[dramatis tier architecture](../../dramatis_docs/technical_architecture/2026-09-30_dramatis_tier_architecture.md)):
 it re-exports personae, insigne and gaz, so a sibling pins one crate at one
 revision. Once it exists, the handoff above ("add Insigne from the exact same
 Mere revision as Personae") becomes one dependency instead of two hand-matched
 pins. Until then the handoff stands as written.
+
+- **2026-10-06 (S14 pass).** Status and claims corrected against the tree at mere 535bca11, from the D2 record in support/doc-audit/d2/batch_39_s14_phase_b1.md: the phase C repin handoff now records Turnstone as repinned (`d6b62ad`), leaving Hocket, Woodshed and mer3ly open.

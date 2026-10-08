@@ -79,11 +79,11 @@ tulpa pattern, MIT/Apache, ed2024), local repo `repos/dramatis` *(historical cit
       sealer is the seal seam itself and the store logic is sequenced filesystem
       effects rather than a model. That crate is now
       [pandect](https://crates.io/crates/pandect). One question spun out and was
-      answered 2026-08-11 in [device grants and delegation certificates](../technical_architecture/2026-08-11_device_grant_delegation_reconciliation.md).
+      answered 2026-08-11 in [device grants and delegation certificates](../../mere_docs/technical_architecture/2026-08-11_device_grant_delegation_reconciliation.md).
       Mark settled the migration posture 2026-08-12 (re-issue now, no legacy
       decoder, the window being open only while every grant holder is a machine
       he can reach) and the work ran to completion the same day; its
-      [migration plan](../../archive_docs/2026-08-18_completed_plans/2026-08-12_device_grant_certificate_migration_plan.md)
+      [migration plan](../2026-08-18_completed_plans/2026-08-12_device_grant_certificate_migration_plan.md)
       was archived 2026-08-18 with nothing carried forward.
 - [x] The credential-manager port (see direction below).
       **Founded 2026-08-14** as [castellan](https://crates.io/crates/castellan);
@@ -93,6 +93,11 @@ tulpa pattern, MIT/Apache, ed2024), local repo `repos/dramatis` *(historical cit
       C1 (the OTP core, RFC-vector-verified) and C2 (sealed items, tile and
       release gate, admitted-session consumer, Linux Secret Service, Steam
       Guard) complete 2026-08-21; product hosting open.
+
+      **Corrected 2026-10-06 (S14 pass):** the OTP plan's own status dates
+      C1 and C2 complete 2026-08-20, then hardened and extended 2026-08-21
+      (resident lock and freshness ledger, Linux Secret Service, Steam
+      Guard); the status line above gives only the second date.
 - [ ] Any facade content in the `dramatis` crate. The reservation stays empty
       until something imports it. **Superseded 2026-10-01** by Mark's
       ruling 8 in the [dramatis tier architecture](../../dramatis_docs/technical_architecture/2026-09-30_dramatis_tier_architecture.md):
@@ -129,7 +134,7 @@ shown; what lands in someone else's gaz) to tier vocabulary; both claimed
 same day (0.0.1 reservations under crates/dramatis, Mark authorized).
 
 Both this direction and the gazette's feed direction are fleshed out in the
-[credential port + gazette brief](../research/2026-08-10_credential_port_gazette_brief.md),
+[credential port + gazette brief](../../mere_docs/research/2026-08-10_credential_port_gazette_brief.md),
 which owns the standards inventory and the open questions until dated plans
 supersede it.
 
@@ -192,3 +197,15 @@ to the IconVG decoder (`repos/emblem`, formerly `repos/iconvg` *(historical cita
   and its normalization moves upstream to smolweb. chatelaine becomes a plain
   taxonomy crate, with CXF import policy ruled for all 17 types. dramatis
   becomes the facade sibling repos pin. Rulings 6 to 15 are recorded there.
+
+  **Corrected 2026-10-06 (S14 pass):** chatelaine is no longer unbuilt. P1
+  (`da3c50bc`), P2 (`3e4992ec`), P3 (`ff68e86c`) and P4a (`007fbe7c`) of the
+  [chatelaine and CXF import plan](../../dramatis_docs/implementation_strategy/2026-10-01_chatelaine_cxf_plan.md)
+  are all ancestors of mere `535bca11`; that plan carries the rest. The
+  `dramatis` facade is still unbuilt (`crates/dramatis/dramatis` 0.0.2 has a
+  doc-only lib.rs).
+- **2026-10-06 (S14 pass).** Status and claims corrected against the tree at
+  mere 535bca11, from the D2 record in
+  support/doc-audit/d2/batch_43_s14_phase_b5.md: a dated note that chatelaine
+  P1 to P4a have landed, and the C1-C2 completion date reconciled with the
+  OTP plan.

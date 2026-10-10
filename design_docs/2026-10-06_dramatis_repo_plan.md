@@ -757,3 +757,42 @@ directory (F183). The test inventories are in `Code/testing/mere/dra/`.
   dramatis.git at `c1d62076` (served locally) and has one source each.
 - **Commits:** mere `6552fa3e` (`r44`); knot-editor `d54f8aa`, Turnstone
   `9b17015` and Woodshed `06d0b59` (`dr-c`).
+
+**2026-10-10, DR-B, DR-C and DR-D landed** (D36's order, then one test run).
+- **The test run** on Windows and Fedora:
+  - dramatis: 17 targets;
+  - castellan with all features, including the real D-Bus Secret Service
+    suite under `dbus-run-session`;
+  - djinn, with its `locked_restart`, `harness` and `lock_agent` receipts;
+  - graphshell with `personal-sync`: 419 on Fedora, 212 for its library on
+    Windows;
+  - Distillery, with `transport_residue` clean;
+  - mesh, the transport, signalman and the picker;
+  - `cargo deny check bans`: ok.
+- **What the run caught,** fixed before landing:
+  - `CustodyAnswer::EpochKeys` didn't round-trip, because an internally
+    tagged enum can't hold a bare sequence;
+  - a component copy dropped resource-stratum relations (D38, mere
+    `39fed3c9`);
+  - Turnstone's tags read the old surface set;
+  - Knot and woodshed had to follow Cambium's `role=textbox` fields.
+- **Landed:**
+  - dramatis `main`: the moved crates, with history;
+  - mere `875060fc`;
+  - Knot `fef132ef`;
+  - woodshed `7d333376`;
+  - Turnstone `42cc3b7d`.
+
+  All four pin one mere (`5dca58a9`) and dramatis `c1d62076`, with no local
+  patches.
+- **Not from this work:** Knot's `tests/tabard_appearance.rs:114` fails on
+  Knot's own `main` (it came with `95849ae`), and was flagged as a separate
+  task.
+- **Still open:**
+  - DR-C's per-app receipts (identity pending with djinn absent or Locked,
+    and a reintroduced fallback failing);
+  - `personae-vault` still opens the vault itself;
+  - released keys are revoked only cooperatively, when apps watch the lock;
+  - hocket's adoption has no DPAPI test;
+  - DR-E (publishing) is Mark's;
+  - the standalone `hocket/` repo, to retire or repoint (D13).

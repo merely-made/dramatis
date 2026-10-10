@@ -22,13 +22,13 @@ into records, then mere reconciliation.
 **Related**:
 
 - Mere's [contact and remote-identity model brief](https://github.com/merely-made/mere)
-  (`design_docs/mere_docs/research/2026-06-15_contact_identity_model_brief.md`)
+  (`repos/mere/design_docs/mere_docs/research/2026-06-15_contact_identity_model_brief.md`)
   is the founding spec. It settles the *them* side of identity; this crate
   implements it.
 - [`personae`](https://crates.io/crates/personae) owns the *me* side.
 - [`muniment`](https://crates.io/crates/muniment) is the persistence seam M1
   rides.
-- Mere's `ports/gazette` is the resolution sibling.
+- Mere's `repos/mere/ports/gazette` is the resolution sibling.
 
 ---
 
@@ -103,7 +103,7 @@ kith and kin describe a relationship. They stay separate.
 **The anchor is a typed key or a `did:plc`, ruled by Mark 2026-09-23 and
 reaffirmed the same day.** This restores the contact brief's own wording, "a
 stable key or DID" (§3); M0's raw-keys-only root was the narrowing. The
-[standards survey](../../2026-08-24_standards_survey_brief.md)'s first pass graded
+standards survey (`repos/mere/design_docs/2026-08-24_standards_survey_brief.md`)'s first pass graded
 DIDs PULL and carried only `did:key` and `did:web`, with no reason recorded. Mark
 kept the ruling and the survey was amended to grade per method (its §5), since
 `did:plc` is the only method that is per-account, rotating and self-certifying.
@@ -288,7 +288,7 @@ is monotonic, so a replayed or late event cannot rewind a record.
         host-side receipt shows the stored bytes carry no cleartext petname.
         Implemented 2026-09-30 through Pandect's `WalletSealedBackend` and
         Castellan's required `PersonaeHost::sealed_backend` supply point;
-        `ports/castellan/tests/sealed_contacts.rs` checks JSON and postcard
+        `repos/mere/ports/castellan/tests/sealed_contacts.rs` checks JSON and postcard
         books in the entire closed redb file, then reopens and rechecks proofs.
   - [x] **Ruled 2026-09-23 — JSContact is *an* exchange format** (Mark: "the"
         was too strong). The standards survey grades
@@ -353,7 +353,7 @@ is monotonic, so a replayed or late event cannot rewind a record.
         insigne's core, so it can be checked again later, for instance against
         a newer revocation list, which is why notochord retains its session
         claims. The data types moved into insigne in the
-        [insigne proofs plan](../../archive_docs/2026-10-06_completed_plans/2026-09-23_insigne_proofs_plan.md)'s phase A
+        [insigne proofs plan](archive_docs/2026-10-06_completed_plans/2026-09-23_insigne_proofs_plan.md)'s phase A
         (`5364dfa0`, 2026-09-24); gaz keeping them is that plan's phase D,
         landed 2026-09-29. `KeyProof` retains attestations with their salt,
         signed certificates, or opaque protocol evidence with its format and
@@ -381,7 +381,7 @@ is monotonic, so a replayed or late event cannot rewind a record.
   - [ ] WebFinger output never becomes an anchor. A keyless import attaches
         its endpoints to the contact already holding that `acct:` handle, or
         else starts a `Local` contact (M0.5) that a key can later join. The
-        [contact brief](../../mere_docs/research/2026-06-15_contact_identity_model_brief.md)'s
+        contact brief (`repos/mere/design_docs/mere_docs/research/2026-06-15_contact_identity_model_brief.md`)'s
         committed position (§3: WebFinger is one endpoint resolver hanging off
         the contact, not the identity) still holds: the handle labels the
         record and never roots it. Keys come from the key-rooted resolver the
@@ -427,7 +427,7 @@ independent type.
 **2026-09-23: atproto keys are the server's, not the person's.** Checked
 against the live PLC directory rather than assumed; sources, counts and the
 re-derivation of `did:plc` live once, in the
-[standards survey](../../2026-08-24_standards_survey_brief.md)'s §5 atproto
+standards survey (`repos/mere/design_docs/2026-08-24_standards_survey_brief.md`)'s §5 atproto
 bullet. What they mean for gaz:
 
 - **Shared signing keys**, so an atproto contact filed by key can collide with
@@ -450,15 +450,15 @@ pass over M0's decisions, against the code:
 - personae gives a persona one durable master key and binds every other key to
   it: `DerivedKeyAttestation` is "a master-signed statement binding one
   deterministically derived key to its identity root and derivation salt"
-  (`crates/dramatis/personae/src/provider.rs`), and devices hold
+  (`crates/personae/src/provider.rs`), and devices hold
   `SignedDelegationCertificate`s issued by the master
-  (`crates/dramatis/personae/src/delegation.rs`).
+  (`crates/personae/src/delegation.rs`).
 - What a peer shows on the wire is a derived key, not the master: mesh authors
   sign with `derive_keypair(MESH_AUTHOR_SALT)` and prove it with
-  `attest_derived_key` (`crates/mesh/mesh/src/directory.rs`), and a key minted
+  `attest_derived_key` (`repos/mere/crates/mesh/mesh/src/directory.rs`), and a key minted
   for another protocol deliberately does not count as the mesh identity.
 - castellan derives a Reticulum identity per station from a persona provider
-  (`ports/castellan/src/reticulum.rs`), so a Merely user's radios are further
+  (`repos/mere/ports/castellan/src/reticulum.rs`), so a Merely user's radios are further
   concurrent keys under the same root.
 
 M0's rules (anchor = first key seen; one growing list; `current_key()` = the
@@ -475,7 +475,7 @@ anchor, and a sender would encrypt to it. Corrected in §2. The whole-identity
 key was then checked against Reticulum's reference implementation, its only
 specification: the 64-byte layout, the whole-key identity hash and `rnid`'s hex
 text form all match (sources in the
-[standards survey](../../2026-08-24_standards_survey_brief.md)'s §5
+standards survey (`repos/mere/design_docs/2026-08-24_standards_survey_brief.md`)'s §5
 signalman/retinue bullet), which met Mark's condition for accepting it.
 
 **2026-09-23: M0.5, what building it settled.**
@@ -484,7 +484,7 @@ signalman/retinue bullet), which met Mark's condition for accepting it.
   string, gaz's tag byte then the key (`serialize_bytes`), not a derived
   enum. Tested through postcard, the codec muniment stores with, so M1's
   format is the one under test.
-- **The stored book is a list of records, not a map** (`crates/dramatis/gaz/src/book.rs`).
+- **The stored book is a list of records, not a map** (`crates/gaz/src/book.rs`).
   M0's map key repeated the anchor already inside each record, and the two
   could disagree on a hand-edited or corrupted file; now there is one copy,
   and a load refuses two records on one anchor. M0's JSON shape (hex map keys)
@@ -507,7 +507,7 @@ signalman/retinue bullet), which met Mark's condition for accepting it.
   does.
 
 **2026-09-23: WebFinger yields no key.** `gazette::WebFingerImport`
-(`ports/gazette/src/lib.rs`) classifies endpoints and aliases and has no key
+(`repos/mere/ports/gazette/src/lib.rs`) classifies endpoints and aliases and has no key
 field. That is what the contact brief intends (§3): WebFinger fills in
 endpoints on a contact rooted elsewhere. The gap is upstream: the key-rooted
 resolver the brief says must return does not exist yet, so today every key
@@ -542,7 +542,7 @@ Mark: at-rest sealing (M1). WebFinger-only contacts, first drafted as open,
 were already settled by the contact brief (§3).
 
 **2026-09-23, later.** The §2 ruling is back with Mark: it was made without the
-[standards survey](../../2026-08-24_standards_survey_brief.md), which grades DIDs
+standards survey (`repos/mere/design_docs/2026-08-24_standards_survey_brief.md`), which grades DIDs
 PULL with `did:key` and `did:web` "the only two methods worth carrying", and
 atproto WATCH. The survey also grades JSContact (RFC 9553) ADOPT with gaz as the
 consumer, which M1 as drafted ignores. Neither M0.5 nor M1 starts until both
@@ -745,7 +745,7 @@ parser. Query/subject binding deliberately requires the same normalized account;
 RFC 7033 §4.4.1 permits changed subjects, so account migration is refused here
 as an explicit first-slice policy. The existing fetch path is unchanged.
 
-`ports/castellan/tests/sealed_webfinger_intake.rs` composes this supplied-JRD
+`repos/mere/ports/castellan/tests/sealed_webfinger_intake.rs` composes this supplied-JRD
 adapter with actual wallet epochs, `PersonaeHost::sealed_backend`, Muniment and
 JSON/postcard redb. It starts from a reopened book, imports additional addresses,
 replays before and after another reopen, preserves Pinned/Verified trust and

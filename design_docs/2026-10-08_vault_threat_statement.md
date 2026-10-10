@@ -3,11 +3,11 @@
 **Date:** 2026-10-08
 **Status:** current. What the identity vault's lock defends, what it leaves
 open, and what is known only by reading. Ruled into being by the
-[vault lock plan](../implementation_strategy/2026-10-05_vault_lock_plan.md)'s
+vault lock plan (`repos/mere/design_docs/dramatis_docs/implementation_strategy/2026-10-05_vault_lock_plan.md`)'s
 ruling 82; the lock's architecture-level promise is the
 [dramatis tier architecture](2026-09-30_dramatis_tier_architecture.md)'s
 invariant 13 (ruling 83). It replaces the
-[protocol architecture plan](../../mere_docs/implementation_strategy/2026-05-05_protocol_architecture_plan.md)'s
+protocol architecture plan (`repos/mere/design_docs/mere_docs/implementation_strategy/2026-05-05_protocol_architecture_plan.md`)'s
 §3.7 promise of "a future doc" for the vault's part of the threat model.
 **Audit base:** Mere `526cbb3b` (2026-10-08), which carries the lock plan's
 L1 to L3.
@@ -39,15 +39,15 @@ A lock drops every secret the resident exercises:
 
 Every holder drops its keys before `lock()` returns: castellan's
 `ResidentLock` runs synchronous holder hooks, then broadcasts the new state
-(ruling 31, `ports/castellan/src/authority.rs`).
+(ruling 31, `repos/mere/ports/castellan/src/authority.rs`).
 
 **The memory those secrets held is cleared, not just freed** (ruling 6).
 *Measured* on the heap by a tracking allocator that fails on a positive
 control:
-- personae's vault (`crates/dramatis/personae/tests/no_residue.rs`);
-- castellan's item store (`ports/castellan/tests/no_residue.rs`);
-- Knot's seed through djinn (`ports/djinn/tests/knot_residue.rs`);
-- mere's transport (`crates/murm/transport/tests/seed_residue.rs`, rulings
+- personae's vault (`crates/personae/tests/no_residue.rs`);
+- castellan's item store (`repos/mere/ports/castellan/tests/no_residue.rs`);
+- Knot's seed through djinn (`repos/mere/ports/djinn/tests/knot_residue.rs`);
+- mere's transport (`repos/mere/crates/murm/transport/tests/seed_residue.rs`, rulings
   51 and 52).
 
 The residue was fixed for each source in turn:
@@ -74,9 +74,9 @@ checkpoint E):
 **The lock survives a restart** (ruling 5):
 - A marker beside the vault's root, written on every lock, makes personae's
   startup loaders refuse an unattended open (ruling 32,
-  `crates/dramatis/personae/src/startup_unlock.rs`).
+  `crates/personae/src/startup_unlock.rs`).
 - A resident restarted under it waits at its prompt. *Measured* by
-  `ports/djinn/tests/locked_restart.rs`, whose control fails without the
+  `repos/mere/ports/djinn/tests/locked_restart.rs`, whose control fails without the
   marker.
 
 **Unlocking takes a user act on the resident's own surface:**
@@ -104,14 +104,14 @@ checkpoint E):
   Until ruling 44's hard switch to a derived transport key lands, the
   running transport keeps the **persona's master keypair** in memory while
   locked. `transport_identity()` itself refuses while locked (*read*,
-  `ports/distillery/src/installed.rs`). This is the largest gap the lock
+  `repos/mere/ports/distillery/src/installed.rs`). This is the largest gap the lock
   leaves today.
   *Closed 2026-10-09 (rulings 44 and 92 to 97):* the transport identity is
   now the mesh author key, derived under `MESH_AUTHOR_SALT`, so only that
   derived key stays while locked. The master never reaches a transport:
   production code can bind a transport only from personae's
   `DerivedKeypair` (ruling 96). *Measured* by
-  `ports/distillery/tests/transport_residue.rs`. Before the fix it found the
+  `repos/mere/ports/distillery/tests/transport_residue.rs`. Before the fix it found the
   master live after the bind (28 hits); now it is clean, with the author key
   still live in the transport.
 - **Pandect's wallets.** Knot's seed, which comes from one, is dropped
@@ -157,7 +157,7 @@ checkpoint E):
   vault copies a pointer. Building a key still passes its seed through the
   stack once.
 - DPAPI's `LocalAlloc` output buffer, which is cleared before `LocalFree`
-  (`crates/dramatis/personae/src/startup_unlock.rs`).
+  (`crates/personae/src/startup_unlock.rs`).
 - What iroh and p2panda-net leave per bind and close. Measured as
   unchanged by our transport (ruling 52), and recorded in the upstream
   ledger rather than fixed here.

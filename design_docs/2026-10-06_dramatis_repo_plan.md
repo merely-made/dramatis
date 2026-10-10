@@ -14,15 +14,15 @@ only djinn links it. Every app calls djinn rather than opening a vault.
 
 **Related**:
 
-- [dramatis tier architecture](../technical_architecture/2026-09-30_dramatis_tier_architecture.md):
+- [dramatis tier architecture](2026-09-30_dramatis_tier_architecture.md):
   the architecture of record; its §1 says every piece lives in mere, and its
   invariant 1 ("hosts never hold secrets") is the line this plan makes
   structural.
-- [vault lock plan](2026-10-05_vault_lock_plan.md): L1 to L4 change the
+- vault lock plan (`repos/mere/design_docs/dramatis_docs/implementation_strategy/2026-10-05_vault_lock_plan.md`): L1 to L4 change the
   vault, its storages and castellan, the code this plan moves.
 - [chatelaine and CXF import plan](2026-10-01_chatelaine_cxf_plan.md):
   chatelaine as a plain taxonomy crate, which D1 folds into dramatis.
-- [crate consolidation plan](../../mere_docs/implementation_strategy/2026-09-23_crate_consolidation_plan.md):
+- crate consolidation plan (`repos/mere/design_docs/mere_docs/implementation_strategy/2026-09-23_crate_consolidation_plan.md`):
   dramatis ruled a real facade for repos outside mere (2026-10-01), unbuilt.
 
 ---
@@ -57,11 +57,11 @@ component, where its crowding matters little.
 Checked in code at `ea169154`; the assessment goes deeper.
 
 - **Locations.**
-  - The crates live under `crates/dramatis/`: personae, insigne, gaz,
+  - The crates live under `repos/mere/crates/dramatis/`: personae, insigne, gaz,
     chatelaine, and the dramatis facade (32 lines).
-  - The ports are `ports/castellan` and `ports/gazette`.
+  - The ports are `repos/mere/ports/castellan` and `repos/mere/ports/gazette`.
   - `mere-persona-picker` is the Cambium view over the roster.
-  - djinn owns the one `CastellanResident` (`ports/djinn/src/resident.rs`).
+  - djinn owns the one `CastellanResident` (`repos/mere/ports/djinn/src/resident.rs`).
 - **castellan is 3,626 lines**, splitting roughly as:
   - the secret-free read model and projection hosts render: `view.rs`,
     `projection.rs`, 1,210 lines;
@@ -124,7 +124,7 @@ port-to-crate boundary script; the live hocket in woodshed):
 - **pandect holds a second custody ladder**
   (`wallet_store/secrets.rs:82-250`, `devices.rs`, `epochs.rs`). Knot's
   and Retinue desktop's seeds come from it. As a crate, pandect may not
-  depend on a port (`scripts/check_port_boundaries.py`).
+  depend on a port (`repos/mere/scripts/check_port_boundaries.py`).
 - **castellan's cut.**
   - The authority, items, the Secret Service, the record store and the
     secret half of OTP are secret-bearing.
@@ -364,7 +364,7 @@ Rulings D24 to D27 were asked on 2026-10-09 from DR-A's reassessment
 (§6), the first of three rounds.
 
 **Ruling D24** *(which crate D14's "dramatis" is).* *The facade
-`crates/dramatis/dramatis` exists and is empty. The views need personae's
+`crates/dramatis` exists and is empty. The views need personae's
 signing records, so the facade would depend on personae.* Options: the
 facade itself; a new plain-types crate below personae, re-exported by the
 facade; split by type. Mark: **"The facade itself (Recommended)"**.
@@ -566,15 +566,15 @@ rulings D6 to D21 settle them. D7, D14 and D20 amend D1 and D2. Next: the
 vault lock's L2 (D18).
 
 **2026-10-06, tails inherited from the S14 archive pass** (recorded in the
-[archived plan tails plan](../../mere_docs/implementation_strategy/2026-07-03_archived_plan_tails_plan.md), "2026-10-06 archive pass"). This plan
+archived plan tails plan (`repos/mere/design_docs/mere_docs/implementation_strategy/2026-07-03_archived_plan_tails_plan.md`), "2026-10-06 archive pass"). This plan
 now owns:
 - **insigne's remaining repins:** Hocket, Woodshed and mer3ly. Turnstone
   repinned in `d6b62ad`. From the
-  [insigne proofs plan](../../archive_docs/2026-10-06_completed_plans/2026-09-23_insigne_proofs_plan.md).
+  [insigne proofs plan](archive_docs/2026-10-06_completed_plans/2026-09-23_insigne_proofs_plan.md).
   *Reading, not ruled:* these ride DR-D's repins, and Hocket's goes to the
   live `woodshed/ports/hocket` (D13).
 - **The `dramatis` facade**, ruled real on 2026-10-01 and unbuilt. From the
-  [dramatis tier plan](../../archive_docs/2026-10-06_completed_plans/2026-08-10_dramatis_tier_plan.md). D1 makes it
+  [dramatis tier plan](archive_docs/2026-10-06_completed_plans/2026-08-10_dramatis_tier_plan.md). D1 makes it
   the product; DR-D builds it.
 - **The wallet carry gaps:**
   - PAKE/QR chrome and transport UI;
@@ -583,7 +583,7 @@ now owns:
   - a migration pass for cleartext private blobs.
 
   From the
-  [persona wallet carry layer plan](../../archive_docs/2026-10-06_completed_plans/2026-06-25_persona_wallet_carry_layer_plan.md).
+  persona wallet carry layer plan (`repos/mere/design_docs/archive_docs/2026-10-06_completed_plans/2026-06-25_persona_wallet_carry_layer_plan.md`).
   *Reading, not ruled:* these touch pandect's wallet, whose secret half
   moves into castellan under D8, so they are assessed with DR-B.
 - **Splitting castellan's `keeper` feature** (from the castellan keeper
@@ -634,7 +634,7 @@ forks ruled (D24 to D33).**
 **2026-10-09, DR-A's A0 to A3.** Worktree `mere-dra`, with its own build
 directory (F183). The test inventories are in `Code/testing/mere/dra/`.
 - **A0, the baseline** (`f469b836`, on main):
-  - `ports/castellan/tests/snapshot_golden.rs` pins three hand-built
+  - `repos/mere/ports/castellan/tests/snapshot_golden.rs` pins three hand-built
     snapshots (unlocked with every signing result, locked and kept,
     ephemeral), each pretty and compact. They are built through
     castellan's old paths.

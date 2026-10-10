@@ -18,8 +18,8 @@ shown; the boundary is cryptographic, not filing), not the keeper (that is
 substrate (that is [personae](https://crates.io/crates/personae)'s vault; the
 chatelaine is the item taxonomy kept there).
 
-Lives in the [mere](https://github.com/merely-made/mere) workspace under
-`crates/dramatis/`. Built: the item taxonomy (items, credentials of every CXF
+Lives in the [dramatis](https://github.com/merely-made/dramatis) repository,
+which left mere on 2026-10-09. Built: the item taxonomy (items, credentials of every CXF
 v1.0 kind, collections, links, the import disposition per kind, and the OTP
 display enums), plain serde data depending only on serde and uuid.
 

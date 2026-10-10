@@ -1,0 +1,51 @@
+# Cargo build artifacts. `target/` (not `/target/`) catches nested ones too.
+target/
+
+# The root lock is tracked.
+Cargo.lock
+!/Cargo.lock
+
+# Machine-local cargo config: the build directory, and while a sibling is
+# unpushed, path patches. Never committed, so a clean clone resolves from git.
+**/.cargo/*
+!/.cargo/config.toml.example
+
+# Backup / swap files
+**/*.rs.bk
+*.swp
+*.swo
+*~
+
+# IDE / editor configs
+.vscode/
+.idea/
+*.iml
+
+# OS noise
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local env / secrets
+.env
+.env.local
+.env.*.local
+
+# Coverage / profiling output
+*.profraw
+*.profdata
+
+# Test / debug logs
+logs/
+.test-logs/
+
+# Local tooling caches
+.sem/
+__pycache__/
+*.py[cod]
+
+# Isolated cargo homes for dependency experiments.
+.cargo-*/
+
+# Claude Code agent worktrees (machine-local)
+.claude/

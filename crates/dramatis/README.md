@@ -22,9 +22,11 @@ The boundaries are the point:
 - **Not a product.** *Persona* is an in-product term for a face; dramatis names
   the tier so the term stays free.
 
-The identity/contact crates and this reservation live in the
-[mere](https://github.com/merely-made/mere) workspace under `crates/dramatis/`;
-Gazette is the directory port at `ports/gazette`. Gaz owns contact intake rules,
+The identity/contact crates and this facade live in the
+[dramatis](https://github.com/merely-made/dramatis) repository, which left
+[mere](https://github.com/merely-made/mere) on 2026-10-09. Gazette is still
+mere's directory port at `ports/gazette`, and castellan stays in mere beside
+djinn. Gaz owns contact intake rules,
 and Gazette adapts resolver output into those rules. Castellan supplies custody
 and sealed backend composition; Personae supplies identity and carry.
 Ruled 2026-10-01: this crate becomes the facade that repos outside mere pin.

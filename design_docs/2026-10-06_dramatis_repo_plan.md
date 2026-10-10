@@ -459,6 +459,25 @@ cut"**. Follows:
 - DR-B lists them as DR-C's worklist;
 - only D36's combined test run must pass.
 
+Rulings D38 and D39 were asked on 2026-10-10, during D36's combined test run.
+
+**Ruling D38** *(a mere bug the run exposed).* *Turnstone's
+`fork_session_snapshots_the_component_with_its_facets` failed. mere's
+`Graph::copy_component_from` and `weakly_connected_components` walked only
+surface edges, so since the resource-stratum change a forked session
+dropped its Hyperlink relation.* Options: fix it in mere in this batch;
+hand it to the graph lane and push Turnstone with the one failure. Mark:
+**"Fix it in mere in this batch (Recommended)"**. Follows: mere `39fed3c9`.
+A component copy walks `component_members` and carries the resource
+stratum, keeping its ids. `weakly_connected_components` stays surface-only,
+and its doc now says so. *Note:* `586167bd` had narrowed that copy to the
+surface on purpose; this ruling reverses it.
+
+**Ruling D39** *(Turnstone's `g3_receipt` bin).* *Under D12 it exits with
+"profile identity is pending" unless djinn runs.* Options: require djinn,
+with the test harness regenerating the receipt without it; a fixture
+identity in the bin. Mark: **"Require djinn (Recommended)"**.
+
 Still open: whether gazette gets a matching facade name over gaz, the way
 chatelaine is the keychain.
 

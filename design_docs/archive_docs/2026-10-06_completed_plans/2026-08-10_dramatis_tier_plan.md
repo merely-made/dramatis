@@ -31,7 +31,7 @@ Considered and declined: gaz as the umbrella over the tier. gaz was defined
 > **Moved since (2026-08-23):** `gazette` was promoted out of this tier to
 > `ports/gazette`, keeping its package and lib names. The table above records
 > the tier as this plan left it; the promotion and its reasoning are in the
-> [suite composition census](../../2026-08-22_turnstone_suite_composition_and_capability_census.md)
+> suite composition census (`repos/mere/design_docs/2026-08-22_turnstone_suite_composition_and_capability_census.md`)
 > §7.3.
 
 Package names and lib names are untouched; only the tier directory and the
@@ -72,24 +72,24 @@ tulpa pattern, MIT/Apache, ed2024), local repo `repos/dramatis` *(historical cit
 - [x] Wallet fold-in: `session-runtime::{wallet_store, wallet_grant}` +
       `WalletEpochSealer` into personae per the 2026-07-08 ruling. Touches the
       live seal seam; own plan when taken up.
-      **Done 2026-08-10** in the [wallet carry fold-in plan](2026-08-10_wallet_carry_foldin_plan.md),
+      **Done 2026-08-10** in the wallet carry fold-in plan (`repos/mere/design_docs/archive_docs/2026-10-06_completed_plans/2026-08-10_wallet_carry_foldin_plan.md`),
       with the scope revised by what W0 discovered: only the *model* moved, as
       `personae::carry` + `CarryRef`. The adapter (`wallet_store`, `wallet_grant`)
       and `WalletEpochSealer` deliberately stay in the store crate, since the
       sealer is the seal seam itself and the store logic is sequenced filesystem
       effects rather than a model. That crate is now
       [pandect](https://crates.io/crates/pandect). One question spun out and was
-      answered 2026-08-11 in [device grants and delegation certificates](../../mere_docs/technical_architecture/2026-08-11_device_grant_delegation_reconciliation.md).
+      answered 2026-08-11 in device grants and delegation certificates (`repos/mere/design_docs/mere_docs/technical_architecture/2026-08-11_device_grant_delegation_reconciliation.md`).
       Mark settled the migration posture 2026-08-12 (re-issue now, no legacy
       decoder, the window being open only while every grant holder is a machine
       he can reach) and the work ran to completion the same day; its
-      [migration plan](../2026-08-18_completed_plans/2026-08-12_device_grant_certificate_migration_plan.md)
+      migration plan (`repos/mere/design_docs/archive_docs/2026-08-18_completed_plans/2026-08-12_device_grant_certificate_migration_plan.md`)
       was archived 2026-08-18 with nothing carried forward.
 - [x] The credential-manager port (see direction below).
       **Founded 2026-08-14** as [castellan](https://crates.io/crates/castellan);
-      see the [keeper founding plan](2026-08-14_castellan_keeper_founding_plan.md).
+      see the keeper founding plan (`repos/mere/design_docs/archive_docs/2026-10-06_completed_plans/2026-08-14_castellan_keeper_founding_plan.md`).
       0.0.2 published 2026-08-15, the `keeper` feature carrying the authority
-      half. The credential runway is [its own plan](2026-08-10_castellan_otp_plan.md):
+      half. The credential runway is its own plan (`repos/mere/design_docs/archive_docs/2026-10-06_completed_plans/2026-08-10_castellan_otp_plan.md`):
       C1 (the OTP core, RFC-vector-verified) and C2 (sealed items, tile and
       release gate, admitted-session consumer, Linux Secret Service, Steam
       Guard) complete 2026-08-21; product hosting open.
@@ -100,7 +100,7 @@ tulpa pattern, MIT/Apache, ed2024), local repo `repos/dramatis` *(historical cit
       Guard); the status line above gives only the second date.
 - [ ] Any facade content in the `dramatis` crate. The reservation stays empty
       until something imports it. **Superseded 2026-10-01** by Mark's
-      ruling 8 in the [dramatis tier architecture](../../dramatis_docs/technical_architecture/2026-09-30_dramatis_tier_architecture.md):
+      ruling 8 in the [dramatis tier architecture](../../2026-09-30_dramatis_tier_architecture.md):
       the facade re-exports personae, insigne and gaz for repos outside
       mere, where eight repos pin the tier at four mere revisions. It wants
       its own plan when taken up.
@@ -134,7 +134,7 @@ shown; what lands in someone else's gaz) to tier vocabulary; both claimed
 same day (0.0.1 reservations under crates/dramatis, Mark authorized).
 
 Both this direction and the gazette's feed direction are fleshed out in the
-[credential port + gazette brief](../../mere_docs/research/2026-08-10_credential_port_gazette_brief.md),
+credential port + gazette brief (`repos/mere/design_docs/mere_docs/research/2026-08-10_credential_port_gazette_brief.md`),
 which owns the standards inventory and the open questions until dated plans
 supersede it.
 
@@ -155,7 +155,7 @@ supersede it.
   sense is the official gazette, where appointments are *gazetted*: officially
   announced and thereby resolvable, which is what a resolver does.
 - 2026-08-21: D4 closed. The wallet fold-in completed 2026-08-10 and
-  castellan's C1-C2 completed 2026-08-21 (see the [OTP plan](2026-08-10_castellan_otp_plan.md));
+  castellan's C1-C2 completed 2026-08-21 (see the OTP plan (`repos/mere/design_docs/archive_docs/2026-10-06_completed_plans/2026-08-10_castellan_otp_plan.md`));
   the header and the D4 checklist now say so. Only the empty `dramatis`
   facade reservation remains, still waiting for an importing consumer.
 - 2026-08-27: **`emblem` renamed `insigne`**, and the name `emblem` reassigned
@@ -184,7 +184,7 @@ to the IconVG decoder (`repos/emblem`, formerly `repos/iconvg` *(historical cita
   to be written down, or the ledger's record of what is spent stops being
   trustworthy.
 - 2026-09-30: the tier's architecture of record is written as the
-  [dramatis tier architecture](../../dramatis_docs/technical_architecture/2026-09-30_dramatis_tier_architecture.md):
+  [dramatis tier architecture](../../2026-09-30_dramatis_tier_architecture.md):
   the three axes, the cross-person lifecycle and eleven invariants, synthesised
   from this plan and its successors. One new ruling there: **castellan issues,
   gazette announces**. Serving a persona's own well-known documents had no
@@ -200,7 +200,7 @@ to the IconVG decoder (`repos/emblem`, formerly `repos/iconvg` *(historical cita
 
   **Corrected 2026-10-06 (S14 pass):** chatelaine is no longer unbuilt. P1
   (`da3c50bc`), P2 (`3e4992ec`), P3 (`ff68e86c`) and P4a (`007fbe7c`) of the
-  [chatelaine and CXF import plan](../../dramatis_docs/implementation_strategy/2026-10-01_chatelaine_cxf_plan.md)
+  [chatelaine and CXF import plan](../../2026-10-01_chatelaine_cxf_plan.md)
   are all ancestors of mere `535bca11`; that plan carries the rest. The
   `dramatis` facade is still unbuilt (`crates/dramatis/dramatis` 0.0.2 has a
   doc-only lib.rs).

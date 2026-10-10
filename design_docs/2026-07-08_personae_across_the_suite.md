@@ -3,7 +3,7 @@
 **Date:** 2026-07-08
 **Status:** vision / architecture brief. Sits above two mere-side docs that hold
 the mechanics: the trust-plane plan
-(`design_docs/archive_docs/2026-09-02_retired_plans/2026-07-08_signet_trust_plane_plan.md`,
+(`repos/mere/design_docs/archive_docs/2026-09-02_retired_plans/2026-07-08_signet_trust_plane_plan.md`,
 the two seams and the S0–S5 promotion) and the wallet carry layer plan
 (`.../implementation_strategy/2026-06-25_persona_wallet_carry_layer_plan.md`,
 pairing + encrypt-at-rest detail). Those are mere-flavored; this is the whole

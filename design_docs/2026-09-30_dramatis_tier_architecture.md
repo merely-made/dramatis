@@ -35,18 +35,25 @@ identity: your faces, and the other players.
 | [dramatis](https://crates.io/crates/dramatis) | crate (reservation; ruled a facade, §7) | the one dependency sibling repos pin for the tier | — |
 | `mere-persona-picker` | crate | the Cambium view over the roster | me |
 
-All live in this repository: the crates under `crates/dramatis/`, the ports at
-`ports/castellan` and `ports/gazette`. The resident that runs the authority
-halves is djinn (`ports/djinn`), which owns one `CastellanResident` as the
+All live in this repository: the crates under `repos/mere/crates/dramatis/`, the ports at
+`repos/mere/ports/castellan` and `repos/mere/ports/gazette`. The resident that runs the authority
+halves is djinn (`repos/mere/ports/djinn`), which owns one `CastellanResident` as the
 single record authority behind every Castellan view
-(`ports/djinn/src/resident.rs`). Gazette's authority half joins it as a
+(`repos/mere/ports/djinn/src/resident.rs`). Gazette's authority half joins it as a
 djinn-composed service (ruled 2026-10-01, §7; unbuilt).
 
-*2026-10-06 note:* the [dramatis repo plan](../implementation_strategy/2026-10-06_dramatis_repo_plan.md)
+*2026-10-06 note:* the [dramatis repo plan](2026-10-06_dramatis_repo_plan.md)
 (rulings D1 to D3) moves the tier to its own repository, folds chatelaine
 into dramatis as its keychain, and narrows castellan to the half that
 holds and exercises secrets, personae's vault custody included. Nothing
 has moved yet; this section describes the tree as it stands.
+
+*2026-10-09 note (DR-D):* the move happened. personae, insigne, gaz,
+chatelaine (its own crate, D20), notochord (D10) and the dramatis facade
+live in this repository, `merely-made/dramatis`, under `crates/`. castellan
+(D6, D22), gazette and the persona picker (D7) stay in mere, which pins this
+repository by git revision. "This repository" in the paragraph above means
+mere, as it did when it was written.
 
 ## 2. Three axes
 
@@ -110,7 +117,7 @@ The lifecycle that the pieces exist to serve, end to end. Steps marked
 1. **A persona is derived.** personae's `IdentityProvider` derives each
    protocol's key from the master seed (BLAKE3-keyed over a salt) and can
    attest it with a `DerivedKeyAttestation`. Issuing stays in personae, as the
-   `Issue` and `AttestationKeys` traits (`crates/dramatis/personae/src/delegation.rs`,
+   `Issue` and `AttestationKeys` traits (`crates/personae/src/delegation.rs`,
    `provider.rs`).
 2. **An insigne is issued for an audience.** Grades run from a bare key
    (continuity), through signed claims binding handles and endpoints to a
@@ -137,7 +144,7 @@ The lifecycle that the pieces exist to serve, end to end. Steps marked
 
 Secrets take a different path, and never this one: a chatelaine item is
 exercised by castellan's authority half on petition (the OTP release gate is
-the built example, `ports/castellan/src/otp/release.rs`) and its *result*
+the built example, `repos/mere/ports/castellan/src/otp/release.rs`) and its *result*
 reaches the host, never the item.
 
 ## 4. Invariants
@@ -147,19 +154,19 @@ breaks one is an architecture change and comes to Mark first.
 
 1. **Hosts never hold secrets.** castellan's `view` is the secret-free read
    model; the secrets stay in the authority (`PersonaeHost`,
-   `ports/castellan/src/authority.rs`). Approval renders on the resident's
+   `repos/mere/ports/castellan/src/authority.rs`). Approval renders on the resident's
    surface. *2026-10-09:* the read model's types moved to the `dramatis`
    facade's `view` (dramatis repo plan, DR-A); castellan re-exports them,
    and the authority is unchanged.
 2. **The contact store carries no cryptography.** gaz never verifies a
    signature. Its only runtime dependency in the tier is insigne's plain core;
    personae and insigne's `verify` are dev-dependencies
-   (`crates/dramatis/gaz/Cargo.toml`). gaz records which proof the caller
+   (`crates/gaz/Cargo.toml`). gaz records which proof the caller
    checked; it does not check.
 3. **A passing check is a local conclusion, never data.** insigne's `check`
    returns a `CheckedAttestation`, `CheckedCertificate` or `CheckedRevocation`
    that borrows its statement, has private fields and is not serializable, or
-   a `CheckFault` naming the failed step (`crates/dramatis/insigne/src/`).
+   a `CheckFault` naming the failed step (`crates/insigne/src/`).
    Only a passing check can make one. A serialized view may carry the
    *outcome*, never the conclusion (castellan's `DeviceGrantView`, confirmed
    by Mark 2026-09-26).
@@ -167,14 +174,14 @@ breaks one is an architecture change and comes to Mark first.
    persona's keys; checking needs only public data. The split is what lets a
    holder like gaz depend on the proof types without the keys.
 5. **A contact is anchored, never rooted on a handle.** The anchor is a typed
-   key, a `did:plc`, or a local id (`Anchor`, `crates/dramatis/gaz/src/anchor.rs`).
+   key, a `did:plc`, or a local id (`Anchor`, `crates/gaz/src/anchor.rs`).
    It never moves; rotations grow the root line; derived and device keys are
    held concurrently under the root that attested them (`root()`,
    `keys_for(scope)`). WebFinger output never becomes an anchor: a handle
    labels a record and never roots it.
 6. **Persona scope is by construction.** One contact book per persona,
    carrying its own scope label, so a mis-filed load fails loudly through
-   `verify_scope` (`crates/dramatis/gaz/src/book.rs`) rather than showing the
+   `verify_scope` (`crates/gaz/src/book.rs`) rather than showing the
    work persona's people to a burner.
 7. **Trust is per address; closeness is per relationship.** `TrustState` is
    held per endpoint and per handle binding. Kith and kin are set by the user
@@ -204,19 +211,19 @@ breaks one is an architecture change and comes to Mark first.
     on the resident's own surface.** Enforced in four places:
     - the vault's lock state: personae's `IdentityVault::lock` drops the
       profile and storage key, and its accessors return `Locked`
-      (`crates/dramatis/personae/src/vault.rs`);
+      (`crates/personae/src/vault.rs`);
     - castellan's `ResidentLock`, whose synchronous holder hooks drop
       every derived key before `lock()` returns
-      (`ports/castellan/src/authority.rs`);
+      (`repos/mere/ports/castellan/src/authority.rs`);
     - the persisted lock: personae's startup loaders refuse an unattended
-      open under the marker (`crates/dramatis/personae/src/startup_unlock.rs`);
+      open under the marker (`crates/personae/src/startup_unlock.rs`);
     - djinn's triggers: session lock, suspend and idle
-      (`ports/djinn/src/lock_triggers/`).
+      (`repos/mere/ports/djinn/src/lock_triggers/`).
 
     What stays while locked, and what the lock does not defend, are in the
     [vault threat statement](2026-10-08_vault_threat_statement.md). Added
     2026-10-08 by the
-    [vault lock plan](../implementation_strategy/2026-10-05_vault_lock_plan.md)'s
+    vault lock plan (`repos/mere/design_docs/dramatis_docs/implementation_strategy/2026-10-05_vault_lock_plan.md`)'s
     ruling 83.
 
 ## 5. What each side is for
@@ -286,7 +293,7 @@ static files first: gazette writes a persona's well-known documents (the
 WebFinger JRD, `nostr.json`, the JSContact card) for any HTTPS host to serve.
 That order is forced: a WebFinger document must be served over HTTPS at the
 handle's own domain, and djinn's resident site service
-(`ports/djinn/src/resident_site.rs`) binds loopback Gemini only today. When
+(`repos/mere/ports/djinn/src/resident_site.rs`) binds loopback Gemini only today. When
 that service gains public binding, it carries the same documents as a
 published snapshot. *Reading, not ruled*: a static file answers every
 `resource` query with one document, which suits a single-persona domain; a
@@ -337,7 +344,7 @@ file is plaintext on disk, and every import path treats it as burning
 (standards survey §2.3). The work, and rulings 16 to 22 on the item model,
 the Secret Service store, the parser, live data, personae per account and
 export, are in the
-[chatelaine and CXF plan](../implementation_strategy/2026-10-01_chatelaine_cxf_plan.md).
+[chatelaine and CXF plan](2026-10-01_chatelaine_cxf_plan.md).
 
 **The dramatis facade is real, for sibling repos (ruling 8).** `dramatis`
 re-exports personae, insigne and gaz behind features, so a repo outside mere
@@ -357,20 +364,20 @@ This document carries no phase status, which goes stale; the plans carry it.
 
 | Piece | Authority |
 |---|---|
-| the tier's founding and the port direction | [dramatis tier plan](../../archive_docs/2026-10-06_completed_plans/2026-08-10_dramatis_tier_plan.md) |
-| the credential port and gazette fronts, standards inventory | [credential port + gazette brief](../../mere_docs/research/2026-08-10_credential_port_gazette_brief.md) |
+| the tier's founding and the port direction | [dramatis tier plan](archive_docs/2026-10-06_completed_plans/2026-08-10_dramatis_tier_plan.md) |
+| the credential port and gazette fronts, standards inventory | credential port + gazette brief (`repos/mere/design_docs/mere_docs/research/2026-08-10_credential_port_gazette_brief.md`) |
 | personae's scope and seams | [personae founding](2026-07-08_personae_founding.md) |
-| delegation grammar's content | [device-grant delegation reconciliation](../../mere_docs/technical_architecture/2026-08-11_device_grant_delegation_reconciliation.md) |
-| insigne's move and API | [insigne proofs plan](../../archive_docs/2026-10-06_completed_plans/2026-09-23_insigne_proofs_plan.md) |
-| the contact model (the *them* spec) | [contact identity model brief](../../mere_docs/research/2026-06-15_contact_identity_model_brief.md) |
-| gaz's phases, anchors, intake | [gaz founding plan](../implementation_strategy/2026-08-08_gaz_founding_plan.md) |
-| castellan's keeper surface | [castellan keeper founding plan](../../archive_docs/2026-10-06_completed_plans/2026-08-14_castellan_keeper_founding_plan.md) |
-| castellan's credential runway | [castellan OTP plan](../../archive_docs/2026-10-06_completed_plans/2026-08-10_castellan_otp_plan.md) |
-| the vault's lock | [vault lock plan](../implementation_strategy/2026-10-05_vault_lock_plan.md) |
+| delegation grammar's content | device-grant delegation reconciliation (`repos/mere/design_docs/mere_docs/technical_architecture/2026-08-11_device_grant_delegation_reconciliation.md`) |
+| insigne's move and API | [insigne proofs plan](archive_docs/2026-10-06_completed_plans/2026-09-23_insigne_proofs_plan.md) |
+| the contact model (the *them* spec) | contact identity model brief (`repos/mere/design_docs/mere_docs/research/2026-06-15_contact_identity_model_brief.md`) |
+| gaz's phases, anchors, intake | [gaz founding plan](2026-08-08_gaz_founding_plan.md) |
+| castellan's keeper surface | castellan keeper founding plan (`repos/mere/design_docs/archive_docs/2026-10-06_completed_plans/2026-08-14_castellan_keeper_founding_plan.md`) |
+| castellan's credential runway | castellan OTP plan (`repos/mere/design_docs/archive_docs/2026-10-06_completed_plans/2026-08-10_castellan_otp_plan.md`) |
+| the vault's lock | vault lock plan (`repos/mere/design_docs/dramatis_docs/implementation_strategy/2026-10-05_vault_lock_plan.md`) |
 | what the lock defends and leaves open | [vault threat statement](2026-10-08_vault_threat_statement.md) |
-| the resident | [djinn resident services plan](../../mere_docs/implementation_strategy/2026-08-22_djinn_family_resident_services_plan.md) |
-| chatelaine, insigne, dramatis as crates | [crate consolidation plan](../../mere_docs/implementation_strategy/2026-09-23_crate_consolidation_plan.md) |
-| standards grading (JSContact, DIDs, CXF) | [standards survey brief](../../2026-08-24_standards_survey_brief.md) |
+| the resident | djinn resident services plan (`repos/mere/design_docs/mere_docs/implementation_strategy/2026-08-22_djinn_family_resident_services_plan.md`) |
+| chatelaine, insigne, dramatis as crates | crate consolidation plan (`repos/mere/design_docs/mere_docs/implementation_strategy/2026-09-23_crate_consolidation_plan.md`) |
+| standards grading (JSContact, DIDs, CXF) | standards survey brief (`repos/mere/design_docs/2026-08-24_standards_survey_brief.md`) |
 
 ## 9. Rulings
 
@@ -465,11 +472,11 @@ verbatim (Recommended)"**.
 Rulings 10 to 15 answer the standards survey's open decision 5 (CXF import
 policy), which had been open since 2026-08-24. Rulings 16 to 22, the same
 day, belong to chatelaine's implementation and are recorded in the
-[chatelaine and CXF plan](../implementation_strategy/2026-10-01_chatelaine_cxf_plan.md) §2.
+[chatelaine and CXF plan](2026-10-01_chatelaine_cxf_plan.md) §2.
 
 *2026-10-05:* the stack seams plan's ruling S9 (Mark: "mien's becomes
 PersonaKey (Recommended)") renamed mien's `PersonaId`, a persona's leaf
 public key, to `PersonaKey`, so `PersonaId` names only personae's persona
 UUID. Carried by this tier's lane as `f702ca27` (merged `b52edea7`); no
 wire or persisted format carried the type. The vault's lock, found missing
-on 2026-10-04, has its own [vault lock plan](../implementation_strategy/2026-10-05_vault_lock_plan.md).
+on 2026-10-04, has its own vault lock plan (`repos/mere/design_docs/dramatis_docs/implementation_strategy/2026-10-05_vault_lock_plan.md`).

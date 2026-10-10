@@ -7,7 +7,7 @@ see the correction below); T4 (the certificate-serving agent validated on one
 OS of three); T5 (revocation folds to a KRL file, but the deploy to enrolled
 hosts that its validation needs stops at printed instructions). Moved: host
 certificates, to the
-[device pairing by key plan](../../mere_docs/implementation_strategy/2026-10-02_device_pairing_by_key_plan.md)'s
+device pairing by key plan (`repos/mere/design_docs/mere_docs/implementation_strategy/2026-10-02_device_pairing_by_key_plan.md`)'s
 phase D4.
 **Corrected 2026-10-02**: host certificates were never built. Nothing
 outside tests calls `SshCertAuthority::mint_host_cert` (`ssh_ca.rs:276`),
@@ -19,13 +19,13 @@ its own CA from its own random master (`certs.rs:34`, `bootstrap.rs:135`).
 On 2026-10-02 only the Windows laptop's agent offered a certificate. Mark
 ruled the follow-on (per-machine CAs approved by the Windows laptop's
 master, host certificates finished now) in the
-[device pairing by key plan](../../mere_docs/implementation_strategy/2026-10-02_device_pairing_by_key_plan.md), phase D4.
+device pairing by key plan (`repos/mere/design_docs/mere_docs/implementation_strategy/2026-10-02_device_pairing_by_key_plan.md`), phase D4.
 **Related**:
-[personae founding](../technical_architecture/2026-07-08_personae_founding.md),
-[device_grant_delegation_reconciliation](../../mere_docs/technical_architecture/2026-08-11_device_grant_delegation_reconciliation.md),
-[device_grant_certificate_migration_plan](../../archive_docs/2026-08-18_completed_plans/2026-08-12_device_grant_certificate_migration_plan.md),
-[mesh_host_lanes_plan](../../archive_docs/2026-10-06_completed_plans/2026-08-09_mesh_host_lanes_plan.md),
-[kith_capability_sharing_plan](../../archive_docs/2026-09-02_retired_plans/2026-06-30_kith_capability_sharing_plan.md)
+[personae founding](2026-07-08_personae_founding.md),
+device_grant_delegation_reconciliation (`repos/mere/design_docs/mere_docs/technical_architecture/2026-08-11_device_grant_delegation_reconciliation.md`),
+device_grant_certificate_migration_plan (`repos/mere/design_docs/archive_docs/2026-08-18_completed_plans/2026-08-12_device_grant_certificate_migration_plan.md`),
+mesh_host_lanes_plan (`repos/mere/design_docs/archive_docs/2026-10-06_completed_plans/2026-08-09_mesh_host_lanes_plan.md`),
+kith_capability_sharing_plan (`repos/mere/design_docs/archive_docs/2026-09-02_retired_plans/2026-06-30_kith_capability_sharing_plan.md`)
 
 ## The ask
 

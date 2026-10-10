@@ -16,15 +16,15 @@ castellan's OTP items and its Secret Service store onto it; then import
 
 **Related**:
 
-- [dramatis tier architecture](../technical_architecture/2026-09-30_dramatis_tier_architecture.md)
+- [dramatis tier architecture](2026-09-30_dramatis_tier_architecture.md)
   §7: chatelaine's shape and the CXF import table, rulings 7 and 10 to 15.
-- [crate consolidation plan](../../mere_docs/implementation_strategy/2026-09-23_crate_consolidation_plan.md)
+- crate consolidation plan (`repos/mere/design_docs/mere_docs/implementation_strategy/2026-09-23_crate_consolidation_plan.md`)
   C5: the Mere 0.4 baseline waits on chatelaine's taxonomy landing.
-- [standards survey](../../2026-08-24_standards_survey_brief.md) §2.3: CXF
+- standards survey (`repos/mere/design_docs/2026-08-24_standards_survey_brief.md`) §2.3: CXF
   ADOPT (import first), CXP WATCH, the plaintext hazard.
-- [castellan OTP plan](../../archive_docs/2026-10-06_completed_plans/2026-08-10_castellan_otp_plan.md):
+- castellan OTP plan (`repos/mere/design_docs/archive_docs/2026-10-06_completed_plans/2026-08-10_castellan_otp_plan.md`):
   the RFC-vector-verified OTP core this plan re-homes, not rewrites.
-- [insigne proofs plan](../../archive_docs/2026-10-06_completed_plans/2026-09-23_insigne_proofs_plan.md): the precedent for
+- [insigne proofs plan](archive_docs/2026-10-06_completed_plans/2026-09-23_insigne_proofs_plan.md): the precedent for
   a plain-data core with no cryptography, checked by a wasm build.
 
 ---
@@ -125,7 +125,7 @@ separate. Mark: **"Subsume it now"**. Follows: P3 is part of founding, so C5's
 taxonomy condition is met only when the Secret Service runs on chatelaine.
 
 **Ruling 18.** *Where does the CXF parser live?* Options: castellan behind a
-`cxf` feature; `crates/import`; its own crate. Mark: **"Castellan, behind a
+`cxf` feature; `repos/mere/crates/import`; its own crate. Mark: **"Castellan, behind a
 cxf feature (Recommended)"**. Follows: P4; plaintext goes from the file to a
 sealed record inside the authority and never crosses a secret-free crate.
 
@@ -209,7 +209,7 @@ only with `from_slice`; no upstream dependency.
 **Ruling 33.** *Which decoder reads CXF TOTP secrets?* Options: castellan's
 own decoder; accept the crate's normalisation. Mark: **"Castellan's own
 decoder (Recommended)"**. Follows: P4 decodes the raw secret string with
-`ports/castellan/src/otp/base32.rs` (case, padding and spacing tolerated,
+`repos/mere/ports/castellan/src/otp/base32.rs` (case, padding and spacing tolerated,
 any stray character refused); a refused secret is quarantined with its
 reason shown.
 
@@ -483,7 +483,7 @@ build.
         **P0 met 2026-10-01.**
         P1 to P3 do not depend on P0's outcome; they run after it, in order.
 
-- **P1 — the taxonomy.** `crates/dramatis/chatelaine` gains real code.
+- **P1 — the taxonomy.** `crates/chatelaine` gains real code.
   Done when:
   - [x] items, credentials, collections and links (`item-reference`) exist as
         plain serde types; `CredentialKind` is `#[non_exhaustive]` and covers
@@ -523,7 +523,7 @@ build.
         repeats a counter across independent gates, by its existing tests
         `resident_rejects_restored_hotp_state_before_releasing_it_again` and
         `independent_gates_under_one_resident_cannot_repeat_an_hotp_counter`
-        (`ports/castellan/src/resident.rs`), kept.
+        (`repos/mere/ports/castellan/src/resident.rs`), kept.
 
 - **P3 — the Secret Service on chatelaine (ruling 17).** Done when:
   - [x] Secret Service collections are chatelaine collections and its items
@@ -648,7 +648,7 @@ OTP display enums and the Secret Service store types is inside castellan:
 is the real census.
 
 **2026-10-01: SSH algorithms.** personae's SSH slots hold OpenSSH-encoded
-private keys keyed by SHA256 fingerprint (`crates/dramatis/personae/src/ssh_slot.rs`),
+private keys keyed by SHA256 fingerprint (`crates/personae/src/ssh_slot.rs`),
 and both personae and castellan build `ssh-key` with only its `ed25519`
 feature. A CXF `ssh-key` credential may be RSA or ECDSA. Whether those are
 quarantined, or the agent gains algorithms, is a fork for Mark at P4's
@@ -941,7 +941,7 @@ Round two built the rest:
 
 **2026-10-04: the vault never locks.** `IdentityVault` has no lock or close
 method; castellan's `PersonaeHost` sets `lock: VaultLockView::Unlocked`
-(`ports/castellan/src/authority.rs:201`), and nothing sets `Locked`, which
+(`repos/mere/ports/castellan/src/authority.rs:201`), and nothing sets `Locked`, which
 appears only as a label (`projection.rs:614`). Once unlocked, every key's
 decrypted bytes stay in the vault's `SecretBytes` (zeroized on drop, not
 memory-locked) until the process ends. Mark, the same day: "Hey wait, we
@@ -987,10 +987,10 @@ As ruled (26 to 29), with the workspace's lane rules:
   `rustls`), so tests are compiled on the ThinkPad.
 
 **2026-10-06, tails inherited from the S14 archive pass** (recorded in the
-[archived plan tails plan](../../mere_docs/implementation_strategy/2026-07-03_archived_plan_tails_plan.md), "2026-10-06 archive pass"). This plan
+archived plan tails plan (`repos/mere/design_docs/mere_docs/implementation_strategy/2026-07-03_archived_plan_tails_plan.md`), "2026-10-06 archive pass"). This plan
 now owns:
 - **V4, broader item types**, from the
-  [identity vault SSH agent plan](../../archive_docs/2026-10-06_completed_plans/2026-07-22_identity-vault-ssh-agent_plan.md).
+  identity vault SSH agent plan (`repos/mere/design_docs/archive_docs/2026-10-06_completed_plans/2026-07-22_identity-vault-ssh-agent_plan.md`).
   S56 answered that plan's question: V4 moves here.
 - **CXF import**, from the castellan OTP plan. That is this plan's P4
   already, so nothing new.

@@ -145,6 +145,9 @@ checkpoint E):
   tiers decide when the approval broker asks, not what is in memory.
 - **Other CLIs and tests** still read `PERSONAE_PASSPHRASE` (ruling 7 kept
   them). The passphrase then sits in that process's environment.
+  `personae-vault` ceased doing so in DR-C on 2026-10-10: it calls djinn,
+  which owns the vault location and unlock gate. The terminal receives
+  public command output, certificates and CA installation material only.
 
 ## 5. Known only by reading
 

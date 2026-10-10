@@ -1,0 +1,1140 @@
+{
+  "schema": "mere.dr-c.receipts/v1",
+  "sources": {
+    "mere": {
+      "head": "932d7e0585c529cc555bb53f2c2777c44f841c81",
+      "files": {
+        "scripts/dr_c_receipts.py": "55d7c291d1f69192d33e35c1fec35be5886a032c619144c50f13570b30e327d0",
+        "ports/castellan/Cargo.toml": "20050cff7eb51359e3740b79e34033c7a6eed4aa03e4fd0c1fbbec285fb56b66",
+        "ports/graphshell/Cargo.toml": "277b414543ce1c1bcebc6dc3d481ca706d3c30795a24eae79c37d41cc91e19e5",
+        "ports/djinn/Cargo.toml": "e48909b59733dbb1acc920cd56015dd3552cb3a1d4f4e22b13122e3ca217c56a",
+        "ports/graphshell/src/native/custody.rs": "fd151dcbb5b83b5b251ee4a1fa815856d38916143175e5f5b689eb4b726e5576",
+        "ports/graphshell/src/native/custody_client.rs": "09d7efca2e057707021a7ffa99f4d1f87d5c8534b399baa83ee0bb763b30b580",
+        "ports/graphshell/src/native/custody_identity.rs": "ba3bbdefa68b3425fd4ce25f82510d3bb1d217aa5696485fafae69145da9b357",
+        "ports/graphshell/src/bin/personae_vault.rs": "ae0fcd4ee760a9ba98b5b85af6e41649a89a72fa8281d8abb74ff4573429ed9e",
+        "ports/djinn/src/bin/dr_c_receipt_host.rs": "23ed42fe35221b8cf29aa5a5e4e25dfc5c57910f2ddf5104b64ae3bbe6150d18",
+        "ports/djinn/src/custody.rs": "8f69c3cca4071ed0df092b3d757a7a828ec18965315c8e85ce7194c4655366c4",
+        "ports/djinn/tests/custody_route.rs": "684c22686f3f2d7d6ef3c00b2cf67f4c42a44fb5167bee42261045e4a211f0b6",
+        "ports/castellan/src/authority.rs": "aec3e32f46c23d2bc203e2970d521d65528cafa3193972cf428add5db226fa72",
+        "ports/castellan/src/custody/vault_commands/mod.rs": "31242a67efa0641066d790a55a229967ce906d84c0c0c6ededb0fe1e37c01986",
+        "ports/castellan/src/custody/vault_commands/certs.rs": "e4b935c48470b49a53bcaa412d27d02751eed75f781c11d7c2b598f24cdf6ac0",
+        "ports/castellan/src/custody/vault_commands/tests.rs": "d9a69887cfd49f07adb5ff6c16be86985825b04d4b073ddfdf42f11166352678",
+        "ports/graphshell/src/profile.rs": "b766ade748ff348ad35de1dfd28a50a7854354219fe83d2bd1a0661a58695de0",
+        "ports/graphshell/tests/dr_c_pending.rs": "6488def069fb9191e1aee72c7a5e65283d95c08ecde5ef228f428858c40b8729",
+        "ports/signalman/src/authority.rs": "7ed247ced865b1906f21585237388fb492444f08618c11d3b695069f78bc7e91",
+        "ports/signalman/tests/dr_c_pending.rs": "93abef7c3247c5d525d477cb799379a23b1be7e7e4d4839f1257f6118f6c028b",
+        "ports/djinn/src/bin/distillery_installed.rs": "f7698b3e46043a86f232c8d119150ba5180223385f6d7f867f5c72f21a5a1847",
+        "Cargo.toml": "39b66b7fc37f7f9e5b61e316055199d91eb99835b76977b7479d3a76584e1dac",
+        "Cargo.lock": "0f1bbfa1255bb0b47a0bedc326285ffeb79a9d32741159b683b2acbffe3f8ae7"
+      }
+    },
+    "knot": {
+      "head": "8d71fa9cbc3a0720e5708b605442f301332cdb56",
+      "files": {
+        "crates/knot-editor/src/startup.rs": "3f4c607d807d873604ccbd37074e712bcb380a94d0c98d026c32cc1672aad262",
+        "apps/desktop/src/main.rs": "d165e5b75e2701cf5409da9810c8619ce5355768c87aaae205023538cbff5bab",
+        "crates/knot-editor/src/bin/knot_endpoint.rs": "5d4a427d53e8d0803a074241335b1f22dfb08f8230b6f3e6df7adf5e51ad7465",
+        "crates/knot-editor/src/bin/knot_sync_host.rs": "590da37e8c9f9105ce6ed894a3319a380fdca5d2ef94f4a5f48b72af5b9afe0d",
+        "Cargo.toml": "56a7dca21fe8ab1be607e6e864bf4f21c313d40b4222288fae1ebd4f33f48401",
+        "Cargo.lock": "bda807df1ed6a3659c7510c94fa212a0d5c84a56d27bfb1e50fe90b94fd8fb45"
+      }
+    },
+    "woodshed": {
+      "head": "6dfb2fe3c61760145e0de4432f3a7f9dc214a80e",
+      "files": {
+        "crates/woodshed-genet/src/storage.rs": "625fc80f10199bf6e1e5d252741d643b813082f47cbe98f33de896fb691df019",
+        "ports/hocket/crates/hocket-genet/src/identity.rs": "f4ccffe04e01e7785b928ca03f431ece2313d9332e3e47ddef465b36ca8c242c",
+        "Cargo.toml": "b73586285bdd7b2cdf3f1efaf831902fb2fa96d83b9a980dd69b5cbf0f1a431d",
+        "Cargo.lock": "906d6a2c7ab49b784da0aa49deb7d643a2e1e67870513e21a6683d433c9f2368",
+        "ports/hocket/Cargo.toml": "15655b4d171381abf2f05f8dd97a0330f92e469028f280ff30aa091ffb756c51",
+        "ports/hocket/Cargo.lock": "b61d9ff16ad6070126e4f9596c51c722739e3ed4ae52d49f385b2c134cfc03e2"
+      }
+    },
+    "turnstone": {
+      "head": "53fa5675da237db0dd2fbb4bf80795091efb13bb",
+      "files": {
+        "src/identity.rs": "f72861a5c0b6ca2a724fa6a8a22051fca99e89b98e1b462cc657c486515fe4a3",
+        "src/app/tests.rs": "4f5a1de16103c3d14f134ca58f74379461e876f91153bfd08d1817ffd0785255",
+        "src/bin/g3_receipt.rs": "50e11f4a7ab08f7cd53593e1cbd14be96bf051a74bddefb2b8e6b5e54ab5499a",
+        "src/remote_projection.rs": "d5fb940a121d03485bf67dac3cd191fe0c57ec7ec684a38ff044babeccf891d0",
+        "Cargo.toml": "756dd29594c3fb180276c52509ecf585d80860923d9110a182dcee25931009f6",
+        "Cargo.lock": "3afac4eedba7c380645faa7d58b3f8604f0f2815043b7b2d84b7d990a8d30983"
+      }
+    }
+  },
+  "restored_fallback": {
+    "source": "src/identity.rs",
+    "head": "53fa5675da237db0dd2fbb4bf80795091efb13bb",
+    "clean_sha256": "f72861a5c0b6ca2a724fa6a8a22051fca99e89b98e1b462cc657c486515fe4a3",
+    "fallback_sha256": "5de7db0cd9349c30cd013160154ed4bfda87fdfa789f0f04bc2abefabb71f8e0",
+    "patch": "            tracing::warn!(%error, \"DELIBERATELY RESTORED FALLBACK FOR DR-C CONTROL\");\n            Some(Arc::new(RootIdentity::Local(identity::InMemoryProvider::from_seed([0x6d; 32]))))",
+    "restored": true
+  },
+  "runs": [
+    {
+      "label": "build-host",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--target-dir",
+        "C:\\t\\cargo-targets\\mere",
+        "-j",
+        "4",
+        "-p",
+        "djinn",
+        "--features",
+        "custody-receipt-host",
+        "--bin",
+        "dr-c-receipt-host",
+        "--bin",
+        "distillery-installed"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 27.16,
+      "log": "build-host.log",
+      "sha256": "4c49737f9751d4f30c7984a22936612397ecaade362f2bbc5f15db8f864f12e9"
+    },
+    {
+      "label": "build-vault-cli",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--target-dir",
+        "C:\\t\\cargo-targets\\mere",
+        "-j",
+        "4",
+        "-p",
+        "graphshell",
+        "--bin",
+        "personae-vault"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 76.0,
+      "log": "build-vault-cli.log",
+      "sha256": "364607287e8cfd8df9ac77f0e839c984c19a577fe2d166e46bdfc75d09eb06c9"
+    },
+    {
+      "label": "custody-route",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--target-dir",
+        "C:\\t\\cargo-targets\\mere",
+        "-j",
+        "4",
+        "-p",
+        "djinn",
+        "--test",
+        "custody_route"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 54.39,
+      "log": "custody-route.log",
+      "sha256": "49acb85e6fb12db7996adae67b087a6a5f36cd19d369b7e0b1e27bf6a9efedc1"
+    },
+    {
+      "label": "vault-commands",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--target-dir",
+        "C:\\t\\cargo-targets\\mere",
+        "-j",
+        "4",
+        "-p",
+        "castellan",
+        "--features",
+        "keeper",
+        "--lib",
+        "custody::vault_commands"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 7.3,
+      "log": "vault-commands.log",
+      "sha256": "89aa4ef659a507c2ef81534471c24ab9ca5591a824ad2983d6b584f90573a737"
+    },
+    {
+      "label": "build-graphshell",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--target-dir",
+        "C:\\t\\cargo-targets\\mere",
+        "-j",
+        "4",
+        "-p",
+        "graphshell",
+        "--test",
+        "dr_c_pending",
+        "--no-run",
+        "--message-format=json"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 89.27,
+      "log": "build-graphshell.log",
+      "sha256": "b47f787db8bf6b9e1792acbe1f0f4b6d7b689098ccd1712f2c0220147be72a61"
+    },
+    {
+      "label": "build-signalman",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--target-dir",
+        "C:\\t\\cargo-targets\\mere",
+        "-j",
+        "4",
+        "-p",
+        "mere-signalman",
+        "--test",
+        "dr_c_pending",
+        "--no-run",
+        "--message-format=json"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 42.98,
+      "log": "build-signalman.log",
+      "sha256": "acf06cded7e009d8fc82ccde18df1458475e84c2544984d71efe6c095eb01ee0"
+    },
+    {
+      "label": "build-knot",
+      "cwd": "C:\\Users\\mark_\\Code\\repos\\knot-editor",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--target-dir",
+        "C:\\t\\cargo-targets\\knot-editor",
+        "-j",
+        "4",
+        "-p",
+        "knot-editor",
+        "--lib",
+        "--no-run",
+        "--message-format=json"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 22.41,
+      "log": "build-knot.log",
+      "sha256": "cb8acff209996691adae8ec1f0a9f1a9e5d299aec64af79c90af832d9f880e7f"
+    },
+    {
+      "label": "build-knot-desktop",
+      "cwd": "C:\\Users\\mark_\\Code\\repos\\knot-editor",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--target-dir",
+        "C:\\t\\cargo-targets\\knot-editor",
+        "-j",
+        "4",
+        "-p",
+        "knot-desktop",
+        "--bin",
+        "knot",
+        "--no-run",
+        "--message-format=json"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 9.88,
+      "log": "build-knot-desktop.log",
+      "sha256": "81d6c4b15ce1b95024e3963c61a9a6e8dd8efa9c2836c7493ab634eb327589a0"
+    },
+    {
+      "label": "build-woodshed",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\woodshed-dr-c-receipts",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--target-dir",
+        "C:\\t\\cargo-targets\\woodshed",
+        "-j",
+        "4",
+        "-p",
+        "woodshed-genet",
+        "--bin",
+        "woodshed-genet",
+        "--no-run",
+        "--message-format=json"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 20.69,
+      "log": "build-woodshed.log",
+      "sha256": "9e094f4be8f69c4ea36da5ff6a966dd2d6f9c32221028e58c9f7b23711e370de"
+    },
+    {
+      "label": "build-hocket",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\woodshed-dr-c-receipts\\ports\\hocket",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--target-dir",
+        "C:\\t\\cargo-targets\\woodshed",
+        "-j",
+        "4",
+        "-p",
+        "hocket-genet",
+        "--bin",
+        "hocket-genet",
+        "--no-run",
+        "--message-format=json"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 23.39,
+      "log": "build-hocket.log",
+      "sha256": "d555aea985b4487a177283a087e827a42ea246416e37a3ad936e6378bca9636f"
+    },
+    {
+      "label": "build-turnstone",
+      "cwd": "C:\\Users\\mark_\\Code\\repos\\turnstone",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--target-dir",
+        "C:\\t\\cargo-targets\\turnstone",
+        "-j",
+        "4",
+        "-p",
+        "turnstone",
+        "--lib",
+        "--no-run",
+        "--message-format=json"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 39.95,
+      "log": "build-turnstone.log",
+      "sha256": "4adb7eb1e4ac8b7d08a0d9ad2aa36cc29c5258b3578da06e4133dcecbfd74b11"
+    },
+    {
+      "label": "build-knot-cli",
+      "cwd": "C:\\Users\\mark_\\Code\\repos\\knot-editor",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--target-dir",
+        "C:\\t\\cargo-targets\\knot-editor",
+        "-j",
+        "4",
+        "-p",
+        "knot-editor",
+        "--bin",
+        "knot_endpoint",
+        "--bin",
+        "knot_sync_host"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 172.61,
+      "log": "build-knot-cli.log",
+      "sha256": "3f15d24abdd281acab0b0e6bdb228170faaf4fde7ad739280879b8f793121549"
+    },
+    {
+      "label": "build-signalman-cli",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--target-dir",
+        "C:\\t\\cargo-targets\\mere",
+        "-j",
+        "4",
+        "-p",
+        "mere-signalman",
+        "--bin",
+        "mere-signalman-provision"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 65.95,
+      "log": "build-signalman-cli.log",
+      "sha256": "1525425c76fb875c46addcb465f534c833b5ce95143fb836c880ad44f1f0c26c"
+    },
+    {
+      "label": "build-turnstone-cli",
+      "cwd": "C:\\Users\\mark_\\Code\\repos\\turnstone",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--target-dir",
+        "C:\\t\\cargo-targets\\turnstone",
+        "-j",
+        "4",
+        "-p",
+        "turnstone",
+        "--bin",
+        "g3_receipt"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 104.28,
+      "log": "build-turnstone-cli.log",
+      "sha256": "3a3079939902a348720c3de51068075eeb0be0d31ab6943ed220c8bf3c5b6401"
+    },
+    {
+      "label": "absent-graphshell",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\mere\\debug\\deps\\dr_c_pending-61b93a8cec91b936.exe",
+        "dr_c_",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 0.73,
+      "log": "absent-graphshell.log",
+      "sha256": "ddbf0e67dd41b8604b996f64e7c5d7fb6eefcbd843b228f2054c5fc1841c42a6",
+      "executable_sha256": "ed76bc665037c2cfef3619ac05c8c55191e120e6e4e4bed727ce3a1747322f4f"
+    },
+    {
+      "label": "absent-signalman",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\mere\\debug\\deps\\dr_c_pending-bce5bd3b0111462b.exe",
+        "dr_c_",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 0.31,
+      "log": "absent-signalman.log",
+      "sha256": "f231c543623fff8e458112d09910c7db732278320c2920ac7ea1415c6fc56ca9",
+      "executable_sha256": "9506993b53b234b122b68fd7daf5964eb8fb34e72fa23ce4d5d3c98813de5e56"
+    },
+    {
+      "label": "absent-knot",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\knot-editor\\debug\\deps\\knot_editor-c99bcc7f023c7edd.exe",
+        "dr_c_",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 0.83,
+      "log": "absent-knot.log",
+      "sha256": "27645bf3bce2d6ea360517cc60ed8350a57f97067019b7b1ae850dccb066426b",
+      "executable_sha256": "98b0813a3c08fb74b2a8bba8e44d83a147d604d4aacfac6cc5e75bf20e8cf2a9"
+    },
+    {
+      "label": "absent-knot-desktop",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\knot-editor\\debug\\deps\\knot-2bfb5f9c1300f641.exe",
+        "dr_c_",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 0.88,
+      "log": "absent-knot-desktop.log",
+      "sha256": "9bf323d23e342b7066bec59c1776dfd3f14bf05d2545f8f1560a06ebeb7a1e0d",
+      "executable_sha256": "6117e63de725206b20fbf0121d061423234d8cfe1042c33676a1328c994bbb69"
+    },
+    {
+      "label": "absent-woodshed",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\woodshed\\debug\\deps\\woodshed_genet-0825ae5873dc6002.exe",
+        "dr_c_",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 0.5,
+      "log": "absent-woodshed.log",
+      "sha256": "23b65b3c47768b3bb9123133bc821728956902c2e5d03bb6a79221b3fdc5efd0",
+      "executable_sha256": "e83372c667c2037204e3008ad396a0fb0ecb242c3bebeb4caa29dfeca844731c"
+    },
+    {
+      "label": "absent-hocket",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\woodshed\\debug\\deps\\hocket_genet-4f71c91f14aa2dc1.exe",
+        "dr_c_",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 0.97,
+      "log": "absent-hocket.log",
+      "sha256": "19b198c5d4279b65098ddf3428a0379d34955a13fe445997ab672d3b629371ec",
+      "executable_sha256": "c0ab530aaaf0dad9146f957afc462384d2e06ed801d350ad2b5bd675a4e36c22"
+    },
+    {
+      "label": "absent-turnstone",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\turnstone\\debug\\deps\\turnstone-248e574ed8b3aa84.exe",
+        "dr_c_",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 0.91,
+      "log": "absent-turnstone.log",
+      "sha256": "129860d5e07104c764551ac0faa24d3e818761cbd2f79ad1208f312558a55784",
+      "executable_sha256": "d231ab29494a8d3668a7095100f18c5bb690342d9c1cf432da4458cf0cc0969a"
+    },
+    {
+      "label": "absent-knot-endpoint",
+      "cwd": "C:\\Users\\mark_\\Code\\repos\\knot-editor",
+      "command": [
+        "C:\\t\\cargo-targets\\knot-editor\\debug\\knot_endpoint.exe",
+        "persona-vault",
+        "C:\\t\\cargo-targets\\mere\\dr-c-receipts\\runtime\\absent\\knot-cli",
+        "b814171d-8145-4175-a9da-3eeda8354a40",
+        "4096"
+      ],
+      "exit": 101,
+      "expected": 101,
+      "elapsed_seconds": 0.91,
+      "log": "absent-knot-endpoint.log",
+      "sha256": "450a24d0c24456e7846fe1ba149b701794aeb6c656cc60121761372fb5608299",
+      "executable_sha256": "0f94c6d93e0397395da5c190694d33fe3c5ed33ee7ea55d3df8fc3c07300be82"
+    },
+    {
+      "label": "absent-knot-sync",
+      "cwd": "C:\\Users\\mark_\\Code\\repos\\knot-editor",
+      "command": [
+        "C:\\t\\cargo-targets\\knot-editor\\debug\\knot_sync_host.exe",
+        "C:\\t\\cargo-targets\\mere\\dr-c-receipts\\runtime\\absent\\knot-cli",
+        "b814171d-8145-4175-a9da-3eeda8354a40",
+        "--pairing-facts"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "elapsed_seconds": 0.88,
+      "log": "absent-knot-sync.log",
+      "sha256": "a89d5bfe53e29981eac3f1e658bd229598a623a44be74b7d06a5cf2bbb64f289",
+      "executable_sha256": "51acb301abaf55ff122666c1d44aa4984b85dbd7c5160dccdc8735d3575e409f"
+    },
+    {
+      "label": "absent-signalman-provision",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\mere\\debug\\mere-signalman-provision.exe",
+        "--app-endpoint",
+        "\\\\.\\pipe\\dr-c-receipt-1913d8cf-f03b-4bea-8b1b-0c04be962a58",
+        "--station-root",
+        "C:\\t\\cargo-targets\\mere\\dr-c-receipts\\runtime\\absent\\station",
+        "--record",
+        "head.json",
+        "--label",
+        "DR-C fixture",
+        "--expires-hours",
+        "1"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "elapsed_seconds": 0.39,
+      "log": "absent-signalman-provision.log",
+      "sha256": "79d40f351d99fe269f97268fcc2f539a276673a86fdb3c787e0d899b82ed4fd4",
+      "executable_sha256": "9bb8c29a1b07d8a97555e940f510b165afacfeeba6d34315056731d8dc4575a2"
+    },
+    {
+      "label": "absent-turnstone-g3",
+      "cwd": "C:\\Users\\mark_\\Code\\repos\\turnstone",
+      "command": [
+        "C:\\t\\cargo-targets\\turnstone\\debug\\g3_receipt.exe",
+        "C:\\t\\cargo-targets\\mere\\dr-c-receipts\\runtime\\absent\\g3.html"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "elapsed_seconds": 0.98,
+      "log": "absent-turnstone-g3.log",
+      "sha256": "886b920b9ab254e8126cd86d16d081c40c23c1c9d59bedf048e38f4a77fab35c",
+      "executable_sha256": "b8470c1fe35120c1038e7f4dfff58c03f3e0c308b1e12da4b7fd4d4855f62826"
+    },
+    {
+      "label": "absent-vault-cli",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\mere\\debug\\personae-vault.exe",
+        "--app-endpoint",
+        "\\\\.\\pipe\\dr-c-receipt-1913d8cf-f03b-4bea-8b1b-0c04be962a58",
+        "new-profile",
+        "must-not-exist"
+      ],
+      "exit": 2,
+      "expected": 2,
+      "elapsed_seconds": 0.69,
+      "log": "absent-vault-cli.log",
+      "sha256": "d985c3bce15cdb96fde51e67b6f46f0947b64a3d33e053cf1791b40f096b98fd",
+      "executable_sha256": "35ae75bc53f4185166c2fadeee35c69874c5752f85abe00d246a6b65de6256b9"
+    },
+    {
+      "label": "absent-distillery-configure",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\mere\\debug\\distillery-installed.exe",
+        "configure",
+        "--data-root",
+        "C:\\t\\cargo-targets\\mere\\dr-c-receipts\\runtime\\absent\\distillery",
+        "--profile",
+        "default"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 0.41,
+      "log": "absent-distillery-configure.log",
+      "sha256": "7b4c8ff8991755a97e167e460972e32635d7e1c9c0b7103926042667d205b648",
+      "executable_sha256": "6e929756a80555266e8cd29d5c7e668de0a24266c15a41e249c94212b5cf6724"
+    },
+    {
+      "label": "absent-distillery-inspect",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\mere\\debug\\distillery-installed.exe",
+        "inspect",
+        "--data-root",
+        "C:\\t\\cargo-targets\\mere\\dr-c-receipts\\runtime\\absent\\distillery",
+        "--app-endpoint",
+        "\\\\.\\pipe\\dr-c-receipt-1913d8cf-f03b-4bea-8b1b-0c04be962a58"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 0.01,
+      "log": "absent-distillery-inspect.log",
+      "sha256": "49d400d9f2a6f07327b5e2793a30bc4253ba9ef8b284ad144f3e46e17e6a7229",
+      "executable_sha256": "6e929756a80555266e8cd29d5c7e668de0a24266c15a41e249c94212b5cf6724"
+    },
+    {
+      "label": "locked-graphshell",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\mere\\debug\\deps\\dr_c_pending-61b93a8cec91b936.exe",
+        "dr_c_",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 0.01,
+      "log": "locked-graphshell.log",
+      "sha256": "ddbf0e67dd41b8604b996f64e7c5d7fb6eefcbd843b228f2054c5fc1841c42a6",
+      "executable_sha256": "ed76bc665037c2cfef3619ac05c8c55191e120e6e4e4bed727ce3a1747322f4f"
+    },
+    {
+      "label": "locked-signalman",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\mere\\debug\\deps\\dr_c_pending-bce5bd3b0111462b.exe",
+        "dr_c_",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 0.02,
+      "log": "locked-signalman.log",
+      "sha256": "d64ead9fed8eb0da09cb1aa5575bee7684dc979bb3af321b802c87c2d240c745",
+      "executable_sha256": "9506993b53b234b122b68fd7daf5964eb8fb34e72fa23ce4d5d3c98813de5e56"
+    },
+    {
+      "label": "locked-knot",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\knot-editor\\debug\\deps\\knot_editor-c99bcc7f023c7edd.exe",
+        "dr_c_",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 0.03,
+      "log": "locked-knot.log",
+      "sha256": "35547ca9ee2940ae0b685431424b788fe6b7d89739eac54d0e9ad04081b61920",
+      "executable_sha256": "98b0813a3c08fb74b2a8bba8e44d83a147d604d4aacfac6cc5e75bf20e8cf2a9"
+    },
+    {
+      "label": "locked-knot-desktop",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\knot-editor\\debug\\deps\\knot-2bfb5f9c1300f641.exe",
+        "dr_c_",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 0.02,
+      "log": "locked-knot-desktop.log",
+      "sha256": "ad572b9e8dc48b3c73389675f2926f159ee47e306095d2bee04f8bac03020120",
+      "executable_sha256": "6117e63de725206b20fbf0121d061423234d8cfe1042c33676a1328c994bbb69"
+    },
+    {
+      "label": "locked-woodshed",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\woodshed\\debug\\deps\\woodshed_genet-0825ae5873dc6002.exe",
+        "dr_c_",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 0.03,
+      "log": "locked-woodshed.log",
+      "sha256": "6f22b751115b20e71786ab711f2f195a9e7ca85f1441f5449b6adc333f1dffea",
+      "executable_sha256": "e83372c667c2037204e3008ad396a0fb0ecb242c3bebeb4caa29dfeca844731c"
+    },
+    {
+      "label": "locked-hocket",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\woodshed\\debug\\deps\\hocket_genet-4f71c91f14aa2dc1.exe",
+        "dr_c_",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 0.02,
+      "log": "locked-hocket.log",
+      "sha256": "1299529bd2ac8a101bdbdd810fbdae58a52987f52a3b8624ded9c5cbf9b34551",
+      "executable_sha256": "c0ab530aaaf0dad9146f957afc462384d2e06ed801d350ad2b5bd675a4e36c22"
+    },
+    {
+      "label": "locked-turnstone",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\turnstone\\debug\\deps\\turnstone-248e574ed8b3aa84.exe",
+        "dr_c_",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 0.16,
+      "log": "locked-turnstone.log",
+      "sha256": "0fda200d3d0c6ae302d026dfbb048f46c95fc1f1addd7e2b2c8f5b1147ad72a0",
+      "executable_sha256": "d231ab29494a8d3668a7095100f18c5bb690342d9c1cf432da4458cf0cc0969a"
+    },
+    {
+      "label": "locked-knot-endpoint",
+      "cwd": "C:\\Users\\mark_\\Code\\repos\\knot-editor",
+      "command": [
+        "C:\\t\\cargo-targets\\knot-editor\\debug\\knot_endpoint.exe",
+        "persona-vault",
+        "C:\\t\\cargo-targets\\mere\\dr-c-receipts\\runtime\\locked\\knot-cli",
+        "0406adbe-dd2b-4c74-b20e-86850f98ecda",
+        "4096"
+      ],
+      "exit": 101,
+      "expected": 101,
+      "elapsed_seconds": 0.02,
+      "log": "locked-knot-endpoint.log",
+      "sha256": "f328d93668e00435518078f6b10826f47098e0d3b24012dec29048cdfea829c8",
+      "executable_sha256": "0f94c6d93e0397395da5c190694d33fe3c5ed33ee7ea55d3df8fc3c07300be82"
+    },
+    {
+      "label": "locked-knot-sync",
+      "cwd": "C:\\Users\\mark_\\Code\\repos\\knot-editor",
+      "command": [
+        "C:\\t\\cargo-targets\\knot-editor\\debug\\knot_sync_host.exe",
+        "C:\\t\\cargo-targets\\mere\\dr-c-receipts\\runtime\\locked\\knot-cli",
+        "0406adbe-dd2b-4c74-b20e-86850f98ecda",
+        "--pairing-facts"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "elapsed_seconds": 0.02,
+      "log": "locked-knot-sync.log",
+      "sha256": "5ea6b648ae168564b127f6f4fab0a825d41d38d364b0443a1661616eab4120be",
+      "executable_sha256": "51acb301abaf55ff122666c1d44aa4984b85dbd7c5160dccdc8735d3575e409f"
+    },
+    {
+      "label": "locked-signalman-provision",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\mere\\debug\\mere-signalman-provision.exe",
+        "--app-endpoint",
+        "\\\\.\\pipe\\dr-c-receipt-751c8eb2-3b3f-472c-8188-36b990fc58f5",
+        "--station-root",
+        "C:\\t\\cargo-targets\\mere\\dr-c-receipts\\runtime\\locked\\station",
+        "--record",
+        "head.json",
+        "--label",
+        "DR-C fixture",
+        "--expires-hours",
+        "1"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "elapsed_seconds": 0.01,
+      "log": "locked-signalman-provision.log",
+      "sha256": "40a1a8828688f4567da29f430b697006c6adfb73f9bbcfb1b7c51746e9b6efca",
+      "executable_sha256": "9bb8c29a1b07d8a97555e940f510b165afacfeeba6d34315056731d8dc4575a2"
+    },
+    {
+      "label": "locked-turnstone-g3",
+      "cwd": "C:\\Users\\mark_\\Code\\repos\\turnstone",
+      "command": [
+        "C:\\t\\cargo-targets\\turnstone\\debug\\g3_receipt.exe",
+        "C:\\t\\cargo-targets\\mere\\dr-c-receipts\\runtime\\locked\\g3.html"
+      ],
+      "exit": 1,
+      "expected": 1,
+      "elapsed_seconds": 0.05,
+      "log": "locked-turnstone-g3.log",
+      "sha256": "886b920b9ab254e8126cd86d16d081c40c23c1c9d59bedf048e38f4a77fab35c",
+      "executable_sha256": "b8470c1fe35120c1038e7f4dfff58c03f3e0c308b1e12da4b7fd4d4855f62826"
+    },
+    {
+      "label": "locked-vault-cli",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\mere\\debug\\personae-vault.exe",
+        "--app-endpoint",
+        "\\\\.\\pipe\\dr-c-receipt-751c8eb2-3b3f-472c-8188-36b990fc58f5",
+        "new-profile",
+        "must-not-exist"
+      ],
+      "exit": 2,
+      "expected": 2,
+      "elapsed_seconds": 0.0,
+      "log": "locked-vault-cli.log",
+      "sha256": "1d1b0f0cd9319f333d2a59b9a26349f02c65f3d8d6a072703d6463c038f56a88",
+      "executable_sha256": "35ae75bc53f4185166c2fadeee35c69874c5752f85abe00d246a6b65de6256b9"
+    },
+    {
+      "label": "locked-vault-public-roster",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\mere\\debug\\personae-vault.exe",
+        "--app-endpoint",
+        "\\\\.\\pipe\\dr-c-receipt-751c8eb2-3b3f-472c-8188-36b990fc58f5",
+        "profiles"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 0.02,
+      "log": "locked-vault-public-roster.log",
+      "sha256": "1d4669414ead55a93024d6787092112b9ea7e932c01fc412e618b8615a92cd77",
+      "executable_sha256": "35ae75bc53f4185166c2fadeee35c69874c5752f85abe00d246a6b65de6256b9"
+    },
+    {
+      "label": "locked-distillery-configure",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\mere\\debug\\distillery-installed.exe",
+        "configure",
+        "--data-root",
+        "C:\\t\\cargo-targets\\mere\\dr-c-receipts\\runtime\\locked\\distillery",
+        "--profile",
+        "default"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 0.01,
+      "log": "locked-distillery-configure.log",
+      "sha256": "cb34c5ce77981c13138cf62293693ee54187f3b8a7bb2097ce4b95fa7dcfe5be",
+      "executable_sha256": "6e929756a80555266e8cd29d5c7e668de0a24266c15a41e249c94212b5cf6724"
+    },
+    {
+      "label": "locked-distillery-inspect",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\mere\\debug\\distillery-installed.exe",
+        "inspect",
+        "--data-root",
+        "C:\\t\\cargo-targets\\mere\\dr-c-receipts\\runtime\\locked\\distillery",
+        "--app-endpoint",
+        "\\\\.\\pipe\\dr-c-receipt-751c8eb2-3b3f-472c-8188-36b990fc58f5"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 0.02,
+      "log": "locked-distillery-inspect.log",
+      "sha256": "00b43cd54b7be066f1cbaa93afa77483215d72d606c692f48446c57854ba7f34",
+      "executable_sha256": "6e929756a80555266e8cd29d5c7e668de0a24266c15a41e249c94212b5cf6724"
+    },
+    {
+      "label": "unlocked-vault-create",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\mere\\debug\\personae-vault.exe",
+        "--app-endpoint",
+        "\\\\.\\pipe\\dr-c-cli-d9231008-4be3-4612-acd1-a246538a6720",
+        "new-profile",
+        "cli-persona"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 0.01,
+      "log": "unlocked-vault-create.log",
+      "sha256": "5b0745899bce7606aac9282b41c1a6dd427af876ae501a9824df64f10ffc3518",
+      "executable_sha256": "35ae75bc53f4185166c2fadeee35c69874c5752f85abe00d246a6b65de6256b9"
+    },
+    {
+      "label": "unlocked-vault-roster",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\mere\\debug\\personae-vault.exe",
+        "--app-endpoint",
+        "\\\\.\\pipe\\dr-c-cli-d9231008-4be3-4612-acd1-a246538a6720",
+        "profiles"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 0.02,
+      "log": "unlocked-vault-roster.log",
+      "sha256": "00c0250c9d41a366db82f722f794ecf54ba59dee6e453a0c26c9cf2af069b4d9",
+      "executable_sha256": "35ae75bc53f4185166c2fadeee35c69874c5752f85abe00d246a6b65de6256b9"
+    },
+    {
+      "label": "unlocked-vault-import",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\mere\\debug\\personae-vault.exe",
+        "--app-endpoint",
+        "\\\\.\\pipe\\dr-c-cli-d9231008-4be3-4612-acd1-a246538a6720",
+        "add-ssh",
+        "ports/castellan/tests/fixtures/ssh/ed25519"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 0.05,
+      "log": "unlocked-vault-import.log",
+      "sha256": "e5034b03e3459a284ec590e807293f77d0f7fda5b44ed349e8dee6d83155a8b4",
+      "executable_sha256": "35ae75bc53f4185166c2fadeee35c69874c5752f85abe00d246a6b65de6256b9"
+    },
+    {
+      "label": "unlocked-vault-list",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\mere\\debug\\personae-vault.exe",
+        "--app-endpoint",
+        "\\\\.\\pipe\\dr-c-cli-d9231008-4be3-4612-acd1-a246538a6720",
+        "list"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 0.03,
+      "log": "unlocked-vault-list.log",
+      "sha256": "f527125bd6a926b91030bbf1fab1b775488d485e7914d7bacaacb75204891b94",
+      "executable_sha256": "35ae75bc53f4185166c2fadeee35c69874c5752f85abe00d246a6b65de6256b9"
+    },
+    {
+      "label": "unlocked-vault-pub",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\mere\\debug\\personae-vault.exe",
+        "--app-endpoint",
+        "\\\\.\\pipe\\dr-c-cli-d9231008-4be3-4612-acd1-a246538a6720",
+        "pub",
+        "ssh"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 0.02,
+      "log": "unlocked-vault-pub.log",
+      "sha256": "e9b5a109d2a537dbecb3da0d42900ba64e3b604029d8206a06334af648276f03",
+      "executable_sha256": "35ae75bc53f4185166c2fadeee35c69874c5752f85abe00d246a6b65de6256b9"
+    },
+    {
+      "label": "unlocked-vault-ca",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\mere\\debug\\personae-vault.exe",
+        "--app-endpoint",
+        "\\\\.\\pipe\\dr-c-cli-d9231008-4be3-4612-acd1-a246538a6720",
+        "ca"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 0.02,
+      "log": "unlocked-vault-ca.log",
+      "sha256": "0be057b0f5625b229ea991b17146b3fd53de685138e227b8a1925aa07ab1f3f5",
+      "executable_sha256": "35ae75bc53f4185166c2fadeee35c69874c5752f85abe00d246a6b65de6256b9"
+    },
+    {
+      "label": "build-restored-fallback",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\turnstone-dr-c-control",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--target-dir",
+        "C:\\t\\cargo-targets\\turnstone",
+        "-j",
+        "4",
+        "-p",
+        "turnstone",
+        "--lib",
+        "--no-run",
+        "--message-format=json"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 64.66,
+      "log": "build-restored-fallback.log",
+      "sha256": "d222e37bf0ee9256e3d438fe2b6adca5ba39198119223fbb740c612d7c18874d"
+    },
+    {
+      "label": "absent-restored-fallback",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\turnstone\\debug\\deps\\turnstone-248e574ed8b3aa84.exe",
+        "dr_c_",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "expected": 101,
+      "elapsed_seconds": 0.83,
+      "log": "absent-restored-fallback.log",
+      "sha256": "5af6d81d4c43aaa59128bd49bfedf65d8155098b9da23818e5e4864fd931ff93",
+      "executable_sha256": "a6a5243692d6030d45b82bb9ce1626e8f98a4bc919a8af830ae22bb2f8a5a150"
+    },
+    {
+      "label": "locked-restored-fallback",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "C:\\t\\cargo-targets\\turnstone\\debug\\deps\\turnstone-248e574ed8b3aa84.exe",
+        "dr_c_",
+        "--ignored",
+        "--nocapture",
+        "--test-threads=1"
+      ],
+      "exit": 101,
+      "expected": 101,
+      "elapsed_seconds": 0.03,
+      "log": "locked-restored-fallback.log",
+      "sha256": "1bf964ccd1570d52dc0a047a3cfb1ec83697aa46604865712a28a9bfabaa3b68",
+      "executable_sha256": "a6a5243692d6030d45b82bb9ce1626e8f98a4bc919a8af830ae22bb2f8a5a150"
+    },
+    {
+      "label": "bans-mere",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration",
+      "command": [
+        "cargo",
+        "deny",
+        "--locked",
+        "check",
+        "bans"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 19.62,
+      "log": "bans-mere.log",
+      "sha256": "eba7f3001f2423b5c5fcdd45d2e210ba11daa9c0e73bba8072de1c60f30b5878"
+    },
+    {
+      "label": "bans-knot",
+      "cwd": "C:\\Users\\mark_\\Code\\repos\\knot-editor",
+      "command": [
+        "cargo",
+        "deny",
+        "--locked",
+        "check",
+        "bans"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 8.39,
+      "log": "bans-knot.log",
+      "sha256": "663c84296c79dcc313c383eff3249a00225e76cfe89bcf8c94d0f3a984e386e1"
+    },
+    {
+      "label": "bans-woodshed",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\woodshed-dr-c-receipts",
+      "command": [
+        "cargo",
+        "deny",
+        "--locked",
+        "check",
+        "bans"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 8.11,
+      "log": "bans-woodshed.log",
+      "sha256": "eab33dcc8bedc6e43c90269af2052437f44c17d2e98b58fa4bc622d3eee5764a"
+    },
+    {
+      "label": "bans-hocket",
+      "cwd": "C:\\Users\\mark_\\Code\\worktrees\\woodshed-dr-c-receipts\\ports\\hocket",
+      "command": [
+        "cargo",
+        "deny",
+        "--locked",
+        "check",
+        "bans"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 8.06,
+      "log": "bans-hocket.log",
+      "sha256": "1e522ec4c9dc3c2d0510217dd6a75a589a63ebf75ac18ed6674cec43f063cf7e"
+    },
+    {
+      "label": "bans-turnstone",
+      "cwd": "C:\\Users\\mark_\\Code\\repos\\turnstone",
+      "command": [
+        "cargo",
+        "deny",
+        "--locked",
+        "check",
+        "bans"
+      ],
+      "exit": 0,
+      "expected": 0,
+      "elapsed_seconds": 15.42,
+      "log": "bans-turnstone.log",
+      "sha256": "c9abaf0617a39899333a1e4d39c5d0ef92150c0c987f0f76db148ee41ac395b3"
+    }
+  ],
+  "complete": true
+}

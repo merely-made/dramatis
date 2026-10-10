@@ -34,8 +34,8 @@ see `repos/mere/design_docs/DOC_README.md`.
   (me/them, shown/exercised, embeddable/authority), with the cross-person
   lifecycle and its invariants cited to code.
 - [dramatis_repo_plan](2026-10-06_dramatis_repo_plan.md): **plan,
-  2026-10-06; rulings D1 to D37; DR-A landed; DR-B, DR-D and DR-C built on
-  mere's `r44` branch, awaiting one combined test run.** The identity tier
+  2026-10-06; rulings D1 to D39; DR-A to DR-D's migrations landed;
+  DR-C closed with per-app absent/Locked receipts and a failing fallback control.** The identity tier
   leaves mere for this repository; castellan stays in mere, narrowed to
   custody, and only djinn links it; every app calls djinn.
 - [vault_threat_statement](2026-10-08_vault_threat_statement.md): what the

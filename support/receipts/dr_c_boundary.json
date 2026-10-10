@@ -1,0 +1,20 @@
+{
+  "expected": 1,
+  "exit": 1,
+  "matches": [],
+  "pattern": "IdentityVault|FileProfileStorage|AutoOsProfileStorage|SealedProfileStorage|PERSONAE_PASSPHRASE|bootstrap::open_storage|startup_unlock|WalletStore::open",
+  "measured_at": "2026-10-10T19:56:49.3845554Z",
+  "paths": [
+    "ports/graphshell/src/native/custody_identity.rs",
+    "ports/graphshell/src/bin/personae_vault.rs",
+    "ports/graphshell/src/profile.rs",
+    "ports/signalman/src",
+    "ports/djinn/src/bin/distillery_installed.rs",
+    "C:/Users/mark_/Code/repos/knot-editor/crates/knot-editor/src/startup.rs",
+    "C:/Users/mark_/Code/repos/knot-editor/apps/desktop/src/main.rs",
+    "C:/Users/mark_/Code/worktrees/woodshed-dr-c-receipts/crates/woodshed-genet/src",
+    "C:/Users/mark_/Code/worktrees/woodshed-dr-c-receipts/ports/hocket/crates/hocket-genet/src",
+    "C:/Users/mark_/Code/repos/turnstone/src"
+  ],
+  "cwd": "C:\\Users\\mark_\\Code\\worktrees\\mere-dr-c-integration"
+}

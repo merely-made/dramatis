@@ -39,8 +39,8 @@ Features: `digest` gives certificate ids and attenuation, on BLAKE3. `verify`
 gives signature checks on ed25519-dalek, in the lax mode personae always used,
 and implies `digest`.
 
-Lives in the [mere](https://github.com/merely-made/mere) workspace under
-`crates/dramatis/`.
+Lives in the [dramatis](https://github.com/merely-made/dramatis) repository,
+which left mere on 2026-10-09.
 
 ## License
 

@@ -1,0 +1,17 @@
+# cargo-deny configuration for dramatis.
+#
+# One rule, the custody boundary (dramatis repo plan, rulings D4 and D16):
+# castellan holds every secret at rest and in hand, and only mere's resident,
+# djinn, may link it. Nothing in this repository may, so it has no wrapper.
+#
+#   cargo deny check bans
+
+[graph]
+all-features = true
+
+[bans]
+multiple-versions = "allow"
+wildcards = "allow"
+deny = [
+  { crate = "castellan", reason = "castellan is secret custody; only mere's resident (djinn) links it (dramatis repo plan, D4, D16)" },
+]

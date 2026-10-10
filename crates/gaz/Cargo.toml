@@ -4,7 +4,7 @@ version = "0.0.1"
 edition = "2024"
 license.workspace = true
 description = "The contact layer: persona-scoped contact records. Your petname for them, filed under an anchor that never moves (a typed root key, an atproto did:plc, or a local id), with keys, handles and endpoints each carrying their own trust state, plus kith/kin tiers and recency. A resolver finds the wide world; gaz keeps who you actually know."
-repository = "https://github.com/merely-made/mere"
+repository.workspace = true
 readme = "README.md"
 keywords = ["contacts", "petname", "identity", "persona", "kith"]
 categories = ["data-structures"]
@@ -25,9 +25,9 @@ serde.workspace = true
 # The stack's UUID type, for local anchors. No default features: gaz reads no
 # random source, so it never needs uuid's generators.
 uuid = { version = "1", default-features = false }
-# Direct declaration permits disabling muniment's default JSON codec without
-# changing the workspace's default for other consumers.
-muniment = { version = "0.1.2", path = "../../eidetic/muniment", default-features = false, optional = true }
+# The workspace entry turns off muniment's default JSON codec; the host
+# picks the codec and backend.
+muniment = { workspace = true, optional = true }
 serde_json = { version = "1", optional = true }
 iri-string = { version = "0.7", default-features = false, optional = true }
 
@@ -40,9 +40,9 @@ insigne = { workspace = true, features = ["verify"] }
 # against the format M1 persists in.
 postcard = { version = "1", features = ["alloc"] }
 serde_json = "1"
-muniment = { version = "0.1.2", path = "../../eidetic/muniment", default-features = false, features = ["json", "postcard"] }
+muniment = { workspace = true, features = ["json", "postcard"] }
 pollster = "0.4"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
-muniment = { version = "0.1.2", path = "../../eidetic/muniment", default-features = false, features = ["redb"] }
+muniment = { workspace = true, features = ["redb"] }
 tempfile = "3"

@@ -1,0 +1,43 @@
+[workspace]
+resolver = "2"
+# The identity tier, out of mere since DR-D (dramatis repo plan, rulings D1,
+# D7, D10, D19, D20). Secret-free: castellan, the custody crate only djinn
+# links, stays in mere beside djinn (D6, D22), and nothing here depends on
+# a mere crate, so mere pins this repository and never the reverse.
+members = [
+    "crates/personae",
+    "crates/insigne",
+    "crates/gaz",
+    "crates/chatelaine",
+    "crates/notochord",
+    "crates/dramatis",
+]
+
+[workspace.package]
+version = "0.0.1"
+edition = "2024"
+license = "MPL-2.0"
+repository = "https://github.com/merely-made/dramatis"
+authors = ["Mark AB (markik)"]
+
+[workspace.dependencies]
+# ─── The tier's own crates ───────────────────────────────────────────────────
+# Path + version, as in mere: the path builds here, the version is what a
+# published dependent records.
+personae = { version = "0.2.1", path = "crates/personae" }
+insigne = { version = "0.0.1", path = "crates/insigne" }
+gaz = { version = "0.0.1", path = "crates/gaz" }
+chatelaine = { version = "0.0.2", path = "crates/chatelaine" }
+notochord = { version = "0.1.0", path = "crates/notochord" }
+dramatis = { version = "0.0.2", path = "crates/dramatis" }
+
+# ─── Third-party pins (the same entries as mere's) ───────────────────────────
+blake3 = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid = { version = "1", features = ["serde", "v4"] }
+# The persistence floor gaz's `muniment` feature stores through. From
+# crates.io rather than mere.git, so this repository never pins mere back;
+# mere's `[patch.crates-io]` swaps in its own checkout so mere's graph keeps
+# one muniment.
+muniment = { version = "0.1.2", default-features = false }

@@ -2,6 +2,7 @@
 
 **Date**: 2026-10-06
 **Status (2026-10-09)**: assessed; rulings D1 to D35 (§3). DR-A landed on 2026-10-09 (§6). Next, by D36: DR-B, DR-D, then DR-C on one branch with ruling 44 (built), and one test run at the end.
+**Status (2026-10-10)**: DR-B, DR-C and DR-D built, unpushed, on mere's `r44`, the siblings' `dr-c` and this repository's `main` (§6). Next: D36's one combined test run, then the pushes.
 D18's condition is met: the vault lock's L2 to L4 landed on 2026-10-08.
 DR-A's assessment is being refreshed against today's code before its
 forks are put to Mark (§6).
@@ -703,3 +704,37 @@ directory (F183). The test inventories are in `Code/testing/mere/dra/`.
   - The docs and the two record corrections landed with it.
 - **Next** (D35): the vault lock's ruling 44, then DR-B, custody into
   castellan (D8, D9), then ruling 91.
+
+**2026-10-10, DR-D built** (unpushed; verified in the combined run, D36).
+- **This repository:** `merely-made/dramatis`, local at
+  `repos/dramatis`. Its `main` is the remote's initial commit (`9f3e486`,
+  the MPL-2.0 `LICENSE`) merged with the carved history (`8b386c9`), then
+  the workspace (`3aa8828`) and the docs (`c1d62076`), so the first push
+  fast-forwards.
+- **History:** `git filter-repo` is not installed, so a stream filter
+  over `git fast-export --no-data` of `r44` kept only the moved paths,
+  renamed them, and dropped emptied commits: 304 of 5,601. personae's and
+  gaz's standalone histories ride along as the second parents of their
+  subtree adds, and so does personae's ancestor, mere's `identity` crate,
+  at `crates/identity`. Every moved path is byte-identical to `r44`.
+- **Layout:** `crates/{personae,insigne,gaz,chatelaine,notochord,dramatis}`;
+  flat `design_docs/` with its own `DOC_POLICY.md` (canonical core v1) and
+  a D2 ledger inherited from mere's.
+- **Direction:** dramatis depends on no mere crate. The only edge was gaz's
+  optional muniment, now from crates.io (0.1.2); mere's
+  `[patch.crates-io]` swaps its own back in, so mere's graph holds one
+  muniment. mere pins dramatis; dramatis never pins mere.
+- **Pins:** mere's workspace, Knot, Turnstone, Woodshed and Hocket all
+  name dramatis.git at `c1d62076`. mere's mere.git patch table redirects
+  Knot's old mere.git names to that revision. Cargo refuses a patch from
+  dramatis.git to dramatis.git, so the revisions themselves must match.
+  Until the push, each repository's gitignored `.cargo/config.toml` patches
+  dramatis.git to the local checkout.
+- **Measured:** `cargo metadata` shows one personae, insigne, notochord
+  and dramatis source in mere's graph and in Knot's, Turnstone's,
+  Woodshed's and Hocket's. `cargo check --all-targets` passes on this
+  workspace, djinn, castellan, graphshell, distillery, Knot, Turnstone,
+  Woodshed and Hocket. mere's committed lock was resolved against
+  dramatis.git at `c1d62076` (served locally) and has one source each.
+- **Commits:** mere `6552fa3e` (`r44`); knot-editor `d54f8aa`, Turnstone
+  `9b17015` and Woodshed `06d0b59` (`dr-c`).

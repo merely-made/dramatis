@@ -1,11 +1,11 @@
 # Dramatis Repo Plan
 
 **Date**: 2026-10-06
-**Status (2026-10-09)**: assessed; rulings D1 to D35 (§3). DR-A landed on 2026-10-09 (§6). Next, by D36: DR-B, DR-D, then DR-C on one branch with ruling 44 (built), and one test run at the end.
-**Status (2026-10-10)**: DR-B, DR-C and DR-D built, unpushed, on mere's `r44`, the siblings' `dr-c` and this repository's `main` (§6). Next: D36's one combined test run, then the pushes.
+**Status (2026-10-10)**: DR-A to DR-D's migrations have landed (§6).
+DR-C is closed: the terminal client calls djinn, every app has absent/Locked
+receipts, and the deliberately restored fallback fails both modes (§6).
 D18's condition is met: the vault lock's L2 to L4 landed on 2026-10-08.
-DR-A's assessment is being refreshed against today's code before its
-forks are put to Mark (§6).
+DR-A's assessment and the resulting rulings are recorded in §6.
 **Scope**: the identity tier leaves mere for its own repository, `dramatis`,
 which becomes the product. personae, insigne, gaz, chatelaine (the
 keychain, still its own crate) and notochord move there, and gazette later.
@@ -546,12 +546,12 @@ finishes (D18).
   D17): the graphshell adapters move into djinn. Turnstone, woodshed,
   hocket, the Knot desktop and bins, signalman, the Distillery bin and the
   `personae-vault` CLI call djinn. Done when:
-  - [ ] no app opens a vault, storage or wallet (measured by search);
-  - [ ] the check passes in every sibling;
-  - [ ] each app has a receipt with djinn absent and with djinn Locked,
+  - [x] no app opens identity vault storage or a wallet (measured by search);
+  - [x] the check passes in every sibling;
+  - [x] each app has a receipt with djinn absent and with djinn Locked,
         showing the identity pending, no fallback key and no unsealed
         write;
-  - [ ] a reintroduced fallback fails that receipt.
+  - [x] a reintroduced fallback fails that receipt.
 - **DR-D — extraction** (D7, D10, D19, D20): the repo is created with
   history (the cambium precedent). mere and the siblings repin, the docs
   move, and mere's patch table grows. Done when:
@@ -788,11 +788,98 @@ directory (F183). The test inventories are in `Code/testing/mere/dra/`.
 - **Not from this work:** Knot's `tests/tabard_appearance.rs:114` fails on
   Knot's own `main` (it came with `95849ae`), and was flagged as a separate
   task.
-- **Still open:**
-  - DR-C's per-app receipts (identity pending with djinn absent or Locked,
-    and a reintroduced fallback failing);
-  - `personae-vault` still opens the vault itself;
+- **Open at this landing:** the per-app receipts and `personae-vault`'s
+  direct access were closed by the later receipt run below. Remaining:
   - released keys are revoked only cooperatively, when apps watch the lock;
   - hocket's adoption has no DPAPI test;
   - DR-E (publishing) is Mark's;
   - the standalone `hocket/` repo, to retire or repoint (D13).
+
+**2026-10-10, DR-C closure work.** `personae-vault` moves from castellan's
+binary targets to graphshell's. It accepts an app endpoint and an optional
+persona override; without the override it asks for djinn's chosen persona.
+It opens no profile storage, reads no passphrase and has no unlock fallback.
+Djinn runs the conserved commands through `PersonaeHost::vault_command`,
+under the existing vault mutex, and reloads imported/removed slots for the
+live agent. Only public text, keys, certificates and CA installation plans
+cross the terminal route. Ordinary app ids cannot use that administrative
+command route. The public roster remains readable while Locked.
+
+Review caught a custody integration trap: running `ssh` under the vault mutex
+could deadlock when SSH asked the same resident agent to sign. Enrollment
+now returns a public installation script; the terminal executes SSH after
+the custody call returns. Its caller-relative import and certificate paths
+are resolved by the terminal before dispatch. Existing profile ids remain
+addressable; newly created ids follow the native create intent's constraints.
+
+The reusable gate is `mere/scripts/dr_c_receipts.py`. Its app tests run in
+separate processes against a nonexistent endpoint and the real keeper over
+a seeded, passphrase-sealed vault locked before any client connects. It
+also exercises the actual Knot endpoint/sync bins, Signalman provisioner,
+Turnstone G3 bin, Distillery inspector and terminal CLI. The fallback
+control restores a local root in Turnstone's production pending branch in
+a clean isolated worktree; the same app receipt must fail for both modes
+at the fallback-root assertion. The source is restored even on failure.
+Source/lock hashes, executable/log hashes, commands and expected exit codes
+go in the receipt. Synthetic vaults are removed only after their host exits.
+
+Reproduction from Mere, using sibling checkouts that contain these receipts.
+The temporary Turnstone checkout is needed because the control mutates its
+production pending branch. Use `--woodshed`, `--knot` or `--turnstone` to
+select an isolated checkout when a primary has concurrent changes:
+
+```text
+git -C C:/Users/mark_/Code/repos/turnstone worktree add --detach C:/Users/mark_/Code/worktrees/turnstone-dr-c-control main
+python scripts/dr_c_receipts.py --fallback-control C:/Users/mark_/Code/worktrees/turnstone-dr-c-control
+git -C C:/Users/mark_/Code/repos/turnstone worktree remove C:/Users/mark_/Code/worktrees/turnstone-dr-c-control
+```
+
+**2026-10-10, DR-C closed.** The Windows automation gate passed all 57
+recorded commands at their expected exit codes. Fourteen isolated app tests
+passed (seven test targets in each mode), and the actual CLI checks passed.
+The seeded keeper was Locked before clients connected; public roster/status
+reads still worked. This is startup, adapter and command-line evidence, not
+a new headed UI or Fedora receipt.
+
+| Caller | Absent and Locked receipt |
+| --- | --- |
+| Graphshell | Admission/identity stays pending; session-key release is refused. |
+| Knot | Sync and async SDK startup, desktop attachment, endpoint and sync bins stay pending; opaque/public state is unchanged and no new vault store is created. |
+| woodshed | Pending practice seal; public reads work; put, delete and batch writes leave the original bytes unchanged. |
+| hocket | No signing identity/contact token, adoption, consent or local fallback; an opaque legacy root remains untouched. |
+| Turnstone | No bound root, pending Denizens, no Gemini identity, no signed-install admission/ledger and no G3 output. |
+| signalman | Root/controller/storage authority remains pending; provisioning creates no credential or station record. |
+| Distillery | Inspector reports identity pending and leaves its public configuration unchanged. |
+| personae-vault | `new-profile` is refused; resident vault bytes remain unchanged; Locked still permits the public roster. |
+
+The restored production fallback made the **same Turnstone test** fail in
+both modes with exit 101, at `Turnstone must not bind a fallback root`.
+Both runs reported `0 passed; 1 failed`. The source's original hash was
+restored, the control worktree was clean, and every measured app/source/lock
+hash stayed unchanged during the gate. The direct-access search found zero
+matches in the app paths. The keeper route tests passed 2/2; the conserved
+vault-command tests passed 7/7. Unlocked terminal profile creation, import,
+listing, public-key and CA output passed. `cargo deny --locked check bans`
+reported `bans ok` for mere, Knot, woodshed, embedded hocket and Turnstone.
+
+Durable evidence is [the command/source manifest](../support/receipts/dr_c.json),
+[the boundary search](../support/receipts/dr_c_boundary.json) and
+[the raw log bundle](../support/receipts/dr_c_logs.zip). The bundle contains
+the 57 command logs, verified against the manifest's hashes, and three host
+logs. Its SHA256 is
+`9e25280c32e5d5c98948ba686b7d82393b1091d56c729061ba383f4fd6006762`.
+Uncompressed logs also remain at `C:/t/cargo-targets/mere/dr-c-receipts`.
+The runner removed its marker-identified synthetic vaults after the hosts
+exited; it did not touch the installed resident or its storage.
+
+Landed on each remote `main`: mere `86f2a3b8` (code `65996ea5`, `932d7e05`),
+Knot `8d71fa9`, woodshed with embedded hocket `6dfb2fe`, and Turnstone
+`53fa567`. Mere's integration merged concurrent documentation only after
+the receipt's source snapshot; the measured code hashes stayed identical.
+Unrelated dirty redshank transcript work and Turnstone's untracked `.github/`
+were preserved. The three task worktrees are removed after this record lands.
+No isolated Cargo home or target was created; builds reused stable targets.
+
+Released-key revocation remains cooperative. Hocket's successful Windows
+DPAPI adoption proof, D13's standalone-repo disposition and DR-E publishing
+remain open; the pending legacy-root receipt does not claim successful adoption.

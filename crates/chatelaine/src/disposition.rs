@@ -57,6 +57,7 @@ pub fn disposition(kind: &CredentialKind) -> Disposition {
         K::Passkey { .. } | K::File { .. } => Disposition::Quarantined,
         // Ruling 15, fields preserved verbatim by castellan.
         K::Unknown { .. } => Disposition::Quarantined,
+        K::RefusedCxf { .. } => Disposition::Quarantined,
         // Ruling 17.
         K::Secret { .. } => Disposition::Stored,
     }

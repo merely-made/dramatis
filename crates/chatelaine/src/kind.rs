@@ -198,6 +198,13 @@ pub enum CredentialKind {
         /// The type string as the file wrote it.
         cxf_type: String,
     },
+    /// A known CXF credential whose required fields could not be imported.
+    /// Sealed in quarantine without fabricating identifying metadata.
+    /// This is distinct from a type introduced after CXF v1.
+    RefusedCxf {
+        /// The known CXF type.
+        cxf_type: String,
+    },
 }
 
 impl CredentialKind {
@@ -224,6 +231,7 @@ impl CredentialKind {
             Self::Wifi { .. } => "wifi",
             Self::Secret { .. } => return None,
             Self::Unknown { cxf_type } => cxf_type,
+            Self::RefusedCxf { cxf_type } => cxf_type,
         })
     }
 }

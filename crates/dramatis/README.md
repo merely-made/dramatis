@@ -1,38 +1,20 @@
 # dramatis
 
-Name reservation for **dramatis**, the cast-list tier of the Mere platform.
+Secret-free identity contracts for applications using the Djinn resident.
+The crate supplies views, intents, operation receipts, and the persona roster.
+Apps use these types to request identity operations from Djinn and render the
+results. Castellan, composed inside Djinn, owns vault and credential custody.
 
-*Dramatis personae*: the persons of the drama. The tier holds both sides of
-identity, your faces and the other players, which is why the name is the full
-cast list rather than any one role:
+The identity tier lives in the
+[Dramatis repository](https://github.com/merely-made/dramatis): Personae holds
+identity and carry primitives, Insigne holds proof grammar, Gaz holds contacts,
+Chatelaine holds credential metadata, and Notochord holds admission transcripts.
+Those member crates remain separate dependencies; this facade does not
+re-export them behind features.
 
-- **[personae](https://crates.io/crates/personae)** — the trust-plane spine:
-  master keypair, per-protocol derivation, vault, sealed records, carry.
-- **[gaz](https://crates.io/crates/gaz)** — stored contacts: anchored
-  records, petnames, per-endpoint trust, kith/kin tiers.
-- **[gazette](https://crates.io/crates/gazette)** — handle resolution: turning a name into reachable,
-  unverified address claims; and announcing the presentations castellan
-  issues, so your own handles resolve (ruled 2026-09-30).
-
-The boundaries are the point:
-
-- **Not the data plane.** Persistence is the eidetic family (muniment journals,
-  chartulary). The planes bond at the seal seam and the sync gate; dramatis
-  holds keys and trust, never the bytes they seal.
-- **Not a product.** *Persona* is an in-product term for a face; dramatis names
-  the tier so the term stays free.
-
-The identity/contact crates and this facade live in the
-[dramatis](https://github.com/merely-made/dramatis) repository, which left
-[mere](https://github.com/merely-made/mere) on 2026-10-09. Gazette is still
-mere's directory port at `ports/gazette`, and castellan stays in mere beside
-djinn. Gaz owns contact intake rules,
-and Gazette adapts resolver output into those rules. Castellan supplies custody
-and sealed backend composition; Personae supplies identity and carry.
-Ruled 2026-10-01: this crate becomes the facade that repos outside mere pin.
-It re-exports personae, insigne and gaz behind features, so a sibling takes
-one dependency at one revision instead of matching several by hand. Mere's own
-crates keep their direct dependencies. No implementation yet.
+Vault storage, passphrase handling, private SSH slots and credential release
+belong to Castellan in [Mere](https://github.com/merely-made/mere). Applications
+reach that authority through Djinn's custody route.
 
 ## License
 

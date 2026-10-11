@@ -1,0 +1,306 @@
+{
+  "status": "landed on main; six Dramatis crates published",
+  "host": "Windows-10-10.0.26220-SP0",
+  "mereImportLanding": "d5f60e5c",
+  "mereFinal": "13394d830df1c4fe21b48b2b8eb51597468ececb",
+  "knotFinal": "4d8b81c5ed8fbe29bac9fc762cb71f161e00c784",
+  "knotMerePin": "7cc37a8192340566e36611b13adb14ceeac7c395",
+  "dramatisDependencySource": "0234e7eea6f2ddf2330a71b9425da01b06ae0391",
+  "dramatisPublishedSource": "8d7880b068c939151ecd6ef05bb2e7a3fe22dbab",
+  "dependencyMode": "portable Git; one Dramatis source in both graphs, one Mere source in Knot; no outside local paths",
+  "resolvedSources": {
+    "dramatis": [
+      "git+https://github.com/merely-made/dramatis.git?rev=0234e7eea6f2ddf2330a71b9425da01b06ae0391#0234e7eea6f2ddf2330a71b9425da01b06ae0391"
+    ],
+    "knot-editor": [
+      "git+https://github.com/merely-made/knot-editor.git?rev=4d8b81c5ed8fbe29bac9fc762cb71f161e00c784#4d8b81c5ed8fbe29bac9fc762cb71f161e00c784"
+    ]
+  },
+  "sources": {
+    "Cargo.toml": "6cd50d9a76437034956b219243c1bb8db178ee8ca2ffbc9b5d9397ab17ad1831",
+    "Cargo.lock": "495cde33b9df59e431d1923fafd66146cc57c9f9b586c65e313a484c5caca6b7",
+    "ports/castellan/Cargo.toml": "af46354e51653ba7907790132090b2e57148ce215767d663623fab8f3aa66767",
+    "ports/castellan/src/authority.rs": "94213d4f8299ed2b0fa4071b4581b0e0133a70fd92a0001f973029f7bbe0bad8",
+    "ports/castellan/src/items/transaction.rs": "8e64a108245ed04e60d3537aa104cc3e68d912ad1d2059dacd4328f27b4ef38f",
+    "ports/castellan/src/otp/base32.rs": "04e50f542ecc741fe9a8c306589dc295bad13449919498e36d14bb028200443a",
+    "ports/djinn/Cargo.toml": "da5521ffdfc54fc4242c7c1b6e46760679b90d291f096186afc4124bd51ed7a4",
+    "ports/djinn/src/keeper.rs": "fe0be9f0995778a57c8bb8b2c98320cdf60f13548c5c7618e14d29c9b0519826",
+    "ports/djinn/src/custody.rs": "5a08c90e9f75fab624f44b37813115cecf6e0f1f0d09913b79b411768ae94cbe",
+    "ports/djinn/src/bin/djinn.rs": "a73faba4b8ca24d1a2ef751004540678c3cd85de258fc4b2882b1418c30cf16c",
+    "ports/graphshell/src/bin/personae_vault.rs": "2c439aae502568fc3e7768ec457067fe4adbbec9cd264f4a533ad309abe424c6",
+    "ports/djinn/tests/cxf_import.rs": "b2f5ae70a9b4290683826306c212d84c00cc53204bf02f8a2a2761e1e3e6baa0",
+    "ports/djinn/tests/hocket_adoption.rs": "3559c95d5e82427d86ab11abfc1548b2c088f9bd0a9392bc574468c1069ff9fa",
+    "ports/castellan/src/cxf/commit.rs": "895772ed315e761d3caefb64423e5a72788528fadb0522916d956ea7f4cac3fb",
+    "ports/castellan/src/cxf/erase.rs": "e0a0705c7c23df354f5759b1149d470eb3a6dd720199e19414956e1a0734b33b",
+    "ports/castellan/src/cxf/mod.rs": "c3a0d0dd3b4796c91bc56e963f4a7dfc096582f08f1a01ecd16838d948771640",
+    "ports/castellan/src/cxf/parse.rs": "a36c5c59fdacc167ecfdf8b0dcba218bb05ab90bdda87886897935b70bcec27a",
+    "ports/castellan/src/cxf/ssh.rs": "90aecad9921d5fba05da9bd9b5dacf05f205e1f301adc156f4d71e7b62402483",
+    "ports/castellan/src/cxf/tests.rs": "c766deb046713e2a5348d6db5894d5765f9a1641332e33c83e9526b341bccaef"
+  },
+  "knotSources": {
+    "Cargo.toml": "69a43eada61e42f3da70c7b67ab9d0b9ca370e818debb0594375c74b2e055e3b",
+    "Cargo.lock": "f0bec284fa9e6e5decfe63dce59e5add143cac040cfc2117633b6b85a7928c97",
+    "apps/desktop/Cargo.toml": "3620b3607cde0636253419f07531af622f08138bc480edcc2b029334c3c4bef4",
+    "crates/knot-document/Cargo.toml": "e8513846d48e696ca4a1b961e9ef74d2d1fecd1faa72bc4c08c8185c6306a744"
+  },
+  "gates": [
+    {
+      "command": "cargo test --locked --target-dir C:/t/cargo-targets/mere -j4 -p castellan --all-features --lib",
+      "exit": 0,
+      "passed": 318,
+      "cxfPassed": 13,
+      "log": "cxf-landed-castellan.log"
+    },
+    {
+      "command": "cargo test --locked --target-dir C:/t/cargo-targets/mere -j4 -p djinn --test custody_route --test cxf_import --test hocket_adoption --test keeper_endpoint",
+      "exit": 0,
+      "passed": 9,
+      "hocketDpapiPassed": 4,
+      "log": "cxf-landed-djinn-receipts.log"
+    },
+    {
+      "command": "CARGO_TARGET_DIR=C:/t/cargo-targets/mere CARGO_BUILD_JOBS=4 python scripts/cargo_mode.py verify",
+      "exit": 0,
+      "packages": 1612,
+      "allTargets": true,
+      "log": "cxf-landed-portable.log"
+    },
+    {
+      "command": "cargo check --locked --target-dir C:/t/cargo-targets/mere -j4 -p mere-signalman --all-features --all-targets",
+      "exit": 0,
+      "log": "cxf-landed-signalman.log"
+    },
+    {
+      "command": "cargo check --locked --target-dir C:/t/cargo-targets/mere -j4 -p graphshell --no-default-features --features web --lib --target wasm32-unknown-unknown",
+      "exit": 0,
+      "log": "cxf-landed-web.log"
+    },
+    {
+      "command": "cargo deny --locked check bans",
+      "sourceSnapshot": "d5f60e5c",
+      "exit": 0,
+      "log": "cxf-merged-bans.log"
+    },
+    {
+      "command": "cargo test --locked --target-dir C:/t/cargo-targets/knot-editor -j4 -p knot-editor --lib",
+      "exit": 0,
+      "passed": 150,
+      "ignored": 1,
+      "log": "dramatis-final-tests.log"
+    },
+    {
+      "command": "cargo check --workspace --all-targets --locked --target-dir C:/t/cargo-targets/knot-editor -j4",
+      "exit": 0,
+      "log": "dramatis-final-all-targets.log"
+    }
+  ],
+  "quarantineControl": {
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--target-dir",
+      "C:/t/cargo-targets/mere",
+      "-j4",
+      "-p",
+      "castellan",
+      "--all-features",
+      "--lib",
+      "cxf::tests::quarantine_refuses_exercise_before_opening_payload"
+    ],
+    "mutation": "disable production quarantine refusal",
+    "negativeExit": 101,
+    "positiveExit": 0,
+    "tripwire": true,
+    "sourceRestored": true,
+    "sourceSha256": "8e64a108245ed04e60d3537aa104cc3e68d912ad1d2059dacd4328f27b4ef38f"
+  },
+  "legacySignalmanBaseline": {
+    "repoHead": "0731bd8c1c488f37839fa9c8bad6973798e59d95",
+    "manifestSha256": "0221fba74e829a187e94b5be7d2f10399a216c35cb4601799990058b0b329a12",
+    "originalLockSha256": "86d056069000657f2b108dfdc846e3e8d2a57cb5458a0ff7047ba6eddcc403f4",
+    "refreshedLockSha256": "f303589f23dbb5845a03bfba9e43d56e2793410d4c8266cd4b243883f62c6107",
+    "baselineLockedExit": 101,
+    "refreshedCompileExit": 101,
+    "reason": "Untouched legacy desktop pins Mere d82afa17 and Retinue 6af5c0ff. Current local Postilion expects local selvage::PhyProfile but receives the separate Git version. This is outside the new CXF graph.",
+    "originalLockRestored": true
+  },
+  "docAudits": {
+    "activeDocExit": 1,
+    "judgmentExit": 1,
+    "scope": "pre-existing unrelated findings, plus missing sibling paths relative to the isolated checkout; own new custody/CXF headers repaired",
+    "logs": [
+      "cxf-landed-doc-audit.log",
+      "cxf-landed-doc-judgment.log",
+      "cxf-primary-doc-audit.log",
+      "cxf-primary-doc-judgment.log"
+    ]
+  },
+  "limitations": [
+    "Importer-owned plaintext and decoded buffers are cleared; discarded intermediate allocations inside the third-party parser have no whole-process zeroization guarantee.",
+    "Commit is atomic per persona item index; a multi-persona/SSH failure reports completed writes, not a global rollback.",
+    "P5 quarantine review and P6 export remain open.",
+    "The untouched legacy Retinue Signalman desktop has a stale lock and split local/Git PhyProfile types; its original lock was restored byte-exact."
+  ],
+  "release": {
+    "workspaceTestsPassed": 318,
+    "dryRunExit": 0,
+    "publishExit": 0,
+    "command": "cargo publish --workspace --all-features --locked --target-dir C:/t/cargo-targets/dramatis -j4",
+    "registry": [
+      {
+        "crate": "personae",
+        "version": "0.3.0",
+        "url": "https://crates.io/crates/personae/0.3.0",
+        "registryChecksum": "46a70cb53cdfa86246d6c7e339b2eb7eb82c0bbc90e6acc70429c4524a07207b",
+        "publishedAt": "2026-10-11T08:06:40.501307Z",
+        "yanked": false,
+        "license": "MPL-2.0",
+        "licenseIncluded": true,
+        "vcs": {
+          "git": {
+            "sha1": "8d7880b068c939151ecd6ef05bb2e7a3fe22dbab"
+          },
+          "path_in_vcs": "crates/personae"
+        },
+        "downloadVerified": true,
+        "repository": "https://github.com/merely-made/dramatis"
+      },
+      {
+        "crate": "insigne",
+        "version": "0.0.2",
+        "url": "https://crates.io/crates/insigne/0.0.2",
+        "registryChecksum": "a2ac242f8e61deffc2a2d40c159e8ebb3d9db4ae3bfda8e972deedfde2b9e891",
+        "publishedAt": "2026-10-11T08:06:39.273454Z",
+        "yanked": false,
+        "license": "MPL-2.0",
+        "licenseIncluded": true,
+        "vcs": {
+          "git": {
+            "sha1": "8d7880b068c939151ecd6ef05bb2e7a3fe22dbab"
+          },
+          "path_in_vcs": "crates/insigne"
+        },
+        "downloadVerified": true,
+        "repository": "https://github.com/merely-made/dramatis"
+      },
+      {
+        "crate": "gaz",
+        "version": "0.0.2",
+        "url": "https://crates.io/crates/gaz/0.0.2",
+        "registryChecksum": "48ea5e4042879c10e155d5b884be83ae42fd0888abed5fc68d4451a559a82be8",
+        "publishedAt": "2026-10-11T08:06:43.003586Z",
+        "yanked": false,
+        "license": "MPL-2.0",
+        "licenseIncluded": true,
+        "vcs": {
+          "git": {
+            "sha1": "8d7880b068c939151ecd6ef05bb2e7a3fe22dbab"
+          },
+          "path_in_vcs": "crates/gaz"
+        },
+        "downloadVerified": true,
+        "repository": "https://github.com/merely-made/dramatis"
+      },
+      {
+        "crate": "chatelaine",
+        "version": "0.0.3",
+        "url": "https://crates.io/crates/chatelaine/0.0.3",
+        "registryChecksum": "0e1775e34ae705cb8f355e6be8dceef98775384fcfba093a2e4a7e038eb366a3",
+        "publishedAt": "2026-10-11T08:06:38.634820Z",
+        "yanked": false,
+        "license": "MPL-2.0",
+        "licenseIncluded": true,
+        "vcs": {
+          "git": {
+            "sha1": "8d7880b068c939151ecd6ef05bb2e7a3fe22dbab"
+          },
+          "path_in_vcs": "crates/chatelaine"
+        },
+        "downloadVerified": true,
+        "repository": "https://github.com/merely-made/dramatis"
+      },
+      {
+        "crate": "notochord",
+        "version": "0.1.1",
+        "url": "https://crates.io/crates/notochord/0.1.1",
+        "registryChecksum": "5750f569d84160e28d1e432dff4d0be6beca145ad0fa2c95baa31be7914e6f12",
+        "publishedAt": "2026-10-11T08:06:43.700682Z",
+        "yanked": false,
+        "license": "MPL-2.0",
+        "licenseIncluded": true,
+        "vcs": {
+          "git": {
+            "sha1": "8d7880b068c939151ecd6ef05bb2e7a3fe22dbab"
+          },
+          "path_in_vcs": "crates/notochord"
+        },
+        "downloadVerified": true,
+        "repository": "https://github.com/merely-made/dramatis"
+      },
+      {
+        "crate": "dramatis",
+        "version": "0.0.3",
+        "url": "https://crates.io/crates/dramatis/0.0.3",
+        "registryChecksum": "bfbc015f6f8ba3b7cfa8bfdbbef18cc1def5fba2a7fea11308523f62b2da734a",
+        "publishedAt": "2026-10-11T08:06:42.436323Z",
+        "yanked": false,
+        "license": "MPL-2.0",
+        "licenseIncluded": true,
+        "vcs": {
+          "git": {
+            "sha1": "8d7880b068c939151ecd6ef05bb2e7a3fe22dbab"
+          },
+          "path_in_vcs": "crates/dramatis"
+        },
+        "downloadVerified": true,
+        "repository": "https://github.com/merely-made/dramatis"
+      }
+    ]
+  },
+  "logs": {
+    "cxf-landed-castellan.log": "000920f5ac9e8b18fa125522afcca73eb74074505cebaf6177eb0e858201c83e",
+    "cxf-landed-djinn-receipts.log": "cd9d9c8b2534f32e8f120e18fbf8debc00c92a4c0214a10d58529059533a9ec7",
+    "cxf-landed-portable.log": "be7aff2795287ca93720c9667e86be37f8f43518b192f0fb57c547e9a7284441",
+    "cxf-landed-signalman.log": "79aa019b9bf755c09bf76a88d72df36127a1c668813fe964397dd94651c67e87",
+    "cxf-landed-web.log": "8984b8a1dd51f2672ab0065f70251a6f03efb1baefc1bc8006f279b050f799e3",
+    "cxf-last-merge-check.log": "7fc5c201ab08e9c4af3344a92e7f290cd469042f586c117304d1caca0e6b45e0",
+    "cxf-merged-bans.log": "7bcfaa9b32c5b066628c1f4ebc0116fda8d789b6e08c0c1bee4edf7f76e07a71",
+    "cxf-final-quarantine-control.log": "41c7faa4a3baad63d57175f9d7c3f72c829b896502c4c7ffa44a4914549e67c5",
+    "cxf-final-quarantine-restored.log": "797d89166f8dc5e8def52ec0d008c65ac57f59e671d4d4c8d6e673806a022ac7",
+    "cxf-final-quarantine-control.json": "75b6ef805fc739001ceee9c1ba1cdd986dc116e5b181bd78b0ccc482c5e5f576",
+    "cxf-nested-baseline.json": "54f54a2f828de691902b1de2c82d1ef21c7b9b488627d840b3f4dbb65750808d",
+    "cxf-nested-signalman.log": "12747d92dbc40e2a4bb1e9f3fe379329dd955d52362a4ec8dd0bb642a8d7620e",
+    "cxf-nested-metadata.log": "11ce8fe9a1b646e70bd37e34b2e571fdb2f53b3adbc06ae2d1eced670b015fd3",
+    "cxf-nested-signalman-refresh.log": "e2ba935093b45e51231a4e5aae40f4f0f0bb73b81f82d0613478c03e27c78b68",
+    "cxf-landed-doc-audit.log": "4af3b616e22871a7d1dd030bff73a31d075c3713dabb90115966ebf154c92d89",
+    "cxf-landed-doc-judgment.log": "dbd7e98390f0d86268432a54acfb84190d0f853926951bec8e4c4cf732fc01d2",
+    "cxf-primary-doc-audit.log": "900ab6a7728264f29093b6875b3bc938d7c193f5291399b57b0c85dbfcaddc1f",
+    "cxf-primary-doc-judgment.log": "dbd7e98390f0d86268432a54acfb84190d0f853926951bec8e4c4cf732fc01d2",
+    "cxf-landed-metadata.json": "275895e6b46b28c362a87bbfc534a99f73b9ca8bdd8e5fc33d9b9a8f64999658",
+    "dramatis-final-metadata.json": "8d30dd1eb7f33f7e72fdec72999f72f99722cf6bfa30798e0bd1b0623187229f",
+    "dramatis-final-metadata.log": "b5dafc0c6fe1d0b7a6e81fa38d7762511f1eb5d916007d0dce99280692fd2a5d",
+    "dramatis-final-tests.log": "946407ff5e37b1e1421b98e5c254aabe06739d3f7f0c5ce495a01a3a09f252cc",
+    "dramatis-final-all-targets.log": "9303b66c02678cb1059ba4475a117b1286fd38d16692a464f4a35463e4f64d11",
+    "release-tests.log": "0807c6c8bf9e934df6b6e89844116e9c121107c5cf4d726fa261e2ed48f142cf",
+    "release-final-dry-run.log": "27770e77eadd59d0a6058219375c1d373b48dcb4c0eabc4b33f434f8f1d4edd0",
+    "release-publish.log": "1aef0fd77bd944dd41062acd86fa05627d5dbe588386a70b19e3a7542cb10413",
+    "release-registry.json": "fe54cf926cfdf95651b7dfcfb7726f3513d0a11ab132318e9d3026e671010f32"
+  },
+  "logArchive": {
+    "path": "chatelaine_cxf_logs.zip",
+    "sha256": "5257773ab13c7daf1ab5641e8dd22913bb4ab843ee4eba22a0389552dab9a10b"
+  },
+  "cleanup": {
+    "focusedWorktree": "removed after clean-source and origin/main integration checks",
+    "cargoHome": "none created",
+    "retainedCache": {
+      "path": "C:/t/cargo-targets/retinue",
+      "owner": "this lane, untouched legacy Signalman baseline compile",
+      "reason": "Automatic approval review rejected marker-checked Remove-Item cleanup; no reason was supplied."
+    },
+    "temporaryBranch": "cxf-import removed locally and remotely after integration",
+    "primaryCheckout": "preserved; primary Mere source was not reset or fast-forwarded by this lane",
+    "stableBuildCaches": "existing Mere, Dramatis and Knot caches reused; no isolated Cargo home created"
+  }
+}

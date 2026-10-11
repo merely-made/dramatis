@@ -26,13 +26,14 @@ identity: your faces, and the other players.
 
 | Piece | Kind | Holds | Side |
 |---|---|---|---|
-| [personae](https://crates.io/crates/personae) | crate | the master keypair, per-protocol derivation, vault, sealed records, the carry model, issuing | me |
+| [personae](https://crates.io/crates/personae) | crate | master-key derivation, public vault types, sealed-record helpers, the carry model, issuing | me |
 | [insigne](https://crates.io/crates/insigne) | crate | proofs: typed keys, delegation certificates and revocations, derived-key attestations, as plain data; checking behind `verify` | between |
-| [chatelaine](https://crates.io/crates/chatelaine) | crate (reservation; ruled a plain taxonomy, §7) | secrets: passwords, 2FA seeds, tokens, foreign key material | me |
+| [chatelaine](https://crates.io/crates/chatelaine) | crate (plain taxonomy, §7) | secret-free descriptions of passwords, 2FA seeds, tokens and foreign key material | me |
 | [gaz](https://crates.io/crates/gaz) | crate | stored contacts: anchored records, per-endpoint trust, kith and kin, retained proofs | them, kept |
-| [castellan](https://crates.io/crates/castellan) | port | guards and presents you: the secret-free views, and the authority that exercises secrets and signs | me, outward |
+| castellan | custody crate in Mere, linked only by Djinn | the vault, sealed records and authority that exercises secrets and signs | me, outward |
 | [gazette](https://crates.io/crates/gazette) | port | the directory: resolves them, reads what they publish, and (§6) announces you | them, inward; you, outward |
 | [dramatis](https://crates.io/crates/dramatis) | crate (public views, intents, roster and receipts) | the vocabulary sibling apps exchange with djinn | — |
+| [notochord](https://crates.io/crates/notochord) | crate | owner-controlled session admission, delegation-chain evaluation and local revocation | between |
 | `mere-persona-picker` | crate | the Cambium view over the roster | me |
 
 The six identity crates live here under `crates/`. Castellan, Gazette and the

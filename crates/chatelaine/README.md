@@ -15,8 +15,8 @@ The boundaries are the point: not the proofs (that is
 [insigne](https://crates.io/crates/insigne): public-key artifacts made to be
 shown; the boundary is cryptographic, not filing), not the keeper (that is
 [castellan](https://crates.io/crates/castellan)), and not the storage
-substrate (that is [personae](https://crates.io/crates/personae)'s vault; the
-chatelaine is the item taxonomy kept there).
+substrate (personae supplies sealed-record helpers; Castellan owns the vault
+and keeps the Chatelaine items there).
 
 Lives in the [dramatis](https://github.com/merely-made/dramatis) repository,
 which left mere on 2026-10-09. Built: the item taxonomy (items, credentials of every CXF

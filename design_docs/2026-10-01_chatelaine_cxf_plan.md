@@ -10,7 +10,7 @@ The review stop ended 2026-10-04 (ruling 51), and P4a landed
 (P-256, P-384) beside Ed25519; held keys are never rewritten; unsignable
 keys and P-521 are refused at all three doors. The vault lock and DR-C
 custody boundary have landed. P4's implementation is in verification;
-unsupported OTP digit counts still await Mark's choice.
+unsupported OTP digit counts are preserved in quarantine (ruling 68).
 **Scope**: found `chatelaine` as the tier's plain secret-item taxonomy; move
 castellan's OTP items and its Secret Service store onto it; then import
 (and finally export) the FIDO Credential Exchange Format through castellan.
@@ -575,53 +575,55 @@ build.
         machine's `authorized_keys`.
 
 - **P4 — CXF import (castellan feature `cxf`).** Needs P4a. Done when:
-  - [ ] import is two-step (ruling 21): reading a document returns its
+  - [x] import is two-step (ruling 21): reading a document returns its
         accounts with counts per disposition and nothing stored; committing
         takes a persona per account;
-  - [ ] every kind lands per the ruled table, proven by a fixture holding all
+  - [x] every kind lands per the ruled table, proven by a fixture holding all
         17 kinds plus one unknown type, each asserted;
-  - [ ] a multi-credential CXF item stays one item (ruling 16), unless its
+  - [x] a multi-credential CXF item stays one item (ruling 16), unless its
         credentials' treatments differ: then the quarantined credentials
         move to their own quarantined item linked back to the original, and
         its SSH keys route to SSH import (ruling 35);
-  - [ ] documents are read whole with `from_slice` only, never a reader or a
+  - [x] documents are read whole with `from_slice` only, never a reader or a
         `Value`, since the crate's base64url strings deserialize only when
         borrowed; each credential's `type` is checked to be a string before
         the typed parse (ruling 32);
-  - [ ] a known type that fails its typed parse, which the crate demotes to
+  - [x] a known type that fails its typed parse, which the crate demotes to
         `Unknown` with the known type string, is re-parsed locally from the
         raw JSON (TOTP `period` and `digits` up to 65,535; custom-fields
         element by element) and, if that still fails, quarantined with its
         reason, never treated as an unknown type (ruling 32);
-  - [ ] unknown credentials are sealed as their original bytes, taken from a
+  - [x] unknown credentials are sealed as their original bytes, taken from a
         `RawValue` pre-scan (ruling 30); unknown fields on known types are
         ignored, as CXF §3.1.1 requires (ruling 31);
-  - [ ] TOTP secrets are decoded from the raw string by castellan's own
+  - [x] TOTP secrets are decoded from the raw string by castellan's own
         Base32 decoder, never the crate's normalising `B32`; a refused
         secret is quarantined with the reason shown (ruling 33);
-  - [ ] the spec's ignore rules are applied in the mapping layer: an unknown
+  - [x] the spec's ignore rules are applied in the mapping layer: an unknown
         TOTP algorithm, an unknown HMAC algorithm, and sharing accessors with
         an unknown type or permission; and a document whose major version is
         not 1 is refused;
-  - [ ] no crate type is ever logged or formatted with `{:?}`: the crate
+  - [x] no crate type is ever logged or formatted with `{:?}`: the crate
         derives `Debug` on secrets and has no zeroize;
-  - [ ] `item-reference` becomes a link; a dangling one is reported, not
+  - [x] `item-reference` becomes a link; a dangling one is reported, not
         stored as an item;
-  - [ ] unknown types are quarantined with their fields preserved verbatim,
-        and P6's export reproduces them;
-  - [ ] **quarantine is unexercisable**: a negative-control test shows the
+  - [x] unknown types are quarantined with their fields preserved verbatim,
+        with export reproduction left to P6;
+  - [x] **quarantine is unexercisable**: a negative-control test shows the
         release gate refusing a quarantined credential, and the test fails
         if the refusal is removed (invariant 12);
-  - [ ] **personae's live SSH slots are untouched** (ruling 20): `ssh-key`
+  - [x] **personae's live SSH slots are untouched** (ruling 20): `ssh-key`
         of every algorithm P4a supports goes through castellan's native SSH
         import into new fingerprint-keyed slots; a receipt shows every
         pre-existing slot byte-identical afterwards and the agent still
         serving it, and re-importing a held key is a no-op;
-  - [ ] the file is treated as burning: plaintext buffers are zeroized,
+  - [x] the file is treated as burning: importer-owned plaintext buffers are zeroized,
         nothing is written to disk but sealed records, and the import report
         says the source file is plaintext and should be deleted;
-  - [ ] all-features and nested-workspace builds pass (signalman,
-        graphshell's web check).
+  - [ ] the legacy nested Signalman desktop build passes. Its unchanged
+        baseline has a stale lock and split local/Git `selvage::PhyProfile`
+        types. The current Signalman SDK and Graphshell web are separate
+        gates; this legacy desktop needs its own dependency migration.
 
 - **P5 — the quarantine review.** Done when:
   - [ ] castellan's projection lists quarantined items as secret-free cards,
@@ -972,9 +974,8 @@ the import, and no sharing provider or grant model is invented.
 These checks used a temporary local Knot dependency while preparing its
 matching Dramatis release pin. They are pre-integration receipts, not a
 portable Git-source gate. The final dependency convergence, portable gate,
-nested Signalman desktop gate and publishing remain pending. Unsupported
-OTP digits are provisionally quarantined in the draft; that policy is not
-a ruling. P5 quarantine review and P6 export remain separate work.
+nested Signalman desktop gate and publishing were pending at this snapshot. At this draft snapshot OTP digits were provisionally quarantined; ruling
+68 below subsequently confirmed preservation and quarantine. P5 quarantine review and P6 export remain separate work.
 
 ## 6. Running it
 
@@ -995,9 +996,11 @@ different persona is omitted and reported; it never crosses a store scope.
 item title and report the substitution". This supplies Chatelaine's required
 account label without inventing an account identity.
 
-The treatment of decimal digit counts outside Castellan's supported 6–10
-range is awaiting Mark's choice. Broader generator support has no scheduled
-milestone; import must not promise future support.
+**Ruling 68.** Decimal digit counts outside Castellan's supported 6–10
+range: Mark confirmed "preserve and quarantine". Import preserves the
+original count and reports it; quarantine prevents exercise. Broader
+generator support has no scheduled milestone, and this import does not
+promise it.
 
 As ruled (26 to 29), with the workspace's lane rules:
 

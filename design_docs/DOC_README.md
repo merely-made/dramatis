@@ -42,8 +42,8 @@ see `repos/mere/design_docs/DOC_README.md`.
   identity vault's lock defends, what it leaves open, and what is known only
   by reading. The lock itself is castellan's, in mere.
 - [chatelaine_cxf_plan](2026-10-01_chatelaine_cxf_plan.md): **plan,
-  2026-10-01; P0 to P3 and P4a landed; P4 (CXF import) waits on the vault
-  lock.** chatelaine as the plain secret-item taxonomy, castellan's OTP
+  2026-10-01; P0 to P3 and P4a landed; P4 (CXF import) is in verification
+  on 2026-10-11 after DR-C closure.** chatelaine as the plain secret-item taxonomy, castellan's OTP
   items and Secret Service store moved onto it, then CXF import through
   castellan.
 - [personae_founding](2026-07-08_personae_founding.md): **founded.** The

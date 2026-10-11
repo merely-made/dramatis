@@ -558,7 +558,12 @@ finishes (D18).
   - [ ] every graph resolves exactly one personae source (measured);
   - [ ] mere's gate and both doc audits pass;
   - [ ] Knot's lockstep run passes, test targets included.
-- **DR-E — crates.io metadata and publishing.** Mark's step.
+- **DR-E — crates.io metadata and publishing.** Authorized by Mark on
+  2026-10-11 after Hocket's adoption receipt and CXF import pass their gates.
+  The prepared versions are personae 0.3.0, insigne 0.0.2, gaz 0.0.2,
+  chatelaine 0.0.3, notochord 0.1.1 and dramatis 0.0.3. Workspace tests
+  and the verified six-package Cargo publication dry run pass. Uploading
+  remains pending the import's final gates and OTP digit-count choice.
 
 ## 5. Findings
 
@@ -883,3 +888,31 @@ No isolated Cargo home or target was created; builds reused stable targets.
 Released-key revocation remains cooperative. Hocket's successful Windows
 DPAPI adoption proof, D13's standalone-repo disposition and DR-E publishing
 remain open; the pending legacy-root receipt does not claim successful adoption.
+
+**2026-10-11, adoption and publishing preparation.** The new Hocket receipt
+uses synthetic legacy records sealed through production Windows DPAPI and
+the real keeper adoption path. Four tests pass: the contact token and public
+key survive adoption; the family seed and legacy wrapper/records stay
+byte-identical; a restart and repeated adoption do not duplicate or rewrite
+the result; an existing matching seed is reused; a conflicting `hocket`
+profile is refused; and Locked refuses before legacy I/O. This test source
+is still in the focused Mere `mere-cxf` worktree, pending integration. It
+does not touch the installed Hocket identity or the active resident.
+
+The six Dramatis release candidates are prepared on `main` at `0234e7e`:
+personae 0.3.0, insigne 0.0.2, gaz 0.0.2, chatelaine 0.0.3, notochord 0.1.1,
+and dramatis 0.0.3. Workspace all-features tests pass (318 including integration
+tests and doctests). A six-package publishing dry run passes, including member
+dependency verification through Cargo's temporary registry; each archive
+contains its MPL license. No crates.io upload has occurred. The archives'
+hashes describe this preflight snapshot, not a future uploaded archive.
+
+CXF's draft verification and remaining gates are recorded in its canonical
+plan. Durable pre-integration evidence is
+[the source and command manifest](../support/receipts/chatelaine_cxf_draft.json)
+and [the log bundle](../support/receipts/chatelaine_cxf_draft_logs.zip).
+The digit-count policy still awaits Mark's ruling. Final portable Git-source
+convergence and the nested desktop gate remain required before upload.
+The focused Mere worktree and temporary Knot release-pin draft are retained
+for this task; stable Mere and Dramatis targets are reused, with no isolated
+Cargo home. Concurrent work and other sessions' builds remain untouched.

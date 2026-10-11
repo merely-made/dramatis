@@ -1,0 +1,182 @@
+{
+  "status": "pre-integration draft; upload not performed",
+  "host": "Windows-10-10.0.26220-SP0",
+  "mereBase": "1081987cdd1b5f3d36a60576be9a711198e16c51",
+  "dramatisReleaseSource": "0234e7eea6f2ddf2330a71b9425da01b06ae0391",
+  "verifiedDependencyMode": "Mere Git workspace with temporary local Knot paths and matching Dramatis 21a57ec pin; not the final portable gate",
+  "sources": {
+    "Cargo.toml": "4d28989cd8ab72d452752481ad8f3528c30ef8bd410220e5c96a01bc5b743553",
+    "Cargo.lock": "86cfb94287a113651e9f3794b6dd2062e11569a1e02aabd34dcad0b5a094ec00",
+    "ports/castellan/Cargo.toml": "af46354e51653ba7907790132090b2e57148ce215767d663623fab8f3aa66767",
+    "ports/castellan/src/authority.rs": "94213d4f8299ed2b0fa4071b4581b0e0133a70fd92a0001f973029f7bbe0bad8",
+    "ports/castellan/src/items/transaction.rs": "8e64a108245ed04e60d3537aa104cc3e68d912ad1d2059dacd4328f27b4ef38f",
+    "ports/castellan/src/otp/base32.rs": "04e50f542ecc741fe9a8c306589dc295bad13449919498e36d14bb028200443a",
+    "ports/djinn/Cargo.toml": "357a9a32660fe95be749822960214ac6fe64ee475afc74cb7fbe55346479e29b",
+    "ports/djinn/src/keeper.rs": "fe0be9f0995778a57c8bb8b2c98320cdf60f13548c5c7618e14d29c9b0519826",
+    "ports/djinn/src/custody.rs": "5a08c90e9f75fab624f44b37813115cecf6e0f1f0d09913b79b411768ae94cbe",
+    "ports/djinn/src/bin/djinn.rs": "a73faba4b8ca24d1a2ef751004540678c3cd85de258fc4b2882b1418c30cf16c",
+    "ports/graphshell/src/bin/personae_vault.rs": "7e67b43c77cc2740509f7c995dbe576429f3902c0f4c4a1738c91e2e43017d51",
+    "ports/djinn/tests/cxf_import.rs": "92de89d68710890cc15bae4623230dbd51b670842aac4acea18f3b149e3afbc6",
+    "ports/djinn/tests/hocket_adoption.rs": "6ea8ca9ea0d8d175b5bda5a76148fc67cc72fc464dd2926e162d490d296fcf5e",
+    "ports/castellan/src/cxf/commit.rs": "ff40c76f79f4b80f5a10baa15a06bb2197d33872143440b7dc500aeff855a9a5",
+    "ports/castellan/src/cxf/erase.rs": "66f6b79193af57b9806f9594436dff9afa3d1853e821c7346d9b98ab51aab2c2",
+    "ports/castellan/src/cxf/mod.rs": "e93f2d750ab2f03a6d477cda8c4005cdbc02bba2647bfecb66d7facb8286ccac",
+    "ports/castellan/src/cxf/parse.rs": "3f1e1ee51fb402c4b67256d04ecbcb20877f741f70460d0b379b0d4e9917b84a",
+    "ports/castellan/src/cxf/ssh.rs": "fff4658474f8b1a64ff31709f50b10ff6acf4e53e3fd8a5564494136e8993d0a",
+    "ports/castellan/src/cxf/tests.rs": "0e088bfae70f3dc65f117cefc3abd8a98f3406136c2efcaf859dc1857dd1ca28"
+  },
+  "knotDraftSources": {
+    "Cargo.toml": "1c82eb32e45af114e34050b0eb37fb6a31cf174c649e9325571c937f8f16ee52",
+    "Cargo.lock": "c6b765213ed5b739cfa53699c61bf04e31772c4c80dcd145f1ef67146700d351"
+  },
+  "quarantineControl": {
+    "command": [
+      "cargo",
+      "test",
+      "--locked",
+      "--target-dir",
+      "C:/t/cargo-targets/mere",
+      "-j4",
+      "-p",
+      "castellan",
+      "--all-features",
+      "--lib",
+      "cxf::tests::quarantine_refuses_exercise_before_opening_payload"
+    ],
+    "mutation": "quarantine refusal disabled",
+    "exit": 101,
+    "expectedExit": 101,
+    "tripwire": true,
+    "sourceRestored": true,
+    "sourceSha256": "8e64a108245ed04e60d3537aa104cc3e68d912ad1d2059dacd4328f27b4ef38f"
+  },
+  "packages": [
+    {
+      "crate": "personae",
+      "version": "0.3.0",
+      "sha256": "735c8d720b60a9e9606d0cd1a663523a9bb60e713bd71bbb4099bb7ed974ee0e",
+      "licenseIncluded": true
+    },
+    {
+      "crate": "insigne",
+      "version": "0.0.2",
+      "sha256": "d66468ead8f3b6031c8a0c6606e65b8f1b09b515cda8ee22c34c24ede40be06e",
+      "licenseIncluded": true
+    },
+    {
+      "crate": "gaz",
+      "version": "0.0.2",
+      "sha256": "5537771a62f7eb948c3829935a2c6c603305df80a336176774e9d9cb97db2850",
+      "licenseIncluded": true
+    },
+    {
+      "crate": "chatelaine",
+      "version": "0.0.3",
+      "sha256": "d423ed2b4b9ab66dad18a360f57e9e9615c939e62213746e510220f19be78b17",
+      "licenseIncluded": true
+    },
+    {
+      "crate": "notochord",
+      "version": "0.1.1",
+      "sha256": "9226fc8dced969e4050c95e79ab192635b33f12113b5f1f89f9ee60780d46e40",
+      "licenseIncluded": true
+    },
+    {
+      "crate": "dramatis",
+      "version": "0.0.3",
+      "sha256": "16e452781205ec7c063b8d95aaf9cf49daf23f0c373ce51a0a7d73f48790829f",
+      "licenseIncluded": true
+    }
+  ],
+  "gates": [
+    {
+      "name": "castellan-all-features",
+      "log": "cxf-all-features.log",
+      "sha256": "23d6253fb0f8f1cd89277b50907841d46bff44054c1fac004fdac6e4ef8c4b20",
+      "expectedExit": 0,
+      "observedExit": 0,
+      "testsPassed": 317,
+      "command": "cargo test --locked --target-dir C:/t/cargo-targets/mere -j4 -p castellan --all-features --lib"
+    },
+    {
+      "name": "cxf-fixtures",
+      "log": "cxf-tests.log",
+      "sha256": "0ac8e81611e2e57a23b9a29d80ce19c509da7052e5d84b64cc2fe6659e9eab69",
+      "expectedExit": 0,
+      "observedExit": 0,
+      "testsPassed": 12,
+      "command": "cargo test --locked --target-dir C:/t/cargo-targets/mere -j4 -p castellan --all-features --lib cxf::tests"
+    },
+    {
+      "name": "hocket-dpapi-adoption",
+      "log": "hocket-adoption.log",
+      "sha256": "a2bab8bc47063072016dec302e455a84fddb006f410d6949bff6d04f5932ffc4",
+      "expectedExit": 0,
+      "observedExit": 0,
+      "testsPassed": 4,
+      "command": "cargo test --locked --target-dir C:/t/cargo-targets/mere -j4 -p djinn --test hocket_adoption"
+    },
+    {
+      "name": "djinn-lib-bins",
+      "log": "cxf-djinn-build.log",
+      "sha256": "eeda307dea29c9cae31cb4d741180c85b3bb4e9e088715b6b520a4ae7dbb9b7f",
+      "expectedExit": 0,
+      "observedExit": 0,
+      "testsPassed": null,
+      "command": "cargo check --locked --target-dir C:/t/cargo-targets/mere -j4 -p djinn --lib --bins"
+    },
+    {
+      "name": "signalman-port",
+      "log": "cxf-signalman.log",
+      "sha256": "687a896a7532feffb0e6f473949f61703c37fabd17f73ecb9d2f2b49957bdb3e",
+      "expectedExit": 0,
+      "observedExit": 0,
+      "testsPassed": null,
+      "command": "cargo check --locked --target-dir C:/t/cargo-targets/mere -j4 -p mere-signalman --all-features --all-targets"
+    },
+    {
+      "name": "graphshell-web",
+      "log": "cxf-web.log",
+      "sha256": "3433269c7ac9ac9314cc02e0220009b098c7393407cc5eb8c0e182266f37fa2d",
+      "expectedExit": 0,
+      "observedExit": 0,
+      "testsPassed": null,
+      "command": "cargo check --locked --target-dir C:/t/cargo-targets/mere -j4 -p graphshell --target wasm32-unknown-unknown --no-default-features --features web --lib"
+    },
+    {
+      "name": "release-workspace",
+      "log": "release-tests.log",
+      "sha256": "0807c6c8bf9e934df6b6e89844116e9c121107c5cf4d726fa261e2ed48f142cf",
+      "expectedExit": 0,
+      "observedExit": 0,
+      "testsPassed": 318,
+      "command": "cargo test --workspace --all-features --locked --target-dir C:/t/cargo-targets/dramatis -j4"
+    },
+    {
+      "name": "release-dry-run",
+      "log": "release-dry-run.log",
+      "sha256": "a606ea718c9c3bf4c7a173960db0555dd1f3d81528b5beff20ff2ba4d5e118ca",
+      "expectedExit": 0,
+      "observedExit": 0,
+      "testsPassed": null,
+      "command": "cargo publish --workspace --dry-run --all-features --allow-dirty --locked --target-dir C:/t/cargo-targets/dramatis -j4"
+    }
+  ],
+  "pending": [
+    "OTP digit policy decision",
+    "portable Git pin convergence and gate",
+    "nested Signalman desktop gate",
+    "crates.io upload"
+  ],
+  "qualification": {
+    "hocket": "Synthetic legacy records, production Windows DPAPI backend and adoption path; existing installed Hocket and resident not touched",
+    "castellan": "317-test full run before strengthening individual type assertions; subsequent 12-test CXF run verifies those assertions and changed-policy SSH reimport",
+    "memoryErasure": "Owned source, payload and parsed successful values erased; no whole-process residue claim for third-party deserializer failure allocations",
+    "dependencies": "Pre-integration local Knot pin draft. Final portable graph is still required.",
+    "wireRepeat": "Previously passed nine keeper, custody, CXF and Hocket tests; repeat queued behind concurrent build and not included as a final gate."
+  },
+  "logBundle": {
+    "file": "chatelaine_cxf_draft_logs.zip",
+    "sha256": "74609af79615acd38b53c4a3e855cc06602a201c3789766114c71bda707c1498"
+  }
+}

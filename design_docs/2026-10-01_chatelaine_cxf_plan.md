@@ -1,15 +1,16 @@
 # Chatelaine and CXF Import Plan
 
 **Date**: 2026-10-01
-**Status (2026-10-04)**: in progress. Shape ruled by Mark on 2026-10-01
+**Status (2026-10-11)**: in progress. Shape ruled by Mark on 2026-10-01
 (rulings 7 and 10 to 15 in the dramatis tier architecture; rulings 16 to 65
 below). P0 met; P1 landed on `main` (`da3c50bc`); P2 landed (`3e4992ec`); P3
 landed (`ff68e86c`), meeting the Mere 0.4 baseline's chatelaine condition.
 The review stop ended 2026-10-04 (ruling 51), and P4a landed
 (`007fbe7c`, rulings 51 to 63): the agent signs RSA through ring and ECDSA
 (P-256, P-384) beside Ed25519; held keys are never rewritten; unsignable
-keys and P-521 are refused at all three doors. P4 (CXF import) waits for
-the vault lock, in its own plan (rulings 64, 65).
+keys and P-521 are refused at all three doors. The vault lock and DR-C
+custody boundary have landed. P4's implementation is in verification;
+unsupported OTP digit counts still await Mark's choice.
 **Scope**: found `chatelaine` as the tier's plain secret-item taxonomy; move
 castellan's OTP items and its Secret Service store onto it; then import
 (and finally export) the FIDO Credential Exchange Format through castellan.
@@ -947,7 +948,56 @@ decrypted bytes stay in the vault's `SecretBytes` (zeroized on drop, not
 memory-locked) until the process ends. Mark, the same day: "Hey wait, we
 need to be able to lock the vault lmao. Otherwise it's just a big room".
 
+**2026-10-11: P4 draft verification, before integration.** In the focused
+Mere `mere-cxf` worktree, Windows checks pass: Castellan's all-features suite
+(317 tests), the expanded CXF fixture (12 tests), Djinn's library and binary
+compile, the Mere Signalman port's all-targets/all-features compile, and
+Graphshell's `web` wasm library compile. The fixture asserts each of the 17
+kinds plus a future type, preserves future credentials' exact JSON bytes,
+exercises imported TOTP through the existing release gate, and covers nested
+collections, reference-only aliases, dangling and cross-persona links,
+element-wise custom-field recovery, sharing enum ignore rules, native PKCS#8
+SSH imports, held-key no-op reimport even with a different requested policy,
+and sealed persona batch visibility after interrupted writes.
+
+The production quarantine refusal was deliberately disabled: the same
+exercise test failed with exit 101 at its refusal tripwire. Its source bytes
+were restored exactly. Successful parse values, owned JSON, source buffers,
+decoded seeds and DER buffers are erased; this does not claim erasure of
+allocations the third-party deserializer discards internally on parse failure.
+No imported credential values are formatted or logged. Exporter sharing
+grants are reported rather than recreated: the chosen local destination owns
+the import, and no sharing provider or grant model is invented.
+
+These checks used a temporary local Knot dependency while preparing its
+matching Dramatis release pin. They are pre-integration receipts, not a
+portable Git-source gate. The final dependency convergence, portable gate,
+nested Signalman desktop gate and publishing remain pending. Unsupported
+OTP digits are provisionally quarantined in the draft; that policy is not
+a ruling. P5 quarantine review and P6 export remain separate work.
+
 ## 6. Running it
+
+**2026-10-11: P4 is authorized.** Mark: "Let's complete those two then
+publish", referring to Hocket's Windows DPAPI adoption receipt and this
+plan's CXF import. This authorizes completing, integrating and publishing
+the Dramatis lane after its gates pass. The earlier P3 review and push stops
+are historical. Current workspace hygiene takes precedence over the old
+per-lane target layout below. Mere's unpublished concurrent `main` work
+requires the focused `mere-cxf` worktree; other sessions' work is preserved.
+
+**Ruling 66.** Cross-account item and collection links: Mark chose
+"Report and omit links across personae; retain links within one persona".
+Import resolves account choices before links. A link whose target has a
+different persona is omitted and reported; it never crosses a store scope.
+
+**Ruling 67.** A TOTP credential without a username: Mark chose "Use the
+item title and report the substitution". This supplies Chatelaine's required
+account label without inventing an account identity.
+
+The treatment of decimal digit counts outside Castellan's supported 6–10
+range is awaiting Mark's choice. Broader generator support has no scheduled
+milestone; import must not promise future support.
 
 As ruled (26 to 29), with the workspace's lane rules:
 

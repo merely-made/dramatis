@@ -1,9 +1,9 @@
 [package]
 name = "personae"
-version = "0.2.1"
+version = "0.3.0"
 edition = "2024"
 license.workspace = true
-description = "The identity and carry layer for the Merely ecosystem: a master Ed25519 keypair, deterministic per-protocol key derivation (BLAKE3), a passphrase/OS-store-unlocked vault, and sealed-record storage. A person has personae, plural — work, research, burner — so the crate is the register of your faces and their root of trust. Promoted from mere's persona/identity."
+description = "Identity and carry primitives for the Merely ecosystem: Ed25519 keys, deterministic protocol derivation, sealed records, delegation, and public SSH certificate policy. Vault custody belongs to Castellan in the Djinn resident."
 repository.workspace = true
 keywords = ["identity", "ed25519", "keychain", "vault", "p2p"]
 categories = ["cryptography", "authentication"]

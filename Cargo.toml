@@ -24,12 +24,12 @@ authors = ["Mark AB (markik)"]
 # ─── The tier's own crates ───────────────────────────────────────────────────
 # Path + version, as in mere: the path builds here, the version is what a
 # published dependent records.
-personae = { version = "0.2.1", path = "crates/personae" }
-insigne = { version = "0.0.1", path = "crates/insigne" }
-gaz = { version = "0.0.1", path = "crates/gaz" }
-chatelaine = { version = "0.0.2", path = "crates/chatelaine" }
-notochord = { version = "0.1.0", path = "crates/notochord" }
-dramatis = { version = "0.0.2", path = "crates/dramatis" }
+personae = { version = "0.3.0", path = "crates/personae" }
+insigne = { version = "0.0.2", path = "crates/insigne" }
+gaz = { version = "0.0.2", path = "crates/gaz" }
+chatelaine = { version = "0.0.3", path = "crates/chatelaine" }
+notochord = { version = "0.1.1", path = "crates/notochord" }
+dramatis = { version = "0.0.3", path = "crates/dramatis" }
 
 # ─── Third-party pins (the same entries as mere's) ───────────────────────────
 blake3 = "1"

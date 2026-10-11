@@ -44,7 +44,8 @@ see `repos/mere/design_docs/DOC_README.md`.
   by reading. The lock itself is castellan's, in mere.
 - [chatelaine_cxf_plan](2026-10-01_chatelaine_cxf_plan.md): **plan,
   2026-10-01; P0 to P3 and P4a landed; P4 (CXF import) landed
-  on 2026-10-11 after DR-C closure; P5 review and P6 export remain open.** chatelaine as the plain secret-item taxonomy, castellan's OTP
+  on 2026-10-11 after DR-C closure; P5 first Windows app slice qualified;
+  other native platforms and packaging remain open, as does P6 export.** chatelaine as the plain secret-item taxonomy, castellan's OTP
   items and Secret Service store moved onto it, then CXF import through
   castellan.
 - [personae_founding](2026-07-08_personae_founding.md): **founded.** The

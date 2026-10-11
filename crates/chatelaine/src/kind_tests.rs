@@ -14,6 +14,14 @@ use serde_json::Value;
 use super::*;
 use crate::samples;
 
+#[test]
+fn a_refused_known_cxf_type_has_its_own_secret_free_quarantine_tag() {
+    let kind = CredentialKind::RefusedCxf { cxf_type: "totp".into() };
+    check(kind.clone(), Some("totp"), &["cxf_type"], &["secret", "password"]);
+    assert_eq!(crate::disposition(&kind), crate::Disposition::Quarantined);
+    assert_eq!(postcard::to_allocvec(&kind).unwrap()[0], 19, "append after Unknown to preserve existing tags");
+}
+
 /// The kind's name and field names as JSON writes them.
 fn shape(kind: &CredentialKind) -> (String, BTreeSet<String>) {
     match serde_json::to_value(kind).unwrap() {

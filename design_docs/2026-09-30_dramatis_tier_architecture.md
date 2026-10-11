@@ -32,11 +32,11 @@ identity: your faces, and the other players.
 | [gaz](https://crates.io/crates/gaz) | crate | stored contacts: anchored records, per-endpoint trust, kith and kin, retained proofs | them, kept |
 | [castellan](https://crates.io/crates/castellan) | port | guards and presents you: the secret-free views, and the authority that exercises secrets and signs | me, outward |
 | [gazette](https://crates.io/crates/gazette) | port | the directory: resolves them, reads what they publish, and (§6) announces you | them, inward; you, outward |
-| [dramatis](https://crates.io/crates/dramatis) | crate (reservation; ruled a facade, §7) | the one dependency sibling repos pin for the tier | — |
+| [dramatis](https://crates.io/crates/dramatis) | crate (public views, intents, roster and receipts) | the vocabulary sibling apps exchange with djinn | — |
 | `mere-persona-picker` | crate | the Cambium view over the roster | me |
 
-All live in this repository: the crates under `repos/mere/crates/dramatis/`, the ports at
-`repos/mere/ports/castellan` and `repos/mere/ports/gazette`. The resident that runs the authority
+The six identity crates live here under `crates/`. Castellan, Gazette and the
+persona picker remain in Mere. The resident that runs the authority
 halves is djinn (`repos/mere/ports/djinn`), which owns one `CastellanResident` as the
 single record authority behind every Castellan view
 (`repos/mere/ports/djinn/src/resident.rs`). Gazette's authority half joins it as a
@@ -52,8 +52,8 @@ has moved yet; this section describes the tree as it stands.
 chatelaine (its own crate, D20), notochord (D10) and the dramatis facade
 live in this repository, `merely-made/dramatis`, under `crates/`. castellan
 (D6, D22), gazette and the persona picker (D7) stay in mere, which pins this
-repository by git revision. "This repository" in the paragraph above means
-mere, as it did when it was written.
+repository by git revision. The original location account above has been
+updated to match the extracted tree.
 
 ## 2. Three axes
 
@@ -206,17 +206,19 @@ breaks one is an architecture change and comes to Mark first.
 12. **An import never widens what is exercised without the user.** A
     quarantined item is sealed and is never filled, released or shown until
     the user accepts it into the vault, one item at a time (rulings 11, 13
-    and 15, §7). Ruled 2026-10-01; unbuilt, so not yet enforced in code.
+    and 15, §7). Castellan's item-store exercise gate refuses quarantined
+    items before opening their payload. CXF import splits quarantined
+    credentials into their own sealed item linked to the usable item.
 13. **While locked, no secret is reachable, and unlocking takes a user act
     on the resident's own surface.** Enforced in four places:
-    - the vault's lock state: personae's `IdentityVault::lock` drops the
+    - the vault's lock state: Castellan's `IdentityVault::lock` drops the
       profile and storage key, and its accessors return `Locked`
-      (`crates/personae/src/vault.rs`);
+      (`repos/mere/ports/castellan/src/custody/vault.rs`);
     - castellan's `ResidentLock`, whose synchronous holder hooks drop
       every derived key before `lock()` returns
       (`repos/mere/ports/castellan/src/authority.rs`);
-    - the persisted lock: personae's startup loaders refuse an unattended
-      open under the marker (`crates/personae/src/startup_unlock.rs`);
+    - the persisted lock: Castellan's startup loaders refuse an unattended
+      open under the marker (`repos/mere/ports/castellan/src/custody/startup_unlock.rs`);
     - djinn's triggers: session lock, suspend and idle
       (`repos/mere/ports/djinn/src/lock_triggers/`).
 
@@ -282,7 +284,11 @@ out, and the CXF import policy that founding chatelaine raised. All of it is
 unbuilt; the rulings say where the work goes. *Amended 2026-10-02*: chatelaine
 is built through its plan's P3 (the taxonomy, castellan's OTP items and its
 Secret Service store on it); CXF import, the gazette service, WebFinger's move
-and the facade remain unbuilt.
+and the facade remained unbuilt at that checkpoint. The Dramatis repo plan
+subsequently built the facade's inert public vocabulary and moved custody to
+Castellan, composed only by Djinn. CXF import is now implemented behind
+Castellan's `cxf` feature; its current verification belongs to the CXF plan.
+Gazette's resident service and the WebFinger move remain separate work.
 
 **Gazette's authority half is a djinn service (ruling 6).** Djinn composes it
 beside `CastellanResident`, on the djinn plan's own split: djinn owns process
@@ -346,17 +352,23 @@ the Secret Service store, the parser, live data, personae per account and
 export, are in the
 [chatelaine and CXF plan](2026-10-01_chatelaine_cxf_plan.md).
 
-**The dramatis facade is real, for sibling repos (ruling 8).** `dramatis`
-re-exports personae, insigne and gaz behind features, so a repo outside mere
-pins one crate at one revision. The evidence, 2026-10-01: eight sibling repos
+**The dramatis facade is real, for sibling repos (ruling 8).** The Dramatis
+repo plan narrowed this facade to public `view`, `intents`, `receipts` and
+`roster` modules. It re-exports no identity member crate and holds no custody.
+Apps depend directly on the member crates they use, at the same Dramatis
+repository revision; they call Djinn for custody.
+
+The earlier feature-reexport proposal was motivated by this evidence,
+2026-10-01: eight sibling repos
 consume the tier at four mere revisions (`d82afa17`: mer3ly, hocket and
 retinue's signalman desktop; `8106c7c2`: cleromancy and woodshed;
 `bd5912fb`: turnstone and knot-editor; `32edc2ad`: isometry). Turnstone and
 knot-editor match personae and insigne to one revision by hand, the hazard
 the insigne proofs plan's phase C handoff spells out. Mere's own crates keep
-their direct dependencies. *Reading, not ruled*: the facade covers the
-crates, not the two ports, which hosts compose rather than import as a tier;
-chatelaine joins it once founded.
+their direct dependencies. Adopted consumers use one Dramatis revision;
+older consumers require their own migration. Retinue's standalone Signalman
+desktop still pins the older Mere graph. The facade stays a plain boundary
+vocabulary.
 
 ## 8. Where each piece's state lives
 

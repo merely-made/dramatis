@@ -563,7 +563,8 @@ finishes (D18).
   The prepared versions are personae 0.3.0, insigne 0.0.2, gaz 0.0.2,
   chatelaine 0.0.3, notochord 0.1.1 and dramatis 0.0.3. Workspace tests
   and the verified six-package Cargo publication dry run pass. Uploading
-  remains pending the import's final gates and OTP digit-count choice.
+  remains pending the import's final gates. Ruling 68 preserves unsupported
+  OTP digit counts in quarantine and reports their original count.
 
 ## 5. Findings
 

@@ -5,7 +5,7 @@ edition = "2024"
 license.workspace = true
 description = "Identity and carry primitives for the Merely ecosystem: Ed25519 keys, deterministic protocol derivation, sealed records, delegation, and public SSH certificate policy. Vault custody belongs to Castellan in the Djinn resident."
 repository.workspace = true
-keywords = ["identity", "ed25519", "keychain", "vault", "p2p"]
+keywords = ["identity", "ed25519", "delegation", "sealing", "p2p"]
 categories = ["cryptography", "authentication"]
 
 [lib]

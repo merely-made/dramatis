@@ -56,7 +56,7 @@
 //!
 //! Pre-1.0. Promoted verbatim; the trait surface stabilizes before 0.2.0.
 
-#![doc(html_root_url = "https://docs.rs/personae/0.1.0")]
+#![doc(html_root_url = "https://docs.rs/personae/0.3.0")]
 #![warn(missing_docs)]
 
 pub mod carry;

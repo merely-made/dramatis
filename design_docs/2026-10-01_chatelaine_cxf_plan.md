@@ -11,8 +11,8 @@ The review stop ended 2026-10-04 (ruling 51), and P4a landed
 keys and P-521 are refused at all three doors. The vault lock and DR-C
 custody boundary have landed. P4's import landed on Mere main on
 2026-10-11; unsupported OTP digit counts are preserved in quarantine
-(ruling 68). P5 review and P6 export remain open. The untouched legacy
-Signalman desktop build has its own dependency baseline failure (§8).
+(ruling 68). P5 review and P6 export remain open. The Signalman desktop's
+separate stack and custody refresh closes its build gate (§8).
 **Scope**: found `chatelaine` as the tier's plain secret-item taxonomy; move
 castellan's OTP items and its Secret Service store onto it; then import
 (and finally export) the FIDO Credential Exchange Format through castellan.
@@ -622,10 +622,11 @@ build.
   - [x] the file is treated as burning: importer-owned plaintext buffers are zeroized,
         nothing is written to disk but sealed records, and the import report
         says the source file is plaintext and should be deleted;
-  - [ ] the legacy nested Signalman desktop build passes. Its unchanged
-        baseline has a stale lock and split local/Git `selvage::PhyProfile`
-        types. The current Signalman SDK and Graphshell web are separate
-        gates; this legacy desktop needs its own dependency migration.
+  - [x] the nested Signalman desktop build passes after its 2026-10-11
+        dependency and Djinn custody migration. Both workspaces compile
+        locked; desktop and core suites pass, with absent/Locked receipts
+        and a deliberately restored fallback that fails. Evidence:
+        `repos/retinue/validation/signalman-refresh-receipt.json`.
 
 - **P5 — the quarantine review.** Done when:
   - [ ] castellan's projection lists quarantined items as secret-free cards,
@@ -1025,6 +1026,19 @@ Durable evidence: [the final manifest](../support/receipts/chatelaine_cxf.json)
 and [the raw log bundle](../support/receipts/chatelaine_cxf_logs.zip), SHA-256
 `5257773ab13c7daf1ab5641e8dd22913bb4ab843ee4eba22a0389552dab9a10b`.
 The earlier draft evidence stays explicitly pre-integration.
+
+**2026-10-11: desktop and documentation follow-up.** The earlier baseline
+failure is closed by the separate Retinue stack refresh, recorded in
+`repos/retinue/design_docs/2026-10-11_signalman_stack_refresh_plan.md` and
+`repos/retinue/validation/signalman-refresh-receipt.json`. The desktop now requests
+station authority from Djinn and passes locked checks, 70 executed software
+tests, and real absent/Locked custody receipts. The physical bench was gated
+off; Signalman's core passes 62 tests. A restored local-seed fallback fails
+both receipts; exact restoration passes both again. Mere's blocking mechanical
+documentation findings are zero and D2 covers 260/260 active documents, with
+scoped review limitations retained in
+`repos/mere/support/doc-audit/signalman_refresh_receipt.json`. Original P4 manifests
+remain dated snapshots. P5 review and P6 export remain open.
 
 **2026-10-11: P4 is authorized.** Mark: "Let's complete those two then
 publish", referring to Hocket's Windows DPAPI adoption receipt and this

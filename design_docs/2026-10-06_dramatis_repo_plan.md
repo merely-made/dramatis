@@ -970,3 +970,20 @@ The lane's generated `C:/t/cargo-targets/retinue` legacy-baseline cache is
 retained because automatic approval review rejected its marker-checked
 cleanup, without a stated reason. Logs and the restored-lock evidence live
 in the durable bundle, independently of that cache.
+
+
+**2026-10-11: Signalman and documentation follow-up.** The baseline failures
+recorded above are now closed by a separate qualified refresh:
+`repos/retinue/design_docs/2026-10-11_signalman_stack_refresh_plan.md` and
+`repos/retinue/validation/signalman-refresh-receipt.json`. The nested desktop uses
+the qualified Mere/Genet renderer cohort and Djinn station authority; locked
+checks, 70 executed desktop software tests, 62 core tests, and real
+absent/Locked receipts pass. The physical bench remains gated off. Restoring a
+local-seed fallback fails both receipts; restoring source passes both. Mere's
+blocking mechanical documentation findings are zero, and D2 covers 260/260
+active documents under scoped review, recorded in
+`repos/mere/support/doc-audit/signalman_refresh_receipt.json`. The original CXF
+manifest is unchanged. D13, cooperative key revocation, P5 and P6 stay open.
+The existing primary Mere and Retinue caches were reused by this refresh;
+no isolated worktree or Cargo home was created, and synthetic custody runtime
+state was removed after its owned hosts stopped.

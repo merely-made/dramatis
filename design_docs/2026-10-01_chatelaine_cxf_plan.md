@@ -11,7 +11,10 @@ The review stop ended 2026-10-04 (ruling 51), and P4a landed
 keys and P-521 are refused at all three doors. The vault lock and DR-C
 custody boundary have landed. P4's import landed on Mere main on
 2026-10-11; unsupported OTP digit counts are preserved in quarantine
-(ruling 68). P5 review and P6 export remain open. The Signalman desktop's
+(ruling 68). P5's first Windows persona-selection and quarantine-review app
+slice is qualified in Mere, with Djinn custody and native consent. Other
+platforms and distribution packaging remain open; P6 export remains open.
+The Signalman desktop's
 separate stack and custody refresh closes its build gate (§8).
 **Scope**: found `chatelaine` as the tier's plain secret-item taxonomy; move
 castellan's OTP items and its Secret Service store onto it; then import
@@ -629,12 +632,12 @@ build.
         `repos/retinue/validation/signalman-refresh-receipt.json`.
 
 - **P5 — the quarantine review.** Done when:
-  - [ ] castellan's projection lists quarantined items as secret-free cards,
+  - [x] castellan's projection lists quarantined items as secret-free cards,
         per persona;
-  - [ ] accept and delete are intents the resident authority answers, one
+  - [x] accept and delete are intents the resident authority answers, one
         item at a time; an accepted item becomes exercisable, a deleted one
         is gone;
-  - [ ] the consent prompt renders on the resident's surface, as every other
+  - [x] the consent prompt renders on the resident's surface, as every other
         castellan approval does (invariant 1).
 
 - **P6 — CXF export (ruling 22).** Done when:
@@ -1116,3 +1119,42 @@ The lane's generated `C:/t/cargo-targets/retinue` legacy-baseline cache is
 retained because automatic approval review rejected its marker-checked
 cleanup, without a stated reason. Logs and the restored-lock evidence live
 in the durable bundle, independently of that cache.
+
+
+## P5 first app slice receipt (2026-10-11)
+
+The runnable app is Mere's `ports/dramatis`, package `dramatis-app`, binary
+`dramatis-ui`. Keeping the native Cambium client in Mere preserves the
+portable Dramatis workspace's dependency boundary. Start Djinn first, then
+run `cargo run --locked -p dramatis-app --bin dramatis-ui` from Mere.
+
+The app selects existing personae, shows public quarantined cards for the
+explicitly bound destination, and requests exact-item accept/delete or
+older-import assignment. Djinn owns sealed records, profile authority and
+native consent. Unsupported OTP counts and unknown/refused credentials stay
+quarantined; cancellation, lock, stale revision and wrong store/persona
+cannot change them. Acceptance validates the authenticated payload; the
+HOTP receipt exercises an accepted credential without rewriting it.
+
+Verification: 16 custody tests, one startup-store discovery test, 303
+Castellan tests, four app-state tests and seven retained interaction tests
+pass. App wire receipts exercise absent, Locked and unlocked Djinn. The
+consent denial test passes with the synthetic bypass disabled, fails when
+consent is deliberately bypassed, and all 16 pass after byte-exact source
+restoration. Native Windows No/Yes consent preserves or deletes exactly the
+selected synthetic item, with No verified as the default button. Five native
+GPU captures were visually reviewed; the host harness exercises keyboard,
+pointer, narrow layout, zoom, resize and scrolling.
+
+A persona switch must not change a store's sealing keys. The resident now
+retains each original sealing profile across selection, lock/unlock and
+restart, discovering existing stores through the persisted public roster.
+The app never derives these keys or opens custody.
+
+Evidence and qualified source hashes are in Mere's
+`support/receipts/dramatis-app/README.md`; its canonical app plan is
+`design_docs/dramatis_docs/implementation_strategy/2026-10-11_dramatis_app_plan.md`.
+These synthetic Windows receipts do not qualify an actual user's vault or
+Linux/macOS. Persona creation, contacts, fill, P6 export and distribution
+packaging remain follow-on work. Earlier dated P5-open entries above are
+historical snapshots.

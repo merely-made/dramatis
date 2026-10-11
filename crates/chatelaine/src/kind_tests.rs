@@ -38,6 +38,7 @@ fn check(kind: CredentialKind, cxf_type: Option<&str>, fields: &[&str], sealed: 
         CredentialKind::Otp { .. } => "otp",
         CredentialKind::Secret { .. } => "secret",
         CredentialKind::Unknown { .. } => "unknown",
+        CredentialKind::RefusedCxf { .. } => "refused-cxf",
         _ => cxf_type.unwrap(),
     };
     assert_eq!(name, tag, "the variant's tag");

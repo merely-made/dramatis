@@ -35,15 +35,16 @@ see `repos/mere/design_docs/DOC_README.md`.
   lifecycle and its invariants cited to code.
 - [dramatis_repo_plan](2026-10-06_dramatis_repo_plan.md): **plan,
   2026-10-06; rulings D1 to D39; DR-A to DR-D's migrations landed;
-  DR-C closed with per-app absent/Locked receipts and a failing fallback control.** The identity tier
+  DR-C closed with per-app absent/Locked receipts and a failing fallback control;
+  Hocket DPAPI adoption proven and DR-E published all six crates on 2026-10-11.** The identity tier
   leaves mere for this repository; castellan stays in mere, narrowed to
   custody, and only djinn links it; every app calls djinn.
 - [vault_threat_statement](2026-10-08_vault_threat_statement.md): what the
   identity vault's lock defends, what it leaves open, and what is known only
   by reading. The lock itself is castellan's, in mere.
 - [chatelaine_cxf_plan](2026-10-01_chatelaine_cxf_plan.md): **plan,
-  2026-10-01; P0 to P3 and P4a landed; P4 (CXF import) is in verification
-  on 2026-10-11 after DR-C closure.** chatelaine as the plain secret-item taxonomy, castellan's OTP
+  2026-10-01; P0 to P3 and P4a landed; P4 (CXF import) landed
+  on 2026-10-11 after DR-C closure; P5 review and P6 export remain open.** chatelaine as the plain secret-item taxonomy, castellan's OTP
   items and Secret Service store moved onto it, then CXF import through
   castellan.
 - [personae_founding](2026-07-08_personae_founding.md): **founded.** The

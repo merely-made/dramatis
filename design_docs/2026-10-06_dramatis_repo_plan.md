@@ -1,7 +1,9 @@
 # Dramatis Repo Plan
 
 **Date**: 2026-10-06
-**Status (2026-10-10)**: DR-A to DR-D's migrations have landed (§6).
+**Status (2026-10-11)**: DR-A to DR-D's migrations have landed (§6), and
+DR-E published all six crates. Hocket's Windows DPAPI adoption proof and
+Chatelaine CXF import have landed.
 DR-C is closed: the terminal client calls djinn, every app has absent/Locked
 receipts, and the deliberately restored fallback fails both modes (§6).
 D18's condition is met: the vault lock's L2 to L4 landed on 2026-10-08.
@@ -556,15 +558,20 @@ finishes (D18).
   history (the cambium precedent). mere and the siblings repin, the docs
   move, and mere's patch table grows. Done when:
   - [ ] every graph resolves exactly one personae source (measured);
-  - [ ] mere's gate and both doc audits pass;
-  - [ ] Knot's lockstep run passes, test targets included.
-- **DR-E — crates.io metadata and publishing.** Authorized by Mark on
-  2026-10-11 after Hocket's adoption receipt and CXF import pass their gates.
-  The prepared versions are personae 0.3.0, insigne 0.0.2, gaz 0.0.2,
-  chatelaine 0.0.3, notochord 0.1.1 and dramatis 0.0.3. Workspace tests
-  and the verified six-package Cargo publication dry run pass. Uploading
-  remains pending the import's final gates. Ruling 68 preserves unsupported
-  OTP digit counts in quarantine and reports their original count.
+  - [x] Mere's portable gate passes, all targets included;
+  - [ ] both doc audits pass. Existing index, citation and D2-coverage
+        findings remain outside this lane; worktree-relative sibling paths
+        add findings when those siblings are absent.
+  - [x] Knot's lockstep run passes: 150 library tests passed, one ignored;
+        the standalone workspace check includes every test target.
+- **DR-E — crates.io metadata and publishing.** Completed 2026-10-11:
+  personae 0.3.0, insigne 0.0.2, gaz 0.0.2, chatelaine 0.0.3,
+  notochord 0.1.1 and dramatis 0.0.3. All six were verified, uploaded and
+  downloaded again; registry checksums, clean source commit and included
+  licenses were checked. Workspace tests passed 318 tests, integration
+  tests and doctests included. Publication source is `8d7880b`; crate code
+  is identical to tested `0234e7e`. The final receipts below record the
+  current consumer graph and inherited legacy build/doc-audit limits.
 
 ## 5. Findings
 
@@ -917,3 +924,49 @@ convergence and the nested desktop gate remain required before upload.
 The focused Mere worktree and temporary Knot release-pin draft are retained
 for this task; stable Mere and Dramatis targets are reused, with no isolated
 Cargo home. Concurrent work and other sessions' builds remain untouched.
+
+**2026-10-11, final adoption, CXF import and DR-E publication.** Hocket's
+DPAPI adoption proof is closed: four tests preserve the contact identity,
+family seed and legacy record/wrapper bytes, verify repeat and restart,
+reuse the same held identity, refuse a conflicting name, and refuse Locked
+before legacy I/O. Fixtures are synthetic; installed Hocket state was not used.
+CXF import landed through Djinn, with rulings 66 to 68 recorded in the
+[CXF plan](2026-10-01_chatelaine_cxf_plan.md).
+
+| Result | Revision or version |
+|---|---|
+| Mere final portable graph | `13394d83` |
+| Knot final pin | `4d8b81c`, all Mere rows at verified ancestor `7cc37a81` |
+| Dramatis Git dependency source | `0234e7e` |
+| Clean publication source | `8d7880b`, same crate code as tested `0234e7e` |
+| personae | 0.3.0 |
+| insigne | 0.0.2 |
+| gaz | 0.0.2 |
+| chatelaine | 0.0.3 |
+| notochord | 0.1.1 |
+| dramatis | 0.0.3 |
+
+The final Windows receipts pass 318 Castellan tests (13 CXF), nine Djinn
+custody tests (four DPAPI), and 150 Knot library tests (one ignored).
+Mere's portable check and Knot's standalone check include all test targets;
+the current Signalman SDK all-feature check and Graphshell wasm check pass.
+The quarantine negative control fails with the refusal removed and passes
+after exact restoration. Publishing verified all six packages; downloads
+match registry checksums, included licenses and clean VCS source.
+
+Evidence is [the final manifest](../support/receipts/chatelaine_cxf.json)
+and [the log bundle](../support/receipts/chatelaine_cxf_logs.zip), SHA-256
+`5257773ab13c7daf1ab5641e8dd22913bb4ab843ee4eba22a0389552dab9a10b`.
+The manifest also records the untouched legacy Signalman desktop failure,
+restored original lock, existing documentation-audit findings, erasure and
+per-persona commit limits. These are not claims of a passing legacy desktop
+or a new headed/Linux receipt. D13, cooperative key revocation, P5 review
+and P6 export remain separate work.
+
+The focused `mere-cxf` worktree and its local/remote branch were removed
+once the clean source was confirmed integrated on origin/main. Primary and
+other concurrent checkouts were preserved. No isolated Cargo home remains.
+The lane's generated `C:/t/cargo-targets/retinue` legacy-baseline cache is
+retained because automatic approval review rejected its marker-checked
+cleanup, without a stated reason. Logs and the restored-lock evidence live
+in the durable bundle, independently of that cache.

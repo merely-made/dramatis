@@ -2,15 +2,17 @@
 
 **Date**: 2026-10-01
 **Status (2026-10-11)**: in progress. Shape ruled by Mark on 2026-10-01
-(rulings 7 and 10 to 15 in the dramatis tier architecture; rulings 16 to 65
+(rulings 7 and 10 to 15 in the dramatis tier architecture; rulings 16 to 68
 below). P0 met; P1 landed on `main` (`da3c50bc`); P2 landed (`3e4992ec`); P3
 landed (`ff68e86c`), meeting the Mere 0.4 baseline's chatelaine condition.
 The review stop ended 2026-10-04 (ruling 51), and P4a landed
 (`007fbe7c`, rulings 51 to 63): the agent signs RSA through ring and ECDSA
 (P-256, P-384) beside Ed25519; held keys are never rewritten; unsignable
 keys and P-521 are refused at all three doors. The vault lock and DR-C
-custody boundary have landed. P4's implementation is in verification;
-unsupported OTP digit counts are preserved in quarantine (ruling 68).
+custody boundary have landed. P4's import landed on Mere main on
+2026-10-11; unsupported OTP digit counts are preserved in quarantine
+(ruling 68). P5 review and P6 export remain open. The untouched legacy
+Signalman desktop build has its own dependency baseline failure (§8).
 **Scope**: found `chatelaine` as the tier's plain secret-item taxonomy; move
 castellan's OTP items and its Secret Service store onto it; then import
 (and finally export) the FIDO Credential Exchange Format through castellan.
@@ -979,6 +981,51 @@ nested Signalman desktop gate and publishing were pending at this snapshot. At t
 
 ## 6. Running it
 
+**2026-10-11: import landed and the tier published.** Mere main
+`13394d83` includes CXF import through the resident, Hocket's real Windows
+DPAPI adoption proof and the final Knot pin `4d8b81c`. Concurrent Forme,
+Fleece and retained-content work were merged, preserving their changes.
+Both consumer graphs resolve one Dramatis source (`0234e7e`); Knot's Mere
+source is the verified ancestor `7cc37a81`. No outside local paths remain.
+
+On that final Mere snapshot, Castellan's all-feature library run passed
+318 tests, including 13 CXF tests. Djinn passed nine custody tests, four
+using real Windows DPAPI. The portable workspace check passed all targets
+across 1,612 packages; the current Signalman SDK passed all features and
+all targets, and Graphshell's web library passed for wasm32. Knot passed
+150 library tests with one ignored, and its standalone workspace check
+included every test target. Cargo-deny reported `bans ok` on `d5f60e5c`;
+the final Knot pin changes the Git source without changing package versions.
+
+The production quarantine refusal was disabled deliberately. Its test
+failed at the expected tripwire (exit 101); restoring the byte-identical
+source made it pass (exit 0). Existing SSH slots stayed byte-identical;
+the in-process agent served and verified signatures from both raw-key and
+certificate identities. This is automated Windows evidence, not a new
+headed or Linux integration receipt.
+
+The untouched Retinue Signalman desktop baseline has a stale lock. A
+refreshed-lock check then failed on split local/Git `selvage::PhyProfile`
+types; its original lock was restored byte-exact. That older desktop needs
+its own dependency migration. The whole-tree documentation audits also
+retain existing unrelated findings, with extra absent-sibling citations
+from the worktree layout. Those limits are recorded rather than reported
+as passing gates.
+
+Importer-owned plaintext, decoded secrets and temporary DER are cleared.
+The dependency parser's discarded intermediate allocations have no
+whole-process erasure guarantee. Commits are atomic per persona's item
+index; multi-persona and SSH failures return completed-write counts.
+P5 quarantine review and P6 export remain open.
+
+All six crates published from clean Dramatis `8d7880b`; crate code matches
+tested `0234e7e`. Each published archive was downloaded and its registry
+checksum, included license, repository URL and VCS source checked.
+Durable evidence: [the final manifest](../support/receipts/chatelaine_cxf.json)
+and [the raw log bundle](../support/receipts/chatelaine_cxf_logs.zip), SHA-256
+`5257773ab13c7daf1ab5641e8dd22913bb4ab843ee4eba22a0389552dab9a10b`.
+The earlier draft evidence stays explicitly pre-integration.
+
 **2026-10-11: P4 is authorized.** Mark: "Let's complete those two then
 publish", referring to Hocket's Windows DPAPI adoption receipt and this
 plan's CXF import. This authorizes completing, integrating and publishing
@@ -1047,3 +1094,11 @@ now owns:
   S56 answered that plan's question: V4 moves here.
 - **CXF import**, from the castellan OTP plan. That is this plan's P4
   already, so nothing new.
+
+The focused `mere-cxf` worktree and its local/remote branch were removed
+once the clean source was confirmed integrated on origin/main. Primary and
+other concurrent checkouts were preserved. No isolated Cargo home remains.
+The lane's generated `C:/t/cargo-targets/retinue` legacy-baseline cache is
+retained because automatic approval review rejected its marker-checked
+cleanup, without a stated reason. Logs and the restored-lock evidence live
+in the durable bundle, independently of that cache.

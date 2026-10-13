@@ -1,6 +1,6 @@
 # The same channel as mere's, so the two repositories build in lockstep.
 [toolchain]
-channel = "1.98.1"
+channel = "1.99.0"
 # personae's browser build (its wasm32 target dependencies) is checked on
 # wasm32-unknown-unknown, as graphshell's web host consumes it.
 targets = ["wasm32-unknown-unknown"]

@@ -1,5 +1,7 @@
 # Dramatis Documentation Index
 
+Rust policy (2026-10-13): working toolchain 1.99.0 and shared MSRV 1.97.1, qualified separately. Canonical policy: `mere/design_docs/2026-08-12_family_composition_thesis_brief.md`, section "Shared Rust toolchain and minimum version".
+
 The design-docs index for the [dramatis](../README.md) repository, the
 identity tier of the Merely stack. Entries are one line each; the rationale
 lives in the doc itself.

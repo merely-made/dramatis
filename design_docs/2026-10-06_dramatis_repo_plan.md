@@ -974,7 +974,7 @@ in the durable bundle, independently of that cache.
 
 **2026-10-11: Signalman and documentation follow-up.** The baseline failures
 recorded above are now closed by a separate qualified refresh:
-`repos/retinue/design_docs/2026-10-11_signalman_stack_refresh_plan.md` and
+`repos/murm/design_docs/2026-10-11_signalman_stack_refresh_plan.md` and
 `repos/retinue/validation/signalman-refresh-receipt.json`. The nested desktop uses
 the qualified Mere/Genet renderer cohort and Djinn station authority; locked
 checks, 70 executed desktop software tests, 62 core tests, and real

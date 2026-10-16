@@ -1,5 +1,23 @@
 # Dramatis Repo Plan
 
+Tucket custody continuation (2026-10-15, in progress): the owner selected
+Djinn custody before further Signalman radio qualification. Personae adds a
+canonical, length-delimited Tucket station salt bound to durable device UUID
+and realm, plus redacted transient seed material. Djinn owns release policy;
+Signalman requests only that scope and must stop when custody is unavailable
+or locked. Reticulum salts stay byte-for-byte unchanged. Done when scoped
+release/refusal, stable identity, lock shutdown and a restored forbidden
+fallback control are receipted through the actual custody route. Canonical
+consumer work: `murm/design_docs/2026-10-13_murm_family_move_plan.md`, R6.
+
+Primitive verification: all 71 Personae library tests pass, including stable
+device/realm/wallet separation, exact released-salt restrictions and malformed
+namespace refusal. Clippy passes with only the pre-existing `redundant_slicing`
+(`seal.rs:60`) and `field_reassign_with_default` (`carry/mod.rs:538`) lints
+allowed; unqualified strict Clippy reports those two unchanged sites.
+Public logs are in `testing/receipts/tucket-custody/`. The stable
+`C:/t/cargo-targets/dramatis` target is retained for ordinary repository builds.
+
 **Date**: 2026-10-06
 **Status (2026-10-11)**: DR-A to DR-D's migrations have landed (§6), and
 DR-E published all six crates. Hocket's Windows DPAPI adoption proof and

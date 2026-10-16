@@ -78,6 +78,7 @@ pub mod ssh_face;
 #[cfg(feature = "ssh")]
 pub mod ssh_krl;
 pub mod startup_unlock;
+pub mod tucket;
 pub mod vault;
 pub mod zeroizing_json;
 

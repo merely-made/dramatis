@@ -2,6 +2,10 @@
 
 Rust policy (2026-10-13): working toolchain 1.99.0 and shared MSRV 1.97.1, qualified separately. Canonical policy: `mere/design_docs/2026-08-12_family_composition_thesis_brief.md`, section "Shared Rust toolchain and minimum version".
 
+Tucket custody (2026-10-15): the [repo plan](2026-10-06_dramatis_repo_plan.md)
+records the in-progress scoped station derivation for Djinn/Signalman. Custody
+and radio qualification remain separate gates.
+
 The design-docs index for the [dramatis](../README.md) repository, the
 identity tier of the Merely stack. Entries are one line each; the rationale
 lives in the doc itself.

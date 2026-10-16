@@ -69,6 +69,7 @@ mod provider;
 mod retained;
 pub mod reticulum;
 pub mod seal;
+pub mod sennet;
 pub mod sealed_record_storage;
 pub mod signing;
 #[cfg(feature = "ssh")]

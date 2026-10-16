@@ -355,7 +355,9 @@ dependencies = [
 name = "dramatis"
 version = "0.0.3"
 dependencies = [
+ "gaz",
  "personae",
+ "postcard",
  "serde",
  "serde_json",
  "uuid",

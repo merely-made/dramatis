@@ -1,5 +1,9 @@
 # Dramatis Documentation Index
 
+Sennet directed custody (2026-10-16): the [repo plan](2026-10-06_dramatis_repo_plan.md)
+records transient zeroizing material from the existing scoped child, with 74
+passing tests. Murm owns protocol construction and the pending R8 RF gate.
+
 Sennet custody (2026-10-16): the [repo plan](2026-10-06_dramatis_repo_plan.md)
 records the qualified scoped public-node derivation for Murm R7, with 73
 passing Personae tests and Mere's six real-Keeper cases. Durable packet IDs,

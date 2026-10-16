@@ -1,0 +1,82 @@
+   Compiling personae v0.3.0 (C:\Users\mark_\Code\repos\dramatis\crates\personae)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.60s
+     Running unittests src\lib.rs (C:\t\cargo-targets\dramatis\build\debug\deps\personae-dc81303ecfa4a8bc.exe)
+
+running 74 tests
+test carry::grant::tests::a_device_grant_always_expires ... ok
+test carry::grant::tests::a_device_grant_forbids_subdelegation ... ok
+test carry::grant::tests::actions_land_on_the_certificate_whose_authority_covers_them ... ok
+test carry::grant::tests::persona_actions_with_no_persona_named_are_refused ... ok
+test carry::grant::tests::two_holders_in_the_same_millisecond_get_distinct_certificates ... ok
+test carry::grant::revoke::tests::a_revocation_is_signed_by_the_authority_that_granted_it ... ok
+test carry::scope::tests::a_device_scope_is_well_formed ... ok
+test carry::scope::tests::a_different_device_never_attenuates ... ok
+test carry::scope::tests::a_foreign_domain_never_attenuates ... ok
+test carry::scope::tests::a_station_partitions_to_device_actions_only ... ok
+test carry::grant::tests::persona_issuance_is_deterministic_for_one_seed ... ok
+test carry::scope::tests::an_unknown_action_is_device_scoped ... ok
+test carry::grant::tests::a_self_grant_names_the_persona_as_its_own_subject ... ok
+test carry::grant::revoke::tests::a_station_set_revokes_with_one_statement ... ok
+test carry::tests::carry_ref_parses_its_own_display_form ... ok
+test carry::tests::carry_ref_rejects_malformed_strings ... ok
+test carry::grant::tests::a_remote_auth_grant_names_the_holder_as_subject ... ok
+test carry::scope::tests::dropping_an_action_attenuates ... ok
+test carry::scope::tests::the_device_scope_path_is_a_leaf_not_a_root ... ok
+test carry::tests::carry_ref_display_is_fn_colon_hex ... ok
+test carry::scope::tests::only_acting_and_private_reading_belong_to_a_persona ... ok
+test carry::scope::tests::partitioning_splits_device_actions_from_persona_actions ... ok
+test carry::grant::tests::a_station_grant_is_one_device_certificate_and_nothing_else ... ok
+test carry::tests::carry_ref_serializes_as_its_display_string ... ok
+test carry::tests::device_public_key_round_trips_through_identity_type ... ok
+test carry::grant::tests::a_persona_grant_is_issued_by_that_persona_not_the_master ... ok
+test delegation::tests::child_must_narrow_scope_time_and_delegation_depth ... ok
+test carry::tests::manifest_defaults_carry_the_schema_version ... ok
+test carry::tests::manifest_json_round_trips_with_refs ... ok
+test reticulum::tests::station_material_is_distinct_across_station_scopes ... ok
+test reticulum::tests::controller_material_uses_a_distinct_domain_from_station_material ... ok
+test reticulum::tests::station_material_is_stable_for_one_persona_and_station ... ok
+test seal::tests::wrong_key_fails ... ok
+test retained::tests::every_other_salt_is_locked ... ok
+test reticulum::tests::station_scope_is_required ... ok
+test seal::tests::a_fresh_nonce_each_time_so_ciphertexts_differ ... ok
+test seal::tests::seal_then_unseal_round_trips ... ok
+test seal::tests::tampered_ciphertext_fails ... ok
+test provider::tests::derived_key_attestation_rejects_tampering ... ok
+test carry::grant::tests::each_persona_in_the_set_is_issued_by_its_own_authority ... ok
+test retained::tests::it_answers_its_salts_exactly_as_the_vault_did ... ok
+test carry::grant::tests::two_personas_granting_one_device_are_independent_certificates ... ok
+test seal::tests::the_sealed_format_is_pinned_across_crate_generations ... ok
+test seal::tests::wrong_aad_fails ... ok
+test sealed_record_storage::tests::authority_child_probe ... ok
+test provider::tests::derived_key_attestation_binds_master_key_and_salt ... ok
+test sealed_record_storage::tests::stored_file_is_not_plaintext_json_of_the_record ... ok
+test sealed_record_storage::tests::a_damaged_sealed_record_is_not_mistaken_for_a_pre_sealing_one ... ok
+test sennet::tests::release_parser_rejects_incomplete_extended_and_foreign_namespaces ... ok
+test sealed_record_storage::tests::a_pre_sealing_raw_record_can_be_sealed_over ... ok
+test sennet::tests::stable_released_identity_is_confined_to_its_protocol_device_and_realm ... ok
+test sealed_record_storage::tests::round_trips_a_typed_record ... ok
+test sealed_record_storage::tests::ciphertext_is_bound_to_the_record_path ... ok
+test tests::master_public_key_is_stable ... ok
+test tests::derivation_is_deterministic ... ok
+test delegation::tests::certificate_verifies_and_binds_every_signed_field ... ok
+test sennet::tests::transient_material_is_same_child_without_broadening_release ... ok
+test tests::public_key_round_trips_through_bytes ... ok
+test tests::different_salts_yield_different_keys ... ok
+test tucket::tests::scoped_release_is_stable_and_cannot_derive_other_scopes_or_protocols ... ok
+test sealed_record_storage::tests::a_pre_sealing_plaintext_record_can_be_sealed_over ... ok
+test zeroizing_json::tests::non_bytes_are_refused_as_before ... ok
+test delegation::tests::revocation_is_bound_to_issuer_scope_and_target ... ok
+test tucket::tests::release_parser_rejects_incomplete_or_extended_namespaces ... ok
+test zeroizing_json::tests::the_wire_format_is_serde_json_s_own ... ok
+test sealed_record_storage::tests::unauthenticated_legacy_record_does_not_establish_a_freshness_baseline ... ok
+test carry::grant::revoke::tests::every_certificate_in_a_set_gets_its_own_revocation ... ok
+test tests::signature_round_trips_through_bytes ... ok
+test tests::random_provider_signs_and_verifies ... ok
+test sealed_record_storage::tests::external_freshness_evidence_rejects_an_older_valid_record ... ok
+test sealed_record_storage::tests::authoritative_tombstone_rejects_resurrection_after_delete ... ok
+test sealed_record_storage::tests::authoritative_opening_is_exclusive_across_processes ... ok
+test sealed_record_storage::tests::authoritative_opening_is_exclusive_until_every_clone_drops ... ok
+test sealed_record_storage::tests::cloned_store_updates_are_one_load_modify_replace_transaction ... ok
+
+test result: ok. 74 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.37s
+

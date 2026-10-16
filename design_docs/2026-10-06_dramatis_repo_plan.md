@@ -1,5 +1,13 @@
 # Dramatis Repo Plan
 
+Sennet directed continuation (2026-10-16, producer qualified): R8 adds
+`SennetStationMaterial` from the same exact released child as the R7 public
+node. Copies and retained material zeroize on drop; Debug is redacted. This
+does not expand the release namespace or change existing node numbers.
+All 74 Personae tests pass. Protocol key construction, peer-key verification,
+PKI wire compatibility and directed/ACK physical receipts belong to Murm;
+Mere retains release policy and sticky custody guards.
+
 Sennet custody continuation (2026-10-16, derivation qualified): R7 in
 `murm/design_docs/2026-10-13_murm_family_move_plan.md` adds an exact device/realm
 child for a stable public 32-bit Sennet node number. This is not authenticated

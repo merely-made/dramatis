@@ -1,8 +1,9 @@
 # Dramatis Documentation Index
 
 Sennet custody (2026-10-16): the [repo plan](2026-10-06_dramatis_repo_plan.md)
-records the scoped public-node derivation for Murm R7. Custody, durable packet
-IDs and physical qualification remain distinct gates.
+records the qualified scoped public-node derivation for Murm R7, with 73
+passing Personae tests and Mere's six real-Keeper cases. Durable packet IDs,
+native/RF qualification and private-channel provisioning retain their own gates.
 
 Rust policy (2026-10-13): working toolchain 1.99.0 and shared MSRV 1.97.1, qualified separately. Canonical policy: `mere/design_docs/2026-08-12_family_composition_thesis_brief.md`, section "Shared Rust toolchain and minimum version".
 

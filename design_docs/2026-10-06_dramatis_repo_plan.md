@@ -1,6 +1,6 @@
 # Dramatis Repo Plan
 
-Sennet custody continuation (2026-10-16, in progress): R7 in
+Sennet custody continuation (2026-10-16, derivation qualified): R7 in
 `murm/design_docs/2026-10-13_murm_family_move_plan.md` adds an exact device/realm
 child for a stable public 32-bit Sennet node number. This is not authenticated
 RF identity and supplies no channel key. Known node-number collisions must be
@@ -8,6 +8,14 @@ refused by the host. The initial consumer uses the bench's public LongFast
 channel; private-channel provisioning remains separate. Done when derivation,
 scope refusal and actual Djinn custody are qualified, with durable packet-ID
 reservations owned by the Murm host before any radio use.
+
+`19be4831` publishes the derivation with all 73 Personae library tests passing.
+Clippy passes with the two existing allowances already recorded below. Mere's
+scoped API and six real-Keeper cases are published through `e12788bc`, with
+both selected policy tests and strict port/example Clippy in `b31363d2`.
+Murm's desktop receiving gate passes 44 tests; its native/RF channel receipt
+remains separately owned and pending. No private-channel or RF-authentication
+claim follows from this public node-number primitive.
 
 Tucket custody continuation (2026-10-15, in progress): the owner selected
 Djinn custody before further Signalman radio qualification. Personae adds a

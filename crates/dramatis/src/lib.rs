@@ -35,4 +35,5 @@
 pub mod intents;
 pub mod receipts;
 pub mod roster;
+pub mod subject;
 pub mod view;

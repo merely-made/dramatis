@@ -1,6 +1,8 @@
 //! One wallet/device/realm's public Sennet node number. This is a scoped
-//! identifier, not authenticated RF identity or a channel-encryption key.
+//! identifier. Transient scoped material can additionally commission PKI;
+//! the public number by itself authenticates neither RF nor a peer key.
 use crate::{IdentityError, IdentityProvider};
+use zeroize::{Zeroize, ZeroizeOnDrop, Zeroizing};
 
 const DOMAIN: &[u8] = b"mere.signalman.sennet.station/v1/";
 
@@ -67,6 +69,37 @@ impl SennetStationIdentity {
     }
 }
 
+/// Transient material for exactly one released Sennet device/realm child.
+/// No master or sibling key is retained. Protocol-specific key construction
+/// belongs to the protocol owner; never persist or log the returned bytes.
+#[derive(Zeroize, ZeroizeOnDrop)]
+pub struct SennetStationMaterial {
+    seed: [u8; 32],
+}
+impl core::fmt::Debug for SennetStationMaterial {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.write_str("SennetStationMaterial(<redacted>)")
+    }
+}
+impl SennetStationMaterial {
+    /// Derive only from the already admitted device/realm child.
+    pub fn derive(
+        provider: &dyn IdentityProvider,
+        device: &[u8; 16],
+        realm: &str,
+    ) -> Result<Self, IdentityError> {
+        let child = provider.derive_keypair(&station_salt(device, realm)?)?;
+        Ok(Self {
+            seed: child.to_seed(),
+        })
+    }
+    /// Copy only for immediate typed protocol construction. The copy zeroizes
+    /// when dropped, and this material zeroizes independently on drop.
+    pub fn seed_bytes(&self) -> Zeroizing<[u8; 32]> {
+        Zeroizing::new(self.seed)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -121,5 +154,35 @@ mod tests {
             assert!(station_salt(&[1; 16], realm).is_err());
         }
         assert!(station_salt(&[1; 16], &"a".repeat(129)).is_err());
+    }
+
+    #[test]
+    fn transient_material_is_same_child_without_broadening_release() {
+        let wallet = InMemoryProvider::from_seed([19; 32]);
+        let device = [7; 16];
+        let salt = station_salt(&device, "ridge").unwrap();
+        let released = RetainedKeys::capture(&wallet, std::slice::from_ref(&salt)).unwrap();
+        let material = SennetStationMaterial::derive(&released, &device, "ridge").unwrap();
+        let child = wallet.derive_keypair(&salt).unwrap();
+        assert_eq!(*material.seed_bytes(), child.to_seed());
+        assert_eq!(format!("{material:?}"), "SennetStationMaterial(<redacted>)");
+        assert!(SennetStationMaterial::derive(&released, &[8; 16], "ridge").is_err());
+        assert!(SennetStationMaterial::derive(&released, &device, "valley").is_err());
+        assert_ne!(
+            *material.seed_bytes(),
+            *SennetStationMaterial::derive(&wallet, &[8; 16], "ridge")
+                .unwrap()
+                .seed_bytes()
+        );
+        assert_ne!(
+            *material.seed_bytes(),
+            *SennetStationMaterial::derive(&wallet, &device, "valley")
+                .unwrap()
+                .seed_bytes()
+        );
+        assert_eq!(
+            SennetStationIdentity::derive(&released, &device, "ridge").unwrap(),
+            SennetStationIdentity::derive(&wallet, &device, "ridge").unwrap()
+        );
     }
 }

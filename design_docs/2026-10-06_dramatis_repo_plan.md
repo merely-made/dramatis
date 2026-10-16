@@ -1,5 +1,14 @@
 # Dramatis Repo Plan
 
+Sennet custody continuation (2026-10-16, in progress): R7 in
+`murm/design_docs/2026-10-13_murm_family_move_plan.md` adds an exact device/realm
+child for a stable public 32-bit Sennet node number. This is not authenticated
+RF identity and supplies no channel key. Known node-number collisions must be
+refused by the host. The initial consumer uses the bench's public LongFast
+channel; private-channel provisioning remains separate. Done when derivation,
+scope refusal and actual Djinn custody are qualified, with durable packet-ID
+reservations owned by the Murm host before any radio use.
+
 Tucket custody continuation (2026-10-15, in progress): the owner selected
 Djinn custody before further Signalman radio qualification. Personae adds a
 canonical, length-delimited Tucket station salt bound to durable device UUID

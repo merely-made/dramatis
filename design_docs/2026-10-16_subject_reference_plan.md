@@ -1,8 +1,10 @@
 # Subject references for saved natal readings
 
-**Date:** 2026-10-16  
+**Date:** 2026-10-16
+
 **Status:** bounded reference implemented locally for review; birth-fact storage
-ownership proposed, unresolved. No consumer integration or publication.  
+ownership proposed, unresolved. No consumer integration or publication.
+
 **Source base:** Dramatis `2f27f1a939aa2e046b78f7db18dcd8f81e0d7c59`, fetched
 `origin/main`. Deciders: maintainer and receiving Cleromancy/resident owners.
 

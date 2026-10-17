@@ -3,11 +3,17 @@
 **Date:** 2026-10-16
 
 **Status:** bounded reference supplier-software-qualified and published on main
-at `cec93f8`; birth-fact storage ownership proposed, unresolved. Consumer
-adoption remains open. The [publication receipt](../testing/receipts/subject-reference-20261016/publication.json) binds the verified checkpoint.
+at `cec93f8`. Reusable birth facts and subject/resource associations are now
+explicitly authorized and implemented locally for review; resident persistence,
+admission and consumer adoption remain parent-owned qualification work. The
+[publication receipt](../testing/receipts/subject-reference-20261016/publication.json)
+binds the unchanged original reference checkpoint, not the new contracts.
 
 **Source base:** Dramatis `2f27f1a939aa2e046b78f7db18dcd8f81e0d7c59`, fetched
 `origin/main`. Deciders: maintainer and receiving Cleromancy/resident owners.
+
+**Additive contract base (2026-10-16):** clean published main
+`36ca194e5d48c66ae44af9530cc12c9f6a05b0be`, matching fetched `origin/main`.
 
 ## Context and source findings (2026-10-16)
 
@@ -46,7 +52,7 @@ separates identity vocabulary from resident authority and the data plane.
 
 ## Bounded decision and public API
 
-Dramatis supplies **only a reusable subject reference** in this slice:
+Dramatis's original published slice supplies **a reusable subject reference**:
 `dramatis::subject::{SubjectRef, SubjectLookupError}`. The compile-ready type is
 in `crates/dramatis/src/subject.rs`:
 
@@ -85,11 +91,11 @@ validation semantics, including acceptance of arbitrary strings.
 | Put facts in public profiles/rosters | Reject: expands a public identity surface and couples private biography to login/key posture. |
 | Treat credential payloads as the birth database | Reject for C8: document fields exist, but custody/release does not establish a canonical person biography or authorize automatic disclosure. |
 | Extend Gaz Contact / JSContact publication | Defer: Gaz owns local relationships and exchange; natal uncertainty, historical civil time and a general biography domain have no current contract. This would change stored contact ownership and wire policy. |
-| Resident-held personal-data domain, referenced by identity | Recommend: identity stays here; admitted biographical facts, revisions, access and lifecycle live with a named resident data owner. Its exact module/schema is a maintainer decision. |
+| Resident-held personal-data domain, referenced by identity | Authorized: plain reusable facts and subject/resource vocabulary live in Dramatis; the resident personal-facts domain owns durable revisions, admission, access and lifecycle. Parent owns its implementation and receiving proof. |
 
-The recommendation is an architectural boundary, **not an assertion that this
-repository already supplies that service**. No birth storage, persistence
-owner, permissions model or credential-release route is implemented here.
+The ownership decision authorizes plain contracts here, **not an assertion that
+this repository supplies the resident service**. No birth storage, permissions
+model or credential-release route is implemented here.
 If no authorized contact exists, the consumer must explicitly admit a local
 contact through the existing host path, or defer linking and retain a
 consumer-owned reading snapshot; deserializing `SubjectRef` cannot do that.
@@ -102,7 +108,7 @@ consumer-owned reading snapshot; deserializing `SubjectRef` cannot do that.
    deleted or inaccessible subjects remain unresolved; never retarget a saved
    reading. Keep an authorized immutable input snapshot or admitted fact
    revision reference so edits to a contact do not rewrite a historical chart.
-2. The future data owner must preserve original civil date, calendar and
+2. The data owner must preserve original civil date, calendar and
    supplied local time independently of any conversion. Time has explicit
    **known**, **unknown** and **approximate** cases. Unknown has no invented
    noon/midnight. Approximate records the supplied estimate, uncertainty
@@ -128,7 +134,7 @@ consumer-owned reading snapshot; deserializing `SubjectRef` cannot do that.
    C8 needs its own versioned natal inputs/claims; do not reinterpret edition 1.
    The consumer source was read only as a boundary locator, not qualified here.
 
-## Associated resources (2026-10-16; proposed consumer model)
+## Associated resources (2026-10-16; authorized plain contract)
 
 A subject reference is the join between a resource and the person it concerns.
 Keys are one existing anchor family, not a requirement for a contact and not
@@ -138,8 +144,8 @@ dates do not join contacts automatically. Gaz's key lookup returns an iterator:
 one matching key is not a guarantee of one local contact record.
 
 A resource keeps its own owner, stable id and revision and names its subject
-through an explicit typed association. This is a proposed receiving model,
-not a new serialized API in this slice. A contact card, a retained birth-input
+through an explicit typed association, now supplied by `dramatis::resources`.
+A contact card, a retained birth-input
 record, a Chatelaine address item and a Cleromancy chart can concern the same
 subject without copying their content into `SubjectRef` or a public roster.
 One resource can concern several subjects, such as a shared household address;
@@ -149,16 +155,17 @@ A subject link is not authority to read, export or exercise its target.
 Existing autofill ownership stays in force: tier-architecture ruling 12 assigns
 CXF person-name and address imports to Chatelaine kinds, with all payload
 fields sealed by Castellan and exercise through the allowed host paths. This
-plan's proposed resident-held biography domain is a possible home for reusable
-birth facts, not a replacement for that ruling or a mandate to move every
+plan's resident-held personal-facts domain owns reusable birth facts, not a
+replacement for that ruling or a mandate to move every
 personal resource into one store. Parsed JSContact Cards preserve unmapped
 properties, but those opaque fields are not yet a typed admitted biography.
 
 An associated fact should distinguish what is asserted from who supplied or
 attested it: subject, typed predicate/value, source or issuer, evidence,
 precision/uncertainty, valid period where relevant, and resource revision.
-These are proposed semantics; the data owner chooses the schema and existing
-resident admission/disclosure contracts. Signature validation establishes a
+The first birth-facts schema below carries the bounded fields required for C8;
+richer attestations and valid periods remain outside it. The data owner applies
+existing resident admission/disclosure contracts. Signature validation establishes a
 particular key's statement; accepting a biography claim needs the relevant
 source policy. A private petname remains the book owner's label, distinct
 from the subject's self-reported name or a document-derived legal name.
@@ -168,16 +175,87 @@ the exact authorized birth inputs and calculation revision it used. Later
 corrections to an address, birth time or shared contact resource must not rewrite
 that historical reading. Contact deletion or lost access remains an unresolved
 reference rather than a name-based fallback. Reusable birth storage and the
-resource-association envelope still require their own receiving implementation;
-only `SubjectRef` and structural lookup are implemented in this supplier slice.
+resource-association envelope still require their own receiving implementation.
+
+## Reusable facts and association API (2026-10-16)
+
+The new modules are additive. All fields are public; checked constructors return
+`Result<_, ValidationError>`, and each data type exposes `validate()`. The same
+plain error type is available as `birth::ValidationError` and
+`resources::ValidationError`, with static `field` and `reason` strings.
+Deserialization calls the validators, rejects unknown fields, and refuses
+unsupported schemas. Public-field mutation can temporarily make an invalid
+value: callers **must revalidate before serialization, use or admission**.
+Serde serialization itself does not imply validity, authenticity or authority.
+
+- `resources::ResourceRef { domain, id, revision }` requires non-whitespace
+  strings without rewriting their spelling. It names an exact revision, never
+  an implicit latest. `ResourceRef::new` accepts those three `String`s.
+- `SubjectResourceAssociation { schema, subject, resource, relationship }`
+  requires `schema == SUBJECT_RESOURCE_ASSOCIATION_SCHEMA`, exactly
+  `dramatis.subject-resource-association/v1`. Its constructor takes subject,
+  resource and `SubjectResourceRelationship`; `About` is the first and only
+  relationship. Several associations may concern the same resource; there is
+  no deduplication, key uniqueness claim, name matching or permission grant.
+  `SubjectResourceAssociation::about(subject, resource) -> Self` is the requested
+  infallible convenience: it sets the valid schema and About relationship but
+  still requires `validate()` for caller-supplied mutable nested resource data.
+- `birth::BirthFacts { schema, subject, date, time, place, timezone, source }`
+  requires `schema == BIRTH_FACTS_SCHEMA`, exactly `dramatis.birth-facts/v1`.
+  Its constructor takes all six non-schema fields in that order and sets the
+  schema. Subject is mandatory and keeps the existing `SubjectRef` semantics.
+- `CivilDate { year: i32, month: u8, day: u8 }` is proleptic Gregorian with
+  years 1..=9999, including century leap-year checks. This first schema cannot
+  represent a non-Gregorian source date directly; a receiving owner must retain
+  its original-calendar evidence separately when converting it for this schema.
+- `BirthTime::Unknown`, `Known { hour, minute, second }`, and
+  `Approximate { hour, minute, second, uncertainty_seconds }` preserve civil
+  clock assertions. Hour is 0..=23, minute/second 0..=59; leap-second input
+  refuses. Approximation has a positive radius of 1..=86400 seconds on each
+  side, potentially crossing local date boundaries, not a resolved UTC range.
+  Constructors are `BirthTime::known` and `BirthTime::approximate`; Unknown
+  never gains a clock value or a default instant.
+- Optional `BirthPlace { label, latitude_microdegrees, longitude_microdegrees,
+  precision }` requires non-whitespace label/precision and paired coordinates
+  or neither coordinate. Latitude bounds are ±90,000,000; longitude bounds
+  ±180,000,000, both inclusive. Optional `timezone: String` preserves supplied
+  IANA input text and checks only nonemptiness. The parent validates identifiers
+  and historical rules; no timezone database is linked here.
+- `FactSource { label, reference: Option<String> }` requires a non-whitespace
+  label and any provided reference. Labels/references do not verify truth or
+  identify a cryptographic issuer. Constructors for date, place and source
+  take their public fields in declaration order.
+
+JSON has fixed declaration-order supplier fixtures, explicit external enum tags
+and explicit nulls for absent optional values (missing optional fields also
+deserialize as absent). This is stable Serde output, not a canonical hashing or
+signature format. Postcard roundtrips preserve the same fields and variant
+order. Original `SubjectRef` source, binary fixtures and tests remain untouched.
+
+The resident must bind both envelopes to its context and verify any association
+against the referenced resource's actual subject and exact revision; these plain
+types do not fetch a target or compare independently supplied envelopes. The
+resident personal-facts domain owns durable fact revisions and admission.
+Historical zone resolution, candidate offsets, UTC and calculation provenance
+belong to derived resources that refer to the original fact revision. Extra
+derived fields in `BirthFacts` refuse. This contract uses no clock, resolver,
+network, storage, cryptographic verifier or new permission system. Parent owns
+Mere receiving persistence/admission and Cleromancy numerical/time/UI wiring.
+Djinn has no existing live contact-book wiring in this receiving slice: parent
+will hold scoped local Gaz contact resources in the shared personal-facts
+domain, reusing Gaz types, alongside existing profile references. This does not
+authorize an app-local directory or add contact custody to the supplier lane.
 
 ## Phases and validation
 
 - Reference slice: done when existing types remain unchanged, the additive
   contract round-trips JSON/Postcard and refuses malformed references, wrong
   scopes and missing records. Locally implemented; test evidence below.
-- Resident biography ownership: open. Done only after the maintainer names
-  an owner and approves its versioned facts, admission and disclosure contract.
+- Plain birth/resource contracts: implemented locally for review. Done when
+  nested validation, strict schema/field refusals and stable Serde tests pass,
+  while published subject types, receipts and Chatelaine ruling 12 stay intact.
+- Resident biography ownership: authorized as the personal-facts data domain;
+  parent implementation and real receiving qualification remain open.
 - Consumer adoption: parent-owned and open. Requires explicit natal versioning,
   real saved input/replay evidence, and separate native/fresh-process receipts.
 
@@ -200,3 +278,22 @@ only `SubjectRef` and structural lookup are implemented in this supplier slice.
   historical-time or numerical qualification is claimed.
 
 - Parent review retains the original implementation commits. Re-ran `cargo test -p dramatis -p gaz --all-features --locked --offline` with Cargo 1.99.0 and explicit Rust/Rustdoc 1.97.1: 7/92 tests and four Gaz doctests pass. The [supplier receipt](../testing/receipts/subject-reference-20261016/qualification.json) binds the exact source and compiled inputs. Added the proposed subject-to-resource association model and preserved the existing Chatelaine autofill ruling.
+
+- Authorized reusable-facts extension: added `birth`, `resources`, a private
+  shared deserialization validator and focused tests on base `36ca194`.
+  Checked constructors, public-field revalidation and strict JSON/Postcard load
+  refuse invalid Gregorian dates, clocks, approximation bounds, unpaired or
+  out-of-range coordinates, empty supplied text, unknown schemas/fields and
+  attempted derived UTC additions. Fixed fixtures preserve all time variants
+  and source inputs; a complete Gregorian cycle has 146097 valid dates.
+  Associations preserve several subjects and repeated links to one resource.
+  The original seven subject tests, binary fixtures and publication receipts
+  remain unchanged. Parent-requested `about(subject, resource) -> Self` supplies
+  valid schema/relationship without bypassing nested `validate()` checks.
+- Final focused validation: `cargo test -p dramatis --locked --offline` on
+  Rust/Cargo 1.99.0 and `cargo +1.97.1 test -p dramatis --locked --offline`
+  both pass 24 tests (17 new and seven unchanged subject tests). Focused
+  Rustfmt and whitespace checks pass. No dependencies, lock entries, existing
+  receipts or published subject wire formats changed. Supplier software checks
+  do not qualify resident persistence/admission, numerical/time conversion,
+  consumer replay, native UI or fresh-process receiving behavior.

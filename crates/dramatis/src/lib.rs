@@ -29,11 +29,20 @@
 //! here (ruling D24): [`intents`], [`view`], [`receipts`] and, with DR-C, the
 //! [`roster`]. Member crates remain separate dependencies. Vault custody
 //! belongs to Castellan, composed only inside Djinn in Mere.
+//!
+//! [`resources`] adds explicit subject/resource links, and [`birth`] describes
+//! reusable original biographical facts. These values may be private personal
+//! data: they do not join the public identity views. The receiving resident
+//! personal-facts domain owns their durable revisions, admission and access.
 
 #![doc(html_no_source)]
 
+pub mod birth;
 pub mod intents;
 pub mod receipts;
+pub mod resources;
 pub mod roster;
 pub mod subject;
 pub mod view;
+
+mod validation;

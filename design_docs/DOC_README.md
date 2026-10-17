@@ -44,9 +44,10 @@ see `repos/mere/design_docs/DOC_README.md`.
 ## Active documents
 
 - [subject_reference_plan](2026-10-16_subject_reference_plan.md): **reference
-  supplier-software-qualified; biography storage ownership open.** Additive
-  profile/scoped-contact subject vocabulary for Cleromancy C8, with explicit
-  resident data-domain and historical-time receiving requirements.
+  published; reusable birth/resource contracts implemented locally for review.**
+  Plain subject, resource-association and biographical facts for Cleromancy C8;
+  resident personal-facts domain owns durable revisions and admission, with
+  historical-time conversion and consumer qualification in the receiving lane.
 - [dramatis_tier_architecture](2026-09-30_dramatis_tier_architecture.md):
   **the tier's architecture of record.** personae, insigne, chatelaine, gaz,
   castellan and gazette as one account of identity along three axes

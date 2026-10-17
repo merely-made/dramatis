@@ -2,9 +2,9 @@
 
 **Date:** 2026-10-16
 
-**Status:** bounded reference reviewed and supplier-software-qualified; birth-fact
-storage ownership proposed, unresolved. Consumer adoption remains open;
-publication is recorded separately below.
+**Status:** bounded reference supplier-software-qualified and published on main
+at `cec93f8`; birth-fact storage ownership proposed, unresolved. Consumer
+adoption remains open. The [publication receipt](../testing/receipts/subject-reference-20261016/publication.json) binds the verified checkpoint.
 
 **Source base:** Dramatis `2f27f1a939aa2e046b78f7db18dcd8f81e0d7c59`, fetched
 `origin/main`. Deciders: maintainer and receiving Cleromancy/resident owners.

@@ -2,8 +2,9 @@
 
 **Date:** 2026-10-16
 
-**Status:** bounded reference implemented locally for review; birth-fact storage
-ownership proposed, unresolved. No consumer integration or publication.
+**Status:** bounded reference reviewed and supplier-software-qualified; birth-fact
+storage ownership proposed, unresolved. Consumer adoption remains open;
+publication is recorded separately below.
 
 **Source base:** Dramatis `2f27f1a939aa2e046b78f7db18dcd8f81e0d7c59`, fetched
 `origin/main`. Deciders: maintainer and receiving Cleromancy/resident owners.
@@ -127,6 +128,49 @@ consumer-owned reading snapshot; deserializing `SubjectRef` cannot do that.
    C8 needs its own versioned natal inputs/claims; do not reinterpret edition 1.
    The consumer source was read only as a boundary locator, not qualified here.
 
+## Associated resources (2026-10-16; proposed consumer model)
+
+A subject reference is the join between a resource and the person it concerns.
+Keys are one existing anchor family, not a requirement for a contact and not
+proof of every associated fact. The reference must retain the receiving
+resident/vault context and actual Gaz book scope. Names and matching birth
+dates do not join contacts automatically. Gaz's key lookup returns an iterator:
+one matching key is not a guarantee of one local contact record.
+
+A resource keeps its own owner, stable id and revision and names its subject
+through an explicit typed association. This is a proposed receiving model,
+not a new serialized API in this slice. A contact card, a retained birth-input
+record, a Chatelaine address item and a Cleromancy chart can concern the same
+subject without copying their content into `SubjectRef` or a public roster.
+One resource can concern several subjects, such as a shared household address;
+one subject can have several names, addresses or conflicting sourced claims.
+A subject link is not authority to read, export or exercise its target.
+
+Existing autofill ownership stays in force: tier-architecture ruling 12 assigns
+CXF person-name and address imports to Chatelaine kinds, with all payload
+fields sealed by Castellan and exercise through the allowed host paths. This
+plan's proposed resident-held biography domain is a possible home for reusable
+birth facts, not a replacement for that ruling or a mandate to move every
+personal resource into one store. Parsed JSContact Cards preserve unmapped
+properties, but those opaque fields are not yet a typed admitted biography.
+
+An associated fact should distinguish what is asserted from who supplied or
+attested it: subject, typed predicate/value, source or issuer, evidence,
+precision/uncertainty, valid period where relevant, and resource revision.
+These are proposed semantics; the data owner chooses the schema and existing
+resident admission/disclosure contracts. Signature validation establishes a
+particular key's statement; accepting a biography claim needs the relevant
+source policy. A private petname remains the book owner's label, distinct
+from the subject's self-reported name or a document-derived legal name.
+
+For C8, a reading refers to its subject separately from its actor and retains
+the exact authorized birth inputs and calculation revision it used. Later
+corrections to an address, birth time or shared contact resource must not rewrite
+that historical reading. Contact deletion or lost access remains an unresolved
+reference rather than a name-based fallback. Reusable birth storage and the
+resource-association envelope still require their own receiving implementation;
+only `SubjectRef` and structural lookup are implemented in this supplier slice.
+
 ## Phases and validation
 
 - Reference slice: done when existing types remain unchanged, the additive
@@ -154,3 +198,5 @@ consumer-owned reading snapshot; deserializing `SubjectRef` cannot do that.
   Muniment persistence or JSContact exchange dependency to the facade.
 - No consumer, native, durable resident storage, credential disclosure,
   historical-time or numerical qualification is claimed.
+
+- Parent review retains the original implementation commits. Re-ran `cargo test -p dramatis -p gaz --all-features --locked --offline` with Cargo 1.99.0 and explicit Rust/Rustdoc 1.97.1: 7/92 tests and four Gaz doctests pass. The [supplier receipt](../testing/receipts/subject-reference-20261016/qualification.json) binds the exact source and compiled inputs. Added the proposed subject-to-resource association model and preserved the existing Chatelaine autofill ruling.

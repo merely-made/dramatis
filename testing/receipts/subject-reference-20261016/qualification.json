@@ -1,0 +1,37 @@
+{
+  "schema": "dramatis.subject-reference-qualification/v1",
+  "date": "2026-10-16",
+  "source_base": "2f27f1a939aa2e046b78f7db18dcd8f81e0d7c59",
+  "tested_code_checkpoint": "292b1c4333e57d311e455e156264ad07cb2f23ea",
+  "original_implementation": "a484f25c109f6c142ab621111a91b7ad178d3070",
+  "source_boundary": "Further changes add documentation and this supplier receipt only.",
+  "compiler": "explicit rustc/rustdoc 1.97.1 with Cargo 1.99.0",
+  "command": "cargo test -p dramatis -p gaz --all-features --locked --offline",
+  "results": {
+    "dramatis": {
+      "passed": 7,
+      "failed": 0,
+      "ignored": 0
+    },
+    "gaz": {
+      "passed": 92,
+      "failed": 0,
+      "ignored": 0
+    },
+    "gaz_doctests": {
+      "passed": 4,
+      "failed": 0,
+      "ignored": 0
+    }
+  },
+  "compiled_inputs": {
+    "Cargo.toml": "347ff4d0245b805e79e699fefff8b57a61a8c21e31b157acb16dcf7c51f02499",
+    "Cargo.lock": "68f89427e9a65a30d788d7f17e1bc7ac9682a39916e5a8153d27b2a4520877ce",
+    "crates/dramatis/Cargo.toml": "1d8f5fbc028f8eac94f357511540d18dc7b856919ef7ce179663ae592a4ead63",
+    "crates/dramatis/src/lib.rs": "a775f57e3d1ec9bf38ddf6f14655539c7d0acfa946e4d38a6a85d2990e4eea5a",
+    "crates/dramatis/src/subject.rs": "96e95abfaa617bcd069054a36f6b1b0a12fdd3941ecaac2aedae87d1a7e38af2",
+    "crates/dramatis/src/subject_tests.rs": "b4a65de1eff948a4df8fe915ffa1b4b5d84346bd97100cffb8a236a473485f79"
+  },
+  "test_log_sha256": "55517feb0b3a007d0bd810faa6aa0a20104e01192db19294de1ea39cc7f62220",
+  "scope": "Additive SubjectRef and structural contact lookup; no biography storage, authorization grant, native or consumer acceptance."
+}

@@ -44,7 +44,7 @@ see `repos/mere/design_docs/DOC_README.md`.
 ## Active documents
 
 - [subject_reference_plan](2026-10-16_subject_reference_plan.md): **reference
-  implemented locally for review; biography storage ownership open.** Additive
+  supplier-software-qualified; biography storage ownership open.** Additive
   profile/scoped-contact subject vocabulary for Cleromancy C8, with explicit
   resident data-domain and historical-time receiving requirements.
 - [dramatis_tier_architecture](2026-09-30_dramatis_tier_architecture.md):

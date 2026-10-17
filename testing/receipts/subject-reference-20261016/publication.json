@@ -1,0 +1,13 @@
+{
+  "schema": "dramatis.subject-reference-publication/v1",
+  "date": "2026-10-16",
+  "qualified_checkpoint": "cec93f87188c2b19ac5e7c0afd4f53083f0aead7",
+  "remote_revision_verified": "cec93f87188c2b19ac5e7c0afd4f53083f0aead7",
+  "branch": "main",
+  "preserved_implementation_commits": [
+    "a484f25c109f6c142ab621111a91b7ad178d3070",
+    "292b1c4333e57d311e455e156264ad07cb2f23ea"
+  ],
+  "qualification": "qualification.json",
+  "scope": "Supplier reference and structural lookup published; resource association and biography storage remain proposed, consumer/native acceptance separate."
+}

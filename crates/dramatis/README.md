@@ -11,6 +11,16 @@ Gaz anchor. It holds no birth facts or disclosure authority. Contact lookup
 checks the supplied book's scope and refuses missing records; hosts authorize
 access and own any separately held biographical data.
 
+`resources::{ResourceRef, SubjectResourceAssociation}` links subjects to exact
+resource revisions without grants or name/key deduplication. `birth::BirthFacts`
+supplies reusable original Gregorian civil date, unknown/known/approximate time,
+optional place and timezone input, and source attribution. Constructors and
+strict deserialization validate these plain types. Revalidate public fields
+after mutation before serialization or admission. The resident personal-facts
+domain owns durable revisions, access and admission; derived UTC, historical
+timezone resolution and charts remain separate resources. No public roster,
+credential store or autofill contract changes.
+
 The identity tier lives in the
 [Dramatis repository](https://github.com/merely-made/dramatis): Personae holds
 identity and carry primitives, Insigne holds proof grammar, Gaz holds contacts,

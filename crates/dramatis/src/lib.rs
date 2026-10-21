@@ -46,3 +46,5 @@ pub mod subject;
 pub mod view;
 
 mod validation;
+
+pub mod authentication;

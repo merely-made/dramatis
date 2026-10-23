@@ -750,9 +750,9 @@ checksum = "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
 
 [[package]]
 name = "muniment"
-version = "0.1.2"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "70cfe5fd1539c97fc48f0b63ff920faaf934984a4af67b503eececbb12905bb5"
+checksum = "022ef00662d14507ea4ea33a055202750395dad920834568c60dd81cd6f9c6ea"
 dependencies = [
  "async-trait",
  "blake3",

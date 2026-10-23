@@ -41,4 +41,4 @@ uuid = { version = "1", features = ["serde", "v4"] }
 # crates.io rather than mere.git, so this repository never pins mere back;
 # mere's `[patch.crates-io]` swaps in its own checkout so mere's graph keeps
 # one muniment.
-muniment = { version = "0.1.2", default-features = false }
+muniment = { version = ">=0.1.2, <0.3", default-features = false }

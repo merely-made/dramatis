@@ -629,7 +629,7 @@ build.
         dependency and Djinn custody migration. Both workspaces compile
         locked; desktop and core suites pass, with absent/Locked receipts
         and a deliberately restored fallback that fails. Evidence:
-        `repos/retinue/validation/signalman-refresh-receipt.json`.
+        `repos/murm/validation/signalman-refresh-receipt.json`.
 
 - **P5 — the quarantine review.** Done when:
   - [x] castellan's projection lists quarantined items as secret-free cards,
@@ -1033,7 +1033,7 @@ The earlier draft evidence stays explicitly pre-integration.
 **2026-10-11: desktop and documentation follow-up.** The earlier baseline
 failure is closed by the separate Retinue stack refresh, recorded in
 `repos/murm/design_docs/2026-10-11_signalman_stack_refresh_plan.md` and
-`repos/retinue/validation/signalman-refresh-receipt.json`. The desktop now requests
+`repos/murm/validation/signalman-refresh-receipt.json`. The desktop now requests
 station authority from Djinn and passes locked checks, 70 executed software
 tests, and real absent/Locked custody receipts. The physical bench was gated
 off; Signalman's core passes 62 tests. A restored local-seed fallback fails

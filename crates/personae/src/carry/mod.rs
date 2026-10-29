@@ -52,6 +52,24 @@ pub use scope::{
     DEVICE_SCOPE_PATH, device_capability_scope, is_persona_scoped_action, partition_actions,
 };
 
+use insigne::delegation::SignedDelegationRevocation;
+
+/// Summary of one remote-auth device revocation. Serializable since DR-C,
+/// because a revocation djinn performs is answered to the app that asked.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RemoteAuthRevocationOutcome {
+    pub device_id: DeviceId,
+    pub already_revoked: bool,
+    pub rotated_personas: Vec<PersonaId>,
+    pub refreshed_devices: Vec<DeviceId>,
+    /// The signed statements withdrawing every certificate the device held.
+    ///
+    /// Returned rather than only filed, because these are what travels: a
+    /// caller hands them to peers, or to the radio itself if it can still be
+    /// reached. The wallet's own copy is already folded into its ledger.
+    pub statements: Vec<SignedDelegationRevocation>,
+}
+
 // ── Identity-level records ───────────────────────────────────────────────────
 
 /// Stable device id within the identity-level roster.
@@ -488,6 +506,44 @@ pub fn derive_persona_chain_root(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn remote_auth_revocation_preserves_pandect_json_shape() {
+        let device = DeviceId::from_uuid(Uuid::from_u128(0x2026_0812_0002));
+        let persona = PersonaId::from_uuid(Uuid::from_u128(1));
+        let set = issue_device_grant_set(
+            [0x4d; 32],
+            device,
+            DevicePublicKey([0x5a; 32]),
+            &[ACTION_TRANSPORT_EGRESS],
+            &[],
+            60_000,
+            1_770_000_000_000,
+        )
+        .unwrap();
+        let statements = revoke_device_grant_set([0x4d; 32], &set, 1_770_000_000_001).unwrap();
+        assert_eq!(statements.len(), 1);
+        statements[0].check().unwrap();
+        let outcome = RemoteAuthRevocationOutcome {
+            device_id: device,
+            already_revoked: false,
+            rotated_personas: vec![persona],
+            refreshed_devices: vec![device],
+            statements: statements.clone(),
+        };
+        // This is the old Pandect JSON envelope, including the complete signed statement.
+        let fixture = serde_json::json!({
+            "device_id": "00000000-0000-0000-0000-202608120002",
+            "already_revoked": false,
+            "rotated_personas": ["00000000-0000-0000-0000-000000000001"],
+            "refreshed_devices": ["00000000-0000-0000-0000-202608120002"],
+            "statements": statements,
+        });
+        assert_eq!(serde_json::to_value(&outcome).unwrap(), fixture);
+        let decoded: RemoteAuthRevocationOutcome = serde_json::from_value(fixture).unwrap();
+        assert_eq!(decoded, outcome);
+        decoded.statements[0].check().unwrap();
+    }
 
     // BLAKE3-256 of the empty input, from the BLAKE3 reference test vectors.
     const EMPTY_BLAKE3: &str = "af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262";

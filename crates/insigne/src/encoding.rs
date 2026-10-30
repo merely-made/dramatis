@@ -7,100 +7,33 @@
 //! The two text codecs keys travel in: base58btc (inside `did:key`) and hex
 //! (a Reticulum identity).
 //!
-//! Hand-rolled rather than a dependency, as castellan's base32 is: each is a
-//! few dozen lines, and insigne's core keeps its dependency list to serde.
-
-/// The Bitcoin base58 alphabet, which multibase names `base58btc`.
-const BASE58_ALPHABET: &[u8; 58] = b"123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+//! These adapters retain the formats and refusal behavior used by key types.
 
 /// Encode bytes as base58btc. Each leading zero byte becomes a leading `1`.
 pub(crate) fn base58_encode(bytes: &[u8]) -> String {
-    let zeros = bytes.iter().take_while(|&&byte| byte == 0).count();
-    // Base-58 digits, least significant first.
-    let mut digits: Vec<u8> = Vec::with_capacity(bytes.len() * 138 / 100 + 1);
-    for &byte in &bytes[zeros..] {
-        let mut carry = u32::from(byte);
-        for digit in &mut digits {
-            carry += u32::from(*digit) << 8;
-            *digit = (carry % 58) as u8;
-            carry /= 58;
-        }
-        while carry > 0 {
-            digits.push((carry % 58) as u8);
-            carry /= 58;
-        }
-    }
-    let mut out = "1".repeat(zeros);
-    out.extend(
-        digits
-            .iter()
-            .rev()
-            .map(|&digit| char::from(BASE58_ALPHABET[usize::from(digit)])),
-    );
-    out
+    bs58::encode(bytes)
+        .with_alphabet(bs58::Alphabet::BITCOIN)
+        .into_string()
 }
 
 /// Decode base58btc, or `None` on a character outside the alphabet.
 pub(crate) fn base58_decode(text: &str) -> Option<Vec<u8>> {
-    let zeros = text.bytes().take_while(|&c| c == b'1').count();
-    // Bytes, least significant first.
-    let mut bytes: Vec<u8> = Vec::with_capacity(text.len() * 733 / 1000 + 1);
-    for c in text.bytes().skip(zeros) {
-        let mut carry = u32::from(base58_value(c)?);
-        for byte in &mut bytes {
-            carry += u32::from(*byte) * 58;
-            *byte = (carry & 0xff) as u8;
-            carry >>= 8;
-        }
-        while carry > 0 {
-            bytes.push((carry & 0xff) as u8);
-            carry >>= 8;
-        }
-    }
-    let mut out = vec![0u8; zeros];
-    out.extend(bytes.iter().rev());
-    Some(out)
-}
-
-fn base58_value(c: u8) -> Option<u8> {
-    BASE58_ALPHABET
-        .iter()
-        .position(|&symbol| symbol == c)
-        .map(|index| index as u8)
+    bs58::decode(text)
+        .with_alphabet(bs58::Alphabet::BITCOIN)
+        .into_vec()
+        .ok()
 }
 
 /// Lowercase hex, two characters per byte.
 pub(crate) fn hex_encode(bytes: &[u8]) -> String {
-    const DIGITS: &[u8; 16] = b"0123456789abcdef";
-    let mut out = String::with_capacity(bytes.len() * 2);
-    for &byte in bytes {
-        out.push(char::from(DIGITS[usize::from(byte >> 4)]));
-        out.push(char::from(DIGITS[usize::from(byte & 0x0f)]));
-    }
-    out
+    hex::encode(bytes)
 }
 
 /// Decode exactly `N` bytes of hex, either case, or `None`.
 pub(crate) fn hex_decode<const N: usize>(text: &str) -> Option<[u8; N]> {
-    let digits = text.as_bytes();
-    if digits.len() != N * 2 {
-        return None;
-    }
-    let (pairs, _) = digits.as_chunks::<2>();
     let mut out = [0u8; N];
-    for (slot, [high, low]) in out.iter_mut().zip(pairs) {
-        *slot = (hex_value(*high)? << 4) | hex_value(*low)?;
-    }
+    hex::decode_to_slice(text, &mut out).ok()?;
     Some(out)
-}
-
-const fn hex_value(c: u8) -> Option<u8> {
-    match c {
-        b'0'..=b'9' => Some(c - b'0'),
-        b'a'..=b'f' => Some(c - b'a' + 10),
-        b'A'..=b'F' => Some(c - b'A' + 10),
-        _ => None,
-    }
 }
 
 #[cfg(test)]
@@ -138,6 +71,15 @@ mod tests {
         for bad in ["0", "O", "I", "l", "+", "abc!"] {
             assert_eq!(base58_decode(bad), None, "{bad} is not base58btc");
         }
+    }
+
+    #[test]
+    fn codecs_handle_empty_fixed_arrays_and_non_ascii_input() {
+        assert_eq!(hex_encode(&[]), "");
+        assert_eq!(hex_decode::<0>(""), Some([]));
+        assert_eq!(hex_decode::<1>("é"), None);
+        assert_eq!(base58_decode("é"), None);
+        assert_eq!(base58_decode("1 1"), None);
     }
 
     #[test]

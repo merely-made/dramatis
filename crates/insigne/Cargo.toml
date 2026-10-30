@@ -17,6 +17,8 @@ digest = ["dep:blake3"]
 verify = ["digest", "dep:ed25519-dalek"]
 
 [dependencies]
+bs58 = { version = "0.5.1", default-features = false, features = ["alloc"] }
+hex = "0.4.3"
 blake3 = { version = "1.5", optional = true }
 ed25519-dalek = { version = "3", optional = true }
 serde.workspace = true

@@ -9,3 +9,4 @@
 - Task 1: complete (256b248..c15a65b; Luna spec compliance and code-quality review approved; no Critical/Important findings).
 - Task 2: implementation 27b731f0d2c885c84a943094e54461c744060766; Insigne default/all-feature 24 passed each, no-default check passed, combined 121 passed and 4 existing sshd ignores; independent review pending.
 - Task 2: complete (c15a65b..27b731f; Luna spec compliance and code-quality review approved; no Critical/Important findings).
+- Final whole-branch review: approved at b520485db4357344de8981fc34c23277811a585d; no Critical/Important findings. Raw log whitespace retained as evidence. Both tasks complete; downstream receiving/integration not performed.

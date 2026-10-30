@@ -18,7 +18,12 @@
     "task1": "approved",
     "task2": "approved"
   },
-  "whole_branch_review": "pending",
+  "whole_branch_review": {
+    "verdict": "approved spec compliance and code quality",
+    "reviewed_head": "b520485db4357344de8981fc34c23277811a585d",
+    "review": "final-review.md",
+    "critical_or_important_findings": 0
+  },
   "bounds": {
     "MemoryMax": "3G",
     "MemorySwapMax": "0",
@@ -32,7 +37,7 @@
     "wasm": "not run",
     "downstream_receiving": "not adopted/qualified",
     "installed_custody": "not qualified",
-    "formatting": "changed codec file and diff pass; pre-existing workspace differences retained"
+    "formatting": "Changed source/diff checks pass; pre-existing workspace format differences and raw receipt-log whitespace remain preserved."
   },
   "publication": "isolated remote branch; not pushed or merged"
 }

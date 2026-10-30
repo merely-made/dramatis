@@ -1,6 +1,6 @@
 # Identity primitives implementation plan
 
-**Status (2026-10-29): Tasks 1 and 2 implemented and qualified on the isolated S-PC supplier branch; whole-branch review and downstream receiving remain separate.**
+**Status (2026-10-29): Tasks 1 and 2 implemented and qualified on the isolated S-PC supplier branch; task and whole-branch source reviews approved. Downstream receiving remains separate.**
 
 **Goal:** remove independent fixed-width MAC comparison and public-key text codecs while preserving the identity tier's exact public behavior.
 

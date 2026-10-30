@@ -1083,3 +1083,13 @@ expected-endpoint server authentication. Regression controls require explicit
 policy selection, reject mutations of the channel and signed application
 context, and show the association grants no membership by itself. Murm owns
 the real scoped-endpoint and existing-endpoint reuse acceptance.
+
+
+## Isolated COSE comparison, 2026-10-30
+
+**Status: comparison complete; retain experiment and hold production adoption. Production encodings and dependencies unchanged.**
+The [experimental profile and harness](../support/experiments/cose-insigne-20261030/README.md) compare one certificate/revocation pair, independent COSE wire fixtures, selected existing policy rules, portable codec builds and dependency costs. Certificate IDs currently hash the legacy signing grammar; retaining IDs retains that grammar, while new CBOR IDs require parent/revocation and retained-history migration. Private checked-proof constructors remain an integration boundary.
+
+Done means independently checked wire/profile cases, explicit refusal and selected-policy results, actual removable/replacement code, target/dependency evidence and an honest retain/adopt-for-further-work conclusion. A production format or authority change is outside this comparison. Existing shared build caps and the machine-heavy lock apply.
+
+**Findings (2026-10-30):** 16 standalone native tests pass on Rust 1.99.1 and MSRV 1.97.1; the no_std codec checks for wasm32 on both. The test set verifies seven independent wire fixtures and selected policy/ledger oracles, with explicit test-only ID translation. No candidate proof enters production checked-proof APIs. The roughly 53-line signing grammar cut requires ID migration, and shared byte helpers remain for key-derivation salts. The [comparison record](../support/experiments/cose-insigne-20261030/README.md#verified-results-2026-10-30) gives dependency/cost evidence, exact scope and remaining limits. No production migration is selected.

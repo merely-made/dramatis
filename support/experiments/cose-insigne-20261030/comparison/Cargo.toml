@@ -1,0 +1,17 @@
+[package]
+name = "cose-insigne-comparison"
+version = "0.0.0"
+edition = "2021"
+rust-version = "1.97.1"
+license = "MPL-2.0"
+
+[dependencies]
+cose-insigne-codec = { path = "../codec" }
+insigne = { path = "../../../../crates/insigne", features = ["verify", "digest"] }
+
+[dev-dependencies]
+ed25519-dalek = "3"
+serde_json = "1"
+personae = { path = "../../../../crates/personae" }
+blake3 = "1.5"
+notochord = { path = "../../../../crates/notochord" }

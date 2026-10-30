@@ -1,5 +1,7 @@
 # Dramatis Documentation Index
 
+COSE comparison (2026-10-30): [scope and status](2026-10-06_dramatis_repo_plan.md#isolated-cose-comparison-2026-10-30), comparison complete: 16 tests pass on working/MSRV Rust, plus both Wasm codec checks and seven independent disposable vectors. Retain the experiment and hold production adoption; identifier and checked-proof migration remain open.
+
 Notochord secure-channel admission (2026-10-29): the
 [repository plan](2026-10-06_dramatis_repo_plan.md#notochord-secure-channel-admission-2026-10-29)
 records the additive v2 transcript and separate carrier/channel/subject facts,

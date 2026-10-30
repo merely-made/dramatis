@@ -37,11 +37,15 @@ mod handshake;
 mod io;
 mod owner;
 mod policy;
+mod secure;
 mod types;
 
 pub use authority::{AuthorityLapse, RetainedAuthority};
 pub use chain::{RevocationLedger, TrustedRoot, validate_chain};
-pub use facts::{CarrierKind, IngressFacts, ProofBinding, SessionFacts};
+pub use facts::{
+    CarrierKind, IngressFacts, ProofBinding, SecureChannelFacts, SecureIdentityPolicy,
+    SecureProofBinding, SessionFacts,
+};
 pub use handshake::{
     AdmittedPrincipal, AdmittedSession, HandshakeError, SessionHello, SessionReply, admit,
     network_session_signing_salt, respond,
@@ -58,7 +62,11 @@ pub use owner::{
 pub use policy::{
     DiscoveryPolicy, LocalNetworkPolicy, POLICY_VERSION, ServiceAccess, ServiceRule, TransitPolicy,
 };
+#[cfg(feature = "tokio")]
+pub use secure::admit_session_secure;
+pub use secure::{AdmittedSecureSession, admit_secure, respond_secure};
 pub use types::{
     ChainFault, DenyReason, HandshakeLimits, NetworkId, ProfileRef, RequestedAction,
-    SUPPORTED_WIRE_VERSION, SessionClaims, SessionDecision, TrafficClass, limit_ceilings,
+    SECURE_WIRE_VERSION, SUPPORTED_WIRE_VERSION, SessionClaims, SessionDecision, TrafficClass,
+    limit_ceilings,
 };

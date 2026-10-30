@@ -120,6 +120,12 @@ impl SessionFacts {
             shared_link: self.ingress.shared_link,
         }
     }
+
+    /// Bind an independently verified secure channel without changing any
+    /// carrier observation. Local interface identity remains excluded.
+    pub fn secure_proof_binding(&self, channel: &SecureChannelFacts) -> SecureProofBinding {
+        self.proof_binding().with_secure_channel(channel.clone())
+    }
 }
 
 /// The facts a session proof covers.
@@ -158,6 +164,105 @@ impl ProofBinding {
             shared_link,
         }
     }
+
+    /// Add independently verified channel facts to the v2 admission binding.
+    /// The legacy binding shape and v1 transcript remain unchanged.
+    pub fn with_secure_channel(self, secure_channel: SecureChannelFacts) -> SecureProofBinding {
+        SecureProofBinding {
+            carrier: self,
+            secure_channel,
+        }
+    }
+}
+
+/// Facts established by a secure-channel implementation, never decoded from
+/// an admission hello. The transport adapter constructs this only after the
+/// channel handshake and its identity proofs have verified.
+///
+/// Identities are ordered by their channel roles on both ends: `initiator`
+/// never means "the remote peer". The handshake hash identifies this one
+/// channel; a static key alone cannot provide that binding.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct SecureChannelFacts {
+    /// Exact cryptographic and identity-proof profile, including its suite.
+    pub profile: Vec<u8>,
+    /// Version of that secure-channel profile, independent of admission wire version.
+    pub version: u16,
+    /// Authenticated channel handshake hash (32 or 64 bytes).
+    pub handshake_hash: Vec<u8>,
+    /// Ed25519 application identity proved by the channel initiator.
+    pub initiator: [u8; 32],
+    /// Ed25519 application identity proved by the channel responder.
+    pub responder: [u8; 32],
+    /// Application protocol authenticated inside the secure channel.
+    pub protocol: Vec<u8>,
+}
+
+impl SecureChannelFacts {
+    /// Assemble local verified facts. Admission additionally checks their
+    /// bounded shape. The service adapter checks its expected inner protocol.
+    pub fn new(
+        profile: impl Into<Vec<u8>>,
+        version: u16,
+        handshake_hash: impl Into<Vec<u8>>,
+        initiator: [u8; 32],
+        responder: [u8; 32],
+        protocol: impl Into<Vec<u8>>,
+    ) -> Self {
+        Self {
+            profile: profile.into(),
+            version,
+            handshake_hash: handshake_hash.into(),
+            initiator,
+            responder,
+            protocol: protocol.into(),
+        }
+    }
+
+    /// Validate only the common bounded shape. Selection of the permitted
+    /// cryptographic profile remains the secure-channel/service owner's rule.
+    pub fn is_valid(&self) -> bool {
+        !self.profile.is_empty()
+            && self.profile.len() <= 128
+            && self.version != 0
+            && matches!(self.handshake_hash.len(), 32 | 64)
+            && !self.protocol.is_empty()
+            && self.protocol.len() <= 255
+    }
+}
+
+/// Common, role-ordered v2 proof context. Carrier observations and secure
+/// observations stay separate even when a service requires their keys to match.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct SecureProofBinding {
+    /// Shared carrier observations; no local interface appears here.
+    pub carrier: ProofBinding,
+    /// Secure-channel observations, independently established by both peers.
+    pub secure_channel: SecureChannelFacts,
+}
+
+impl SecureProofBinding {
+    /// Refuse malformed facts before signing/admitting. Outer and inner
+    /// protocols can deliberately differ (for an opaque carrier tunnel); both
+    /// are signed independently. The service checks its expected inner protocol.
+    pub fn is_valid(&self) -> bool {
+        self.secure_channel.is_valid()
+            && !self.carrier.protocol.is_empty()
+            && self.carrier.protocol.len() <= 255
+    }
+}
+
+/// Explicit relationship between carrier identity and secure application identity.
+/// Both choices still require the secure initiator to prove the admitted subject
+/// or its attested session-signing key.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SecureIdentityPolicy {
+    /// If the carrier authenticated a peer, that key must equal the secure
+    /// initiator. Honest absent carrier authentication remains absent.
+    MatchCarrierWhenPresent,
+    /// Permit a distinct carrier identity when the secure initiator is the
+    /// subject or the subject's checked, transcript-signing derived key.
+    AttestedApplication,
 }
 
 #[cfg(test)]

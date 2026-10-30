@@ -2,7 +2,9 @@
 
 Notochord secure-channel admission (2026-10-29): the
 [repository plan](2026-10-06_dramatis_repo_plan.md#notochord-secure-channel-admission-2026-10-29)
-records the additive v2 transcript and separate carrier/channel/subject facts.
+records the additive v2 transcript and separate carrier/channel/subject facts,
+including the explicit native endpoint/application-root association policy
+added on 2026-10-30.
 The implementation order and cross-repository acceptance live in
 `murm/design_docs/2026-10-29_secure_sessions_and_live_interaction_plan.md` N1.
 

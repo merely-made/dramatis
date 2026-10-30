@@ -188,11 +188,15 @@ pub struct SecureChannelFacts {
     pub profile: Vec<u8>,
     /// Version of that secure-channel profile, independent of admission wire version.
     pub version: u16,
-    /// Authenticated channel handshake hash (32 or 64 bytes).
+    /// Authenticated channel binding (a handshake hash or profile-defined
+    /// exporter digest, 32 or 64 bytes).
     pub handshake_hash: Vec<u8>,
-    /// Ed25519 application identity proved by the channel initiator.
+    /// Ed25519 identity proved by the channel initiator's selected profile.
+    /// Native profiles may prove a scoped endpoint key rather than the
+    /// application subject; the service's identity policy decides the binding.
     pub initiator: [u8; 32],
-    /// Ed25519 application identity proved by the channel responder.
+    /// Ed25519 identity proved by the channel responder's selected profile.
+    /// This alone does not prove a distinct application-root identity.
     pub responder: [u8; 32],
     /// Application protocol authenticated inside the secure channel.
     pub protocol: Vec<u8>,
@@ -252,9 +256,10 @@ impl SecureProofBinding {
     }
 }
 
-/// Explicit relationship between carrier identity and secure application identity.
-/// Both choices still require the secure initiator to prove the admitted subject
-/// or its attested session-signing key.
+/// Host-selected relationship between channel identities and application subject.
+/// The strict modes require the channel key to be the subject or its checked
+/// signer; the bound-proof mode establishes consent to this specific channel
+/// through the application's verified v2 signature instead.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SecureIdentityPolicy {
     /// If the carrier authenticated a peer, that key must equal the secure
@@ -263,6 +268,16 @@ pub enum SecureIdentityPolicy {
     /// Permit a distinct carrier identity when the secure initiator is the
     /// subject or the subject's checked, transcript-signing derived key.
     AttestedApplication,
+    /// Accept the application's checked subject/signing attestation and its
+    /// v2 signature over this independently verified channel binding, without
+    /// requiring the channel key to derive from the subject.
+    ///
+    /// This proves the subject consents to this action on this exact channel;
+    /// it does not establish durable ownership of the endpoint key. The host
+    /// must select the permitted secure profile, reconstruct facts from its
+    /// actual channel, and check the expected remote endpoint before issuing
+    /// the proof. It is never selected from peer-provided protocol fields.
+    BoundChannelApplicationProof,
 }
 
 #[cfg(test)]

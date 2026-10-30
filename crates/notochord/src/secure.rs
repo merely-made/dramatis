@@ -143,11 +143,15 @@ fn evaluate_secure(
     // master == hello.subject, and the derived key's transcript signature.
     // Therefore either identity below is an authenticated application subject,
     // rather than an unproved association between two valid handshakes.
-    if secure_channel.initiator != hello.subject
+    if identity_policy != SecureIdentityPolicy::BoundChannelApplicationProof
+        && secure_channel.initiator != hello.subject
         && secure_channel.initiator != *hello.session_signer.derived()
     {
         return Err(DenyReason::SubjectNotSecurePeer);
     }
+    // The explicit bound-proof policy uses that verified application signature
+    // as consent to this exact channel/action. It does not claim the scoped
+    // native endpoint key belongs to, or derives from, the application root.
     if identity_policy == SecureIdentityPolicy::MatchCarrierWhenPresent
         && let Some(carrier_peer) = facts.authenticated_initiator
         && carrier_peer != secure_channel.initiator

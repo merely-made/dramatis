@@ -30,11 +30,11 @@ use personae::{Ed25519PublicKey, Ed25519Signature, IdentityProvider};
 use serde::{Deserialize, Serialize};
 
 use crate::chain::RevocationLedger;
-use crate::facts::{ProofBinding, SessionFacts};
+use crate::facts::{ProofBinding, SecureChannelFacts, SecureProofBinding, SessionFacts};
 use crate::policy::LocalNetworkPolicy;
 use crate::types::{
-    DenyReason, HandshakeLimits, NetworkId, ProfileRef, RequestedAction, SUPPORTED_WIRE_VERSION,
-    SessionClaims, SessionDecision, TrafficClass,
+    DenyReason, HandshakeLimits, NetworkId, ProfileRef, RequestedAction, SECURE_WIRE_VERSION,
+    SUPPORTED_WIRE_VERSION, SessionClaims, SessionDecision, TrafficClass,
 };
 
 /// Derivation salt for the key that signs session transcripts.
@@ -51,6 +51,7 @@ pub fn network_session_signing_salt(network: &NetworkId) -> Vec<u8> {
 }
 /// Domain separator for the signed transcript.
 const TRANSCRIPT_DOMAIN: &[u8] = b"mere/network-policy/session-transcript/v1";
+const SECURE_TRANSCRIPT_DOMAIN: &[u8] = b"mere/network-policy/secure-session-transcript/v2";
 
 /// The initiator's opening frame.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -110,6 +111,9 @@ pub enum HandshakeError {
     /// The frame exceeded a configured bound.
     #[error("handshake frame exceeds its configured bound")]
     TooLarge,
+    /// Local secure-channel facts were malformed.
+    #[error("invalid secure-channel proof binding")]
+    InvalidBinding,
 }
 
 /// Canonical transcript bytes, length-prefixed so no two different field sets
@@ -150,6 +154,22 @@ fn transcript(hello: &SessionHello, binding: &ProofBinding) -> Vec<u8> {
     for signed in &hello.delegations {
         bytes.extend_from_slice(&signed.certificate.id().0);
     }
+    bytes
+}
+
+fn secure_transcript(hello: &SessionHello, binding: &SecureProofBinding) -> Vec<u8> {
+    let mut bytes = Vec::new();
+    push_bytes(&mut bytes, SECURE_TRANSCRIPT_DOMAIN);
+    push_bytes(&mut bytes, &transcript(hello, &binding.carrier));
+    let channel = &binding.secure_channel;
+    push_bytes(&mut bytes, &channel.profile);
+    bytes.extend_from_slice(&channel.version.to_le_bytes());
+    push_bytes(&mut bytes, &channel.handshake_hash);
+    push_bytes(&mut bytes, b"initiator");
+    bytes.extend_from_slice(&channel.initiator);
+    push_bytes(&mut bytes, b"responder");
+    bytes.extend_from_slice(&channel.responder);
+    push_bytes(&mut bytes, &channel.protocol);
     bytes
 }
 
@@ -204,6 +224,7 @@ impl SessionHello {
             nonce,
             binding,
             delegations,
+            None,
         )
     }
 
@@ -230,6 +251,7 @@ impl SessionHello {
             nonce,
             binding,
             delegations,
+            None,
         )
     }
 
@@ -244,6 +266,7 @@ impl SessionHello {
         nonce: [u8; 32],
         binding: &ProofBinding,
         delegations: Vec<SignedDelegationCertificate>,
+        secure_channel: Option<&SecureChannelFacts>,
     ) -> Result<Self, HandshakeError> {
         let session_signer = provider
             .attest_derived_key(salt)
@@ -252,7 +275,11 @@ impl SessionHello {
             .derive_keypair(salt)
             .map_err(|_| HandshakeError::Identity)?;
         let mut hello = Self {
-            version: SUPPORTED_WIRE_VERSION,
+            version: if secure_channel.is_some() {
+                SECURE_WIRE_VERSION
+            } else {
+                SUPPORTED_WIRE_VERSION
+            },
             network,
             profile,
             action,
@@ -263,11 +290,75 @@ impl SessionHello {
             delegations,
             transcript_signature: Vec::new(),
         };
-        hello.transcript_signature = keypair
-            .sign(&transcript(&hello, binding))
-            .to_bytes()
-            .to_vec();
+        let message = match secure_channel {
+            Some(channel) => secure_transcript(
+                &hello,
+                &binding.clone().with_secure_channel(channel.clone()),
+            ),
+            None => transcript(&hello, binding),
+        };
+        hello.transcript_signature = keypair.sign(&message).to_bytes().to_vec();
         Ok(hello)
+    }
+
+    /// Issue a v2 hello bound to this verified secure channel. A v1-only
+    /// responder cannot accept it, and secure responders never fall back to v1.
+    #[allow(clippy::too_many_arguments)]
+    pub fn issue_secure<P: IdentityProvider>(
+        provider: &P,
+        network: NetworkId,
+        profile: ProfileRef,
+        action: RequestedAction,
+        class: TrafficClass,
+        nonce: [u8; 32],
+        binding: &SecureProofBinding,
+        delegations: Vec<SignedDelegationCertificate>,
+    ) -> Result<Self, HandshakeError> {
+        if !binding.is_valid() {
+            return Err(HandshakeError::InvalidBinding);
+        }
+        Self::issue_under(
+            provider,
+            SESSION_SIGNING_SALT,
+            network,
+            profile,
+            action,
+            class,
+            nonce,
+            &binding.carrier,
+            delegations,
+            Some(&binding.secure_channel),
+        )
+    }
+
+    /// The secure equivalent of [`Self::issue_network_bound`], allowing an
+    /// owner to retain only the admission signer for this one network.
+    #[allow(clippy::too_many_arguments)]
+    pub fn issue_secure_network_bound<P: IdentityProvider>(
+        provider: &P,
+        network: NetworkId,
+        profile: ProfileRef,
+        action: RequestedAction,
+        class: TrafficClass,
+        nonce: [u8; 32],
+        binding: &SecureProofBinding,
+        delegations: Vec<SignedDelegationCertificate>,
+    ) -> Result<Self, HandshakeError> {
+        if !binding.is_valid() {
+            return Err(HandshakeError::InvalidBinding);
+        }
+        Self::issue_under(
+            provider,
+            &network_session_signing_salt(&network),
+            network,
+            profile,
+            action,
+            class,
+            nonce,
+            &binding.carrier,
+            delegations,
+            Some(&binding.secure_channel),
+        )
     }
 
     /// Encode to a bounded frame.
@@ -313,6 +404,17 @@ impl SessionHello {
     /// signer is attested under the global salt or under the salt bound to
     /// this hello's own network, never another network's.
     pub fn verify_proof(&self, binding: &ProofBinding) -> bool {
+        self.verify_transcript(&transcript(self, binding))
+    }
+
+    /// Verify the v2 secure-channel proof against locally established facts.
+    pub fn verify_secure_proof(&self, binding: &SecureProofBinding) -> bool {
+        self.version == SECURE_WIRE_VERSION
+            && binding.is_valid()
+            && self.verify_transcript(&secure_transcript(self, binding))
+    }
+
+    fn verify_transcript(&self, message: &[u8]) -> bool {
         let bound = network_session_signing_salt(&self.network);
         let Ok(signer) = self
             .session_signer
@@ -327,11 +429,7 @@ impl SessionHello {
         let Ok(derived) = Ed25519PublicKey::from_bytes(signer.derived()) else {
             return false;
         };
-        verify_signature(
-            derived,
-            &self.transcript_signature,
-            &transcript(self, binding),
-        )
+        verify_signature(derived, &self.transcript_signature, message)
     }
 
     /// What this hello asserts.
@@ -351,7 +449,13 @@ impl SessionHello {
         }
     }
 
-    /// Identifier for the admitted session: a digest of the bound transcript.
+    /// Identifier for this v2 secure session, derived from the same transcript
+    /// verified by the responder.
+    pub fn secure_session_id(&self, binding: &SecureProofBinding) -> [u8; 32] {
+        *blake3::hash(&secure_transcript(self, binding)).as_bytes()
+    }
+
+    /// Identifier for the admitted v1 session: a digest of the bound transcript.
     pub fn session_id(&self, binding: &ProofBinding) -> [u8; 32] {
         *blake3::hash(&transcript(self, binding)).as_bytes()
     }

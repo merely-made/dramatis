@@ -1,5 +1,11 @@
 # Dramatis Documentation Index
 
+Notochord secure-channel admission (2026-10-29): the
+[repository plan](2026-10-06_dramatis_repo_plan.md#notochord-secure-channel-admission-2026-10-29)
+records the additive v2 transcript and separate carrier/channel/subject facts.
+The implementation order and cross-repository acceptance live in
+`murm/design_docs/2026-10-29_secure_sessions_and_live_interaction_plan.md` N1.
+
 Sennet directed custody (2026-10-16): the [repo plan](2026-10-06_dramatis_repo_plan.md)
 records transient zeroizing material from the existing scoped child, with 74
 passing tests. Murm owns protocol construction and the pending R8 RF gate.
@@ -32,6 +38,9 @@ see `repos/mere/design_docs/DOC_README.md`.
   name the same revision.
 - Secrets at rest and in hand are castellan's, in mere. A crate here that
   starts holding one is a boundary break, not a feature.
+- Secure-channel authentication never fills an absent carrier-authenticated
+  peer. Notochord's secure entrypoints bind both observations and the attested
+  subject separately; service policy decides whether their identities must match.
 
 ## Required reading order
 

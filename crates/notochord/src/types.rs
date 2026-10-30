@@ -12,6 +12,10 @@ use serde::{Deserialize, Serialize};
 /// The session-admission wire version this evaluator understands.
 pub const SUPPORTED_WIRE_VERSION: u16 = 1;
 
+/// Admission version for a transcript bound to a verified secure channel.
+/// Secure entrypoints never fall back to the carrier-only v1 transcript.
+pub const SECURE_WIRE_VERSION: u16 = 2;
+
 /// Opaque identity of one network (a community, mesh, or household).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct NetworkId(pub [u8; 32]);
@@ -161,6 +165,15 @@ pub enum DenyReason {
     /// The service is at its configured session capacity.
     #[error("service capacity exhausted")]
     CapacityExhausted,
+    /// The adapter supplied malformed channel facts.
+    #[error("invalid secure-channel facts")]
+    InvalidSecureChannel,
+    /// The service requires the authenticated carrier and secure peer to match.
+    #[error("secure-channel identity does not match the authenticated carrier")]
+    SecureChannelIdentityMismatch,
+    /// The secure initiator is neither the proved subject nor its attested signer.
+    #[error("claimed subject is not the secure-channel peer or its attested master")]
+    SubjectNotSecurePeer,
 }
 
 /// How a delegation chain failed validation.

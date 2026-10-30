@@ -1030,3 +1030,38 @@ manifest is unchanged. D13, cooperative key revocation, P5 and P6 stay open.
 The existing primary Mere and Retinue caches were reused by this refresh;
 no isolated worktree or Cargo home was created, and synthetic custody runtime
 state was removed after its owned hosts stopped.
+
+## Notochord secure-channel admission (2026-10-29)
+
+**Status:** implemented for cross-repository N1 adoption. The canonical
+phase, done-conditions and remaining work live in
+`murm/design_docs/2026-10-29_secure_sessions_and_live_interaction_plan.md`;
+this source-home note records Notochord's contract.
+
+The additive secure entrypoints keep `SessionFacts`, `ProofBinding`,
+`AdmittedSession` and their carrier-only v1 behavior intact.
+[`SecureChannelFacts` and `SecureProofBinding`](../crates/notochord/src/facts.rs)
+carry locally verified profile/version, handshake hash, role-ordered application
+keys and inner protocol alongside the original shared carrier context. The
+local ingress interface remains policy context and never enters a transcript.
+Outer and inner protocols can differ deliberately; the service adapter checks
+the expected inner protocol, and the proof independently binds both values.
+
+[`SessionHello::issue_secure`](../crates/notochord/src/handshake.rs) signs a
+domain-separated v2 admission transcript. Secure responders reject v1 rather
+than retrying a weaker binding. A secure initiator must be the attested subject
+or the subject's verified session-signing derived key. The service explicitly
+selects carrier/application identity equality when carrier identity exists,
+or permits a distinct attested application key; an unrelated secure key never
+inherits a valid subject's authority. Requiring carrier identity still requires
+the carrier to have authenticated it.
+
+[`admit_session_secure`](../crates/notochord/src/secure.rs) retains the untouched
+carrier record and the separate verified channel record. Existing delegation,
+revocation, action and capacity policy remains shared with the legacy path.
+The [secure-channel regression suite](../crates/notochord/tests/secure_channel.rs)
+covers transcript changes, explicit identity policy, honest absent carrier
+authentication, checked derived signers, malformed local facts, no v1 fallback,
+and fixed pre-change v1 transcript/signature compatibility. Murm's actual
+carrier conversion and Knot's publishing consumer require their own adoption
+checks before N1 is closed.

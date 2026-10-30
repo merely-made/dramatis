@@ -14,8 +14,8 @@ use serde::{Deserialize, Serialize};
 use crate::chain::{RevocationLedger, TrustedRoot, validate_chain};
 use crate::facts::SessionFacts;
 use crate::types::{
-    DenyReason, HandshakeLimits, NetworkId, ProfileRef, SUPPORTED_WIRE_VERSION, SessionClaims,
-    SessionDecision, TrafficClass,
+    DenyReason, HandshakeLimits, NetworkId, ProfileRef, SECURE_WIRE_VERSION,
+    SUPPORTED_WIRE_VERSION, SessionClaims, SessionDecision, TrafficClass,
 };
 
 /// Version of the serialized policy shape.
@@ -186,10 +186,40 @@ impl LocalNetworkPolicy {
         now_ms: u64,
         active_sessions: u32,
     ) -> SessionDecision {
-        if claims.wire_version != SUPPORTED_WIRE_VERSION {
+        self.evaluate_inner(facts, claims, ledger, now_ms, active_sessions, false)
+    }
+
+    /// Called only after the secure entrypoint verified its transcript and
+    /// proved the channel key's relationship to the claimed subject.
+    pub(crate) fn evaluate_secure_proved(
+        &self,
+        facts: &SessionFacts,
+        claims: &SessionClaims,
+        ledger: &RevocationLedger,
+        now_ms: u64,
+        active_sessions: u32,
+    ) -> SessionDecision {
+        self.evaluate_inner(facts, claims, ledger, now_ms, active_sessions, true)
+    }
+
+    fn evaluate_inner(
+        &self,
+        facts: &SessionFacts,
+        claims: &SessionClaims,
+        ledger: &RevocationLedger,
+        now_ms: u64,
+        active_sessions: u32,
+        secure_subject_proved: bool,
+    ) -> SessionDecision {
+        let supported = if secure_subject_proved {
+            SECURE_WIRE_VERSION
+        } else {
+            SUPPORTED_WIRE_VERSION
+        };
+        if claims.wire_version != supported {
             return deny(DenyReason::UnsupportedWireVersion {
                 requested: claims.wire_version,
-                supported: SUPPORTED_WIRE_VERSION,
+                supported,
             });
         }
         if claims.network != self.network {
@@ -218,7 +248,8 @@ impl LocalNetworkPolicy {
         // be that initiator. Without this, a valid certificate issued to
         // someone else could be replayed over an attacker's own authenticated
         // connection. The fact wins over the claim, always.
-        if let Some(initiator) = facts.authenticated_initiator
+        if !secure_subject_proved
+            && let Some(initiator) = facts.authenticated_initiator
             && initiator != claims.subject
         {
             return deny(DenyReason::SubjectNotTransportPeer);

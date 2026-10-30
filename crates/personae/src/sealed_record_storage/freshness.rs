@@ -186,7 +186,7 @@ impl FileFreshnessLedger {
             )));
         }
         let expected = self.mac(record_id, entry.current, entry.pending)?;
-        if !constant_time_eq(&entry.mac, &expected) {
+        if !constant_time_eq::constant_time_eq_n(&entry.mac, &expected) {
             return Err(IdentityError::Backend(format!(
                 "freshness evidence {path:?} failed authentication"
             )));
@@ -257,17 +257,6 @@ fn rollback_error(record_aad: &str, detail: &str) -> IdentityError {
     IdentityError::Backend(format!(
         "sealed record rollback detected for {record_aad:?}: {detail}"
     ))
-}
-
-fn constant_time_eq(left: &[u8], right: &[u8]) -> bool {
-    if left.len() != right.len() {
-        return false;
-    }
-    let mut difference = 0u8;
-    for (&left, &right) in left.iter().zip(right) {
-        difference |= left ^ right;
-    }
-    difference == 0
 }
 
 pub(super) fn roots_are_separate(records: &Path, ledger: &Path) -> bool {

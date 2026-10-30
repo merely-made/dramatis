@@ -208,6 +208,45 @@ fn authoritative_opening_is_exclusive_across_processes() {
 }
 
 #[test]
+fn persisted_freshness_mac_tampering_rejects_authoritative_record() {
+    for index in [0, 31] {
+        let dir = tempdir().unwrap();
+        let records = dir.path().join("records");
+        let freshness = dir.path().join("freshness");
+        let store = authoritative_store(&records, &freshness);
+        let relative = "identity/test-record.json";
+        let value = SampleRecord {
+            label: "Valid".into(),
+            bytes: vec![1, 2, 3],
+        };
+        store.save_record(relative, &value).unwrap();
+        assert_eq!(
+            store.load_record::<SampleRecord>(relative).unwrap(),
+            Some(value)
+        );
+        let record_path = records.join(relative);
+        let original_record = std::fs::read(&record_path).unwrap();
+        let (_, aad) =
+            resolve_record_path(&records.canonicalize().unwrap(), Path::new(relative)).unwrap();
+        let ledger = freshness
+            .join("records")
+            .join(format!("{}.json", blake3::hash(aad.as_bytes()).to_hex()));
+        let mut entry: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(&ledger).unwrap()).unwrap();
+        let mac = entry["mac"].as_array_mut().unwrap();
+        assert_eq!(mac.len(), 32);
+        mac[index] = serde_json::Value::from(mac[index].as_u64().unwrap() ^ 1);
+        std::fs::write(&ledger, serde_json::to_vec(&entry).unwrap()).unwrap();
+        assert_eq!(std::fs::read(record_path).unwrap(), original_record);
+        let error = store.load_record::<SampleRecord>(relative).unwrap_err();
+        assert!(
+            error.to_string().contains("failed authentication"),
+            "unexpected error: {error}"
+        );
+    }
+}
+
+#[test]
 fn external_freshness_evidence_rejects_an_older_valid_record() {
     let dir = tempdir().unwrap();
     let records = dir.path().join("records");

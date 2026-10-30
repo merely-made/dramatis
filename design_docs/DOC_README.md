@@ -43,6 +43,8 @@ see `repos/mere/design_docs/DOC_README.md`.
 
 ## Active documents
 
+- [identity_primitives_plan](2026-10-29_identity_primitives_plan.md): **in progress, 2026-10-29.** Replace Personae MAC equality and Insigne Base58/hex algorithms with maintained primitives while preserving exact key formats, refusal behavior and feature boundaries. Remote supplier qualification and consumer adoption are separate.
+
 - [subject_reference_plan](2026-10-16_subject_reference_plan.md): **reference
   published; reusable birth/resource contracts implemented locally for review.**
   Plain subject, resource-association and biographical facts for Cleromancy C8;

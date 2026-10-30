@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-29",
+  "host": "S-PC",
+  "base": "6711105e0284adb3e881fc9aebcc56f25000c1ca",
+  "tested_code_head": "27b731f0d2c885c84a943094e54461c744060766",
+  "implementation_commits": [
+    "c15a65b410313824d18dd8df8ceb3752877becb6",
+    "27b731f0d2c885c84a943094e54461c744060766"
+  ],
+  "working_toolchain": "1.99.1",
+  "combined": {
+    "passed": 121,
+    "failed": 0,
+    "ignored": 4,
+    "ignore_reason": "existing tests requiring a local sshd"
+  },
+  "independent_task_reviews": {
+    "task1": "approved",
+    "task2": "approved"
+  },
+  "whole_branch_review": "pending",
+  "bounds": {
+    "MemoryMax": "3G",
+    "MemorySwapMax": "0",
+    "CPUQuota": "150%",
+    "cargo_jobs": 1,
+    "test_threads": 1,
+    "timeout_seconds": 600
+  },
+  "limits": {
+    "msrv": "not run",
+    "wasm": "not run",
+    "downstream_receiving": "not adopted/qualified",
+    "installed_custody": "not qualified",
+    "formatting": "changed codec file and diff pass; pre-existing workspace differences retained"
+  },
+  "publication": "isolated remote branch; not pushed or merged"
+}

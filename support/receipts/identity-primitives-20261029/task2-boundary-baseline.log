@@ -1,0 +1,22 @@
+   Compiling crypto-common v0.2.2
+   Compiling digest v0.11.3
+   Compiling syn v2.0.119
+   Compiling curve25519-dalek-derive v0.1.1
+   Compiling zeroize v1.9.1
+   Compiling curve25519-dalek v5.0.0
+   Compiling sha2 v0.11.0
+   Compiling ed25519-dalek v3.0.0
+   Compiling insigne v0.0.2 (/home/markik/Code/worktrees/dramatis-stack-reduction-20261029/crates/insigne)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.82s
+     Running unittests src/lib.rs (target/build/debug/deps/insigne-8d89fb10b8d13f06)
+
+running 6 tests
+test encoding::tests::base58_keeps_leading_zeros_and_the_empty_string ... ok
+test encoding::tests::base58_matches_the_draft_vectors_both_ways ... ok
+test encoding::tests::base58_refuses_characters_outside_the_alphabet ... ok
+test encoding::tests::codecs_handle_empty_fixed_arrays_and_non_ascii_input ... ok
+test encoding::tests::hex_refuses_wrong_length_and_bad_digits ... ok
+test encoding::tests::hex_round_trips_and_reads_either_case ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 11 filtered out; finished in 0.00s
+

@@ -1,0 +1,44 @@
+   Compiling insigne v0.0.2 (/home/markik/Code/worktrees/dramatis-stack-reduction-20261029/crates/insigne)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.29s
+     Running unittests src/lib.rs (target/build/debug/deps/insigne-357fc717a6ba9762)
+
+running 17 tests
+test encoding::tests::base58_keeps_leading_zeros_and_the_empty_string ... ok
+test encoding::tests::base58_matches_the_draft_vectors_both_ways ... ok
+test encoding::tests::base58_refuses_characters_outside_the_alphabet ... ok
+test encoding::tests::codecs_handle_empty_fixed_arrays_and_non_ascii_input ... ok
+test encoding::tests::hex_refuses_wrong_length_and_bad_digits ... ok
+test encoding::tests::hex_round_trips_and_reads_either_case ... ok
+test key::tests::a_bad_binary_tag_fails_to_deserialize ... ok
+test key::tests::a_nostr_key_lifts_to_an_even_y_compressed_point ... ok
+test key::tests::a_reticulum_identity_reads_and_writes_as_rnid_hex ... ok
+test key::tests::an_ed25519_key_encodes_to_its_did_key ... ok
+test key::tests::an_uncompressed_prefix_is_refused ... ok
+test key::tests::binary_carries_the_tag_and_raw_bytes ... ok
+test key::tests::debug_is_short_and_names_the_family ... ok
+test key::tests::json_carries_the_text_form ... ok
+test key::tests::live_did_keys_decode_to_the_right_family_and_bytes ... ok
+test key::tests::malformed_text_is_refused_by_name ... ok
+test key::tests::same_bytes_in_different_families_are_different_keys ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/pre_move_personae.rs (target/build/debug/deps/pre_move_personae-79129e46fd8bf12e)
+
+running 7 tests
+test a_pre_move_attestation_loads_and_checks_under_its_salt_only ... ok
+test a_pre_move_certificate_loads_checks_and_keeps_its_id ... ok
+test a_pre_move_revocation_loads_and_checks ... ok
+test an_attestation_of_another_format_version_is_malformed ... ok
+test checks_keep_the_lax_mode_personae_used ... ok
+test each_step_of_a_certificate_check_reports_its_own_fault ... ok
+test each_step_of_a_revocation_check_reports_its_own_fault ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+   Doc-tests insigne
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

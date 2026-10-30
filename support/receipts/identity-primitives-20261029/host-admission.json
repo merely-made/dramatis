@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-29",
+  "host": "S-PC",
+  "admission_snapshot_unix": 1793323336,
+  "loadavg": "0.49 0.31 0.16 2/664 64899",
+  "memory": {
+    "MemTotal": "6033404 kB",
+    "MemAvailable": "4089196 kB",
+    "SwapTotal": "524284 kB",
+    "SwapFree": "524280 kB"
+  },
+  "limits": {
+    "MemoryMax": "3G",
+    "MemorySwapMax": "0",
+    "CPUQuota": "150%",
+    "cargo_jobs": 1,
+    "test_threads": 1,
+    "timeout_seconds": 600
+  },
+  "lock": "/home/markik/Code/testing/machine-heavy.lock",
+  "toolchain": "1.99.1",
+  "target_dir": "/home/markik/Code/targets/lanes/stack-reduction-identity/build",
+  "worktrees": {
+    "mere-stack-reduction-20261029": {
+      "path": "/home/markik/Code/worktrees/mere-stack-reduction-20261029",
+      "branch": "stack-reduction-audit-20261029",
+      "head": "deae90c095b1b7a3bcad4ab4c4cfa6d7d3c2c92d"
+    },
+    "dramatis-stack-reduction-20261029": {
+      "path": "/home/markik/Code/worktrees/dramatis-stack-reduction-20261029",
+      "branch": "stack-reduction-identity-20261029",
+      "head": "256b248af879184727d5be0250dfa25a8dd12d4e"
+    }
+  }
+}

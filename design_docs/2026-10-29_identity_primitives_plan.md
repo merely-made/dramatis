@@ -1,6 +1,6 @@
 # Identity primitives implementation plan
 
-**Status (2026-10-29): in progress, implementation lane founded.**
+**Status (2026-10-29): Tasks 1 and 2 implemented and qualified on the isolated S-PC supplier branch; whole-branch review and downstream receiving remain separate.**
 
 **Goal:** remove independent fixed-width MAC comparison and public-key text codecs while preserving the identity tier's exact public behavior.
 
@@ -33,12 +33,12 @@
 
 **Interface:** the persisted ledger and expected digest are `[u8; 32]`. Use `constant_time_eq::constant_time_eq_n` rather than a new wrapper algorithm. Add a direct compatible 0.4.2 dependency, keeping its existing resolved package.
 
-- [ ] Confirm the unchanged Personae/Insigne package baseline and preserve its command/result.
-- [ ] Add an integration regression that creates a valid authoritative sealed record and separate ledger, changes one persisted ledger MAC byte without altering the sealed record, and asserts the read fails with the existing authentication refusal. Exercise mismatches at the first and last byte without changing ledger structure.
-- [ ] Run that regression on the existing code to establish its behavioral baseline. This is a behavior-preserving primitive migration; a deliberately failing test is not evidence of a timing guarantee.
-- [ ] Replace the local slice/XOR helper call with the fixed-array library function and remove the local helper. Update the direct dependency edge narrowly.
-- [ ] Run the tamper case and existing external-freshness rollback, unauthenticated legacy and tombstone resurrection tests. Run Personae's library/integration suite with all its features once, plus formatting and diff checks.
-- [ ] Commit only Task 1 changes and record test counts/commands and commit in the task report. Independent review must check both spec compliance and code quality before Task 2.
+- [x] Confirm the unchanged Personae/Insigne package baseline and preserve its command/result.
+- [x] Add an integration regression that creates a valid authoritative sealed record and separate ledger, changes one persisted ledger MAC byte without altering the sealed record, and asserts the read fails with the existing authentication refusal. Exercise mismatches at the first and last byte without changing ledger structure.
+- [x] Run that regression on the existing code to establish its behavioral baseline. This is a behavior-preserving primitive migration; a deliberately failing test is not evidence of a timing guarantee.
+- [x] Replace the local slice/XOR helper call with the fixed-array library function and remove the local helper. Update the direct dependency edge narrowly.
+- [x] Run the tamper case and existing external-freshness rollback, unauthenticated legacy and tombstone resurrection tests. Run Personae's library/integration suite with all its features once, plus formatting and diff checks.
+- [x] Commit only Task 1 changes and record test counts/commands and commit in the task report. Independent review must check both spec compliance and code quality before Task 2.
 
 ### Task 2: replace Insigne Base58 and hex algorithms
 
@@ -46,12 +46,12 @@
 
 **Interfaces:** preserve `base58_encode(&[u8]) -> String`, `base58_decode(&str) -> Option<Vec<u8>>`, `hex_encode(&[u8]) -> String`, and `hex_decode<const N: usize>(&str) -> Option<[u8; N]>`.
 
-- [ ] Preserve the existing draft/reference Base58 vectors, zero/empty round trips, bad-alphabet refusals, mixed-case hex and wrong-size/invalid-digit tests. Add only uncovered independent adapter boundary vectors; do not mirror the dependency implementation.
-- [ ] Add `bs58` 0.5.1 using the Bitcoin alphabet explicitly and without checksum features. Use only the allocation features the existing API needs. Add a direct `hex` 0.4.3 dependency using the already-locked package. It is currently a different package's dev dependency, not an Insigne dev dependency to promote.
-- [ ] Implement thin adapters: lowercase hex output, fixed-array `decode_to_slice` returning None on error, and Base58 errors mapped to None. Remove independent arithmetic/alphabet-scanning code and correct the source comment claiming a serde-only core.
-- [ ] Resolve only the newly required dependency closure, inspect the complete lock diff, then use `--locked` for validation. A small new closure is acceptable; unrelated package upgrades are not.
-- [ ] Run Insigne's library/integration/reference/key tests with default and all features, plus a no-default-features check. Run the combined Personae/Insigne all-feature gate after both tasks, and formatting/diff checks. Keep the heavy gate and existing limits.
-- [ ] Commit only Task 2 changes. Record actual dependency additions, test counts and any unqualified targets in the report. Independent review must assess wire and feature compatibility.
+- [x] Preserve the existing draft/reference Base58 vectors, zero/empty round trips, bad-alphabet refusals, mixed-case hex and wrong-size/invalid-digit tests. Add only uncovered independent adapter boundary vectors; do not mirror the dependency implementation.
+- [x] Add `bs58` 0.5.1 using the Bitcoin alphabet explicitly and without checksum features. Use only the allocation features the existing API needs. Add a direct `hex` 0.4.3 dependency using the already-locked package. It is currently a different package's dev dependency, not an Insigne dev dependency to promote.
+- [x] Implement thin adapters: lowercase hex output, fixed-array `decode_to_slice` returning None on error, and Base58 errors mapped to None. Remove independent arithmetic/alphabet-scanning code and correct the source comment claiming a serde-only core.
+- [x] Resolve only the newly required dependency closure, inspect the complete lock diff, then use `--locked` for validation. A small new closure is acceptable; unrelated package upgrades are not.
+- [x] Run Insigne's library/integration/reference/key tests with default and all features, plus a no-default-features check. Run the combined Personae/Insigne all-feature gate after both tasks, and formatting/diff checks. Keep the heavy gate and existing limits.
+- [x] Commit only Task 2 changes. Record actual dependency additions, test counts and any unqualified targets in the report. Independent review must assess wire and feature compatibility.
 
 ## Findings
 
@@ -61,7 +61,8 @@
 
 ## Progress
 
-- 2026-10-29: current-main isolated lane and source preflight founded; implementation and tests pending.
+- 2026-10-29: current-main isolated lane and source preflight founded.
+- 2026-10-29: Task 1 committed at `c15a65b`; Task 2 committed at `27b731f`; both independent task reviews approved. Working-toolchain supplier and feature checks are qualified on the isolated branch. Evidence: [receipt record](archive_docs/2026-10-29/2026-10-29_identity_primitives_plan_receipts.md). Downstream receiving, MSRV, Wasm and installed custody remain open.
 
 ## Deferred receiving work
 

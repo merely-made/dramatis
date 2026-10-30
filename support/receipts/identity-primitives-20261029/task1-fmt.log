@@ -1,0 +1,57 @@
+Diff in /home/markik/Code/worktrees/dramatis-stack-reduction-20261029/crates/chatelaine/src/kind_tests.rs:16:
+ 
+ #[test]
+ fn a_refused_known_cxf_type_has_its_own_secret_free_quarantine_tag() {
+-    let kind = CredentialKind::RefusedCxf { cxf_type: "totp".into() };
+-    check(kind.clone(), Some("totp"), &["cxf_type"], &["secret", "password"]);
++    let kind = CredentialKind::RefusedCxf {
++        cxf_type: "totp".into(),
++    };
++    check(
++        kind.clone(),
++        Some("totp"),
++        &["cxf_type"],
++        &["secret", "password"],
++    );
+     assert_eq!(crate::disposition(&kind), crate::Disposition::Quarantined);
+-    assert_eq!(postcard::to_allocvec(&kind).unwrap()[0], 19, "append after Unknown to preserve existing tags");
++    assert_eq!(
++        postcard::to_allocvec(&kind).unwrap()[0],
++        19,
++        "append after Unknown to preserve existing tags"
++    );
+ }
+ 
+ /// The kind's name and field names as JSON writes them.
+Diff in /home/markik/Code/worktrees/dramatis-stack-reduction-20261029/crates/personae/src/lib.rs:69:
+ mod retained;
+ pub mod reticulum;
+ pub mod seal;
+-pub mod sennet;
+ pub mod sealed_record_storage;
++pub mod sennet;
+ pub mod signing;
+ #[cfg(feature = "ssh")]
+ pub mod ssh_ca;
+Diff in /home/markik/Code/worktrees/dramatis-stack-reduction-20261029/crates/personae/src/sealed_record_storage_tests.rs:126:
+ 
+ #[test]
+ fn authoritative_opening_is_exclusive_until_every_clone_drops() {
+-    let _turn = AUTHORITY_TESTS.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
++    let _turn = AUTHORITY_TESTS
++        .lock()
++        .unwrap_or_else(|poisoned| poisoned.into_inner());
+     let dir = tempdir().unwrap();
+     let records = dir.path().join("records");
+     let freshness = dir.path().join("freshness");
+Diff in /home/markik/Code/worktrees/dramatis-stack-reduction-20261029/crates/personae/src/sealed_record_storage_tests.rs:175:
+ 
+ #[test]
+ fn authoritative_opening_is_exclusive_across_processes() {
+-    let _turn = AUTHORITY_TESTS.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
++    let _turn = AUTHORITY_TESTS
++        .lock()
++        .unwrap_or_else(|poisoned| poisoned.into_inner());
+     let dir = tempdir().unwrap();
+     let records = dir.path().join("records");
+     let freshness = dir.path().join("freshness");

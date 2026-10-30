@@ -1,0 +1,205 @@
+   Compiling insigne v0.0.2 (/home/markik/Code/worktrees/dramatis-stack-reduction-20261029/crates/insigne)
+   Compiling personae v0.3.0 (/home/markik/Code/worktrees/dramatis-stack-reduction-20261029/crates/personae)
+warning: missing documentation for a struct field
+  --> crates/personae/src/carry/mod.rs:61:5
+   |
+61 |     pub device_id: DeviceId,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: the lint level is defined here
+  --> crates/personae/src/lib.rs:60:9
+   |
+60 | #![warn(missing_docs)]
+   |         ^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates/personae/src/carry/mod.rs:62:5
+   |
+62 |     pub already_revoked: bool,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates/personae/src/carry/mod.rs:63:5
+   |
+63 |     pub rotated_personas: Vec<PersonaId>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates/personae/src/carry/mod.rs:64:5
+   |
+64 |     pub refreshed_devices: Vec<DeviceId>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `personae` (lib) generated 4 warnings
+warning: unused import: `SignedDelegationCertificate`
+   --> crates/personae/src/ssh_krl.rs:142:53
+    |
+142 |     use insigne::delegation::{DelegationRevocation, SignedDelegationCertificate};
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `personae` (lib test) generated 5 warnings (4 duplicates) (run `cargo fix --lib -p personae --tests` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 14.67s
+     Running unittests src/lib.rs (target/build/debug/deps/insigne-f01799e2cc02b0dd)
+
+running 17 tests
+test encoding::tests::base58_keeps_leading_zeros_and_the_empty_string ... ok
+test encoding::tests::base58_matches_the_draft_vectors_both_ways ... ok
+test encoding::tests::base58_refuses_characters_outside_the_alphabet ... ok
+test encoding::tests::codecs_handle_empty_fixed_arrays_and_non_ascii_input ... ok
+test encoding::tests::hex_refuses_wrong_length_and_bad_digits ... ok
+test encoding::tests::hex_round_trips_and_reads_either_case ... ok
+test key::tests::a_bad_binary_tag_fails_to_deserialize ... ok
+test key::tests::a_nostr_key_lifts_to_an_even_y_compressed_point ... ok
+test key::tests::a_reticulum_identity_reads_and_writes_as_rnid_hex ... ok
+test key::tests::an_ed25519_key_encodes_to_its_did_key ... ok
+test key::tests::an_uncompressed_prefix_is_refused ... ok
+test key::tests::binary_carries_the_tag_and_raw_bytes ... ok
+test key::tests::debug_is_short_and_names_the_family ... ok
+test key::tests::json_carries_the_text_form ... ok
+test key::tests::live_did_keys_decode_to_the_right_family_and_bytes ... ok
+test key::tests::malformed_text_is_refused_by_name ... ok
+test key::tests::same_bytes_in_different_families_are_different_keys ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/pre_move_personae.rs (target/build/debug/deps/pre_move_personae-7a8edf6d21bb91a6)
+
+running 7 tests
+test a_pre_move_attestation_loads_and_checks_under_its_salt_only ... ok
+test a_pre_move_certificate_loads_checks_and_keeps_its_id ... ok
+test a_pre_move_revocation_loads_and_checks ... ok
+test an_attestation_of_another_format_version_is_malformed ... ok
+test checks_keep_the_lax_mode_personae_used ... ok
+test each_step_of_a_certificate_check_reports_its_own_fault ... ok
+test each_step_of_a_revocation_check_reports_its_own_fault ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s
+
+     Running unittests src/lib.rs (target/build/debug/deps/personae-e4209f1079bf2206)
+
+running 96 tests
+test carry::grant::revoke::tests::a_revocation_is_signed_by_the_authority_that_granted_it ... ok
+test carry::grant::revoke::tests::a_station_set_revokes_with_one_statement ... ok
+test carry::grant::revoke::tests::every_certificate_in_a_set_gets_its_own_revocation ... ok
+test carry::grant::tests::a_device_grant_always_expires ... ok
+test carry::grant::tests::a_device_grant_forbids_subdelegation ... ok
+test carry::grant::tests::a_persona_grant_is_issued_by_that_persona_not_the_master ... ok
+test carry::grant::tests::a_remote_auth_grant_names_the_holder_as_subject ... ok
+test carry::grant::tests::a_self_grant_names_the_persona_as_its_own_subject ... ok
+test carry::grant::tests::a_station_grant_is_one_device_certificate_and_nothing_else ... ok
+test carry::grant::tests::actions_land_on_the_certificate_whose_authority_covers_them ... ok
+test carry::grant::tests::each_persona_in_the_set_is_issued_by_its_own_authority ... ok
+test carry::grant::tests::persona_actions_with_no_persona_named_are_refused ... ok
+test carry::grant::tests::persona_issuance_is_deterministic_for_one_seed ... ok
+test carry::grant::tests::two_holders_in_the_same_millisecond_get_distinct_certificates ... ok
+test carry::grant::tests::two_personas_granting_one_device_are_independent_certificates ... ok
+test carry::scope::tests::a_device_scope_is_well_formed ... ok
+test carry::scope::tests::a_different_device_never_attenuates ... ok
+test carry::scope::tests::a_foreign_domain_never_attenuates ... ok
+test carry::scope::tests::a_station_partitions_to_device_actions_only ... ok
+test carry::scope::tests::an_unknown_action_is_device_scoped ... ok
+test carry::scope::tests::dropping_an_action_attenuates ... ok
+test carry::scope::tests::only_acting_and_private_reading_belong_to_a_persona ... ok
+test carry::scope::tests::partitioning_splits_device_actions_from_persona_actions ... ok
+test carry::scope::tests::the_device_scope_path_is_a_leaf_not_a_root ... ok
+test carry::tests::carry_ref_display_is_fn_colon_hex ... ok
+test carry::tests::carry_ref_parses_its_own_display_form ... ok
+test carry::tests::carry_ref_rejects_malformed_strings ... ok
+test carry::tests::carry_ref_serializes_as_its_display_string ... ok
+test carry::tests::device_public_key_round_trips_through_identity_type ... ok
+test carry::tests::manifest_defaults_carry_the_schema_version ... ok
+test carry::tests::manifest_json_round_trips_with_refs ... ok
+test carry::tests::remote_auth_revocation_preserves_pandect_json_shape ... ok
+test delegation::tests::certificate_verifies_and_binds_every_signed_field ... ok
+test delegation::tests::child_must_narrow_scope_time_and_delegation_depth ... ok
+test delegation::tests::revocation_is_bound_to_issuer_scope_and_target ... ok
+test enroll::tests::device_ids_are_stable_per_host_and_case_insensitive ... ok
+test enroll::tests::no_principals_means_no_principals_restriction ... ok
+test enroll::tests::several_principals_are_comma_joined_inside_one_quoted_field ... ok
+test enroll::tests::targets_split_into_user_and_host ... ok
+test enroll::tests::the_install_script_filters_before_it_appends ... ok
+test enroll::tests::the_system_snippet_is_instructions_and_not_commands_we_run ... ok
+test enroll::tests::the_trust_line_is_a_cert_authority_line_with_our_marker ... ok
+test provider::tests::derived_key_attestation_binds_master_key_and_salt ... ok
+test provider::tests::derived_key_attestation_rejects_tampering ... ok
+test retained::tests::every_other_salt_is_locked ... ok
+test retained::tests::it_answers_its_salts_exactly_as_the_vault_did ... ok
+test reticulum::tests::controller_material_uses_a_distinct_domain_from_station_material ... ok
+test reticulum::tests::station_material_is_distinct_across_station_scopes ... ok
+test reticulum::tests::station_material_is_stable_for_one_persona_and_station ... ok
+test reticulum::tests::station_scope_is_required ... ok
+test seal::tests::a_fresh_nonce_each_time_so_ciphertexts_differ ... ok
+test seal::tests::seal_then_unseal_round_trips ... ok
+test seal::tests::tampered_ciphertext_fails ... ok
+test seal::tests::the_sealed_format_is_pinned_across_crate_generations ... ok
+test seal::tests::wrong_aad_fails ... ok
+test seal::tests::wrong_key_fails ... ok
+test sealed_record_storage::tests::a_damaged_sealed_record_is_not_mistaken_for_a_pre_sealing_one ... ok
+test sealed_record_storage::tests::a_pre_sealing_plaintext_record_can_be_sealed_over ... ok
+test sealed_record_storage::tests::a_pre_sealing_raw_record_can_be_sealed_over ... ok
+test sealed_record_storage::tests::authoritative_opening_is_exclusive_across_processes ... ok
+test sealed_record_storage::tests::authoritative_opening_is_exclusive_until_every_clone_drops ... ok
+test sealed_record_storage::tests::authoritative_tombstone_rejects_resurrection_after_delete ... ok
+test sealed_record_storage::tests::authority_child_probe ... ok
+test sealed_record_storage::tests::ciphertext_is_bound_to_the_record_path ... ok
+test sealed_record_storage::tests::cloned_store_updates_are_one_load_modify_replace_transaction ... ok
+test sealed_record_storage::tests::external_freshness_evidence_rejects_an_older_valid_record ... ok
+test sealed_record_storage::tests::persisted_freshness_mac_tampering_rejects_authoritative_record ... ok
+test sealed_record_storage::tests::round_trips_a_typed_record ... ok
+test sealed_record_storage::tests::stored_file_is_not_plaintext_json_of_the_record ... ok
+test sealed_record_storage::tests::unauthenticated_legacy_record_does_not_establish_a_freshness_baseline ... ok
+test sennet::tests::release_parser_rejects_incomplete_extended_and_foreign_namespaces ... ok
+test sennet::tests::stable_released_identity_is_confined_to_its_protocol_device_and_realm ... ok
+test sennet::tests::transient_material_is_same_child_without_broadening_release ... ok
+test ssh_ca::tests::a_host_certificate_names_its_hostnames ... ok
+test ssh_ca::tests::a_minted_certificate_validates_against_the_ca ... ok
+test ssh_ca::tests::extensions_are_exactly_the_actions_the_grant_carries ... ok
+test ssh_ca::tests::minting_refuses_what_it_cannot_honestly_project ... ok
+test ssh_ca::tests::the_ca_key_is_deterministic_and_master_attested ... ok
+test ssh_ca::tests::the_key_id_is_the_grant_id ... ok
+test ssh_ca::tests::the_window_is_the_grant_intersected_with_the_ttl_ceiling ... ok
+test ssh_face::tests::a_face_may_not_borrow_a_principal_it_was_not_given ... ok
+test ssh_face::tests::the_faces_narrow_in_the_order_they_are_named ... ok
+test ssh_krl::tests::an_unverified_revocation_is_refused ... ok
+test ssh_krl::tests::folding_records_the_device_serial_not_just_the_grant ... ok
+test ssh_krl::tests::the_spec_is_what_ssh_keygen_reads ... ok
+test ssh_krl::tests::two_grants_from_one_device_share_one_serial ... ok
+test tests::derivation_is_deterministic ... ok
+test tests::different_salts_yield_different_keys ... ok
+test tests::master_public_key_is_stable ... ok
+test tests::public_key_round_trips_through_bytes ... ok
+test tests::random_provider_signs_and_verifies ... ok
+test tests::signature_round_trips_through_bytes ... ok
+test tucket::tests::release_parser_rejects_incomplete_or_extended_namespaces ... ok
+test tucket::tests::scoped_release_is_stable_and_cannot_derive_other_scopes_or_protocols ... ok
+test zeroizing_json::tests::non_bytes_are_refused_as_before ... ok
+test zeroizing_json::tests::the_wire_format_is_serde_json_s_own ... ok
+
+test result: ok. 96 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.23s
+
+     Running tests/ssh_ca_live.rs (target/build/debug/deps/ssh_ca_live-f4828d8b20a5f939)
+
+running 4 tests
+test a_deployed_krl_refuses_a_certificate_that_worked ... ignored, needs a local sshd; run explicitly with --ignored
+test a_face_reaches_exactly_as_far_as_its_policy ... ignored, needs a local sshd; run explicitly with --ignored
+test a_live_sshd_accepts_a_minted_certificate ... ignored, needs a local sshd; run explicitly with --ignored
+test enrollment_teaches_a_host_to_accept_the_authority ... ignored, needs a local sshd; run explicitly with --ignored
+
+test result: ok. 0 passed; 0 failed; 4 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests insigne
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests personae
+
+running 1 test
+test crates/personae/src/lib.rs - (line 27) ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+all doctests ran in 0.40s; merged doctests compilation took 0.39s

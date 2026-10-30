@@ -1,0 +1,16 @@
+{
+  "passed": 119,
+  "failed": 0,
+  "ignored": 4,
+  "groups": 6,
+  "toolchain": "1.99.1",
+  "base": "6711105e0284adb3e881fc9aebcc56f25000c1ca",
+  "gate": {
+    "memory": "3G",
+    "swap": "0",
+    "cpu": "150%",
+    "cargo_jobs": 1,
+    "test_threads": 1
+  },
+  "warnings": "pre-existing Personae deprecated/unused-import warnings retained in log"
+}

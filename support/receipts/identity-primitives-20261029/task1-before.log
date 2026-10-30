@@ -1,0 +1,62 @@
+   Compiling serde_core v1.0.229
+   Compiling syn v3.0.6
+   Compiling serde v1.0.229
+   Compiling serde_derive v1.0.229
+   Compiling serde_json v1.0.151
+   Compiling insigne v0.0.2 (/home/markik/Code/worktrees/dramatis-stack-reduction-20261029/crates/insigne)
+   Compiling uuid v1.27.0
+   Compiling personae v0.3.0 (/home/markik/Code/worktrees/dramatis-stack-reduction-20261029/crates/personae)
+warning: missing documentation for a struct field
+  --> crates/personae/src/carry/mod.rs:61:5
+   |
+61 |     pub device_id: DeviceId,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: the lint level is defined here
+  --> crates/personae/src/lib.rs:60:9
+   |
+60 | #![warn(missing_docs)]
+   |         ^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates/personae/src/carry/mod.rs:62:5
+   |
+62 |     pub already_revoked: bool,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates/personae/src/carry/mod.rs:63:5
+   |
+63 |     pub rotated_personas: Vec<PersonaId>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> crates/personae/src/carry/mod.rs:64:5
+   |
+64 |     pub refreshed_devices: Vec<DeviceId>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `personae` (lib) generated 4 warnings
+warning: unused import: `SignedDelegationCertificate`
+   --> crates/personae/src/ssh_krl.rs:142:53
+    |
+142 |     use insigne::delegation::{DelegationRevocation, SignedDelegationCertificate};
+    |                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `personae` (lib test) generated 5 warnings (4 duplicates) (run `cargo fix --lib -p personae --tests` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 20.33s
+     Running unittests src/lib.rs (target/build/debug/deps/personae-adf5a4f1bcb4c78e)
+
+running 1 test
+test sealed_record_storage::tests::persisted_freshness_mac_tampering_rejects_authoritative_record ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 95 filtered out; finished in 0.01s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
+
+     Running tests/ssh_ca_live.rs (target/build/debug/deps/ssh_ca_live-8804a15325b4a0ff)

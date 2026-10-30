@@ -1,0 +1,53 @@
+{
+  "baseline-corrected": {
+    "passed": 119,
+    "failed": 0,
+    "ignored": 4
+  },
+  "task1-before": {
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0
+  },
+  "task1-focused": {
+    "passed": 4,
+    "failed": 0,
+    "ignored": 0
+  },
+  "task1-full": {
+    "passed": 96,
+    "failed": 0,
+    "ignored": 4
+  },
+  "task2-boundary-baseline": {
+    "passed": 6,
+    "failed": 0,
+    "ignored": 0
+  },
+  "task2-focused": {
+    "passed": 6,
+    "failed": 0,
+    "ignored": 0
+  },
+  "task2-default": {
+    "passed": 24,
+    "failed": 0,
+    "ignored": 0
+  },
+  "task2-all": {
+    "passed": 24,
+    "failed": 0,
+    "ignored": 0
+  },
+  "task2-combined": {
+    "passed": 121,
+    "failed": 0,
+    "ignored": 4
+  },
+  "task2-no-default": {
+    "check": "passed"
+  },
+  "task2-resolve": {
+    "check": "passed"
+  }
+}

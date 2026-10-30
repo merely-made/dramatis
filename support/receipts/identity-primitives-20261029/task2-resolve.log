@@ -1,0 +1,16 @@
+    Updating crates.io index
+     Locking 2 packages to highest compatible versions
+      Adding bs58 v0.5.1
+      Adding tinyvec v1.13.3
+ Downloading crates ...
+  Downloaded bs58 v0.5.1
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling syn v3.0.6
+   Compiling serde_derive v1.0.229
+    Checking serde_core v1.0.229
+    Checking serde v1.0.229
+    Checking bs58 v0.5.1
+    Checking hex v0.4.3
+    Checking insigne v0.0.2 (/home/markik/Code/worktrees/dramatis-stack-reduction-20261029/crates/insigne)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 9.95s

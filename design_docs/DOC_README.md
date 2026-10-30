@@ -52,7 +52,7 @@ see `repos/mere/design_docs/DOC_README.md`.
 
 ## Active documents
 
-- [identity_primitives_plan](2026-10-29_identity_primitives_plan.md): **supplier implementation qualified on an isolated S-PC branch, 2026-10-29.** Personae MAC comparison and Insigne Base58/hex adapters preserve exact key formats, refusal behavior and feature boundaries. Remote supplier qualification and consumer adoption are separate.
+- [identity_primitives_plan](2026-10-29_identity_primitives_plan.md): published Personae MAC and Insigne Base58/hex comparison branch. Pre-merge Linux supplier tests passed; the later upstream merge is not requalified. Family-wide R01/R02 and downstream adoption remain open; further implementation is paused.
 
 - [subject_reference_plan](2026-10-16_subject_reference_plan.md): **reference
   published; reusable birth/resource contracts implemented locally for review.**

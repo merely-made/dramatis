@@ -90,7 +90,9 @@ pub use crate::provider::{
 };
 pub use crate::retained::RetainedKeys;
 pub use crate::seal::{seal_bytes, unseal_bytes};
-pub use crate::sealed_record_storage::{SealedRecordChange, SealedRecordStorage};
+pub use crate::sealed_record_storage::{
+    ResolvedDirectory, SealedRecordChange, SealedRecordStorage,
+};
 pub use crate::startup_unlock::StartupUnlockMode;
 pub use crate::vault::{
     CredentialLineage, ProfileId, ProfileSummary, ProtocolKey, PublicProfile, SlotSummary,

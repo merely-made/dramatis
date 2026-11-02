@@ -371,3 +371,47 @@ fn a_damaged_sealed_record_is_not_mistaken_for_a_pre_sealing_one() {
         "unexpected error: {error}"
     );
 }
+
+#[test]
+fn a_resolved_child_is_canonical_without_resolving_again() {
+    let dir = tempdir().unwrap();
+    let base = ResolvedDirectory::resolve(dir.path()).unwrap();
+    let child = base.child("castellan/profiles/default/records").unwrap();
+    assert_eq!(child.path(), child.path().canonicalize().unwrap());
+    assert!(base.child("../escape").is_err());
+}
+
+#[test]
+fn a_resolved_child_refuses_a_file_in_its_path() {
+    let dir = tempdir().unwrap();
+    std::fs::write(dir.path().join("file"), b"").unwrap();
+    let base = ResolvedDirectory::resolve(dir.path()).unwrap();
+    assert!(base.child("file/records").is_err());
+}
+
+#[cfg(unix)]
+#[test]
+fn a_resolved_child_refuses_a_link_in_its_path() {
+    let dir = tempdir().unwrap();
+    std::fs::create_dir(dir.path().join("real")).unwrap();
+    std::os::unix::fs::symlink(dir.path().join("real"), dir.path().join("link")).unwrap();
+    let base = ResolvedDirectory::resolve(dir.path()).unwrap();
+    assert!(base.child("link/records").is_err());
+    assert!(base.child("real/records").is_ok());
+}
+
+#[test]
+fn resolved_roots_must_still_be_separate() {
+    let _turn = AUTHORITY_TESTS.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    let dir = tempdir().unwrap();
+    let base = ResolvedDirectory::resolve(dir.path()).unwrap();
+    let records = base.child("records").unwrap();
+    let nested = records.child("freshness").unwrap();
+    let error =
+        SealedRecordStorage::claim_resolved(records.clone(), [0x55; 32], nested, [0x56; 32])
+            .err()
+            .expect("overlapping roots must be refused");
+    assert!(error.to_string().contains("separate roots"));
+    let freshness = base.child("freshness").unwrap();
+    SealedRecordStorage::claim_resolved(records, [0x55; 32], freshness, [0x56; 32]).unwrap();
+}

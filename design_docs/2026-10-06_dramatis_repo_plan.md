@@ -1030,3 +1030,56 @@ manifest is unchanged. D13, cooperative key revocation, P5 and P6 stay open.
 The existing primary Mere and Retinue caches were reused by this refresh;
 no isolated worktree or Cargo home was created, and synthetic custody runtime
 state was removed after its owned hosts stopped.
+
+## Notochord secure-channel admission (2026-10-29)
+
+**Status:** implemented for cross-repository N1 adoption. The canonical
+phase, done-conditions and remaining work live in
+`murm/design_docs/2026-10-29_secure_sessions_and_live_interaction_plan.md`;
+this source-home note records Notochord's contract.
+
+The additive secure entrypoints keep `SessionFacts`, `ProofBinding`,
+`AdmittedSession` and their carrier-only v1 behavior intact.
+[`SecureChannelFacts` and `SecureProofBinding`](../crates/notochord/src/facts.rs)
+carry locally verified profile/version, channel binding, role-ordered profile-proved
+keys and inner protocol alongside the original shared carrier context. The
+local ingress interface remains policy context and never enters a transcript.
+Outer and inner protocols can differ deliberately; the service adapter checks
+the expected inner protocol, and the proof independently binds both values.
+
+[`SessionHello::issue_secure`](../crates/notochord/src/handshake.rs) signs a
+domain-separated v2 admission transcript. Secure responders reject v1 rather
+than retrying a weaker binding. Under the original policies a secure initiator must be the attested subject
+or the subject's verified session-signing derived key. The service explicitly
+selects carrier/application identity equality when carrier identity exists,
+or permits a distinct attested application key; an unrelated secure key never
+inherits a valid subject's authority. Requiring carrier identity still requires
+the carrier to have authenticated it.
+
+[`admit_session_secure`](../crates/notochord/src/secure.rs) retains the untouched
+carrier record and the separate verified channel record. Existing delegation,
+revocation, action and capacity policy remains shared with the legacy path.
+The [secure-channel regression suite](../crates/notochord/tests/secure_channel.rs)
+covers transcript changes, explicit identity policy, honest absent carrier
+authentication, checked derived signers, malformed local facts, no v1 fallback,
+and fixed pre-change v1 transcript/signature compatibility. Murm's actual
+carrier conversion and Knot's publishing consumer require their own adoption
+checks before N1 is closed.
+
+**Native endpoint association (2026-10-30):** the explicit
+`BoundChannelApplicationProof` identity policy permits a scoped native endpoint
+key to differ from the application's stable root. The root's checked signer
+still signs the complete v2 proof over this actual verified channel, both
+endpoint roles, protocols, network, profile, action and delegation material.
+That is consent to the particular channel/action, not proof that the endpoint
+key derives from the root. Service adapters select permitted secure profiles
+and check the expected server endpoint before issuing the proof. The peer
+cannot select this policy, and carrier observations remain unchanged.
+
+The original identity policies and v1/v2 wire encodings retain their behavior.
+The new policy authenticates the initiating application root; it does not add
+a proof of a distinct responder application root. Native iroh still supplies
+expected-endpoint server authentication. Regression controls require explicit
+policy selection, reject mutations of the channel and signed application
+context, and show the association grants no membership by itself. Murm owns
+the real scoped-endpoint and existing-endpoint reuse acceptance.

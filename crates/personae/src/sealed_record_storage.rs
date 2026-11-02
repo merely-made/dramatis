@@ -205,8 +205,24 @@ impl SealedRecordStorage {
         freshness_root: impl Into<PathBuf>,
         freshness_key: [u8; 32],
     ) -> Result<Self, IdentityError> {
-        let root = absolute_directory(root.into())?;
-        let freshness_root = absolute_directory(freshness_root.into())?;
+        Self::claim_resolved(
+            ResolvedDirectory::resolve(root)?,
+            key,
+            ResolvedDirectory::resolve(freshness_root)?,
+            freshness_key,
+        )
+    }
+
+    /// [`Self::claim_with_file_freshness`] over directories resolved earlier,
+    /// for a caller that cannot resolve paths at claim time (a sandboxed
+    /// custodian resolves its data root before it confines itself).
+    pub fn claim_resolved(
+        root: ResolvedDirectory,
+        key: [u8; 32],
+        freshness_root: ResolvedDirectory,
+        freshness_key: [u8; 32],
+    ) -> Result<Self, IdentityError> {
+        let (root, freshness_root) = (root.0, freshness_root.0);
         if !roots_are_separate(&root, &freshness_root) {
             return Err(IdentityError::Backend(format!(
                 "sealed records {root:?} and freshness evidence {freshness_root:?} need separate roots"
@@ -540,11 +556,69 @@ impl SealedRecordStorage {
     }
 }
 
-fn absolute_directory(path: PathBuf) -> Result<PathBuf, IdentityError> {
-    std::fs::create_dir_all(&path)
-        .map_err(|error| IdentityError::Backend(format!("create directory {path:?}: {error}")))?;
-    path.canonicalize()
-        .map_err(|error| IdentityError::Backend(format!("resolve directory {path:?}: {error}")))
+/// A directory in canonical form, so two of them compare soundly by prefix
+/// (the record and freshness roots must not overlap).
+///
+/// [`Self::resolve`] canonicalizes once, where that is allowed; [`Self::child`]
+/// descends without resolving again, refusing any component that is not a
+/// plain directory, so the result stays canonical.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ResolvedDirectory(PathBuf);
+
+impl ResolvedDirectory {
+    /// Create `path` if missing and resolve it to its canonical form.
+    pub fn resolve(path: impl Into<PathBuf>) -> Result<Self, IdentityError> {
+        let path = path.into();
+        std::fs::create_dir_all(&path).map_err(|error| {
+            IdentityError::Backend(format!("create directory {path:?}: {error}"))
+        })?;
+        path.canonicalize()
+            .map(Self)
+            .map_err(|error| IdentityError::Backend(format!("resolve directory {path:?}: {error}")))
+    }
+
+    /// The directory `relative` below this one, created if missing. Only plain
+    /// components are accepted, and each must be a directory, never a link.
+    pub fn child(&self, relative: impl AsRef<Path>) -> Result<Self, IdentityError> {
+        let relative = relative.as_ref();
+        let mut path = self.0.clone();
+        for component in relative.components() {
+            match component {
+                Component::Normal(part) => path.push(part),
+                Component::CurDir => continue,
+                Component::ParentDir | Component::RootDir | Component::Prefix(_) => {
+                    return Err(IdentityError::Backend(format!(
+                        "resolved child must be relative and traversal-free: {relative:?}"
+                    )));
+                },
+            }
+            match std::fs::create_dir(&path) {
+                Ok(()) => {},
+                Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {},
+                Err(error) => {
+                    return Err(IdentityError::Backend(format!(
+                        "create directory {path:?}: {error}"
+                    )));
+                },
+            }
+            let kind = std::fs::symlink_metadata(&path)
+                .map_err(|error| {
+                    IdentityError::Backend(format!("inspect directory {path:?}: {error}"))
+                })?
+                .file_type();
+            if !kind.is_dir() {
+                return Err(IdentityError::Backend(format!(
+                    "{path:?} is not a plain directory"
+                )));
+            }
+        }
+        Ok(Self(path))
+    }
+
+    /// The canonical path.
+    pub fn path(&self) -> &Path {
+        &self.0
+    }
 }
 
 fn envelope_aad(path_aad: &str, version: u8, generation: u64, deleted: bool) -> String {

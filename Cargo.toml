@@ -37,7 +37,7 @@ castellan-client = { version = "0.0.1", path = "crates/castellan-client" }
 # ─── The door contract (Armillary) ───────────────────────────────────────────
 # castellan-client speaks over Djinn's door through ostiary, never Djinn
 # (djinn-slimming D2, D3). Pinned by revision until ostiary publishes (S5).
-ostiary = { version = "0.0.1", git = "https://github.com/merely-made/armillary.git", rev = "0ccfe7acbaf5774eab1fc2772e16e30621bf5493" }
+ostiary = { version = "0.0.1", git = "https://github.com/merely-made/armillary.git", rev = "08ebbc44f5d391bd263fcc26b6053edf72741954" }
 
 # ─── Third-party pins (the same entries as mere's) ───────────────────────────
 blake3 = "1"

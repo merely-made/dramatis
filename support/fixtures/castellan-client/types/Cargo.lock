@@ -654,7 +654,7 @@ dependencies = [
 [[package]]
 name = "ostiary"
 version = "0.0.1"
-source = "git+https://github.com/merely-made/armillary.git?rev=0ccfe7acbaf5774eab1fc2772e16e30621bf5493#0ccfe7acbaf5774eab1fc2772e16e30621bf5493"
+source = "git+https://github.com/merely-made/armillary.git?rev=08ebbc44f5d391bd263fcc26b6053edf72741954#08ebbc44f5d391bd263fcc26b6053edf72741954"
 dependencies = [
  "serde",
  "serde_json",

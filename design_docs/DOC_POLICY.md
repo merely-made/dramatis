@@ -78,7 +78,7 @@ wins.
 
 ### 7. PROJECT_DESCRIPTION.md ownership
 
-**design_docs/PROJECT_DESCRIPTION.md** — inside the doc root, not at the
+`design_docs/PROJECT_DESCRIPTION.md` — inside the doc root, not at the
 repository root — is reserved for the maintainer. Do not edit it without
 explicit instruction. Treat it as authoritative and surface contradictions for
 discussion rather than resolving them silently.

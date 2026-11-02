@@ -5,8 +5,8 @@ identity tier of the Merely stack. Entries are one line each; the rationale
 lives in the doc itself.
 
 The tier left mere on 2026-10-09 (the repository plan's DR-D). castellan,
-the custody crate only mere-resident links, stays in mere, and so do its
-documents; see `repos/mere/design_docs/DOC_README.md`.
+the custody crate only Djinn and its independently launched custodian link,
+stays in mere, and so do its documents; see `repos/mere/design_docs/DOC_README.md`.
 
 ## Working principles
 

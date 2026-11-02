@@ -13,7 +13,7 @@ phase D4.
 outside tests calls `SshCertAuthority::mint_host_cert` (`ssh_ca.rs:276`),
 and `enroll-host` writes only an `authorized_keys` `cert-authority` line and
 prints "host-key prompts still apply" (now Mere's
-`repos/mere/ports/mere-resident/castellan/src/custody/vault_commands/certs.rs`, behind mere-resident),
+`repos/mere/ports/mere-resident/castellan/src/custody/vault_commands/certs.rs`, behind djinn),
 so T2's "zero host-key prompts" and the design's "retires TOFU fleet-wide"
 are unmet. The fleet authority is not one master either: each vault derives
 its own CA from its own random master (`authority` in `certs.rs`, `load_or_create_profile` in `bootstrap.rs`).
@@ -22,7 +22,7 @@ ruled the follow-on (per-machine CAs approved by the Windows laptop's
 master, host certificates finished now) in the
 device pairing by key plan (`repos/mere/design_docs/mere_docs/implementation_strategy/2026-10-28_device_pairing_plan.md`), phase D4.
 **2026-10-10, DR-C:** `personae-vault` is a graphshell terminal client.
-mere-resident prepares the public CA installation script; the terminal runs SSH after
+Djinn prepares the public CA installation script; the terminal runs SSH after
 the keeper releases its vault mutex, so authentication can use the live agent.
 The existing limits on host certificates and KRL deployment remain.
 **Related**:

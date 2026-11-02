@@ -46,7 +46,7 @@ Every holder drops its keys before `lock()` returns: castellan's
 control:
 - castellan's vault (`repos/mere/ports/mere-resident/castellan/tests/vault_residue.rs`);
 - castellan's item store (`repos/mere/ports/mere-resident/castellan/tests/no_residue.rs`);
-- Knot's seed through mere-resident (`repos/mere/ports/mere-resident/tests/knot_residue.rs`);
+- Knot's seed through djinn (`repos/mere/ports/mere-resident/tests/knot_residue.rs`);
 - murm's transport (`repos/murm/native/crates/transport/tests/seed_residue.rs`, rulings
   51 and 52).
 
@@ -145,7 +145,7 @@ checkpoint E):
   tiers decide when the approval broker asks, not what is in memory.
 - **Other CLIs and tests** still read `PERSONAE_PASSPHRASE` (ruling 7 kept
   them). The passphrase then sits in that process's environment.
-  `personae-vault` ceased doing so in DR-C on 2026-10-10: it calls mere-resident,
+  `personae-vault` ceased doing so in DR-C on 2026-10-10: it calls djinn,
   which owns the vault location and unlock gate. The terminal receives
   public command output, certificates and CA installation material only.
 

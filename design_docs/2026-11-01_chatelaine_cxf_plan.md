@@ -1,7 +1,7 @@
 # Chatelaine and CXF import plan: open work
 
 **Date:** 2026-11-01
-**Status (2026-11-01):** cut from [the chatelaine and CXF import plan](archive_docs/2026-11-01/2026-10-01_chatelaine_cxf_plan.md), archived whole with its rulings 16 to 68, findings, progress and inline run evidence. P0 met; P1 (`59475aefd`), P2 (`b9d4cebbf`), P3 (`becbff0a2`) and P4a (`6f4b88b73`) landed on mere main; P4, CXF import through castellan's `cxf` feature, landed on 2026-10-11 and the six crates were published. P5's first Windows slice, persona selection and quarantine review with mere-resident custody and native consent, is qualified in mere. Open: P5's other platforms and packaging, and P6 export.
+**Status (2026-11-01):** cut from [the chatelaine and CXF import plan](archive_docs/2026-11-01/2026-10-01_chatelaine_cxf_plan.md), archived whole with its rulings 16 to 68, findings, progress and inline run evidence. P0 met; P1 (`59475aefd`), P2 (`b9d4cebbf`), P3 (`becbff0a2`) and P4a (`6f4b88b73`) landed on mere main; P4, CXF import through castellan's `cxf` feature, landed on 2026-10-11 and the six crates were published. P5's first Windows slice, persona selection and quarantine review with Djinn custody and native consent, is qualified in mere. Open: P5's other platforms and packaging, and P6 export.
 
 ## Rulings in force
 
@@ -41,6 +41,8 @@ Links: area documentation · summary live docs cite main hashes; archived docs k
 
 ### chatelaine_cxf D6: mere-resident, not djinn, for the port (2026-11-01)
 
+*Withdrawn by dramatis_repo D10.*
+
 Mark, 2026-11-01: "Rename the prose". Where the text means mere's resident port it says mere-resident; the Djinn crate, now `repos/armillary/crates/djinn`, keeps its name.
 
 Links: area documentation · summary prose says mere-resident for the port, Djinn for the crate
@@ -55,7 +57,7 @@ Links: area documentation · draws on 2026-10-01_chatelaine_cxf_plan P4 · summa
 
 ### O1. P5: other native platforms and distribution packaging
 
-The first slice is Mere's `ports/dramatis` (package `dramatis-app`, binary `dramatis-ui`). It selects existing personae, shows public quarantined cards for the bound destination, and requests exact-item accept, delete or older-import assignment; mere-resident owns sealed records, profile authority and native consent. It is qualified on Windows only, with synthetic fixtures (evidence: `repos/mere/support/receipts/dramatis-app/README.md`; app plan: `repos/mere/design_docs/dramatis_docs/implementation_strategy/2026-10-11_dramatis_app_plan.md`).
+The first slice is Mere's `ports/dramatis` (package `dramatis-app`, binary `dramatis-ui`). It selects existing personae, shows public quarantined cards for the bound destination, and requests exact-item accept, delete or older-import assignment; Djinn owns sealed records, profile authority and native consent. It is qualified on Windows only, with synthetic fixtures (evidence: `repos/mere/support/receipts/dramatis-app/README.md`; app plan: `repos/mere/design_docs/dramatis_docs/implementation_strategy/2026-10-11_dramatis_app_plan.md`).
 
 **Done when:** the same receipt (persona selection, public quarantined cards, accept and delete with native consent, absent and Locked custody) repeats on Linux and macOS with the machine and commit recorded; and Mark names the distribution packaging targets, each of which installs and passes that receipt.
 

@@ -53,15 +53,25 @@ Links: area documentation · summary live docs cite main hashes; archived docs k
 
 ### dramatis_repo D8: mere-resident, not djinn, for the port (2026-11-01)
 
+*Withdrawn by D10.*
+
 Mark, 2026-11-01: "Rename the prose". Where the text means mere's resident port, it says mere-resident (`repos/mere/ports/mere-resident`, whose installed executable is still named djinn); where it means the Djinn crate, now `repos/armillary/crates/djinn`, it keeps Djinn.
 
 Links: area documentation · summary prose says mere-resident for the port, Djinn for the crate
 
 ### dramatis_repo D9: the remaining Djinn prose (2026-11-02)
 
+*Withdrawn by D10.*
+
 Mark, 2026-11-02: "Docs now, crate at next publish". The remaining prose in live documents and in `deny.toml`'s ban reason says mere-resident wherever it means mere's resident port; it never changes inside Mark's quoted rulings or inside archived documents, and it keeps Djinn where the sentence means the Djinn crate or the djinn executable name. `crates/dramatis` (Cargo description, README, lib.rs docs) is published metadata and changes at the next dramatis publish (O8).
 
 Links: area documentation · refines dramatis_repo D8 · summary live-doc and deny.toml prose now; crates/dramatis at the next publish
+
+### dramatis_repo D10: revert to Djinn, mere's wording (2026-11-02)
+
+Mark, 2026-11-02: "Revert to Djinn, mere's wording". New evidence contradicted D8 and D9: mere's `deny.toml` bans castellan with wrappers `djinn` and `djinn-custodian` and says "only Djinn and its independently launched custodian link it", the mere-resident package's binary is named djinn, and the djinn-slimming work keeps "djinn" in this repository's README. The prose renames are dropped; the `ports/mere-resident/...` path fixes stay, since a path is a path. Where a document says who links castellan, it uses mere's current wording: Djinn and its independently launched custodian. Outcome: contradicts D8 and D9. The open item O8 (renaming djinn in `crates/dramatis` at the next publish) is withdrawn with them.
+
+Links: area documentation · withdraws dramatis_repo D8, D9 · summary prose says Djinn in mere's wording; paths stay under ports/mere-resident
 
 ## Open work
 
@@ -79,7 +89,7 @@ Existing index, citation and D2-coverage findings were left outside DR-D's lane.
 
 ### O3. Cooperative key revocation
 
-Released keys are revoked at lock only cooperatively, when an app watches mere-resident's lock broadcast (archived plan, Progress 2026-10-10 and 2026-10-11).
+Released keys are revoked at lock only cooperatively, when an app watches Djinn's lock broadcast (archived plan, Progress 2026-10-10 and 2026-10-11).
 
 **Done when:** a released key stops working at lock without the holding app's cooperation, shown by a test in which the app ignores the broadcast; or Mark rules the cooperative model final and the vault threat statement says so.
 
@@ -103,15 +113,9 @@ Open since DR-A: whether gazette gets a matching facade name over gaz, the way c
 
 ### O7. Tucket custody (in progress since 2026-10-15)
 
-`crates/personae/src/tucket.rs` adds a canonical, length-delimited Tucket station salt bound to the durable device UUID and realm, with redacted transient seed material. mere-resident owns release policy; Signalman requests only that scope and must stop when custody is unavailable or locked. Reticulum salts are unchanged. Consumer work is murm's R6 (`repos/murm/design_docs/2026-10-13_murm_family_move_plan.md`). The Sennet continuations (R7, R8) share the same custody route: `crates/personae/src/sennet.rs` derives the scoped public node number and `SennetStationMaterial`, qualified by 71, 73 and 74 Personae tests; durable packet-ID reservations and the native and RF receipts are murm's.
+`crates/personae/src/tucket.rs` adds a canonical, length-delimited Tucket station salt bound to the durable device UUID and realm, with redacted transient seed material. Djinn owns release policy; Signalman requests only that scope and must stop when custody is unavailable or locked. Reticulum salts are unchanged. Consumer work is murm's R6 (`repos/murm/design_docs/2026-10-13_murm_family_move_plan.md`). The Sennet continuations (R7, R8) share the same custody route: `crates/personae/src/sennet.rs` derives the scoped public node number and `SennetStationMaterial`, qualified by 71, 73 and 74 Personae tests; durable packet-ID reservations and the native and RF receipts are murm's.
 
 **Done when:** scoped release and refusal, stable identity, lock shutdown and a restored forbidden fallback control are receipted through the actual custody route (Mark has kept this line open); and, for Sennet, durable packet-ID reservations are owned by the murm host before any radio use.
-
-### O8. Rename djinn to mere-resident in `crates/dramatis`
-
-`crates/dramatis/Cargo.toml` (description), `crates/dramatis/README.md` and the `lib.rs` module docs say "the Djinn resident" and "Djinn" where they mean mere's resident port (D9).
-
-**Done when:** at the next dramatis publish those three say mere-resident for the port, keep Djinn for the Djinn crate, and the published description matches.
 
 ## Findings
 
@@ -127,4 +131,4 @@ Open since DR-A: whether gazette gets a matching facade name over gaz, the way c
 
 ## Progress
 
-- 2026-11-01: plan cut from the repository plan; decisions D1 to D8 recorded (D9 on 2026-11-02). Receipts moved out (commit `6ca6d3a`), cites and hashes repaired, and the archived plan's run-evidence index and hash table written to `archive_docs/receipts/2026-10-06_dramatis_repo_plan_receipts.md`.
+- 2026-11-01: plan cut from the repository plan; decisions D1 to D8 recorded (D9 and D10 on 2026-11-02; D10 withdraws D8 and D9). Receipts moved out (commit `6ca6d3a`), cites and hashes repaired, and the archived plan's run-evidence index and hash table written to `archive_docs/receipts/2026-10-06_dramatis_repo_plan_receipts.md`.

@@ -198,7 +198,7 @@ evidence they point to lives outside the repository, in `Code/testing/dramatis/`
   the vault threat statement, the repository plan).
 - **In mere:** castellan's documents (the custody plan, which absorbed the
   vault lock plan and the Secret Service plan, and castellan's archived
-  plans), because castellan stays beside mere-resident (D6, D22); and
+  plans), because castellan stays beside Djinn (D6, D22); and
   documents about gazette and the persona picker, which stay until D7's
   condition is met.
 

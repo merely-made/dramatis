@@ -1,0 +1,10 @@
+[package]
+name = "castellan-client-fixture-types"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+[dependencies]
+castellan-client = { path = "../../../../crates/castellan-client", default-features = false }

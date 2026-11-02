@@ -128,6 +128,7 @@ Open since DR-A: whether gazette gets a matching facade name over gaz, the way c
 - 2026-11-01, the standalone Hocket repository is gone (`repos/hocket` does not exist); see D6.
 - 2026-11-01, the Clippy allowances the old plan cites: `crates/personae/src/seal.rs:60` still holds `&nonce[..]`, but `carry/mod.rs:538` is no longer a Clippy site (it is a JSON fixture assertion). The allowances were not re-measured; no Clippy run was made.
 - 2026-11-01, `repos/mere/deny.toml` now names two wrappers for castellan (Djinn and its independently launched custodian); this repository's `deny.toml` bans castellan with none, which is unchanged.
+- 2026-11-02, carried from main `baa4ed2` (djinn-slimming S3): `crates/castellan-client` in this repository holds the custody route's application side (the custody calls and answers, payloads, quarantine review, and the custody and identity clients), moved out of Djinn. It speaks over Armillary's door contract, `ostiary`, and never links Djinn; castellan stays in Mere (D6). The archived plan's DR-C list carries the same note as history, at its line 603.
 
 ## Progress
 

@@ -11,6 +11,7 @@ the drama, both you and the other players.
 | [`chatelaine`](crates/chatelaine) | the keychain's item taxonomy: every credential kind, described without the secret |
 | [`notochord`](crates/notochord) | owner-controlled session admission: delegation chains, owner policy, the revocation ledger |
 | [`dramatis`](crates/dramatis) | the facade other repositories pin: the views, intents and receipts hosts render |
+| [`castellan-client`](crates/castellan-client) | the application side of castellan's custody route: calls, answers, payloads and, with `client`, the custody and identity clients |
 
 Nothing here holds a secret at rest. Custody (the vault, its storages and
 unlock ladder, the SSH agent) is castellan's, in
@@ -18,7 +19,8 @@ unlock ladder, the SSH agent) is castellan's, in
 and its independently launched custodian link it. Applications reach identity
 by calling Djinn.
 
-This repository depends on no mere crate. mere and its siblings pin it by
+This repository depends on no mere crate; `castellan-client` reaches djinn
+through Armillary's door contract, `ostiary`, never djinn itself. mere and its siblings pin it by
 git revision, and every pin in one build graph must name the same revision,
 or personae's types split in two.
 

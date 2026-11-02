@@ -599,6 +599,12 @@ finishes (D18).
         showing the identity pending, no fallback key and no unsealed
         write;
   - [x] a reintroduced fallback fails that receipt.
+
+  The route's application side (the custody calls and answers, payloads,
+  quarantine review, and the custody and identity clients) moved out of
+  Djinn into this repository's `castellan-client` on 2026-11-01
+  (`armillary:djinn-slimming` S3). It speaks over Armillary's door contract,
+  `ostiary`, and never links Djinn; Castellan stays in Mere (D6).
 - **DR-D — extraction** (D7, D10, D19, D20): the repo is created with
   history (the cambium precedent). mere and the siblings repin, the docs
   move, and mere's patch table grows. Done when:

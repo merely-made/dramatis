@@ -37,16 +37,16 @@ Line numbers are in the archived file, which begins with a two-line archive head
 | Evidence | Where |
 | --- | --- |
 | Tucket custody continuation and the Sennet continuations (71, 73 and 74 Personae tests; Clippy) | lines 5 to 46 |
-| DR-A, A0 to A3 (test inventories by name, Windows and Fedora) | from line 712 |
-| DR-A done, A4 to A7 (gates on both targets) | from line 750 |
-| DR-D built (history carve, pins, measured graphs) | from line 785 |
-| DR-B, DR-C and DR-D landed (the combined test run on Windows and Fedora) | from line 819 |
-| DR-C closure work (the gate and the control) | from line 856 |
-| DR-C closed (57 recorded commands, per-caller table, fallback control) | from line 895 |
-| Adoption and publishing preparation (Hocket DPAPI proof, release candidates) | from line 945 |
-| Final adoption, CXF import and DR-E publication (318 tests, publish checks) | from line 973 |
-| Signalman and documentation follow-up | from line 1020 |
-| Notochord secure-channel admission (regression suite description) | from line 1036 |
+| DR-A, A0 to A3 (test inventories by name, Windows and Fedora) | from line 718 |
+| DR-A done, A4 to A7 (gates on both targets) | from line 756 |
+| DR-D built (history carve, pins, measured graphs) | from line 791 |
+| DR-B, DR-C and DR-D landed (the combined test run on Windows and Fedora) | from line 825 |
+| DR-C closure work (the gate and the control) | from line 862 |
+| DR-C closed (57 recorded commands, per-caller table, fallback control) | from line 901 |
+| Adoption and publishing preparation (Hocket DPAPI proof, release candidates) | from line 951 |
+| Final adoption, CXF import and DR-E publication (318 tests, publish checks) | from line 979 |
+| Signalman and documentation follow-up | from line 1026 |
+| Notochord secure-channel admission (regression suite description) | from line 1042 |
 
 ## 2026-11-01, evidence not retained
 

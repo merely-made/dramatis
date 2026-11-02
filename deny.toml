@@ -14,5 +14,5 @@ all-features = true
 multiple-versions = "allow"
 wildcards = "allow"
 deny = [
-  { crate = "castellan", reason = "castellan is secret custody; only mere's resident (djinn) links it (dramatis repo plan, D4, D16)" },
+  { crate = "castellan", reason = "castellan is secret custody; only mere-resident links it (dramatis repo plan, D4, D16)" },
 ]

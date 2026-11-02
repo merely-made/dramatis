@@ -30,9 +30,9 @@ identity: your faces, and the other players.
 | [insigne](https://crates.io/crates/insigne) | crate | proofs: typed keys, delegation certificates and revocations, derived-key attestations, as plain data; checking behind `verify` | between |
 | [chatelaine](https://crates.io/crates/chatelaine) | crate (plain taxonomy, §7) | secret-free descriptions of passwords, 2FA seeds, tokens and foreign key material | me |
 | [gaz](https://crates.io/crates/gaz) | crate | stored contacts: anchored records, per-endpoint trust, kith and kin, retained proofs | them, kept |
-| castellan | custody crate in Mere, linked only by Djinn | the vault, sealed records and authority that exercises secrets and signs | me, outward |
+| castellan | custody crate in Mere, linked only by mere-resident | the vault, sealed records and authority that exercises secrets and signs | me, outward |
 | [gazette](https://crates.io/crates/gazette) | port | the directory: resolves them, reads what they publish, and (§6) announces you | them, inward; you, outward |
-| [dramatis](https://crates.io/crates/dramatis) | crate (public views, intents, roster and receipts) | the vocabulary sibling apps exchange with djinn | — |
+| [dramatis](https://crates.io/crates/dramatis) | crate (public views, intents, roster and receipts) | the vocabulary sibling apps exchange with mere-resident | — |
 | [notochord](https://crates.io/crates/notochord) | crate | owner-controlled session admission, delegation-chain evaluation and local revocation | between |
 | `mere-persona-picker` | crate | the Cambium view over the roster | me |
 
@@ -103,7 +103,7 @@ The lifecycle that the pieces exist to serve, end to end. Steps marked
  personae   derive a persona; master key -> per-protocol keys
     |
  castellan  issue an insigne for an audience, at a chosen grade
-    |                                   (authority half, in djinn)
+    |                                   (authority half, in mere-resident)
     +--> handed: paste, QR, misfin ------------------+
     |                                                |
  gazette    announce it at the persona's handle (§6) |
@@ -290,7 +290,7 @@ is built through its plan's P3 (the taxonomy, castellan's OTP items and its
 Secret Service store on it); CXF import, the gazette service, WebFinger's move
 and the facade remained unbuilt at that checkpoint. The Dramatis repo plan
 subsequently built the facade's inert public vocabulary and moved custody to
-Castellan, composed only by Djinn. CXF import is now implemented behind
+Castellan, composed only by mere-resident. CXF import is now implemented behind
 Castellan's `cxf` feature; its current verification belongs to the CXF plan.
 Gazette's resident service and the WebFinger move remain separate work.
 
@@ -360,7 +360,7 @@ export, are in the
 repo plan narrowed this facade to public `view`, `intents`, `receipts` and
 `roster` modules. It re-exports no identity member crate and holds no custody.
 Apps depend directly on the member crates they use, at the same Dramatis
-repository revision; they call Djinn for custody.
+repository revision; they call mere-resident for custody.
 
 The earlier feature-reexport proposal was motivated by this evidence,
 2026-10-01: eight sibling repos

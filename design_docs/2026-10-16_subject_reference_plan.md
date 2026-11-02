@@ -243,7 +243,7 @@ belong to derived resources that refer to the original fact revision. Extra
 derived fields in `BirthFacts` refuse. This contract uses no clock, resolver,
 network, storage, cryptographic verifier or new permission system. Parent owns
 Mere receiving persistence/admission and Cleromancy numerical/time/UI wiring.
-Djinn has no existing live contact-book wiring in this receiving slice: parent
+mere-resident has no existing live contact-book wiring in this receiving slice: parent
 will hold scoped local Gaz contact resources in the shared personal-facts
 domain, reusing Gaz types, alongside existing profile references. This does not
 authorize an app-local directory or add contact custody to the supplier lane.

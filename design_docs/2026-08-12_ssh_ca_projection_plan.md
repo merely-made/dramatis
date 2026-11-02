@@ -22,7 +22,7 @@ ruled the follow-on (per-machine CAs approved by the Windows laptop's
 master, host certificates finished now) in the
 device pairing by key plan (`repos/mere/design_docs/mere_docs/implementation_strategy/2026-10-28_device_pairing_plan.md`), phase D4.
 **2026-10-10, DR-C:** `personae-vault` is a graphshell terminal client.
-Djinn prepares the public CA installation script; the terminal runs SSH after
+mere-resident prepares the public CA installation script; the terminal runs SSH after
 the keeper releases its vault mutex, so authentication can use the live agent.
 The existing limits on host certificates and KRL deployment remain.
 **Related**:

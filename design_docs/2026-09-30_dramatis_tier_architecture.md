@@ -44,7 +44,7 @@ single record authority behind every Castellan view
 (`repos/mere/ports/mere-resident/castellan/src/resident.rs`). Gazette's authority
 half joins it as a mere-resident-composed service (ruled 2026-10-01, §7; unbuilt).
 
-*2026-10-06 note:* the [dramatis repo plan](2026-10-06_dramatis_repo_plan.md)
+*2026-10-06 note:* the [dramatis repo plan](archive_docs/2026-11-01/2026-10-06_dramatis_repo_plan.md)
 (rulings D1 to D3) moves the tier to its own repository, folds chatelaine
 into dramatis as its keychain, and narrows castellan to the half that
 holds and exercises secrets, personae's vault custody included.
@@ -354,7 +354,7 @@ file is plaintext on disk, and every import path treats it as burning
 (standards survey §2.3). The work, and rulings 16 to 22 on the item model,
 the Secret Service store, the parser, live data, personae per account and
 export, are in the
-[chatelaine and CXF plan](2026-10-01_chatelaine_cxf_plan.md).
+[chatelaine and CXF plan](archive_docs/2026-11-01/2026-10-01_chatelaine_cxf_plan.md).
 
 **The dramatis facade is real, for sibling repos (ruling 8).** The Dramatis
 repo plan narrowed this facade to public `view`, `intents`, `receipts` and
@@ -388,7 +388,8 @@ This document carries no phase status, which goes stale; the plans carry it.
 | delegation grammar's content | device-grant delegation reconciliation (`repos/mere/design_docs/mere_docs/technical_architecture/2026-08-11_device_grant_delegation_reconciliation.md`) |
 | insigne's move and API | [insigne proofs plan](archive_docs/2026-10-06_completed_plans/2026-09-23_insigne_proofs_plan.md) |
 | the contact model (the *them* spec) | contact identity model brief (`repos/mere/design_docs/mere_docs/research/2026-06-15_contact_identity_model_brief.md`) |
-| gaz's phases, anchors, intake | [gaz founding plan](2026-08-08_gaz_founding_plan.md) |
+| gaz's open work | [gaz plan](2026-11-01_gaz_plan.md) |
+| gaz's phases, anchors, intake | [gaz founding plan](archive_docs/2026-11-01/2026-08-08_gaz_founding_plan.md) |
 | castellan's keeper surface | castellan keeper founding plan (`repos/mere/design_docs/archive_docs/2026-10-06_completed_plans/2026-08-14_castellan_keeper_founding_plan.md`) |
 | castellan's credential runway | castellan OTP plan (`repos/mere/design_docs/archive_docs/2026-10-06_completed_plans/2026-08-10_castellan_otp_plan.md`) |
 | the vault's lock | custody plan (`repos/mere/design_docs/dramatis_docs/implementation_strategy/2026-10-28_custody_plan.md`); the lock's rulings are in the archived vault lock plan (`repos/mere/design_docs/archive_docs/2026-10-28/2026-10-05_vault_lock_plan.md`) |
@@ -490,7 +491,7 @@ verbatim (Recommended)"**.
 Rulings 10 to 15 answer the standards survey's open decision 5 (CXF import
 policy), which had been open since 2026-08-24. Rulings 16 to 22, the same
 day, belong to chatelaine's implementation and are recorded in the
-[chatelaine and CXF plan](2026-10-01_chatelaine_cxf_plan.md) §2.
+[chatelaine and CXF plan](archive_docs/2026-11-01/2026-10-01_chatelaine_cxf_plan.md) §2.
 
 *2026-10-05:* the stack seams plan's ruling S9 (Mark: "mien's becomes
 PersonaKey (Recommended)") renamed mien's `PersonaId`, a persona's leaf

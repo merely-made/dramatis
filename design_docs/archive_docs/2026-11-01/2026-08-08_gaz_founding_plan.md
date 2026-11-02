@@ -1,3 +1,5 @@
+> **Archived 2026-11-01 (cut; history only).** Cut into [2026-11-01_gaz_plan.md](../../2026-11-01_gaz_plan.md), which holds the open work and the decisions (Mark: "Cut all three, draft first"). M0, M0.5 and M1 landed, with M2's first slice; the 2026-09-23 rulings keep their dates. Run evidence index and the old-to-main hash table: [2026-08-08_gaz_founding_plan_receipts.md](../receipts/2026-08-08_gaz_founding_plan_receipts.md). Hashes in the body are the pre-merge hashes it was written with.
+
 # Gaz Founding Plan
 
 **Date**: 2026-08-08
@@ -353,7 +355,7 @@ is monotonic, so a replayed or late event cannot rewind a record.
         insigne's core, so it can be checked again later, for instance against
         a newer revocation list, which is why notochord retains its session
         claims. The data types moved into insigne in the
-        [insigne proofs plan](archive_docs/2026-10-06_completed_plans/2026-09-23_insigne_proofs_plan.md)'s phase A
+        [insigne proofs plan](../2026-10-06_completed_plans/2026-09-23_insigne_proofs_plan.md)'s phase A
         (`5364dfa0`, 2026-09-24); gaz keeping them is that plan's phase D,
         landed 2026-09-29. `KeyProof` retains attestations with their salt,
         signed certificates, or opaque protocol evidence with its format and

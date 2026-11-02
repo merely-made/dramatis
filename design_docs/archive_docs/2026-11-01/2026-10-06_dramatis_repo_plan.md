@@ -1,3 +1,5 @@
+> **Archived 2026-11-01 (cut; history only).** Cut into [2026-11-01_dramatis_repo_plan.md](../../2026-11-01_dramatis_repo_plan.md), which holds the open work and the decisions (Mark: "Cut all three, draft first"). DR-A, DR-C, DR-D's migrations and DR-E landed; rulings D1 to D39 are grandfathered and keep their numbers. Run evidence index and the old-to-main hash table: [2026-10-06_dramatis_repo_plan_receipts.md](../receipts/2026-10-06_dramatis_repo_plan_receipts.md). Hashes in the body are the pre-merge hashes it was written with; the receipt files it cites moved to `Code/testing/dramatis/` (path cites, not links).
+
 # Dramatis Repo Plan
 
 Sennet directed continuation (2026-10-16, producer qualified): R8 adds
@@ -60,7 +62,7 @@ only djinn links it. Every app calls djinn rather than opening a vault.
 
 **Related**:
 
-- [dramatis tier architecture](2026-09-30_dramatis_tier_architecture.md):
+- [dramatis tier architecture](../../2026-09-30_dramatis_tier_architecture.md):
   the architecture of record; its §1 says every piece lives in mere, and its
   invariant 1 ("hosts never hold secrets") is the line this plan makes
   structural.
@@ -646,11 +648,11 @@ archived plan tails plan (`repos/mere/design_docs/archive_docs/2026-10-28/2026-0
 now owns:
 - **insigne's remaining repins:** Hocket, Woodshed and mer3ly. Turnstone
   repinned in `d6b62ad`. From the
-  [insigne proofs plan](archive_docs/2026-10-06_completed_plans/2026-09-23_insigne_proofs_plan.md).
+  [insigne proofs plan](../2026-10-06_completed_plans/2026-09-23_insigne_proofs_plan.md).
   *Reading, not ruled:* these ride DR-D's repins, and Hocket's goes to the
   live `woodshed/ports/hocket` (D13).
 - **The `dramatis` facade**, ruled real on 2026-10-01 and unbuilt. From the
-  [dramatis tier plan](archive_docs/2026-10-06_completed_plans/2026-08-10_dramatis_tier_plan.md). D1 makes it
+  [dramatis tier plan](../2026-10-06_completed_plans/2026-08-10_dramatis_tier_plan.md). D1 makes it
   the product; DR-D builds it.
 - **The wallet carry gaps:**
   - PAKE/QR chrome and transport UI;
@@ -1040,14 +1042,14 @@ this source-home note records Notochord's contract.
 
 The additive secure entrypoints keep `SessionFacts`, `ProofBinding`,
 `AdmittedSession` and their carrier-only v1 behavior intact.
-[`SecureChannelFacts` and `SecureProofBinding`](../crates/notochord/src/facts.rs)
+[`SecureChannelFacts` and `SecureProofBinding`](../../../crates/notochord/src/facts.rs)
 carry locally verified profile/version, channel binding, role-ordered profile-proved
 keys and inner protocol alongside the original shared carrier context. The
 local ingress interface remains policy context and never enters a transcript.
 Outer and inner protocols can differ deliberately; the service adapter checks
 the expected inner protocol, and the proof independently binds both values.
 
-[`SessionHello::issue_secure`](../crates/notochord/src/handshake.rs) signs a
+[`SessionHello::issue_secure`](../../../crates/notochord/src/handshake.rs) signs a
 domain-separated v2 admission transcript. Secure responders reject v1 rather
 than retrying a weaker binding. Under the original policies a secure initiator must be the attested subject
 or the subject's verified session-signing derived key. The service explicitly
@@ -1056,10 +1058,10 @@ or permits a distinct attested application key; an unrelated secure key never
 inherits a valid subject's authority. Requiring carrier identity still requires
 the carrier to have authenticated it.
 
-[`admit_session_secure`](../crates/notochord/src/secure.rs) retains the untouched
+[`admit_session_secure`](../../../crates/notochord/src/secure.rs) retains the untouched
 carrier record and the separate verified channel record. Existing delegation,
 revocation, action and capacity policy remains shared with the legacy path.
-The [secure-channel regression suite](../crates/notochord/tests/secure_channel.rs)
+The [secure-channel regression suite](../../../crates/notochord/tests/secure_channel.rs)
 covers transcript changes, explicit identity policy, honest absent carrier
 authentication, checked derived signers, malformed local facts, no v1 fallback,
 and fixed pre-change v1 transcript/signature compatibility. Murm's actual

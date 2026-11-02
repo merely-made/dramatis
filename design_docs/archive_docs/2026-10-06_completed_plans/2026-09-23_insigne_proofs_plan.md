@@ -15,7 +15,7 @@ personae; then let gaz keep the proofs it receives.
 
 - crate consolidation plan (`repos/mere/design_docs/archive_docs/2026-10-28/2026-09-23_crate_consolidation_plan.md`),
   insigne row: the move this plan executes.
-- [gaz founding plan](../../2026-08-08_gaz_founding_plan.md), M2: gaz keeps the
+- [gaz founding plan](../2026-11-01/2026-08-08_gaz_founding_plan.md), M2: gaz keeps the
   proofs themselves (Mark, 2026-09-23), implemented by phase D of this plan.
 - device-grant delegation reconciliation (`repos/mere/design_docs/mere_docs/technical_architecture/2026-08-11_device_grant_delegation_reconciliation.md`):
   it put the delegation grammar in personae. This plan changes where the

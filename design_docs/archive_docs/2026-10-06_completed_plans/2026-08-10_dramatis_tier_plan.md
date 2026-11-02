@@ -200,7 +200,7 @@ to the IconVG decoder (`repos/emblem`, formerly `repos/iconvg` *(historical cita
 
   **Corrected 2026-10-06 (S14 pass):** chatelaine is no longer unbuilt. P1
   (`da3c50bc`), P2 (`3e4992ec`), P3 (`ff68e86c`) and P4a (`007fbe7c`) of the
-  [chatelaine and CXF import plan](../../2026-10-01_chatelaine_cxf_plan.md)
+  [chatelaine and CXF import plan](../2026-11-01/2026-10-01_chatelaine_cxf_plan.md)
   are all ancestors of mere `535bca11`; that plan carries the rest. The
   `dramatis` facade is still unbuilt (`crates/dramatis/dramatis` 0.0.2 has a
   doc-only lib.rs).

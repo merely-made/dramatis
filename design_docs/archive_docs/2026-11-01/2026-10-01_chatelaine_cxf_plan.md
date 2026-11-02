@@ -1,3 +1,5 @@
+> **Archived 2026-11-01 (cut; history only).** Cut into [2026-11-01_chatelaine_cxf_plan.md](../../2026-11-01_chatelaine_cxf_plan.md), which holds the open work and the decisions (Mark: "Cut all three, draft first"). P0 to P4a and P4 (CXF import) landed; P5's first Windows slice is qualified; rulings 16 to 68 are grandfathered and keep their numbers. Run evidence index and the old-to-main hash table: [2026-10-01_chatelaine_cxf_plan_receipts.md](../receipts/2026-10-01_chatelaine_cxf_plan_receipts.md). Hashes in the body are the pre-merge hashes it was written with; the receipt files it cites moved to `Code/testing/dramatis/` (path cites, not links).
+
 # Chatelaine and CXF Import Plan
 
 **Date**: 2026-10-01
@@ -22,7 +24,7 @@ castellan's OTP items and its Secret Service store onto it; then import
 
 **Related**:
 
-- [dramatis tier architecture](2026-09-30_dramatis_tier_architecture.md)
+- [dramatis tier architecture](../../2026-09-30_dramatis_tier_architecture.md)
   §7: chatelaine's shape and the CXF import table, rulings 7 and 10 to 15.
 - crate consolidation plan (`repos/mere/design_docs/archive_docs/2026-10-28/2026-09-23_crate_consolidation_plan.md`)
   C5: the Mere 0.4 baseline waits on chatelaine's taxonomy landing.
@@ -30,7 +32,7 @@ castellan's OTP items and its Secret Service store onto it; then import
   ADOPT (import first), CXP WATCH, the plaintext hazard.
 - castellan OTP plan (`repos/mere/design_docs/archive_docs/2026-10-06_completed_plans/2026-08-10_castellan_otp_plan.md`):
   the RFC-vector-verified OTP core this plan re-homes, not rewrites.
-- [insigne proofs plan](archive_docs/2026-10-06_completed_plans/2026-09-23_insigne_proofs_plan.md): the precedent for
+- [insigne proofs plan](../2026-10-06_completed_plans/2026-09-23_insigne_proofs_plan.md): the precedent for
   a plain-data core with no cryptography, checked by a wasm build.
 
 ---

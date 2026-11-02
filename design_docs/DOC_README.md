@@ -30,8 +30,9 @@ documents; see `repos/mere/design_docs/DOC_README.md`.
 1. [`DOC_POLICY.md`](DOC_POLICY.md): documentation governance.
 2. [dramatis_tier_architecture](2026-09-30_dramatis_tier_architecture.md):
    the tier's architecture of record. Start here.
-3. [dramatis_repo_plan](2026-10-06_dramatis_repo_plan.md): why this
-   repository exists and what each phase moved.
+3. [dramatis_repo_plan](2026-11-01_dramatis_repo_plan.md): the repository
+   plan's open work. Why this repository exists, and what each phase moved,
+   is in the [archived plan](archive_docs/2026-11-01/2026-10-06_dramatis_repo_plan.md).
 
 ## Active documents
 
@@ -46,34 +47,29 @@ documents; see `repos/mere/design_docs/DOC_README.md`.
   castellan and gazette as one account of identity along three axes
   (me/them, shown/exercised, embeddable/authority), with the cross-person
   lifecycle and its invariants cited to code.
-- [dramatis_repo_plan](2026-10-06_dramatis_repo_plan.md): **plan,
-  2026-10-06; rulings D1 to D39; DR-A to DR-D's migrations landed;
-  DR-C closed with per-app absent/Locked receipts and a failing fallback control;
-  Hocket DPAPI adoption proven and DR-E published all six crates on 2026-10-11.** The identity tier
-  leaves mere for this repository; castellan stays in mere, narrowed to
-  custody, and only mere-resident links it; every app calls mere-resident.
-  It also records the Sennet directed and custody continuations (2026-10-16),
-  Tucket custody (2026-10-15) and the
-  [Notochord secure-channel admission](2026-10-06_dramatis_repo_plan.md#notochord-secure-channel-admission-2026-10-29)
-  contract (2026-10-29, native endpoint association 2026-10-30); the
-  implementation order and acceptance for the latter live in
-  `repos/murm/design_docs/2026-10-29_secure_sessions_and_live_interaction_plan.md` N1.
+- [dramatis_repo_plan](2026-11-01_dramatis_repo_plan.md): **open work, cut
+  2026-11-01** from the [repository plan](archive_docs/2026-11-01/2026-10-06_dramatis_repo_plan.md)
+  (rulings D1 to D39, DR-A to DR-E, archived whole). Open: DR-B's
+  control-crate run, the doc audits, cooperative key revocation, the
+  wallet-carry gaps, the `keeper` split, the gazette facade name and Tucket
+  custody. The archived plan also records the Sennet and Tucket continuations
+  and the [Notochord secure-channel admission](archive_docs/2026-11-01/2026-10-06_dramatis_repo_plan.md#notochord-secure-channel-admission-2026-10-29)
+  contract; murm's N1 (`repos/murm/design_docs/2026-10-29_secure_sessions_and_live_interaction_plan.md`) is its canonical acceptance.
 - [vault_threat_statement](2026-10-08_vault_threat_statement.md): what the
   identity vault's lock defends, what it leaves open, and what is known only
   by reading. The lock itself is castellan's, in mere.
-- [chatelaine_cxf_plan](2026-10-01_chatelaine_cxf_plan.md): **plan,
-  2026-10-01; P0 to P3 and P4a landed; P4 (CXF import) landed
-  on 2026-10-11 after DR-C closure; P5 first Windows app slice qualified;
-  other native platforms and packaging remain open, as does P6 export.** chatelaine as the plain secret-item taxonomy, castellan's OTP
-  items and Secret Service store moved onto it, then CXF import through
-  castellan.
+- [chatelaine_cxf_plan](2026-11-01_chatelaine_cxf_plan.md): **open work, cut
+  2026-11-01** from the [chatelaine and CXF plan](archive_docs/2026-11-01/2026-10-01_chatelaine_cxf_plan.md)
+  (rulings 16 to 68, archived whole). P0 to P4 landed; P5's first Windows
+  slice is qualified. Open: P5 on other native platforms and packaging, and
+  P6 export.
 - [personae_across_the_suite](2026-07-08_personae_across_the_suite.md):
   vision brief: the identity spine of the Merely apps.
-- [gaz_founding_plan](2026-08-08_gaz_founding_plan.md): **M0, M1 and M2's
-  first slice landed.** Contacts filed under a root anchor (a typed key, a
-  `did:plc`, or a local id), with retained proofs, Muniment storage, host
-  sealing, JSContact exchange and address intake; checked key/PLC intake
-  and application wiring remain open.
+- [gaz_plan](2026-11-01_gaz_plan.md): **open work, cut 2026-11-01** from the
+  [gaz founding plan](archive_docs/2026-11-01/2026-08-08_gaz_founding_plan.md)
+  (M0, M0.5, M1 and M2's first slice landed; archived whole). Open: checked
+  key and PLC intake, back-claims, Signalman's pre-M0.5 stored books, M3 and
+  M4.
 - [ssh_ca_projection_plan](2026-08-12_ssh_ca_projection_plan.md): **T1 and
   T3 landed 2026-08-12; T2, T4 and T5 partial.** The SSH certificate
   authority on personae's `ssh` feature.
@@ -94,6 +90,12 @@ documents; see `repos/mere/design_docs/DOC_README.md`.
 - [notochord_session_policy_spine_plan](archive_docs/2026-08-06_completed_plans/2026-07-26_notochord_session_policy_spine_plan.md):
   **N0 to N4 complete 2026-07-27.** Notochord as the typed facts, claims
   and admitted-session spine.
+- [dramatis_repo_plan (archived)](archive_docs/2026-11-01/2026-10-06_dramatis_repo_plan.md),
+  [chatelaine_cxf_plan (archived)](archive_docs/2026-11-01/2026-10-01_chatelaine_cxf_plan.md)
+  and [gaz_founding_plan (archived)](archive_docs/2026-11-01/2026-08-08_gaz_founding_plan.md):
+  **archived whole 2026-11-01 (cut; history only).** Each holds its rulings,
+  findings, progress and inline run evidence as written, with the hashes it
+  was written with; the open work moved to the plans above.
 - [receipts](archive_docs/receipts/): **pointer files, 2026-11-01.** Per-plan
   receipt files naming run evidence kept outside the repository in
   `Code/testing/dramatis/` (path cites, not links), and old-to-main hash tables

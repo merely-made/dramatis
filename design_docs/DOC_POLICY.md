@@ -100,7 +100,18 @@ roots, in `<area>_docs/implementation_strategy/`. Each plan carries:
   never time estimates.
 - A **Findings** section for facts verified during the work, dated, with code
   references.
-- A **Progress** log, dated, appended as phases land.
+- A **Progress** log, dated, appended as phases land: a line per landing,
+  naming what landed.
+
+A plan holds no receipts. Receipts are not live, so they are archived from
+the start: each plan keeps one receipt file,
+`archive_docs/receipts/<plan file stem>_receipts.md`, appended under dated
+headings, and no folder of outputs, logs or captures beside it. Receipts
+are run evidence: hashes, seeds, timings, counts, commands run, run
+narratives. Evidence that matters is also a test in the repository or a line
+in Findings. Thresholds in done-conditions stay in the plan. When a plan
+grows its history past its open work, cut a new plan from its open, deferred
+and follow-on items and archive the old one whole (as on 2026-10-28).
 
 Code samples in a plan state whether they are illustrative or compile-ready.
 
@@ -177,17 +188,19 @@ Flat, per core §4's default: active documents sit directly in
 `design_docs/`, and retired plans under `archive_docs/`, in the dated
 folders they had in mere. There are no area roots: the documents that came
 from mere's `dramatis_docs/` area root dropped their category directories
-on the way.
+on the way. Core §8's receipt files sit in `archive_docs/receipts/`; the run
+evidence they point to lives outside the repository, in `Code/testing/dramatis/`.
 
 ### What lives where
 
 - **Here:** documents whose subject is personae, insigne, gaz, chatelaine,
   notochord, the dramatis facade, or the tier as a whole (its architecture,
   the vault threat statement, the repository plan).
-- **In mere:** castellan's documents (the vault lock plan, the Secret
-  Service plan, castellan's archived plans), because castellan stays beside
-  djinn (D6, D22); and documents about gazette and the persona picker, which
-  stay until D7's condition is met.
+- **In mere:** castellan's documents (the custody plan, which absorbed the
+  vault lock plan and the Secret Service plan, and castellan's archived
+  plans), because castellan stays beside mere-resident (D6, D22); and
+  documents about gazette and the persona picker, which stay until D7's
+  condition is met.
 
 Cite mere by path, `repos/mere/design_docs/...`, never by a relative link
 (core §5). On 2026-10-09 the moved documents' links into mere were rewritten
@@ -196,6 +209,14 @@ in active documents were repointed too: a moved crate's path is local
 (`crates/personae/...`), anything else of mere's is `repos/mere/...`.
 Archived documents had their links repaired and their code paths left as
 written.
+
+### Decisions and doctrine
+
+Core §11 applies forward from 2026-11-01. Rulings made before then keep
+their numbers (the repository plan's D1 to D39 and the numbered rulings in
+the other plans, which stay cited by those numbers); decisions from
+2026-11-01 use `<plan keyword> D<n>` keys (Mark, 2026-11-01: "Grandfather,
+§11 forward"). There is no case record or doctrine here yet.
 
 ### Audit records
 

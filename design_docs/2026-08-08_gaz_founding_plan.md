@@ -288,7 +288,7 @@ is monotonic, so a replayed or late event cannot rewind a record.
         host-side receipt shows the stored bytes carry no cleartext petname.
         Implemented 2026-09-30 through Pandect's `WalletSealedBackend` and
         Castellan's required `PersonaeHost::sealed_backend` supply point;
-        `repos/mere/ports/castellan/tests/sealed_contacts.rs` checks JSON and postcard
+        `repos/mere/ports/mere-resident/castellan/tests/sealed_contacts.rs` checks JSON and postcard
         books in the entire closed redb file, then reopens and rechecks proofs.
   - [x] **Ruled 2026-09-23 — JSContact is *an* exchange format** (Mark: "the"
         was too strong). The standards survey grades
@@ -329,7 +329,7 @@ is monotonic, so a replayed or late event cannot rewind a record.
         returns the full suite to green. The JSContact-only production graph excludes
         Personae and cryptography, and the default graph excludes the optional
         JSON/URI exchange dependencies. Raw logs and the mutation receipt are
-        retained in `C:\t\cargo-targets\mere\gaz-jscontact-receipts`.
+        retained in `C:\t\cargo-targets\mere\gaz-jscontact-receipts` (not retained as of 2026-11-01).
         Next: M2 resolver intake.
 - **M2 — resolver intake.** The seam where resolution meets storage. Gazette
   depends on gaz, not the reverse (gazette was promoted to a port on
@@ -457,8 +457,8 @@ pass over M0's decisions, against the code:
   sign with `derive_keypair(MESH_AUTHOR_SALT)` and prove it with
   `attest_derived_key` (`repos/mere/crates/mesh/mesh/src/directory.rs`), and a key minted
   for another protocol deliberately does not count as the mesh identity.
-- castellan derives a Reticulum identity per station from a persona provider
-  (`repos/mere/ports/castellan/src/reticulum.rs`), so a Merely user's radios are further
+- castellan derived a Reticulum identity per station from a persona provider
+  (now personae's, `crates/personae/src/reticulum.rs`, since DR-C), so a Merely user's radios are further
   concurrent keys under the same root.
 
 M0's rules (anchor = first key seen; one growing list; `current_key()` = the
@@ -469,7 +469,7 @@ proposed in M0.5.
 **2026-09-23: a Reticulum identity is two keys, fingerprinted whole.** castellan
 documents "two independent 32-byte secret halves: one for X25519 exchange and one
 for Ed25519 signing", and retinue fingerprints a node by `identity.hash()`
-(`retinue/crates/outrider/examples/direct_phy_ui.rs`). Anchoring on the Ed25519
+(`repos/murm/crates/outrider/examples/direct_phy_ui/ui.rs`). Anchoring on the Ed25519
 half, as §2 first said, would let an X25519 half nobody proved ride on a trusted
 anchor, and a sender would encrypt to it. Corrected in §2. The whole-identity
 key was then checked against Reticulum's reference implementation, its only
@@ -621,7 +621,7 @@ scope labels are preserved rather than normalized.
 
 Temporarily removing `load_book`'s scope check makes all four matrix cases fail
 (exit 101); it is restored before the final complete suite. Gates are recorded
-under `C:\t\cargo-targets\mere\gaz-m1-receipts` with source hashes and raw logs:
+under `C:\t\cargo-targets\mere\gaz-m1-receipts` (not retained as of 2026-11-01) with source hashes and raw logs:
 
 - `cargo test -p gaz --all-features --locked --offline -j 4`: **66 tests plus
   two doctests pass**.
@@ -677,7 +677,7 @@ ordered scans, listing, write batches, repeated writes, and explicit historical
 epoch loading after rotation.
 
 Validation on Rust 1.98.1, with raw logs and source hashes retained under
-`C:\t\cargo-targets\mere\gaz-sealing-receipts`:
+`C:\t\cargo-targets\mere\gaz-sealing-receipts` (not retained as of 2026-11-01):
 
 - `cargo test -p pandect --lib wallet_sealed_backend --locked --offline -j 4`:
   **three adapter tests pass**.
@@ -745,7 +745,7 @@ parser. Query/subject binding deliberately requires the same normalized account;
 RFC 7033 §4.4.1 permits changed subjects, so account migration is refused here
 as an explicit first-slice policy. The existing fetch path is unchanged.
 
-`repos/mere/ports/castellan/tests/sealed_webfinger_intake.rs` composes this supplied-JRD
+`repos/mere/ports/mere-resident/castellan/tests/sealed_webfinger_intake.rs` composes this supplied-JRD
 adapter with actual wallet epochs, `PersonaeHost::sealed_backend`, Muniment and
 JSON/postcard redb. It starts from a reopened book, imports additional addresses,
 replays before and after another reopen, preserves Pinned/Verified trust and
@@ -765,7 +765,7 @@ Insigne and Dramatis models are unchanged; Castellan gains only a test consumer.
 
 Final gates, all locked/offline. After integrating origin/main `8425cd73`
 (Genet `b1eb3af1`), all seven gates passed again; the integrated commands and
-raw logs are indexed by `gaz-m2-receipts/gates-integrated.json`.
+raw logs are indexed by `gaz-m2-receipts/gates-integrated.json` (not retained as of 2026-11-01).
 
 - Gaz: **92 unit tests and four doctests**, including every trust state and
   refusal atomicity. Gazette: **20 tests**, ten new supplied-intake cases.
@@ -792,9 +792,9 @@ Three delegated lanes supplied the Gazette adapter, sealed-host receipt and
 independent contract review; the root owned Gaz, combined verification, docs,
 lockfile and publication. All new Rust files remain below 600 lines.
 
-Reuse the primary `C:\t\cargo-targets\mere`; raw logs live in `gaz-m2-receipts`. This
+Reuse the primary `C:\t\cargo-targets\mere`; raw logs lived in `gaz-m2-receipts` (not retained as of 2026-11-01). This
 slice creates no isolated worktree, Cargo target or Cargo home.
 
 ### 2026-10-06: S14 pass
 
-- **2026-10-06 (S14 pass).** Status and claims corrected against the tree at mere 535bca11, from the D2 record in support/doc-audit/d2/batch_39_s14_phase_b1.md: M0.5's and §5's "no book was ever stored" corrected with Signalman's Muniment-stored books, and their pre-M0.5 shape raised as an open question at M0.5.
+- **2026-10-06 (S14 pass).** Status and claims corrected against the tree at mere 535bca11, from the D2 record in repos/mere/support/doc-audit/d2/batch_39_s14_phase_b1.md: M0.5's and §5's "no book was ever stored" corrected with Signalman's Muniment-stored books, and their pre-M0.5 shape raised as an open question at M0.5.

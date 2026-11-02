@@ -2,18 +2,20 @@
 
 **Date:** 2026-10-16
 
-**Status:** bounded reference supplier-software-qualified and published on main
-at `cec93f8`. Reusable birth facts and subject/resource associations are now
-explicitly authorized and implemented locally for review; resident persistence,
-admission and consumer adoption remain parent-owned qualification work. The
-[publication receipt](../testing/receipts/subject-reference-20261016/publication.json)
+**Status (2026-11-01):** bounded reference supplier-software-qualified and
+published on main at `3162ff7b0`. Reusable birth facts and subject/resource
+associations are published on main at `7fb544e` (`crates/dramatis/src/birth.rs`,
+`resources.rs`); resident persistence, admission and consumer adoption remain
+parent-owned qualification work. The publication receipt
+(`Code/testing/dramatis/testing/receipts/subject-reference-20261016/publication.json`;
+[receipt file](archive_docs/receipts/2026-10-16_subject_reference_plan_receipts.md))
 binds the unchanged original reference checkpoint, not the new contracts.
 
-**Source base:** Dramatis `2f27f1a939aa2e046b78f7db18dcd8f81e0d7c59`, fetched
+**Source base:** Dramatis `9a147dae66b482e6f658e4d5d2c5671c20f0c571`, fetched
 `origin/main`. Deciders: maintainer and receiving Cleromancy/resident owners.
 
 **Additive contract base (2026-10-16):** clean published main
-`36ca194e5d48c66ae44af9530cc12c9f6a05b0be`, matching fetched `origin/main`.
+`ffaad059fa7318839fce03650a861d1b8acebd9d`, matching fetched `origin/main`.
 
 ## Context and source findings (2026-10-16)
 
@@ -251,9 +253,10 @@ authorize an app-local directory or add contact custody to the supplier lane.
 - Reference slice: done when existing types remain unchanged, the additive
   contract round-trips JSON/Postcard and refuses malformed references, wrong
   scopes and missing records. Locally implemented; test evidence below.
-- Plain birth/resource contracts: implemented locally for review. Done when
-  nested validation, strict schema/field refusals and stable Serde tests pass,
-  while published subject types, receipts and Chatelaine ruling 12 stay intact.
+- Plain birth/resource contracts: published on main at `7fb544e`. Done:
+  nested validation, strict schema/field refusals and stable Serde tests pass
+  (24 tests, Progress below), while published subject types, receipts and
+  Chatelaine ruling 12 stay intact.
 - Resident biography ownership: authorized as the personal-facts data domain;
   parent implementation and real receiving qualification remain open.
 - Consumer adoption: parent-owned and open. Requires explicit natal versioning,
@@ -277,10 +280,10 @@ authorize an app-local directory or add contact custody to the supplier lane.
 - No consumer, native, durable resident storage, credential disclosure,
   historical-time or numerical qualification is claimed.
 
-- Parent review retains the original implementation commits. Re-ran `cargo test -p dramatis -p gaz --all-features --locked --offline` with Cargo 1.99.0 and explicit Rust/Rustdoc 1.97.1: 7/92 tests and four Gaz doctests pass. The [supplier receipt](../testing/receipts/subject-reference-20261016/qualification.json) binds the exact source and compiled inputs. Added the proposed subject-to-resource association model and preserved the existing Chatelaine autofill ruling.
+- Parent review retains the original implementation commits. Re-ran `cargo test -p dramatis -p gaz --all-features --locked --offline` with Cargo 1.99.0 and explicit Rust/Rustdoc 1.97.1: 7/92 tests and four Gaz doctests pass. The supplier receipt (`Code/testing/dramatis/testing/receipts/subject-reference-20261016/qualification.json`) binds the exact source and compiled inputs. Added the proposed subject-to-resource association model and preserved the existing Chatelaine autofill ruling.
 
 - Authorized reusable-facts extension: added `birth`, `resources`, a private
-  shared deserialization validator and focused tests on base `36ca194`.
+  shared deserialization validator and focused tests on base `ffaad059f`.
   Checked constructors, public-field revalidation and strict JSON/Postcard load
   refuse invalid Gregorian dates, clocks, approximation bounds, unpaired or
   out-of-range coordinates, empty supplied text, unknown schemas/fields and

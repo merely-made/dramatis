@@ -14,8 +14,8 @@ the drama, both you and the other players.
 
 Nothing here holds a secret at rest. Custody (the vault, its storages and
 unlock ladder, the SSH agent) is castellan's, in
-[mere](https://github.com/merely-made/mere), and only mere's resident,
-djinn, links it. Applications reach identity by calling djinn.
+[mere](https://github.com/merely-made/mere), and only mere-resident, mere's
+resident port, links it. Applications reach identity by calling mere-resident.
 
 This repository depends on no mere crate. mere and its siblings pin it by
 git revision, and every pin in one build graph must name the same revision,

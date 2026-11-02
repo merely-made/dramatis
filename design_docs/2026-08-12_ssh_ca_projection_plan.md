@@ -7,26 +7,26 @@ see the correction below); T4 (the certificate-serving agent validated on one
 OS of three); T5 (revocation folds to a KRL file, but the deploy to enrolled
 hosts that its validation needs stops at printed instructions). Moved: host
 certificates, to the
-device pairing by key plan (`repos/mere/design_docs/mere_docs/implementation_strategy/2026-10-02_device_pairing_by_key_plan.md`)'s
+device pairing by key plan (`repos/mere/design_docs/mere_docs/implementation_strategy/2026-10-28_device_pairing_plan.md`)'s
 phase D4.
 **Corrected 2026-10-02**: host certificates were never built. Nothing
 outside tests calls `SshCertAuthority::mint_host_cert` (`ssh_ca.rs:276`),
 and `enroll-host` writes only an `authorized_keys` `cert-authority` line and
 prints "host-key prompts still apply" (now Mere's
-`ports/castellan/src/custody/vault_commands/certs.rs`, behind djinn),
+`repos/mere/ports/mere-resident/castellan/src/custody/vault_commands/certs.rs`, behind mere-resident),
 so T2's "zero host-key prompts" and the design's "retires TOFU fleet-wide"
 are unmet. The fleet authority is not one master either: each vault derives
-its own CA from its own random master (`certs.rs:34`, `bootstrap.rs:135`).
+its own CA from its own random master (`authority` in `certs.rs`, `load_or_create_profile` in `bootstrap.rs`).
 On 2026-10-02 only the Windows laptop's agent offered a certificate. Mark
 ruled the follow-on (per-machine CAs approved by the Windows laptop's
 master, host certificates finished now) in the
-device pairing by key plan (`repos/mere/design_docs/mere_docs/implementation_strategy/2026-10-02_device_pairing_by_key_plan.md`), phase D4.
+device pairing by key plan (`repos/mere/design_docs/mere_docs/implementation_strategy/2026-10-28_device_pairing_plan.md`), phase D4.
 **2026-10-10, DR-C:** `personae-vault` is a graphshell terminal client.
 Djinn prepares the public CA installation script; the terminal runs SSH after
 the keeper releases its vault mutex, so authentication can use the live agent.
 The existing limits on host certificates and KRL deployment remain.
 **Related**:
-[personae founding](2026-07-08_personae_founding.md),
+[personae founding](archive_docs/2026-11-01/2026-07-08_personae_founding.md),
 device_grant_delegation_reconciliation (`repos/mere/design_docs/mere_docs/technical_architecture/2026-08-11_device_grant_delegation_reconciliation.md`),
 device_grant_certificate_migration_plan (`repos/mere/design_docs/archive_docs/2026-08-18_completed_plans/2026-08-12_device_grant_certificate_migration_plan.md`),
 mesh_host_lanes_plan (`repos/mere/design_docs/archive_docs/2026-10-06_completed_plans/2026-08-09_mesh_host_lanes_plan.md`),
@@ -212,4 +212,4 @@ Not done, and honest about it:
   KRL; putting it in a host's `sshd_config` is root-side and deliberately
   left as printed instructions.
 
-- **2026-10-06 (S14 pass).** Status and claims corrected against the tree at mere 535bca11, from the D2 record in support/doc-audit/d2/batch_39_s14_phase_b1.md: the status no longer claims T1–T5 landed; it records T1 and T3 as landed, T2, T4 and T5 as partial, and host certificates as moved to device pairing D4, matching the 2026-10-02 correction.
+- **2026-10-06 (S14 pass).** Status and claims corrected against the tree at mere 59118485e, from the D2 record in repos/mere/support/doc-audit/d2/batch_39_s14_phase_b1.md: the status no longer claims T1–T5 landed; it records T1 and T3 as landed, T2, T4 and T5 as partial, and host certificates as moved to device pairing D4, matching the 2026-10-02 correction.

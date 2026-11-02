@@ -1,35 +1,12 @@
 # Dramatis Documentation Index
 
-Notochord secure-channel admission (2026-10-29): the
-[repository plan](2026-10-06_dramatis_repo_plan.md#notochord-secure-channel-admission-2026-10-29)
-records the additive v2 transcript and separate carrier/channel/subject facts,
-including the explicit native endpoint/application-root association policy
-added on 2026-10-30.
-The implementation order and cross-repository acceptance live in
-`murm/design_docs/2026-10-29_secure_sessions_and_live_interaction_plan.md` N1.
-
-Sennet directed custody (2026-10-16): the [repo plan](2026-10-06_dramatis_repo_plan.md)
-records transient zeroizing material from the existing scoped child, with 74
-passing tests. Murm owns protocol construction and the pending R8 RF gate.
-
-Sennet custody (2026-10-16): the [repo plan](2026-10-06_dramatis_repo_plan.md)
-records the qualified scoped public-node derivation for Murm R7, with 73
-passing Personae tests and Mere's six real-Keeper cases. Durable packet IDs,
-native/RF qualification and private-channel provisioning retain their own gates.
-
-Rust policy (2026-10-13): working toolchain 1.99.0 and shared MSRV 1.97.1, qualified separately. Canonical policy: `mere/design_docs/2026-08-12_family_composition_thesis_brief.md`, section "Shared Rust toolchain and minimum version".
-
-Tucket custody (2026-10-15): the [repo plan](2026-10-06_dramatis_repo_plan.md)
-records the in-progress scoped station derivation for Djinn/Signalman. Custody
-and radio qualification remain separate gates.
-
 The design-docs index for the [dramatis](../README.md) repository, the
 identity tier of the Merely stack. Entries are one line each; the rationale
 lives in the doc itself.
 
 The tier left mere on 2026-10-09 (the repository plan's DR-D). castellan,
-the custody crate only djinn links, stays in mere, and so do its documents;
-see `repos/mere/design_docs/DOC_README.md`.
+the custody crate only mere-resident links, stays in mere, and so do its
+documents; see `repos/mere/design_docs/DOC_README.md`.
 
 ## Working principles
 
@@ -40,6 +17,10 @@ see `repos/mere/design_docs/DOC_README.md`.
   name the same revision.
 - Secrets at rest and in hand are castellan's, in mere. A crate here that
   starts holding one is a boundary break, not a feature.
+- Rust: working toolchain 1.99.1 (`rust-toolchain.toml`) and shared MSRV
+  1.97.1, qualified separately. Canonical policy:
+  `repos/mere/design_docs/2026-08-12_family_composition_thesis_brief.md`,
+  section "Shared Rust toolchain and minimum version".
 - Secure-channel authentication never fills an absent carrier-authenticated
   peer. Notochord's secure entrypoints bind both observations and the attested
   subject separately; service policy decides whether their identities must match.
@@ -55,7 +36,8 @@ see `repos/mere/design_docs/DOC_README.md`.
 ## Active documents
 
 - [subject_reference_plan](2026-10-16_subject_reference_plan.md): **reference
-  published; reusable birth/resource contracts implemented locally for review.**
+  and reusable birth/resource contracts published on main (`7fb544e`); resident
+  persistence, admission and consumer adoption remain parent-owned.**
   Plain subject, resource-association and biographical facts for Cleromancy C8;
   resident personal-facts domain owns durable revisions and admission, with
   historical-time conversion and consumer qualification in the receiving lane.
@@ -69,7 +51,13 @@ see `repos/mere/design_docs/DOC_README.md`.
   DR-C closed with per-app absent/Locked receipts and a failing fallback control;
   Hocket DPAPI adoption proven and DR-E published all six crates on 2026-10-11.** The identity tier
   leaves mere for this repository; castellan stays in mere, narrowed to
-  custody, and only djinn links it; every app calls djinn.
+  custody, and only mere-resident links it; every app calls mere-resident.
+  It also records the Sennet directed and custody continuations (2026-10-16),
+  Tucket custody (2026-10-15) and the
+  [Notochord secure-channel admission](2026-10-06_dramatis_repo_plan.md#notochord-secure-channel-admission-2026-10-29)
+  contract (2026-10-29, native endpoint association 2026-10-30); the
+  implementation order and acceptance for the latter live in
+  `repos/murm/design_docs/2026-10-29_secure_sessions_and_live_interaction_plan.md` N1.
 - [vault_threat_statement](2026-10-08_vault_threat_statement.md): what the
   identity vault's lock defends, what it leaves open, and what is known only
   by reading. The lock itself is castellan's, in mere.
@@ -79,8 +67,6 @@ see `repos/mere/design_docs/DOC_README.md`.
   other native platforms and packaging remain open, as does P6 export.** chatelaine as the plain secret-item taxonomy, castellan's OTP
   items and Secret Service store moved onto it, then CXF import through
   castellan.
-- [personae_founding](2026-07-08_personae_founding.md): **founded.** The
-  identity core ported from mere's `persona/identity`.
 - [personae_across_the_suite](2026-07-08_personae_across_the_suite.md):
   vision brief: the identity spine of the Merely apps.
 - [gaz_founding_plan](2026-08-08_gaz_founding_plan.md): **M0, M1 and M2's
@@ -94,6 +80,10 @@ see `repos/mere/design_docs/DOC_README.md`.
 
 ## Archive
 
+- [personae_founding](archive_docs/2026-11-01/2026-07-08_personae_founding.md):
+  **archived 2026-11-01.** The identity core ported from mere's
+  `persona/identity`; roadmap 2's sync-gate seam now lives in the tier
+  architecture's section 2.
 - [dramatis_tier_plan](archive_docs/2026-10-06_completed_plans/2026-08-10_dramatis_tier_plan.md):
   **archived 2026-10-06.** The persona tier renamed dramatis, gaz
   subtree-merged in, the facade name claimed.
@@ -104,3 +94,7 @@ see `repos/mere/design_docs/DOC_README.md`.
 - [notochord_session_policy_spine_plan](archive_docs/2026-08-06_completed_plans/2026-07-26_notochord_session_policy_spine_plan.md):
   **N0 to N4 complete 2026-07-27.** Notochord as the typed facts, claims
   and admitted-session spine.
+- [receipts](archive_docs/receipts/): **pointer files, 2026-11-01.** Per-plan
+  receipt files naming run evidence kept outside the repository in
+  `Code/testing/dramatis/` (path cites, not links), and old-to-main hash tables
+  for documents that cite pre-merge hashes.

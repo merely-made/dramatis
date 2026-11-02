@@ -5,7 +5,7 @@
 fold-in (2026-08-10) and credential port (castellan C1-C2, 2026-08-21) done;
 the `dramatis` facade was ruled real on 2026-10-01 (for repos outside mere)
 and is unbuilt
-**Authority for gaz internals:** `design_docs/dramatis_docs/implementation_strategy/2026-08-08_gaz_founding_plan.md` (travels with the crate)
+**Authority for gaz internals:** `design_docs/2026-08-08_gaz_founding_plan.md` (travels with the crate)
 
 ## What was ratified
 

@@ -1,8 +1,9 @@
 # cargo-deny configuration for dramatis.
 #
 # One rule, the custody boundary (dramatis repo plan, rulings D4 and D16):
-# castellan holds every secret at rest and in hand, and only mere's resident,
-# djinn, may link it. Nothing in this repository may, so it has no wrapper.
+# castellan holds every secret at rest and in hand, and only mere-resident,
+# mere's resident port, may link it. Nothing in this repository may, so it
+# has no wrapper.
 #
 #   cargo deny check bans
 

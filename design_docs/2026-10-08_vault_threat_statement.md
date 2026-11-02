@@ -3,13 +3,13 @@
 **Date:** 2026-10-08
 **Status:** current. What the identity vault's lock defends, what it leaves
 open, and what is known only by reading. Ruled into being by the
-vault lock plan (`repos/mere/design_docs/dramatis_docs/implementation_strategy/2026-10-05_vault_lock_plan.md`)'s
+vault lock plan (`repos/mere/design_docs/archive_docs/2026-10-28/2026-10-05_vault_lock_plan.md`)'s
 ruling 82; the lock's architecture-level promise is the
 [dramatis tier architecture](2026-09-30_dramatis_tier_architecture.md)'s
 invariant 13 (ruling 83). It replaces the
-protocol architecture plan (`repos/mere/design_docs/mere_docs/implementation_strategy/2026-05-05_protocol_architecture_plan.md`)'s
+protocol architecture plan (`repos/mere/design_docs/archive_docs/2026-10-28/2026-05-05_protocol_architecture_plan.md`)'s
 §3.7 promise of "a future doc" for the vault's part of the threat model.
-**Audit base:** Mere `526cbb3b` (2026-10-08), which carries the lock plan's
+**Audit base:** Mere `7c6babb49` (2026-10-08), which carries the lock plan's
 L1 to L3.
 
 Each claim names its ruling or its code. A claim marked *read* was checked
@@ -32,22 +32,22 @@ it stops being true.
 
 **Locked means no secret is reachable** (rulings 1, 3 and 6; invariant 13).
 A lock drops every secret the resident exercises:
-- the personae vault's profile and storage key;
+- the identity vault's profile and storage key (castellan's);
 - castellan's record and freshness keys, in one shared cell, so every clone
   locks together (ruling 30);
 - Knot's signing seed, by closing the Knot lane (rulings 43 and 48).
 
 Every holder drops its keys before `lock()` returns: castellan's
 `ResidentLock` runs synchronous holder hooks, then broadcasts the new state
-(ruling 31, `repos/mere/ports/castellan/src/authority.rs`).
+(ruling 31, `repos/mere/ports/mere-resident/castellan/src/authority.rs`).
 
 **The memory those secrets held is cleared, not just freed** (ruling 6).
 *Measured* on the heap by a tracking allocator that fails on a positive
 control:
-- personae's vault (`crates/personae/tests/no_residue.rs`);
-- castellan's item store (`repos/mere/ports/castellan/tests/no_residue.rs`);
-- Knot's seed through djinn (`repos/mere/ports/djinn/tests/knot_residue.rs`);
-- mere's transport (`repos/mere/crates/murm/transport/tests/seed_residue.rs`, rulings
+- castellan's vault (`repos/mere/ports/mere-resident/castellan/tests/vault_residue.rs`);
+- castellan's item store (`repos/mere/ports/mere-resident/castellan/tests/no_residue.rs`);
+- Knot's seed through mere-resident (`repos/mere/ports/mere-resident/tests/knot_residue.rs`);
+- murm's transport (`repos/murm/native/crates/transport/tests/seed_residue.rs`, rulings
   51 and 52).
 
 The residue was fixed for each source in turn:
@@ -72,11 +72,11 @@ checkpoint E):
   runs, each time before standby's next phase.
 
 **The lock survives a restart** (ruling 5):
-- A marker beside the vault's root, written on every lock, makes personae's
+- A marker beside the vault's root, written on every lock, makes castellan's
   startup loaders refuse an unattended open (ruling 32,
-  `crates/personae/src/startup_unlock.rs`).
+  `repos/mere/ports/mere-resident/castellan/src/custody/startup_unlock.rs`).
 - A resident restarted under it waits at its prompt. *Measured* by
-  `repos/mere/ports/djinn/tests/locked_restart.rs`, whose control fails without the
+  `repos/mere/ports/mere-resident/tests/locked_restart.rs`, whose control fails without the
   marker.
 
 **Unlocking takes a user act on the resident's own surface:**
@@ -145,7 +145,7 @@ checkpoint E):
   tiers decide when the approval broker asks, not what is in memory.
 - **Other CLIs and tests** still read `PERSONAE_PASSPHRASE` (ruling 7 kept
   them). The passphrase then sits in that process's environment.
-  `personae-vault` ceased doing so in DR-C on 2026-10-10: it calls djinn,
+  `personae-vault` ceased doing so in DR-C on 2026-10-10: it calls mere-resident,
   which owns the vault location and unlock gate. The terminal receives
   public command output, certificates and CA installation material only.
 
@@ -160,7 +160,7 @@ checkpoint E):
   vault copies a pointer. Building a key still passes its seed through the
   stack once.
 - DPAPI's `LocalAlloc` output buffer, which is cleared before `LocalFree`
-  (`crates/personae/src/startup_unlock.rs`).
+  (`repos/mere/ports/mere-resident/castellan/src/custody/startup_unlock.rs`).
 - What iroh and p2panda-net leave per bind and close. Measured as
   unchanged by our transport (ruling 52), and recorded in the upstream
   ledger rather than fixed here.

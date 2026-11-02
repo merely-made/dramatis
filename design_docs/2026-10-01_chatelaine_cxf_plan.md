@@ -15,7 +15,7 @@ custody boundary have landed. P4's import landed on Mere main on
 slice is qualified in Mere, with Djinn custody and native consent. Other
 platforms and distribution packaging remain open; P6 export remains open.
 The Signalman desktop's
-separate stack and custody refresh closes its build gate (§8).
+separate stack and custody refresh closes its build gate (§3, P4).
 **Scope**: found `chatelaine` as the tier's plain secret-item taxonomy; move
 castellan's OTP items and its Secret Service store onto it; then import
 (and finally export) the FIDO Credential Exchange Format through castellan.
@@ -24,7 +24,7 @@ castellan's OTP items and its Secret Service store onto it; then import
 
 - [dramatis tier architecture](2026-09-30_dramatis_tier_architecture.md)
   §7: chatelaine's shape and the CXF import table, rulings 7 and 10 to 15.
-- crate consolidation plan (`repos/mere/design_docs/mere_docs/implementation_strategy/2026-09-23_crate_consolidation_plan.md`)
+- crate consolidation plan (`repos/mere/design_docs/archive_docs/2026-10-28/2026-09-23_crate_consolidation_plan.md`)
   C5: the Mere 0.4 baseline waits on chatelaine's taxonomy landing.
 - standards survey (`repos/mere/design_docs/2026-08-24_standards_survey_brief.md`) §2.3: CXF
   ADOPT (import first), CXP WATCH, the plaintext hazard.
@@ -215,7 +215,7 @@ only with `from_slice`; no upstream dependency.
 **Ruling 33.** *Which decoder reads CXF TOTP secrets?* Options: castellan's
 own decoder; accept the crate's normalisation. Mark: **"Castellan's own
 decoder (Recommended)"**. Follows: P4 decodes the raw secret string with
-`repos/mere/ports/castellan/src/otp/base32.rs` (case, padding and spacing tolerated,
+`repos/mere/ports/mere-resident/castellan/src/otp/base32.rs` (case, padding and spacing tolerated,
 any stray character refused); a refused secret is quarantined with its
 reason shown.
 
@@ -529,7 +529,7 @@ build.
         repeats a counter across independent gates, by its existing tests
         `resident_rejects_restored_hotp_state_before_releasing_it_again` and
         `independent_gates_under_one_resident_cannot_repeat_an_hotp_counter`
-        (`repos/mere/ports/castellan/src/resident.rs`), kept.
+        (`repos/mere/ports/mere-resident/castellan/src/resident.rs`), kept.
 
 - **P3 — the Secret Service on chatelaine (ruling 17).** Done when:
   - [x] Secret Service collections are chatelaine collections and its items
@@ -657,7 +657,7 @@ OTP display enums and the Secret Service store types is inside castellan:
 is the real census.
 
 **2026-10-01: SSH algorithms.** personae's SSH slots hold OpenSSH-encoded
-private keys keyed by SHA256 fingerprint (`crates/personae/src/ssh_slot.rs`),
+private keys keyed by SHA256 fingerprint (now `repos/mere/ports/mere-resident/castellan/src/custody/ssh_slot.rs`),
 and both personae and castellan build `ssh-key` with only its `ed25519`
 feature. A CXF `ssh-key` credential may be RSA or ECDSA. Whether those are
 quarantined, or the agent gains algorithms, is a fork for Mark at P4's
@@ -892,7 +892,7 @@ merged).
   exponentiation is constant-time, and it has no public SHA-1 signing, so a
   flagless `ssh-rsa` request is refused (*reading*). dP and dQ were derived
   by the lane, which ruling 58 replaces.
-- **The design.** `personae/src/ssh_sign.rs` routes by key type: Ed25519
+- **The design.** `repos/mere/ports/mere-resident/castellan/src/custody/ssh_sign.rs` (then personae's) routes by key type: Ed25519
   and ECDSA through ssh-key's RustCrypto signers, RSA through ring, the
   request's flags choosing SHA-256 or SHA-512 (SHA-256 when both are set,
   as OpenSSH does). The slot format is unchanged, and the lock gains two
@@ -950,7 +950,7 @@ Round two built the rest:
 
 **2026-10-04: the vault never locks.** `IdentityVault` has no lock or close
 method; castellan's `PersonaeHost` sets `lock: VaultLockView::Unlocked`
-(`repos/mere/ports/castellan/src/authority.rs:201`), and nothing sets `Locked`, which
+(`repos/mere/ports/mere-resident/castellan/src/authority.rs:201`), and nothing sets `Locked`, which
 appears only as a label (`projection.rs:614`). Once unlocked, every key's
 decrypted bytes stay in the vault's `SecretBytes` (zeroized on drop, not
 memory-locked) until the process ends. Mark, the same day: "Hey wait, we
@@ -1025,8 +1025,8 @@ P5 quarantine review and P6 export remain open.
 All six crates published from clean Dramatis `8d7880b`; crate code matches
 tested `0234e7e`. Each published archive was downloaded and its registry
 checksum, included license, repository URL and VCS source checked.
-Durable evidence: [the final manifest](../support/receipts/chatelaine_cxf.json)
-and [the raw log bundle](../support/receipts/chatelaine_cxf_logs.zip), SHA-256
+Durable evidence: the final manifest (`Code/testing/dramatis/support-receipts/chatelaine_cxf.json`)
+and the raw log bundle (`Code/testing/dramatis/support-receipts/chatelaine_cxf_logs.zip`), SHA-256
 `5257773ab13c7daf1ab5641e8dd22913bb4ab843ee4eba22a0389552dab9a10b`.
 The earlier draft evidence stays explicitly pre-integration.
 
@@ -1104,7 +1104,7 @@ As ruled (26 to 29), with the workspace's lane rules:
   `rustls`), so tests are compiled on the ThinkPad.
 
 **2026-10-06, tails inherited from the S14 archive pass** (recorded in the
-archived plan tails plan (`repos/mere/design_docs/mere_docs/implementation_strategy/2026-07-03_archived_plan_tails_plan.md`), "2026-10-06 archive pass"). This plan
+archived plan tails plan (`repos/mere/design_docs/archive_docs/2026-10-28/2026-07-03_archived_plan_tails_plan.md`), "2026-10-06 archive pass"). This plan
 now owns:
 - **V4, broader item types**, from the
   identity vault SSH agent plan (`repos/mere/design_docs/archive_docs/2026-10-06_completed_plans/2026-07-22_identity-vault-ssh-agent_plan.md`).
@@ -1152,8 +1152,8 @@ restart, discovering existing stores through the persisted public roster.
 The app never derives these keys or opens custody.
 
 Evidence and qualified source hashes are in Mere's
-`support/receipts/dramatis-app/README.md`; its canonical app plan is
-`design_docs/dramatis_docs/implementation_strategy/2026-10-11_dramatis_app_plan.md`.
+`repos/mere/support/receipts/dramatis-app/README.md`; its canonical app plan is
+`repos/mere/design_docs/dramatis_docs/implementation_strategy/2026-10-11_dramatis_app_plan.md`.
 These synthetic Windows receipts do not qualify an actual user's vault or
 Linux/macOS. Persona creation, contacts, fill, P6 export and distribution
 packaging remain follow-on work. Earlier dated P5-open entries above are

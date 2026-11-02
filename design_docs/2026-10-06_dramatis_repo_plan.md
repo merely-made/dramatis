@@ -40,7 +40,7 @@ device/realm/wallet separation, exact released-salt restrictions and malformed
 namespace refusal. Clippy passes with only the pre-existing `redundant_slicing`
 (`seal.rs:60`) and `field_reassign_with_default` (`carry/mod.rs:538`) lints
 allowed; unqualified strict Clippy reports those two unchanged sites.
-Public logs are in `testing/receipts/tucket-custody/`. The stable
+Public logs are in `Code/testing/dramatis/testing/receipts/tucket-custody/`. The stable
 `C:/t/cargo-targets/dramatis` target is retained for ordinary repository builds.
 
 **Date**: 2026-10-06
@@ -64,11 +64,11 @@ only djinn links it. Every app calls djinn rather than opening a vault.
   the architecture of record; its §1 says every piece lives in mere, and its
   invariant 1 ("hosts never hold secrets") is the line this plan makes
   structural.
-- vault lock plan (`repos/mere/design_docs/dramatis_docs/implementation_strategy/2026-10-05_vault_lock_plan.md`): L1 to L4 change the
+- vault lock plan (`repos/mere/design_docs/archive_docs/2026-10-28/2026-10-05_vault_lock_plan.md`): L1 to L4 change the
   vault, its storages and castellan, the code this plan moves.
 - [chatelaine and CXF import plan](2026-10-01_chatelaine_cxf_plan.md):
   chatelaine as a plain taxonomy crate, which D1 folds into dramatis.
-- crate consolidation plan (`repos/mere/design_docs/mere_docs/implementation_strategy/2026-09-23_crate_consolidation_plan.md`):
+- crate consolidation plan (`repos/mere/design_docs/archive_docs/2026-10-28/2026-09-23_crate_consolidation_plan.md`):
   dramatis ruled a real facade for repos outside mere (2026-10-01), unbuilt.
 
 ---
@@ -105,9 +105,9 @@ Checked in code at `ea169154`; the assessment goes deeper.
 - **Locations.**
   - The crates live under `repos/mere/crates/dramatis/`: personae, insigne, gaz,
     chatelaine, and the dramatis facade (32 lines).
-  - The ports are `repos/mere/ports/castellan` and `repos/mere/ports/gazette`.
+  - The ports are `repos/mere/ports/mere-resident/castellan` and `repos/mere/ports/gazette`.
   - `mere-persona-picker` is the Cambium view over the roster.
-  - djinn owns the one `CastellanResident` (`repos/mere/ports/djinn/src/resident.rs`).
+  - djinn owns the one `CastellanResident` (`repos/mere/ports/mere-resident/src/resident.rs`).
 - **castellan is 3,626 lines**, splitting roughly as:
   - the secret-free read model and projection hosts render: `view.rs`,
     `projection.rs`, 1,210 lines;
@@ -642,7 +642,7 @@ rulings D6 to D21 settle them. D7, D14 and D20 amend D1 and D2. Next: the
 vault lock's L2 (D18).
 
 **2026-10-06, tails inherited from the S14 archive pass** (recorded in the
-archived plan tails plan (`repos/mere/design_docs/mere_docs/implementation_strategy/2026-07-03_archived_plan_tails_plan.md`), "2026-10-06 archive pass"). This plan
+archived plan tails plan (`repos/mere/design_docs/archive_docs/2026-10-28/2026-07-03_archived_plan_tails_plan.md`), "2026-10-06 archive pass"). This plan
 now owns:
 - **insigne's remaining repins:** Hocket, Woodshed and mer3ly. Turnstone
   repinned in `d6b62ad`. From the
@@ -710,7 +710,7 @@ forks ruled (D24 to D33).**
 **2026-10-09, DR-A's A0 to A3.** Worktree `mere-dra`, with its own build
 directory (F183). The test inventories are in `Code/testing/mere/dra/`.
 - **A0, the baseline** (`f469b836`, on main):
-  - `repos/mere/ports/castellan/tests/snapshot_golden.rs` pins three hand-built
+  - `repos/mere/ports/mere-resident/castellan/tests/snapshot_golden.rs` pins three hand-built
     snapshots (unlocked with every signing result, locked and kept,
     ephemeral), each pretty and compact. They are built through
     castellan's old paths.
@@ -918,13 +918,13 @@ vault-command tests passed 7/7. Unlocked terminal profile creation, import,
 listing, public-key and CA output passed. `cargo deny --locked check bans`
 reported `bans ok` for mere, Knot, woodshed, embedded hocket and Turnstone.
 
-Durable evidence is [the command/source manifest](../support/receipts/dr_c.json),
-[the boundary search](../support/receipts/dr_c_boundary.json) and
-[the raw log bundle](../support/receipts/dr_c_logs.zip). The bundle contains
+Durable evidence is the command/source manifest (`Code/testing/dramatis/support-receipts/dr_c.json`),
+the boundary search (`Code/testing/dramatis/support-receipts/dr_c_boundary.json`) and
+the raw log bundle (`Code/testing/dramatis/support-receipts/dr_c_logs.zip`). The bundle contains
 the 57 command logs, verified against the manifest's hashes, and three host
 logs. Its SHA256 is
 `9e25280c32e5d5c98948ba686b7d82393b1091d56c729061ba383f4fd6006762`.
-Uncompressed logs also remain at `C:/t/cargo-targets/mere/dr-c-receipts`.
+Uncompressed logs also remained at `C:/t/cargo-targets/mere/dr-c-receipts` (not retained as of 2026-11-01).
 The runner removed its marker-identified synthetic vaults after the hosts
 exited; it did not touch the installed resident or its storage.
 
@@ -960,8 +960,8 @@ hashes describe this preflight snapshot, not a future uploaded archive.
 
 CXF's draft verification and remaining gates are recorded in its canonical
 plan. Durable pre-integration evidence is
-[the source and command manifest](../support/receipts/chatelaine_cxf_draft.json)
-and [the log bundle](../support/receipts/chatelaine_cxf_draft_logs.zip).
+the source and command manifest (`Code/testing/dramatis/support-receipts/chatelaine_cxf_draft.json`)
+and the log bundle (`Code/testing/dramatis/support-receipts/chatelaine_cxf_draft_logs.zip`).
 The digit-count policy still awaits Mark's ruling. Final portable Git-source
 convergence and the nested desktop gate remain required before upload.
 The focused Mere worktree and temporary Knot release-pin draft are retained
@@ -997,8 +997,8 @@ The quarantine negative control fails with the refusal removed and passes
 after exact restoration. Publishing verified all six packages; downloads
 match registry checksums, included licenses and clean VCS source.
 
-Evidence is [the final manifest](../support/receipts/chatelaine_cxf.json)
-and [the log bundle](../support/receipts/chatelaine_cxf_logs.zip), SHA-256
+Evidence is the final manifest (`Code/testing/dramatis/support-receipts/chatelaine_cxf.json`)
+and the log bundle (`Code/testing/dramatis/support-receipts/chatelaine_cxf_logs.zip`), SHA-256
 `5257773ab13c7daf1ab5641e8dd22913bb4ab843ee4eba22a0389552dab9a10b`.
 The manifest also records the untouched legacy Signalman desktop failure,
 restored original lock, existing documentation-audit findings, erasure and

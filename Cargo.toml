@@ -1,9 +1,9 @@
 [workspace]
 resolver = "2"
 # The identity tier, out of mere since DR-D (dramatis repo plan, rulings D1,
-# D7, D10, D19, D20). Secret-free: castellan, the custody crate only djinn
-# links, stays in mere beside djinn (D6, D22), and nothing here depends on
-# a mere crate, so mere pins this repository and never the reverse.
+# D7, D10, D19, D20). Secret-free: castellan, the custody crate only
+# mere-resident links, stays in mere beside it (D6, D22), and nothing here
+# depends on a mere crate, so mere pins this repository and never the reverse.
 members = [
     "crates/personae",
     "crates/insigne",

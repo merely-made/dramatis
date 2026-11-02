@@ -5,7 +5,7 @@
 the mechanics: the trust-plane plan
 (`repos/mere/design_docs/archive_docs/2026-09-02_retired_plans/2026-07-08_signet_trust_plane_plan.md`,
 the two seams and the S0–S5 promotion) and the wallet carry layer plan
-(`.../implementation_strategy/2026-06-25_persona_wallet_carry_layer_plan.md`,
+(`repos/mere/design_docs/archive_docs/2026-10-06_completed_plans/2026-06-25_persona_wallet_carry_layer_plan.md`,
 pairing + encrypt-at-rest detail). Those are mere-flavored; this is the whole
 suite: mere, isometry, strophe, woodshed.
 
@@ -73,7 +73,8 @@ tells mere's multi-face story leaves woodshed and half the others unserved.
 seed record over an app-supplied `SealedRecordStorage`. Each host chooses its
 unlock policy and record namespace without reimplementing key generation,
 reopening, or seed scrubbing. Strophe is the first external consumer; mere
-inherits it when the planned in-tree identity re-base lands.
+inherits it now that the in-tree identity re-base has landed (mere pins
+personae from `merely-made/dramatis.git`).
 
 **Derived-key attestation.** `DerivedKeyAttestation` lets a protocol use a
 session- or group-scoped signing key while proving which durable identity
@@ -104,7 +105,7 @@ Speculative today, but the direction the substrate makes cheap.
 ## What this means per app
 
 - **mere** is the reference consumer: it already has the persona model, the moots,
-  the engrams. It re-bases onto personae last (the wallet carry layer plan's arc);
+  the engrams. It re-based onto personae last (the wallet carry layer plan's arc);
   its multi-face and moot work is the proving ground for the shared grant and seal
   seams.
 - **isometry** is the highest-value *new* consumer: P2P sessions already need

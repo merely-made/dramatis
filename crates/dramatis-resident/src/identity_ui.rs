@@ -75,6 +75,7 @@ pub trait NativeIdentityUi: Send + Sync {
     }
 }
 
+#[derive(Clone, Copy, Debug, Default)]
 pub struct UnavailableNativeIdentityUi;
 
 impl NativeIdentityUi for UnavailableNativeIdentityUi {

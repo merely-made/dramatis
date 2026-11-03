@@ -87,9 +87,9 @@ Links: area custody · summary the pandect wallet store is the sporran crate; ca
 
 ### dramatis_repo D13: gazette splits; its directory domain comes here (2026-11-03)
 
-Mark, 2026-11-03: "Take gazette to dramatis too", then "Split: domain moves (Recommended)" over moving it whole or leaving it in mere. `crates/gazette` (0.0.2) holds WebFinger discovery and `intake` into gaz and links nothing from mere. The contact-ledger projection and the reading-room extractor stay in mere as `gazette-ledger`, which Mark said may publish ("You can publish the ledger"). The archived D7 condition, domain logic split from the Cambium projection, is met.
+Mark, 2026-11-03: "Take gazette to dramatis too", then "Split: domain moves (Recommended)" over moving it whole or leaving it in mere. `crates/gazette` (0.0.2) holds WebFinger discovery and `intake` into gaz and links nothing from mere. The contact-ledger projection stays in mere as `gazette-ledger`, published as 0.0.1 on 2026-11-03 (Mark: "You can publish the ledger"); the reading-room extractor, whose Fleece dependency is unpublished, went to `mere-fleece` behind its `article` feature. The archived D7 condition, domain logic split from the Cambium projection, is met.
 
-Links: area custody · amends archived D7 · summary gazette's WebFinger domain is a dramatis crate; the ledger projection stays in mere as gazette-ledger
+Links: area custody · amends archived D7 · summary gazette's WebFinger domain is a dramatis crate; the ledger projection stays in mere as the published gazette-ledger
 
 ## Open work
 
@@ -147,7 +147,7 @@ Open since DR-A: whether gazette gets a matching facade name over gaz, the way c
 - 2026-11-01, the Clippy allowances the old plan cites: `crates/personae/src/seal.rs:60` still holds `&nonce[..]`, but `carry/mod.rs:538` is no longer a Clippy site (it is a JSON fixture assertion). The allowances were not re-measured; no Clippy run was made.
 - 2026-11-01, `repos/mere/deny.toml` now names two wrappers for castellan (Djinn and its independently launched custodian); this repository's `deny.toml` banned castellan with none until castellan moved here (D11).
 - 2026-11-02, carried from main `baa4ed2` (djinn-slimming S3): `crates/castellan-client` in this repository holds the custody route's application side (the custody calls and answers, payloads, quarantine review, and the custody and identity clients), moved out of Djinn. It speaks over Armillary's door contract, `ostiary`, and never links Djinn; castellan stays in Mere (D6). The archived plan's DR-C list carries the same note as history, at its line 603.
-- 2026-11-03: castellan, the wallet store and gazette's domain came here (D11 to D13). The dependency graph's only non-registry sources are eidetic (`chartulary`, `eidetic`, `muniment`) and armillary (`ostiary`): no `mere.git` or `genet.git` package. `deny.toml` bans nothing now, because cargo-deny cannot tell the castellan member from a dependency on it; the castellan-client fixtures hold the boundary instead. Still in mere: the custodian, `custody-wire`, `mere-resident`'s identity door and UI, `ports/dramatis`, `persona-picker` and `station-custody`.
+- 2026-11-03: castellan, the wallet store and gazette's domain came here (D11 to D13). The dependency graph's only non-registry sources are eidetic (`chartulary`, `eidetic`, `muniment`) and armillary (`ostiary`): no `mere.git` or `genet.git` package. `deny.toml` bans nothing now, because cargo-deny cannot tell the castellan member from a dependency on it; the castellan-client fixtures hold the boundary instead. Still in mere: the custodian, `custody-wire`, `mere-resident`'s identity door and UI, `ports/dramatis`, `persona-picker` and `station-custody`. Not published: `sporran` 0.0.1, `castellan` 0.0.4 and `gazette` 0.0.2. The first two need a `muniment` release, because the crates.io 0.2.0 lacks `atomic_file`, which Eidetic main has; `sporran` goes first, then `castellan`. Mere's, Knot's and Cleromancy's pins moved to this layout (Mere `e98d58812`, Knot `9129628`, Cleromancy `472cbb9`).
 
 ## Progress
 

@@ -72,7 +72,7 @@ The first slice is Mere's `ports/dramatis` (package `dramatis-app`, binary `dram
 ## Findings
 
 - 2026-11-01: P4a's review stop ended on 2026-10-04 (ruling 51), so the old P4a clause "Waits for Mark's review after P3 (ruling 28)" (old plan lines 563-564) is stale.
-- 2026-11-01: the old Status cites "(§8)" for the Signalman desktop's separate stack and custody refresh; the plan has no §8, and the closing box is P4's last one (§3). It is met: `repos/murm/design_docs/2026-10-11_signalman_stack_refresh_plan.md`.
+- 2026-11-01: the old Status cites "(§8)" for the Signalman desktop's separate stack and custody refresh; the plan has no §8, and the closing box is P4's last one (§3). It is met: `repos/murm/design_docs/archive_docs/2026-11-02/2026-10-11_signalman_stack_refresh_plan.md`.
 - 2026-11-01: `ssh_slot.rs` and `ssh_sign.rs` moved from personae to castellan with the custody split (DR-B): `repos/mere/ports/mere-resident/castellan/src/custody/ssh_slot.rs` and `ssh_sign.rs`. The archived plan's `crates/personae/src/ssh_*.rs` cites are historical.
 - 2026-11-01: unsupported OTP digit counts are preserved in quarantine (ruling 68), which settles the digit-count policy that the repository plan's 2026-10-11 entry said awaited Mark.
 - 2026-11-01: persona creation, contacts and fill, named in the P5 receipt as follow-on work, belong to Mere's app plan (`repos/mere/design_docs/dramatis_docs/implementation_strategy/2026-10-11_dramatis_app_plan.md`), not to a chatelaine phase.

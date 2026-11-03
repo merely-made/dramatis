@@ -371,7 +371,7 @@ the insigne proofs plan's phase C handoff spells out. Mere's own crates keep
 their direct dependencies. Adopted consumers use one Dramatis revision;
 older consumers require their own migration. Signalman's desktop (now in
 murm) moved onto the Dramatis revision in the 2026-10-11 stack refresh
-(`repos/murm/design_docs/2026-10-11_signalman_stack_refresh_plan.md`;
+(`repos/murm/design_docs/archive_docs/2026-11-02/2026-10-11_signalman_stack_refresh_plan.md`;
 `repos/murm/apps/signalman-desktop/Cargo.toml` pins personae from
 `merely-made/dramatis.git`). The facade stays a plain boundary vocabulary.
 

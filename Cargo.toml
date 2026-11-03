@@ -50,3 +50,10 @@ uuid = { version = "1", features = ["serde", "v4"] }
 # mere's `[patch.crates-io]` swaps in its own checkout so mere's graph keeps
 # one muniment.
 muniment = { version = ">=0.1.2, <0.3", default-features = false }
+
+[workspace.lints.clippy]
+missing_errors_doc = "warn"
+missing_panics_doc = "warn"
+missing_safety_doc = "warn"
+undocumented_unsafe_blocks = "warn"
+too_many_lines = "warn"

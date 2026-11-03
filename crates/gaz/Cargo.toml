@@ -47,3 +47,6 @@ pollster = "0.4"
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 muniment = { workspace = true, features = ["redb"] }
 tempfile = "3"
+
+[lints]
+workspace = true

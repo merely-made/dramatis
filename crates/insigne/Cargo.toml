@@ -30,3 +30,6 @@ insigne = { path = ".", features = ["verify"] }
 # against the format a gaz persists in.
 postcard = { version = "1", features = ["alloc"] }
 serde_json = "1"
+
+[lints]
+workspace = true

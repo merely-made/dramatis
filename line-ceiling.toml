@@ -1,0 +1,38 @@
+# mere/design_docs/mere_docs/implementation_strategy/2026-10-30_house_style_plan.md (H2); all physical source lines count.
+ceiling = 600
+
+[[exception]]
+path = "crates/castellan-client/src/custody.rs"
+reason = "The custody route's wire: what an application asks djinn for, and what it hears back (dramatis repo plan, rulings D5, D11, D12, D17). Existing source-size debt; a responsibility split must preserve KeySource, CustodyCall, EpochKeyRequest and existing module visibility."
+
+[[exception]]
+path = "crates/castellan-client/src/custody_client.rs"
+reason = "The application side of the custody route: how an app reaches identity and secrets by calling djinn (dramatis repo plan, D5). Existing source-size debt; a responsibility split must preserve CustodyClientError, CustodyClient, BlockingCustodyClient and existing module visibility."
+
+[[exception]]
+path = "crates/castellan-client/src/custody_identity.rs"
+reason = "A synchronous [IdentityProvider] over the custody route, for an application whose code derives keys through a provider (dramatis repo plan, DR-C; D11, D12). Existing source-size debt; a responsibility split must preserve JobCall, Job, StartingActor and existing module visibility."
+
+[[exception]]
+path = "crates/notochord/src/handshake.rs"
+reason = "The bounded session handshake (plan V6, decision D6). Existing source-size debt; a responsibility split must preserve SessionHello, SessionReply, HandshakeError and existing module visibility."
+
+[[exception]]
+path = "crates/notochord/tests/secure_channel.rs"
+reason = "N1: a secure session binds independent carrier, channel and subject facts. Existing source-size debt; a responsibility split must preserve existing entry points, fixture identity and module visibility."
+
+[[exception]]
+path = "crates/personae/src/carry/mod.rs"
+reason = "The carry model: the wallet record types a persona travels with. Existing source-size debt; a responsibility split must preserve RemoteAuthRevocationOutcome, DeviceId, KeyEpochId and existing module visibility."
+
+[[exception]]
+path = "crates/personae/src/sealed_record_storage.rs"
+reason = "Sealed-record storage for small typed secret records. Existing source-size debt; a responsibility split must preserve SealedRecordEnvelope, AuthoritativeStore, SealedRecordChange and existing module visibility."
+
+[[exception]]
+path = "crates/personae/src/ssh_ca.rs"
+reason = "The fleet's SSH certificate authority, projected from delegation. Existing source-size debt; a responsibility split must preserve CertMintError, UserCertRequest, HostCertRequest and existing module visibility."
+
+[[exception]]
+path = "crates/personae/tests/ssh_ca_live.rs"
+reason = "The receipt for the SSH-CA projection: a real sshd accepts a minted certificate, with nothing in authorized_keys and no host-key prompt. Existing source-size debt; a responsibility split must preserve Fixture and existing module visibility."

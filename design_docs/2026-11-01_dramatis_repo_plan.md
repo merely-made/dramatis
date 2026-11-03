@@ -119,7 +119,7 @@ Links: area custody · draws on dramatis_repo D14 · summary reusable resident i
 
 ## Resident identity extraction, 2026-11-03
 
-**Status:** in progress. Move the developed service as one package, preserving
+**Status:** complete, 2026-11-03. The developed service moved as one package, preserving
 custody refusals, grants, wire messages, derivation labels, profile environment
 selection and sealed formats. Repoint callers directly; keep actual host/door
 adapters where they serve the host. The crate's normal graph excludes Mere,
@@ -249,3 +249,13 @@ Open since DR-A: whether gazette gets a matching facade name over gaz, the way c
   existing registry archives retain their published APIs. The next registry
   release must version Sporran's new station-grant surface and Pandect's removed
   module. This pass performs no registry upload.
+
+- 2026-11-03, D15 receiving: Dramatis `6b65ea4` is consumed by Mere
+  `a9d19631d` and Cleromancy `c5cdddf`. The service passes its default test and
+  21 all-feature tests; the whole supplier workspace passes 888 tests with the
+  two unchanged Windows adoption failures. Mere retains 255 library passes,
+  with the same pre-move ActionNotOffered assertion; 21 tests moved to the
+  service, conserving the original 276 passing cases. All three Windows IPC
+  controls pass. Default service and resident graphs exclude Castellan; the
+  native-dialog backend stays with Mere's host adapter. Full-tree and commit
+  hooks pass; no new headed or platform deployment acceptance is claimed.

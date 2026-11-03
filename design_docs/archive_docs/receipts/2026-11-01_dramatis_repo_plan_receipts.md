@@ -67,3 +67,34 @@ without changing signing logic. Default and CXF normal/build cones exclude
 Mere, Genet, Djinn, Castellan and dialog implementations. Source move hashes,
 feature-specific commands and dependency cones are retained beside the logs.
 Mere receiving and concrete caller migration follow supplier publication to Git.
+
+### Identity service receiving, 2026-11-03
+
+- Supplier: `3952d389e23a01a1d683c73dc485da0d89974862`, then
+  `6b65ea4cf2f8556c02c2ad647ec1e6457ab702e5` preserving the unavailable UI
+  callback's original value traits. The final all-feature workspace gate has
+  888 passing tests and the same two baseline Windows adoption failures.
+- Mere: `a9d19631d754f8b684bd92f39b08de034b35a7a8`, pushed. Locked whole-workspace
+  all-target checking, full-tree hooks and commit hooks pass. Its resident
+  suite has 255 passes and the same ActionNotOffered assertion at
+  resident_mere.rs:3438. The service's 21 moved tests conserve the original
+  276 passing cases. The two custody_route and one custody_payload Windows
+  tests pass, including absent-as-pending and refusal controls. Unix-only
+  custodian_client has no Windows cases.
+- Cleromancy: `c5cdddf77ab77f2fb3c3af862cc18ef78da1ddf8`, pushed. Four callers now
+  use the service directly. Locked all-target checking and commit hooks pass.
+  Source audit found a mixed Genet intake during resolution; it was restored
+  to the selected `ad362723109b` cohort and checked again before commit.
+- `core-default-cone.txt`, `core-cxf-cone.txt`,
+  `resident-production-cone.txt`, `mere-source-identities.json` and
+  `cleromancy-source-identities.json` retain dependency boundaries. The service
+  has no Mere, Genet, Djinn, dialog or custody implementation in normal use.
+  Mere's all-features cargo-deny list admits the explicit service test wrapper;
+  production dependency graphs separately enforce the absence of Castellan.
+- No isolated Cargo home/target was created for this lane. Stable repository
+  targets were reused; source moves and staging were explicitly allowlisted.
+  All run evidence stays below the 100 MB cap at
+  `Code/testing/dramatis/resident-identity-20261103`.
+
+This is source extraction and native software qualification. Registry versions,
+headed acceptance, Linux and signed macOS receiving retain their prior scope.

@@ -1,8 +1,9 @@
-Resident identity service extraction (2026-11-03), in progress: D15 in the
+Resident identity service extraction (2026-11-03), complete: D15 in the
 [repository plan](2026-11-01_dramatis_repo_plan.md) moves developed identity and
 custody service logic into `dramatis-resident`. Mere keeps its projection,
 door wiring and concrete platform dialogs. Default and all-feature supplier
-qualification and receiving checks remain separately recorded.
+qualification and locked Mere/Cleromancy receiving checks are recorded in the
+plan's archived receipts. Native dialogs and graph projections remain host-owned.
 
 # Dramatis Documentation Index
 

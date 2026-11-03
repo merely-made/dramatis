@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-30
 **Status:** current. The tier's architecture of record: one account of identity
-across the six crates and two ports that carry it. It synthesises the plans
+across the identity libraries, custody service and host integrations that carry it. It synthesises the plans
 listed in §8 and does not replace them; each plan stays the authority for its
 own phases and state. Rulings new here: who announces you (§6, 2026-09-30),
 and on 2026-10-01 the three seams this document first left open, WebFinger,
@@ -30,18 +30,22 @@ identity: your faces, and the other players.
 | [insigne](https://crates.io/crates/insigne) | crate | proofs: typed keys, delegation certificates and revocations, derived-key attestations, as plain data; checking behind `verify` | between |
 | [chatelaine](https://crates.io/crates/chatelaine) | crate (plain taxonomy, §7) | secret-free descriptions of passwords, 2FA seeds, tokens and foreign key material | me |
 | [gaz](https://crates.io/crates/gaz) | crate | stored contacts: anchored records, per-endpoint trust, kith and kin, retained proofs | them, kept |
-| castellan | custody crate in Mere, linked only by Djinn and its independently launched custodian | the vault, sealed records and authority that exercises secrets and signs | me, outward |
+| castellan | custody crate here, linked by the independent custodian and explicit test hosts | the vault, sealed records and authority that exercises secrets and signs | me, outward |
 | [gazette](https://crates.io/crates/gazette) | port | the directory: resolves them, reads what they publish, and (§6) announces you | them, inward; you, outward |
 | [dramatis](https://crates.io/crates/dramatis) | crate (public views, intents, roster and receipts) | the vocabulary sibling apps exchange with djinn | — |
 | [notochord](https://crates.io/crates/notochord) | crate | owner-controlled session admission, delegation-chain evaluation and local revocation | between |
-| `mere-persona-picker` | crate | the Cambium view over the roster | me |
+| sporran | crate | wallet files, device grants, station-grant policy and sealing adapters | me |
+| djinn-custodian | process | Castellan host, consent, wallet, credential catalog and SSH agent | me, outward |
+| custody-wire | contract/client crate | authenticated local custody messages and transport | between |
+| `persona-picker` | crate | the Cambium view over the roster | me |
 
-The six identity crates live here under `crates/`. Castellan, Gazette and the
-persona picker remain in Mere. The resident that runs the authority
-halves is djinn (`repos/mere/ports/mere-resident`), which owns one `CastellanResident` as the
-single record authority behind every Castellan view
-(`repos/mere/ports/mere-resident/castellan/src/resident.rs`). Gazette's authority half joins it as a
-djinn-composed service (ruled 2026-10-01, §7; unbuilt).
+The portable identity libraries, Castellan, Sporran, Gazette, the custodian
+and its contract live here under `crates/` (dramatis_repo D11-D14,
+2026-11-03). The custodian owns the vault, wallet and credential catalog.
+Mere retains its resident composition, identity doors and native UI, the
+Dramatis application and the shared Cambium persona picker. The resident
+reaches custody through `custody-wire`; applications use `castellan-client`
+over Armillary's public door. This repository has no Mere or Genet dependency.
 
 *2026-10-06 note:* the [dramatis repo plan](archive_docs/2026-11-01/2026-10-06_dramatis_repo_plan.md)
 (rulings D1 to D3) moves the tier to its own repository, folds chatelaine
@@ -391,7 +395,7 @@ This document carries no phase status, which goes stale; the plans carry it.
 | gaz's phases, anchors, intake | [gaz founding plan](archive_docs/2026-11-01/2026-08-08_gaz_founding_plan.md) |
 | castellan's keeper surface | castellan keeper founding plan (`repos/mere/design_docs/archive_docs/2026-10-06_completed_plans/2026-08-14_castellan_keeper_founding_plan.md`) |
 | castellan's credential runway | castellan OTP plan (`repos/mere/design_docs/archive_docs/2026-10-06_completed_plans/2026-08-10_castellan_otp_plan.md`) |
-| the vault's lock | custody plan (`repos/mere/design_docs/dramatis_docs/implementation_strategy/2026-10-28_custody_plan.md`); the lock's rulings are in the archived vault lock plan (`repos/mere/design_docs/archive_docs/2026-10-28/2026-10-05_vault_lock_plan.md`) |
+| the vault's lock | custody plan (`repos/dramatis/design_docs/2026-10-28_custody_plan.md`); the lock's rulings are in the archived vault lock plan (`repos/mere/design_docs/archive_docs/2026-10-28/2026-10-05_vault_lock_plan.md`) |
 | what the lock defends and leaves open | [vault threat statement](2026-10-08_vault_threat_statement.md) |
 | the resident | djinn resident services plan (`repos/mere/design_docs/archive_docs/2026-10-28/2026-08-22_djinn_family_resident_services_plan.md`) |
 | chatelaine, insigne, dramatis as crates | crate consolidation plan (`repos/mere/design_docs/archive_docs/2026-10-28/2026-09-23_crate_consolidation_plan.md`) |

@@ -40,7 +40,7 @@
 //! and a clock, the digits; given an `otpauth://` URI, the configured
 //! generator. The Reticulum station derivation that began here moved to
 //! `personae::reticulum` and the station grant policy to
-//! `pandect::station_grant` in DR-C (D17); djinn signs the grant.
+//! `sporran::station_grant` in DR-C (D17); djinn signs the grant.
 //!
 //! The **keeper surface** (feature `keeper`, founded 2026-08-14) moved home
 //! from graphshell where it first grew:

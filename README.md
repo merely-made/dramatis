@@ -14,13 +14,16 @@ the drama, both you and the other players.
 | [`castellan-client`](crates/castellan-client) | the application side of castellan's custody route: calls, answers, payloads and, with `client`, the custody and identity clients |
 | [`castellan`](crates/castellan) | secret custody: the vault and its unlock ladder, the SSH agent, the wallet's seeds and private epochs, one-time passwords; every release is a gate petition. Linked only by the custodian and the resident, never by an application |
 | [`sporran`](crates/sporran) | a persona's wallet on disk: the store adapter for `personae::carry`, with device grants, pairing, revocation, device settings and the wallet-sealed Muniment backend |
+| [`djinn-custodian`](crates/djinn-custodian) | the independently launched custody process, installers and native host |
+| [`custody-wire`](crates/custody-wire) | the authenticated local custody contract and client, without the vault implementation |
 | [`gazette`](crates/gazette) | the directory domain: WebFinger discovery and the intake that hands what it learns to `gaz` |
 
-Nothing here holds a secret at rest. Custody (the vault, its storages and
-unlock ladder, the SSH agent) is castellan's, in
-[mere](https://github.com/merely-made/mere), and only Djinn (mere's resident)
-and its independently launched custodian link it. Applications reach identity
-by calling Djinn.
+The independently launched `djinn-custodian` holds Castellan's vault, wallet,
+credential catalog and SSH agent. Mere's resident reaches it through
+`custody-wire`; applications reach identity through the resident's public door.
+The portable identity models and public views remain separate from custody.
+The [custody plan](design_docs/2026-10-28_custody_plan.md) keeps the production
+deployment gates.
 
 This repository depends on no mere crate; `castellan-client` reaches djinn
 through Armillary's door contract, `ostiary`, never djinn itself. mere and its siblings pin it by

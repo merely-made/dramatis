@@ -1,8 +1,8 @@
 [workspace]
 resolver = "2"
 # The identity and custody tier. Castellan, Sporran and Gazette moved here
-# under dramatis_repo D11-D13. Hosts retain custody policy and the process
-# boundary. Nothing here depends on Mere or Genet.
+# under dramatis_repo D11-D13. D14 brings the independently launched custodian
+# and its contract here. Nothing here depends on Mere or Genet.
 members = [
     "crates/personae",
     "crates/insigne",
@@ -14,6 +14,8 @@ members = [
     "crates/castellan",
     "crates/sporran",
     "crates/gazette",
+    "crates/djinn-custodian",
+    "crates/custody-wire",
 ]
 
 [workspace.package]
@@ -43,6 +45,8 @@ gazette = { version = "0.0.2", path = "crates/gazette" }
 # castellan-client speaks over Djinn's door through ostiary, never Djinn
 # (djinn-slimming D2, D3). Ostiary 0.0.1 is published.
 ostiary = "0.0.1"
+peer-facts = "0.0.1"
+custody-wire = { version = "0.0.1", path = "crates/custody-wire" }
 
 # ─── Third-party pins (the same entries as mere's) ───────────────────────────
 blake3 = "1"

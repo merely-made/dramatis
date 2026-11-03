@@ -6,7 +6,8 @@ lives in the doc itself.
 
 The tier left Mere on 2026-10-09 (the repository plan's DR-D). Castellan,
 Sporran and Gazette's portable domain joined it on 2026-11-03 under
-dramatis_repo D11-D13. Mere retains host custody integration and its documents;
+dramatis_repo D11-D13. D14 brings the custodian, custody-wire, station-grant
+policy and native receiving harness here. Mere retains resident client integration;
 see `repos/mere/design_docs/DOC_README.md`. Registry release and receiving work
 is tracked in the repository plan and Mere's workspace hygiene plan.
 
@@ -38,6 +39,13 @@ is tracked in the repository plan and Mere's workspace hygiene plan.
    is in the [archived plan](archive_docs/2026-11-01/2026-10-06_dramatis_repo_plan.md).
 
 ## Active documents
+
+- [custody_plan](2026-10-28_custody_plan.md): custody isolation, vault lock,
+  production receiving gates and the parked Secret Service design; moved with
+  the custodian under D14. Historical sources and receipts retain Mere paths.
+- [castellan_custodian_integration](2026-10-22_castellan_custodian_integration.md):
+  signed macOS native receiving design and evidence boundaries.
+
 
 - [subject_reference_plan](2026-10-16_subject_reference_plan.md): **reference
   and reusable birth/resource contracts published on main (`7fb544e`); resident

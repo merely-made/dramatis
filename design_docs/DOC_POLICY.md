@@ -197,8 +197,9 @@ evidence they point to lives outside the repository, in `Code/testing/dramatis/`
   notochord, the dramatis facade, or the portable tier as a whole (its
   architecture, the vault threat statement, the repository plan). The current
   Castellan, Sporran and Gazette ownership rulings are dramatis_repo D11-D13.
-- **In Mere:** host custody integration (the custody plan, which absorbed the
-  vault lock and Secret Service plans) and persona-picker integration. Archived
+- **Here since D14:** the custodian and its contract, their native receiving
+  harness, the custody plan and Castellan custodian integration document.
+- **In Mere:** resident client composition and persona-picker integration. Archived
   Castellan and Gazette plans retain their historical homes; moving the code
   under D11-D13 did not rewrite those archives.
 

@@ -68,3 +68,7 @@ reason = "Cxf tests. Existing source-size debt; a responsibility split must pres
 [[exception]]
 path = "crates/sporran/src/wallet_grant/certificate.rs"
 reason = "Device grants as delegation certificates, and the epoch material that stopped travelling inside them. Existing source-size debt; a responsibility split must preserve WrappedEpochRecord and existing module visibility."
+
+[[exception]]
+path = "crates/djinn-custodian/src/core.rs"
+reason = "The custodian's state machine, without I/O. Existing source-size debt; a responsibility split must preserve SessionId, Effects, Prompt and existing module visibility."

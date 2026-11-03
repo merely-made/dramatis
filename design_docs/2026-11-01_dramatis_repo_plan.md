@@ -35,7 +35,7 @@ Links: area documentation · governs 2026-10-06_dramatis_repo_plan D1-D39 · sum
 
 ### dramatis_repo D5: vault lock cites (2026-11-01)
 
-Mark, 2026-11-01: "Archive for rulings, custody for state". A cite of a vault lock ruling points at `repos/mere/design_docs/archive_docs/2026-10-28/2026-10-05_vault_lock_plan.md`; a cite of the lock's current state points at the custody plan, `repos/mere/design_docs/dramatis_docs/implementation_strategy/2026-10-28_custody_plan.md`.
+Mark, 2026-11-01: "Archive for rulings, custody for state". A cite of a vault lock ruling points at `repos/mere/design_docs/archive_docs/2026-10-28/2026-10-05_vault_lock_plan.md`; a cite of the lock's current state points at the custody plan, `repos/dramatis/design_docs/2026-10-28_custody_plan.md`.
 
 Links: area documentation · summary ruling cites go to the archive, state cites to the live custody plan
 
@@ -91,6 +91,38 @@ Mark, 2026-11-03: "Take gazette to dramatis too", then "Split: domain moves (Rec
 
 Links: area custody · amends archived D7 · summary gazette's WebFinger domain is a dramatis crate; the ledger projection stays in mere as the published gazette-ledger
 
+### dramatis_repo D14: the custodian and its contract move here (2026-11-03)
+
+Mark, 2026-11-03: "Go ahead", approving the next extraction: move the
+custodian and `custody-wire` into Dramatis after removing their Pandect edges.
+The station-grant policy follows the wallet store into Sporran, with callers
+repointed directly. The custodian's process, installers and synthetic native
+receiving harness follow their implementation. Mere retains resident service
+composition and its identity integration. This refines D11's remaining-code
+boundary without changing wire messages, vault layout or custody policy.
+
+Links: area custody · refines dramatis_repo D11 · summary custodian and custody-wire move to dramatis; station grants move to sporran
+
+## Custodian extraction, 2026-11-03
+
+**Status:** in progress. Scope is `djinn-custodian`, `custody-wire`, their
+packaging and native receiving harness, Sporran's station-grant policy, and
+Mere's receiving edges. The resident identity layer and GUI remain later work.
+
+**Done when:** the custodian and contract build and test from this workspace
+without Mere or Genet; station-grant policy and refusal tests pass in Sporran;
+Mere's locked receiving checks and custody tests preserve the process boundary;
+all live paths and size-inventory ownership follow the files; source and pin
+commits are pushed on main. Existing Windows adoption failures must be measured
+before the move and reported separately from regressions. Linux and signed
+macOS deployment gates remain open under the [custody plan](2026-10-28_custody_plan.md).
+
+Required receipts: source-move hashes, baseline and receiving test summaries,
+resolved source identities, negative custody-boundary checks, packaging/harness
+checks and final commits. Retain at most 100 MB total at
+`Code/testing/dramatis/custodian-extraction-20261103`; index the compact records
+in this plan's archived receipt file. Reuse stable repository Cargo targets.
+
 ## Open work
 
 ### O1. DR-B: the control-crate run
@@ -115,7 +147,7 @@ Released keys are revoked at lock only cooperatively, when an app watches Djinn'
 
 Inherited from the S14 archive pass: PAKE/QR chrome and transport UI; copy-mode export and import; epoch history beyond the current epoch; a migration pass for cleartext private blobs (`repos/mere/design_docs/archive_docs/2026-10-06_completed_plans/2026-06-25_persona_wallet_carry_layer_plan.md`). They touch pandect's wallet, whose secret half moved to castellan under ruling D8; the old plan said they were "assessed with DR-B", and no assessment is recorded.
 
-**Done when:** an assessment is recorded here, and each of the four is built with a receipt in mere's custody plan (`repos/mere/design_docs/dramatis_docs/implementation_strategy/2026-10-28_custody_plan.md`) or dropped by a ruling.
+**Done when:** an assessment is recorded here, and each of the four is built with a receipt in mere's custody plan (`repos/dramatis/design_docs/2026-10-28_custody_plan.md`) or dropped by a ruling.
 
 ### O5. Splitting castellan's `keeper` feature
 
@@ -162,3 +194,10 @@ Open since DR-A: whether gazette gets a matching facade name over gaz, the way c
 - 2026-11-01: plan cut from the repository plan; decisions D1 to D8 recorded (D9 and D10 on 2026-11-02; D10 withdraws D8 and D9). Receipts moved out (commit `6ca6d3a`), cites and hashes repaired, and the archived plan's run-evidence index and hash table written to `archive_docs/receipts/2026-10-06_dramatis_repo_plan_receipts.md`.
 
 - 2026-11-03: the six registry releases above were qualified and published from `57a6760`; all-feature workspace tests passed 813 libtest cases and the two custom residue harnesses. Windows client cones contain 116 and 129 normal/build packages with no forbidden custody or host dependency. Detailed package logs and the compact source/gate ledger are at `Code/testing/mere/registry-releases-20261103`, indexed by Mere's workspace hygiene receipt file. Other-platform runtime gates remain open.
+
+- 2026-11-03, D14 implementation: the custodian and authenticated contract now
+  build here with registry-only external dependencies. Station-grant policy
+  and its three tests moved into Sporran; the error and test modules are split
+  at existing seams to satisfy the source-size ceiling. Custody operation,
+  message and persisted-data semantics are unchanged. The Windows baseline's
+  two adoption failures reproduce after the move; Mere receiving is next.

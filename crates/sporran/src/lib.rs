@@ -26,6 +26,10 @@ pub mod wallet_sealed_backend;
 /// The wallet's files: paths, manifests, rosters and atomic writes.
 pub mod wallet_store;
 
+/// Narrow, expiring station grants over the public wallet records.
+#[cfg(not(target_arch = "wasm32"))]
+pub mod station_grant;
+
 /// The directory under a data root that holds one folder per persona.
 pub const PERSONAS_DIR: &str = "personas";
 

@@ -27,18 +27,18 @@ authors = ["Mark AB (markik)"]
 # ─── The tier's own crates ───────────────────────────────────────────────────
 # Path + version, as in mere: the path builds here, the version is what a
 # published dependent records.
-personae = { version = "0.3.0", path = "crates/personae" }
+personae = { version = "0.3.1", path = "crates/personae" }
 insigne = { version = "0.0.2", path = "crates/insigne" }
 gaz = { version = "0.0.2", path = "crates/gaz" }
 chatelaine = { version = "0.0.3", path = "crates/chatelaine" }
 notochord = { version = "0.1.1", path = "crates/notochord" }
-dramatis = { version = "0.0.3", path = "crates/dramatis" }
+dramatis = { version = "0.0.4", path = "crates/dramatis" }
 castellan-client = { version = "0.0.1", path = "crates/castellan-client" }
 
 # ─── The door contract (Armillary) ───────────────────────────────────────────
 # castellan-client speaks over Djinn's door through ostiary, never Djinn
 # (djinn-slimming D2, D3). Pinned by revision until ostiary publishes (S5).
-ostiary = { version = "0.0.1", git = "https://github.com/merely-made/armillary.git", rev = "0ccfe7acbaf5774eab1fc2772e16e30621bf5493" }
+ostiary = { version = "0.0.1", git = "https://github.com/merely-made/armillary.git", rev = "08ebbc44f5d391bd263fcc26b6053edf72741954" }
 
 # ─── Third-party pins (the same entries as mere's) ───────────────────────────
 blake3 = "1"

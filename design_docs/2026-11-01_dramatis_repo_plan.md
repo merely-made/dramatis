@@ -151,4 +151,12 @@ Open since DR-A: whether gazette gets a matching facade name over gaz, the way c
 
 ## Progress
 
+- 2026-11-03: registry publication and receiving alignment are in progress,
+  including Pandect's release closure, under
+  `mere/design_docs/mere_docs/implementation_strategy/2026-10-28_workspace_hygiene_plan.md`.
+  Gaz takes a new release for its Muniment 0.2 storage types; Dramatis and
+  Castellan Client take new releases so their public Gaz and Eidetic types
+  come from that same registry cohort. Ostiary already has a registry release.
+  This changes dependency packaging and versions, not custody policy or formats.
+
 - 2026-11-01: plan cut from the repository plan; decisions D1 to D8 recorded (D9 and D10 on 2026-11-02; D10 withdraws D8 and D9). Receipts moved out (commit `6ca6d3a`), cites and hashes repaired, and the archived plan's run-evidence index and hash table written to `archive_docs/receipts/2026-10-06_dramatis_repo_plan_receipts.md`.

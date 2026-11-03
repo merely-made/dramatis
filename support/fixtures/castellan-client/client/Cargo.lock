@@ -94,7 +94,7 @@ checksum = "fc652a48c352aef3ea3aed32080501cf3ef6ed5da78602a020c991775b0aff04"
 
 [[package]]
 name = "castellan-client"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "base64",
  "chatelaine",
@@ -162,8 +162,9 @@ dependencies = [
 
 [[package]]
 name = "chartulary"
-version = "0.2.2"
-source = "git+https://github.com/merely-made/eidetic.git?rev=613799afd001200792e6c37d4406807848dadabc#613799afd001200792e6c37d4406807848dadabc"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "27f828805fc4b79fbe172931f3f1a711c9c936ca8ae822d3943f5ceab22fcc67"
 dependencies = [
  "muniment",
  "petgraph",
@@ -285,7 +286,7 @@ dependencies = [
 
 [[package]]
 name = "dramatis"
-version = "0.0.4"
+version = "0.0.5"
 dependencies = [
  "gaz",
  "personae",
@@ -318,8 +319,9 @@ dependencies = [
 
 [[package]]
 name = "eidetic"
-version = "0.0.2"
-source = "git+https://github.com/merely-made/eidetic.git?rev=613799afd001200792e6c37d4406807848dadabc#613799afd001200792e6c37d4406807848dadabc"
+version = "0.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3d1b90d0802fccbefc74f010710d56432aeb011cc1f95453828c815d96babf47"
 dependencies = [
  "async-trait",
  "blake3",
@@ -396,7 +398,7 @@ dependencies = [
 
 [[package]]
 name = "gaz"
-version = "0.0.2"
+version = "0.0.3"
 dependencies = [
  "insigne",
  "serde",
@@ -666,8 +668,9 @@ dependencies = [
 
 [[package]]
 name = "muniment"
-version = "0.2.0"
-source = "git+https://github.com/merely-made/eidetic.git?rev=613799afd001200792e6c37d4406807848dadabc#613799afd001200792e6c37d4406807848dadabc"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b13afc8ed55a217898b410978b400184a141bed1e8c5235495f11fcd8b6c9912"
 dependencies = [
  "async-trait",
  "blake3",
@@ -684,7 +687,8 @@ checksum = "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50"
 [[package]]
 name = "ostiary"
 version = "0.0.1"
-source = "git+https://github.com/merely-made/armillary.git?rev=08ebbc44f5d391bd263fcc26b6053edf72741954#08ebbc44f5d391bd263fcc26b6053edf72741954"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9d4f152dbe3e258f08ac72a78adf8f9277dd3bef4d410d842413a2e89c5496ce"
 dependencies = [
  "base64",
  "rand_core 0.6.4",

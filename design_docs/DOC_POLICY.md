@@ -194,13 +194,13 @@ evidence they point to lives outside the repository, in `Code/testing/dramatis/`
 ### What lives where
 
 - **Here:** documents whose subject is personae, insigne, gaz, chatelaine,
-  notochord, the dramatis facade, or the tier as a whole (its architecture,
-  the vault threat statement, the repository plan).
-- **In mere:** castellan's documents (the custody plan, which absorbed the
-  vault lock plan and the Secret Service plan, and castellan's archived
-  plans), because castellan stays beside Djinn (D6, D22); and
-  documents about gazette and the persona picker, which stay until D7's
-  condition is met.
+  notochord, the dramatis facade, or the portable tier as a whole (its
+  architecture, the vault threat statement, the repository plan). The current
+  Castellan, Sporran and Gazette ownership rulings are dramatis_repo D11-D13.
+- **In Mere:** host custody integration (the custody plan, which absorbed the
+  vault lock and Secret Service plans) and persona-picker integration. Archived
+  Castellan and Gazette plans retain their historical homes; moving the code
+  under D11-D13 did not rewrite those archives.
 
 Cite mere by path, `repos/mere/design_docs/...`, never by a relative link
 (core §5). On 2026-10-09 the moved documents' links into mere were rewritten

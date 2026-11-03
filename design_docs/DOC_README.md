@@ -4,9 +4,11 @@ The design-docs index for the [dramatis](../README.md) repository, the
 identity tier of the Merely stack. Entries are one line each; the rationale
 lives in the doc itself.
 
-The tier left mere on 2026-10-09 (the repository plan's DR-D). castellan,
-the custody crate only Djinn and its independently launched custodian link,
-stays in mere, and so do its documents; see `repos/mere/design_docs/DOC_README.md`.
+The tier left Mere on 2026-10-09 (the repository plan's DR-D). Castellan,
+Sporran and Gazette's portable domain joined it on 2026-11-03 under
+dramatis_repo D11-D13. Mere retains host custody integration and its documents;
+see `repos/mere/design_docs/DOC_README.md`. Registry release and receiving work
+is tracked in the repository plan and Mere's workspace hygiene plan.
 
 ## Working principles
 
@@ -15,8 +17,9 @@ stays in mere, and so do its documents; see `repos/mere/design_docs/DOC_README.m
   revision, and so does every sibling. Two revisions of personae in one
   graph split its types, so every pin of this repository in one graph must
   name the same revision.
-- Secrets at rest and in hand are castellan's, in mere. A crate here that
-  starts holding one is a boundary break, not a feature.
+- Custody and release policy belong to Castellan and its host. Sporran supplies
+  the host-instantiated wallet store and sealer adapters. Portable identity
+  models and views must preserve that authority boundary.
 - Rust: working toolchain 1.99.1 (`rust-toolchain.toml`) and shared MSRV
   1.97.1, qualified separately. Canonical policy:
   `repos/mere/design_docs/2026-08-12_family_composition_thesis_brief.md`,

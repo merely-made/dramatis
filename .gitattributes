@@ -1,3 +1,6 @@
 # OpenSSH key fixtures personae's SSH tests read; keep their bytes stable
 # across Windows and Unix checkouts.
 crates/personae/tests/fixtures/** text eol=lf
+# Castellan's golden snapshots and OpenSSH fixtures: keep their bytes stable across checkouts.
+crates/castellan/tests/fixtures/** text eol=lf
+crates/castellan/tests/golden/** text eol=lf

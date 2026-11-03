@@ -36,3 +36,35 @@ reason = "The fleet's SSH certificate authority, projected from delegation. Exis
 [[exception]]
 path = "crates/personae/tests/ssh_ca_live.rs"
 reason = "The receipt for the SSH-CA projection: a real sshd accepts a minted certificate, with nothing in authorized_keys and no host-key prompt. Existing source-size debt; a responsibility split must preserve Fixture and existing module visibility."
+
+[[exception]]
+path = "crates/castellan/src/authority.rs"
+reason = "Castellan's authority half: the resident Personae host. Existing source-size debt; a responsibility split must preserve IdentityIntentError, VaultCommandOutput, PersonaeHost and existing module visibility."
+
+[[exception]]
+path = "crates/castellan/src/authority_lock_tests.rs"
+reason = "Vault lock, L2: castellan obeys (rulings 1, 10, 11, 13, 14, 27, 31). Existing source-size debt; a responsibility split must preserve Locked and existing module visibility."
+
+[[exception]]
+path = "crates/castellan/src/custody/agent.rs"
+reason = "SSH agent backend serving the vault's ssh slots. Existing source-size debt; a responsibility split must preserve VaultLockRequest, VaultAgent, VerifiedSshBinding and existing module visibility."
+
+[[exception]]
+path = "crates/castellan/src/custody/passphrase_storage.rs"
+reason = "[PassphraseEncryptedStorage] — passphrase-encrypted on-disk vault. Existing source-size debt; a responsibility split must preserve EncryptedFile, EncryptedProfile, PassphraseEncryptedStorage and existing module visibility."
+
+[[exception]]
+path = "crates/castellan/src/custody/vault.rs"
+reason = "Multi-protocol identity vault: custody (dramatis repo plan, DR-B). Existing source-size debt; a responsibility split must preserve SecretBytes, IdentitySlot, Profile and existing module visibility."
+
+[[exception]]
+path = "crates/castellan/src/cxf/parse.rs"
+reason = "Parse. Existing source-size debt; a responsibility split must preserve RawHeader, RawVersion, RawAccount and existing module visibility."
+
+[[exception]]
+path = "crates/castellan/src/cxf/tests.rs"
+reason = "Cxf tests. Existing source-size debt; a responsibility split must preserve existing entry points, fixture identity and module visibility."
+
+[[exception]]
+path = "crates/sporran/src/wallet_grant/certificate.rs"
+reason = "Device grants as delegation certificates, and the epoch material that stopped travelling inside them. Existing source-size debt; a responsibility split must preserve WrappedEpochRecord and existing module visibility."

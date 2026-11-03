@@ -1,0 +1,25 @@
+[package]
+rust-version.workspace = true
+name = "gazette"
+version = "0.0.2"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Gazette resolves who someone is into where they can be reached: WebFinger discovery and the intake that hands what it learns to gaz, the contact store."
+readme = "README.md"
+keywords = ["webfinger", "contacts", "directory", "p2p"]
+categories = ["network-programming"]
+
+[features]
+test-support = []
+
+[dependencies]
+gaz.workspace = true
+iri-string = { version = "0.7", default-features = false }
+serde.workspace = true
+serde_json.workspace = true
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "rustls-tls"] }
+url = "2.5"
+
+[lints]
+workspace = true

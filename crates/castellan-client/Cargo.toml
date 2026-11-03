@@ -21,7 +21,7 @@ personae.workspace = true
 insigne.workspace = true
 chatelaine.workspace = true
 dramatis.workspace = true
-eidetic = { version = "0.0.2", default-features = false, git = "https://github.com/merely-made/eidetic.git", rev = "01ee97b0b95d679430986dffd54c64ce9b3b5ea3" }
+eidetic = { workspace = true }
 serde.workspace = true
 serde_json.workspace = true
 uuid.workspace = true

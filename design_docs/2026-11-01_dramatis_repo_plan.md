@@ -73,6 +73,24 @@ Mark, 2026-11-02: "Revert to Djinn, mere's wording". New evidence contradicted D
 
 Links: area documentation · withdraws dramatis_repo D8, D9 · summary prose says Djinn in mere's wording; paths stay under ports/mere-resident
 
+### dramatis_repo D11: castellan moves here, off pandect (2026-11-03)
+
+Mark, 2026-11-03: "decouple Castellan from Pandect and then move Castellan into Dramatis, because are we trying to slim down mere? ... move stuff out now that we've clarified some of the boundaries in the subsystems", then "take the wallet from pandect to dramatis". The archived plan's ruling D6 kept castellan in mere "beside djinn" with no repo cycle; Djinn left mere on 2026-10-23, and castellan's one remaining mere dependency was `pandect`'s wallet store. `crates/castellan` (0.0.4) is here, with its 362 tests, off `pandect`. The custodian and `custody-wire` stay in mere.
+
+Links: area custody · amends archived D6 · summary castellan lives in dramatis; its wallet store comes with it as sporran
+
+### dramatis_repo D12: sporran holds the wallet store (2026-11-03)
+
+Mark, 2026-11-03: "New crate: sporran (Recommended)", over `personae-wallet`, `scrip`/`almonry`, or folding it into personae. `personae::carry` is the wallet's model and, by the 2026-07-08 fold-in, knows no filesystem, policy or seal seam; the store adapter (wallet_store, wallet_grant, device_settings_store, wallet_sealed_backend and the `WalletEpochSealer` seam, 64 tests) is `crates/sporran`, built on personae, eidetic and muniment. Callers repoint to it with no re-export left in `pandect`: "Repoint callers, no re-export (Recommended)".
+
+Links: area custody · summary the pandect wallet store is the sporran crate; callers repoint
+
+### dramatis_repo D13: gazette splits; its directory domain comes here (2026-11-03)
+
+Mark, 2026-11-03: "Take gazette to dramatis too", then "Split: domain moves (Recommended)" over moving it whole or leaving it in mere. `crates/gazette` (0.0.2) holds WebFinger discovery and `intake` into gaz and links nothing from mere. The contact-ledger projection and the reading-room extractor stay in mere as `gazette-ledger`, which Mark said may publish ("You can publish the ledger"). The archived D7 condition, domain logic split from the Cambium projection, is met.
+
+Links: area custody · amends archived D7 · summary gazette's WebFinger domain is a dramatis crate; the ledger projection stays in mere as gazette-ledger
+
 ## Open work
 
 ### O1. DR-B: the control-crate run
@@ -127,8 +145,9 @@ Open since DR-A: whether gazette gets a matching facade name over gaz, the way c
 - 2026-11-01, Notochord secure-channel admission: the contract (additive v2 transcript, separate carrier, channel and subject facts, the explicit native endpoint association of 2026-10-30) stays recorded in the archived plan's section "Notochord secure-channel admission (2026-10-29)" and in `crates/notochord/src/secure.rs` and `handshake.rs`. Murm's plan records N1 as landed 2026-10-29 across Murm, Dramatis and Knot publishing (`repos/murm/design_docs/2026-10-29_secure_sessions_and_live_interaction_plan.md`); the archived sentence that Murm's carrier conversion and Knot's publishing consumer still needed adoption checks is superseded. Nothing is open here.
 - 2026-11-01, the standalone Hocket repository is gone (`repos/hocket` does not exist); see D6.
 - 2026-11-01, the Clippy allowances the old plan cites: `crates/personae/src/seal.rs:60` still holds `&nonce[..]`, but `carry/mod.rs:538` is no longer a Clippy site (it is a JSON fixture assertion). The allowances were not re-measured; no Clippy run was made.
-- 2026-11-01, `repos/mere/deny.toml` now names two wrappers for castellan (Djinn and its independently launched custodian); this repository's `deny.toml` bans castellan with none, which is unchanged.
+- 2026-11-01, `repos/mere/deny.toml` now names two wrappers for castellan (Djinn and its independently launched custodian); this repository's `deny.toml` banned castellan with none until castellan moved here (D11).
 - 2026-11-02, carried from main `baa4ed2` (djinn-slimming S3): `crates/castellan-client` in this repository holds the custody route's application side (the custody calls and answers, payloads, quarantine review, and the custody and identity clients), moved out of Djinn. It speaks over Armillary's door contract, `ostiary`, and never links Djinn; castellan stays in Mere (D6). The archived plan's DR-C list carries the same note as history, at its line 603.
+- 2026-11-03: castellan, the wallet store and gazette's domain came here (D11 to D13). The dependency graph's only non-registry sources are eidetic (`chartulary`, `eidetic`, `muniment`) and armillary (`ostiary`): no `mere.git` or `genet.git` package. `deny.toml` bans nothing now, because cargo-deny cannot tell the castellan member from a dependency on it; the castellan-client fixtures hold the boundary instead. Still in mere: the custodian, `custody-wire`, `mere-resident`'s identity door and UI, `ports/dramatis`, `persona-picker` and `station-custody`.
 
 ## Progress
 

@@ -12,6 +12,9 @@ the drama, both you and the other players.
 | [`notochord`](crates/notochord) | owner-controlled session admission: delegation chains, owner policy, the revocation ledger |
 | [`dramatis`](crates/dramatis) | the facade other repositories pin: the views, intents and receipts hosts render |
 | [`castellan-client`](crates/castellan-client) | the application side of castellan's custody route: calls, answers, payloads and, with `client`, the custody and identity clients |
+| [`castellan`](crates/castellan) | secret custody: the vault and its unlock ladder, the SSH agent, the wallet's seeds and private epochs, one-time passwords; every release is a gate petition. Linked only by the custodian and the resident, never by an application |
+| [`sporran`](crates/sporran) | a persona's wallet on disk: the store adapter for `personae::carry`, with device grants, pairing, revocation, device settings and the wallet-sealed Muniment backend |
+| [`gazette`](crates/gazette) | the directory domain: WebFinger discovery and the intake that hands what it learns to `gaz` |
 
 Nothing here holds a secret at rest. Custody (the vault, its storages and
 unlock ladder, the SSH agent) is castellan's, in

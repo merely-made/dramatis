@@ -52,3 +52,18 @@ is retained. No new native macOS or Linux receiving run is claimed.
 Registry archives from the preceding release pass remain unchanged. This
 source extraction leaves the next Sporran/Pandect registry version updates to
 the next release; it does not claim that unpublished APIs are in old archives.
+
+## Resident identity extraction, 2026-11-03
+
+Run evidence: `Code/testing/dramatis/resident-identity-20261103` (100 MB cap).
+The pre-move Mere resident feature-selected library baseline passed 276 tests
+and failed `resident_mere::tests::the_dialable_host_serves_only_what_the_grant_and_the_owner_name`;
+a separate pre-move control reproduced that failure. `baseline-resident.log`
+and `baseline-resident-control.log` retain both results.
+
+The new service passes its no-default-feature test and 21 all-feature tests.
+The initial compile identified a missing signing-test dependency, repaired
+without changing signing logic. Default and CXF normal/build cones exclude
+Mere, Genet, Djinn, Castellan and dialog implementations. Source move hashes,
+feature-specific commands and dependency cones are retained beside the logs.
+Mere receiving and concrete caller migration follow supplier publication to Git.

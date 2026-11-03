@@ -15,6 +15,7 @@ the drama, both you and the other players.
 | [`castellan`](crates/castellan) | secret custody: the vault and its unlock ladder, the SSH agent, the wallet's seeds and private epochs, one-time passwords; every release is a gate petition. Linked only by the custodian and the resident, never by an application |
 | [`sporran`](crates/sporran) | a persona's wallet on disk: the store adapter for `personae::carry`, with device grants, pairing, revocation, device settings and the wallet-sealed Muniment backend |
 | [`djinn-custodian`](crates/djinn-custodian) | the independently launched custody process, installers and native host |
+| [`dramatis-resident`](crates/dramatis-resident) | identity startup, public read models and scoped custody service; host callbacks supply native interaction |
 | [`custody-wire`](crates/custody-wire) | the authenticated local custody contract and client, without the vault implementation |
 | [`gazette`](crates/gazette) | the directory domain: WebFinger discovery and the intake that hands what it learns to `gaz` |
 

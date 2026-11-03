@@ -1,0 +1,51 @@
+[package]
+name = "dramatis-resident"
+version = "0.0.1"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Resident identity service over authenticated custody: profile startup, public identity, scoped releases and host-injected native interactions."
+
+[features]
+default = ["cxf"]
+cxf = ["castellan?/cxf"]
+in-process-custody = ["dep:castellan", "dep:djinn-custodian", "djinn-custodian/fixture"]
+passphrase-fd = []
+
+[dependencies]
+base64.workspace = true
+blake3.workspace = true
+castellan = { workspace = true, optional = true, features = ["keeper", "os-presence"] }
+castellan-client = { workspace = true, features = ["client"] }
+custody-wire.workspace = true
+djinn-custodian = { version = "0.0.1", path = "../djinn-custodian", optional = true }
+dramatis.workspace = true
+eidetic.workspace = true
+insigne = { workspace = true, features = ["verify"] }
+notochord.workspace = true
+ostiary = { workspace = true, features = ["native"] }
+personae.workspace = true
+rpassword = "7"
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+sporran.workspace = true
+ssh-key = { version = "0.6", features = ["ed25519", "encryption"] }
+tokio = { version = "1", features = ["rt", "rt-multi-thread", "sync", "time", "macros"] }
+tracing.workspace = true
+uuid.workspace = true
+zeroize = "1"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_Security", "Win32_Security_Authorization", "Win32_Storage_FileSystem", "Win32_System_Memory"] }
+
+[dev-dependencies]
+ssh-agent-lib = "0.6"
+rand_core = { version = "0.6", features = ["getrandom"] }
+tempfile = "3"
+
+[lints]
+workspace = true

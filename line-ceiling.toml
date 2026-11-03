@@ -72,3 +72,15 @@ reason = "Device grants as delegation certificates, and the epoch material that 
 [[exception]]
 path = "crates/djinn-custodian/src/core.rs"
 reason = "The custodian's state machine, without I/O. Existing source-size debt; a responsibility split must preserve SessionId, Effects, Prompt and existing module visibility."
+
+[[exception]]
+path = "crates/dramatis-resident/src/custody_host/remote.rs"
+reason = "[ResidentCustody] over the independently launched custodian: the only implementation a production build has. Existing source-size debt; a responsibility split must preserve State, RemoteHost and existing module visibility."
+
+[[exception]]
+path = "crates/dramatis-resident/src/custody.rs"
+reason = "The custody route's answers: what djinn does for an application that asks instead of opening a vault, storage or wallet (dramatis repo plan, D5, D11, D12, D17). Existing source-size debt; a responsibility split must preserve ReleasePolicy, EpochRule, SaltRule and existing module visibility."
+
+[[exception]]
+path = "crates/dramatis-resident/src/startup_vault.rs"
+reason = "How the resident reaches its custody without the environment (vault lock rulings 42 and 62 to 66; custody isolation plan, H2). Existing source-size debt; a responsibility split must preserve VaultChoice, Ask, Answer and existing module visibility."

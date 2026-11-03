@@ -16,6 +16,7 @@ members = [
     "crates/gazette",
     "crates/djinn-custodian",
     "crates/custody-wire",
+    "crates/dramatis-resident",
 ]
 
 [workspace.package]

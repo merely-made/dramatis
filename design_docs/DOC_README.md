@@ -1,3 +1,9 @@
+Resident identity service extraction (2026-11-03), in progress: D15 in the
+[repository plan](2026-11-01_dramatis_repo_plan.md) moves developed identity and
+custody service logic into `dramatis-resident`. Mere keeps its projection,
+door wiring and concrete platform dialogs. Default and all-feature supplier
+qualification and receiving checks remain separately recorded.
+
 # Dramatis Documentation Index
 
 The design-docs index for the [dramatis](../README.md) repository, the

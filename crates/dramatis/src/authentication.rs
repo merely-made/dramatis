@@ -48,3 +48,15 @@ mod tests {
         }
     }
 }
+
+/// The established family/application profile override. Its spelling preserves existing installations.
+pub const PROFILE_ENV: &str = "GRAPHSHELL_PROFILE";
+
+pub fn env_profile() -> Option<personae::ProfileId> {
+    std::env::var(PROFILE_ENV)
+        .ok()
+        .map(|value| value.trim().to_string())
+        .filter(|value| !value.is_empty())
+        .map(personae::ProfileId)
+}
+

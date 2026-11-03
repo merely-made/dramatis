@@ -103,6 +103,41 @@ boundary without changing wire messages, vault layout or custody policy.
 
 Links: area custody · refines dramatis_repo D11 · summary custodian and custody-wire move to dramatis; station grants move to sporran
 
+### dramatis_repo D15: resident identity service follows its domain (2026-11-03)
+
+Mark, 2026-11-03: "Proceed", with the intended direction that "mere would call
+on dramatis for auth". The reusable resident identity and custody service moves
+into `dramatis-resident`: installed-custodian access, startup/profile resolution,
+public read models and intent execution, release policy and native-interaction
+commands. It takes owner declarations and a native-UI callback. Mere keeps the
+graph projection, door wiring and platform dialog implementation; those call
+this service. Pairing's graph sync and application settings retain their owners.
+The standalone custodian remains the production vault authority; in-process
+custody stays an explicit test feature, with no fallback.
+
+Links: area custody · draws on dramatis_repo D14 · summary reusable resident identity service moves to dramatis; projections and host wiring stay with their owners
+
+## Resident identity extraction, 2026-11-03
+
+**Status:** in progress. Move the developed service as one package, preserving
+custody refusals, grants, wire messages, derivation labels, profile environment
+selection and sealed formats. Repoint callers directly; keep actual host/door
+adapters where they serve the host. The crate's normal graph excludes Mere,
+Genet, Djinn, native dialog implementations and Castellan. Its explicit
+`in-process-custody` feature supports tests only.
+
+**Done when:** default and all-feature service checks/tests pass independently;
+the existing resident baseline is measured and new failures are separated;
+Mere and concrete receiving callers build locked with one source identity;
+IPC refusal and sealed-payload controls pass; source and pin commits are pushed;
+plans retain the exact platform and publication limits.
+
+Receipts: source move hashes, default/all-feature dependency graphs, baseline
+and moved test counts, receiving and IPC gates, immutable source pins and
+cleanup. Retain at most 100 MB total under
+`Code/testing/dramatis/resident-identity-20261103`, indexed in this plan's
+archived receipt file. Reuse stable per-repository Cargo targets.
+
 ## Custodian extraction, 2026-11-03
 
 **Status:** complete, 2026-11-03. Scope is `djinn-custodian`, `custody-wire`, their

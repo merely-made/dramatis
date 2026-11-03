@@ -367,3 +367,9 @@ SS8 parked the plan.
 
 - 2026-10-28: cut from the custody isolation, vault lock and Secret Service plans, with lane L4 of the ownership repair
   plan and the device resident plan's custody tiers; nothing new landed.
+
+- 2026-11-03: custodian repository extraction is complete (dramatis_repo D14).
+  The process, wire client, station-grant policy and native harness have their
+  source homes in Dramatis. The Windows suite retains its two baseline
+  OS-vault adoption failures; portable independence and Mere integration do
+  not close this plan's deployment, signed receiving or operating-system gates.

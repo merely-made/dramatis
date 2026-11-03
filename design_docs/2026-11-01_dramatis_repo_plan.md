@@ -105,7 +105,7 @@ Links: area custody · refines dramatis_repo D11 · summary custodian and custod
 
 ## Custodian extraction, 2026-11-03
 
-**Status:** in progress. Scope is `djinn-custodian`, `custody-wire`, their
+**Status:** complete, 2026-11-03. Scope is `djinn-custodian`, `custody-wire`, their
 packaging and native receiving harness, Sporran's station-grant policy, and
 Mere's receiving edges. The resident identity layer and GUI remain later work.
 
@@ -121,7 +121,7 @@ Required receipts: source-move hashes, baseline and receiving test summaries,
 resolved source identities, negative custody-boundary checks, packaging/harness
 checks and final commits. Retain at most 100 MB total at
 `Code/testing/dramatis/custodian-extraction-20261103`; index the compact records
-in this plan's archived receipt file. Reuse stable repository Cargo targets.
+in this plan's [extraction receipt file](archive_docs/receipts/2026-11-01_dramatis_repo_plan_receipts.md). Reuse stable repository Cargo targets.
 
 ## Open work
 
@@ -151,7 +151,7 @@ Inherited from the S14 archive pass: PAKE/QR chrome and transport UI; copy-mode 
 
 ### O5. Splitting castellan's `keeper` feature
 
-Reading, not ruled: rulings D14 and D15 make the split unnecessary, since the view types moved to the dramatis facade and graphshell stopped naming castellan. The feature still exists (`repos/mere/ports/mere-resident/castellan/Cargo.toml`, `keeper = ["agent", "wallet"]`).
+Reading, not ruled: rulings D14 and D15 make the split unnecessary, since the view types moved to the dramatis facade and graphshell stopped naming castellan. The feature still exists (`crates/castellan/Cargo.toml`, `keeper = ["agent", "wallet"]`).
 
 **Done when:** Mark confirms the reading and a decision records it, or a consumer appears that needs views without castellan's authority.
 
@@ -201,3 +201,16 @@ Open since DR-A: whether gazette gets a matching facade name over gaz, the way c
   at existing seams to satisfy the source-size ceiling. Custody operation,
   message and persisted-data semantics are unchanged. The Windows baseline's
   two adoption failures reproduce after the move; Mere receiving is next.
+
+- 2026-11-03, D14 receiving complete: Mere consumes the moved crates through
+  one Dramatis source and shared Armillary peer facts. Its production resident
+  normal/build graph includes custody-wire and excludes both Castellan and the
+  custodian. Locked workspace checking, grant suites, three Windows IPC tests,
+  full-tree hooks and commit hooks pass. The Unix-only process fixture and
+  signed native macOS receiving remain platform gates; the two pre-existing
+  Windows OS-vault adoption failures are unchanged. The resident identity
+  layer, GUI and service composition remain in Mere.
+- 2026-11-03, release boundary: this extraction updates Git source trees;
+  existing registry archives retain their published APIs. The next registry
+  release must version Sporran's new station-grant surface and Pandect's removed
+  module. This pass performs no registry upload.

@@ -63,7 +63,9 @@ is tracked in the repository plan and Mere's workspace hygiene plan.
   (rulings D1 to D39, DR-A to DR-E, archived whole). Open: DR-B's
   control-crate run, the doc audits, cooperative key revocation, the
   wallet-carry gaps, the `keeper` split, the gazette facade name and Tucket
-  custody. The archived plan also records the Sennet and Tucket continuations
+  custody. Custodian extraction D14 is complete: the process, contract and
+  native harness are here; Mere receives them through one qualified source.
+  The archived plan also records the Sennet and Tucket continuations
   and the [Notochord secure-channel admission](archive_docs/2026-11-01/2026-10-06_dramatis_repo_plan.md#notochord-secure-channel-admission-2026-10-29)
   contract; murm's N1 (`repos/murm/design_docs/2026-10-29_secure_sessions_and_live_interaction_plan.md`) is its canonical acceptance.
 - [vault_threat_statement](2026-10-08_vault_threat_statement.md): what the

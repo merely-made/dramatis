@@ -40,10 +40,10 @@ use personae::{
     Ed25519Keypair, Ed25519PublicKey, IdentityError, IdentityProvider, ProfileId, RetainedKeys,
 };
 
-use ostiary::app_admission::{AppId, configured_app_endpoint};
-use ostiary::app_client::AppClientError;
 use crate::custody::{CustodyAnswer, CustodyCall, KeySource, ResidentStatus};
 use crate::custody_client::{BlockingCustodyClient, CustodyClient, CustodyClientError};
+use ostiary::app_admission::{AppId, configured_app_endpoint};
+use ostiary::app_client::AppClientError;
 use ostiary::declaration::AppDeclaration;
 
 type JobCall = Box<dyn FnOnce(Option<&mut BlockingCustodyClient>) -> bool + Send>;
@@ -109,213 +109,6 @@ pub struct CustodyIdentity {
 }
 
 impl CustodyIdentity {
-    /// Connect to djinn at the configured first-party endpoint as `app`.
-    /// Pending (see [`CustodyClientError::is_pending`]) when djinn is absent
-    /// or Locked.
-    pub fn connect(app: &str) -> Result<Self, CustodyClientError> {
-        Self::connect_at(&configured_app_endpoint(), app)
-    }
-
-    /// A provider with bounded connection/status stages and bounded actor RPCs.
-    /// Intended for cancellable off-thread setup; it never retries an operation.
-    pub fn connect_timeout(app: &str, timeout: Duration) -> Result<Self, CustodyClientError> {
-        Self::connect_as_at_bounded(&configured_app_endpoint(), app, None, None, Some(timeout))
-    }
-
-    pub fn connect_at_timeout(
-        endpoint: &str,
-        app: &str,
-        timeout: Duration,
-    ) -> Result<Self, CustodyClientError> {
-        Self::connect_as_at_bounded(endpoint, app, None, None, Some(timeout))
-    }
-
-    /// [`Self::connect_timeout`] carrying `declaration` on every conversation,
-    /// so djinn answers only the custody it names and the owner grants.
-    pub fn connect_declared_timeout(
-        app: &str,
-        declaration: AppDeclaration,
-        timeout: Duration,
-    ) -> Result<Self, CustodyClientError> {
-        Self::connect_declared_at_timeout(&configured_app_endpoint(), app, declaration, timeout)
-    }
-
-    /// [`Self::connect_declared_timeout`] at an explicit endpoint.
-    pub fn connect_declared_at_timeout(
-        endpoint: &str,
-        app: &str,
-        declaration: AppDeclaration,
-        timeout: Duration,
-    ) -> Result<Self, CustodyClientError> {
-        Self::connect_as_at_bounded(endpoint, app, Some(declaration), None, Some(timeout))
-    }
-
-    /// The same, at an explicit endpoint.
-    pub fn connect_at(endpoint: &str, app: &str) -> Result<Self, CustodyClientError> {
-        Self::connect_as_at(endpoint, app, None)
-    }
-
-    /// Connect as `app` speaking as persona `profile` without switching djinn
-    /// to it (D13); `None` is the persona in use.
-    pub fn connect_as(app: &str, profile: Option<ProfileId>) -> Result<Self, CustodyClientError> {
-        Self::connect_as_at(&configured_app_endpoint(), app, profile)
-    }
-
-    /// [`Self::connect_as`] at an explicit endpoint.
-    pub fn connect_as_at(
-        endpoint: &str,
-        app: &str,
-        profile: Option<ProfileId>,
-    ) -> Result<Self, CustodyClientError> {
-        Self::connect_as_at_bounded(endpoint, app, None, profile, None)
-    }
-
-    /// [`Self::connect_as`] carrying `declaration` on every conversation: an
-    /// application that speaks as a chosen persona and is admitted by its
-    /// declaration (capability door D22).
-    pub fn connect_declared_as(
-        app: &str,
-        declaration: AppDeclaration,
-        profile: Option<ProfileId>,
-    ) -> Result<Self, CustodyClientError> {
-        Self::connect_declared_as_at(&configured_app_endpoint(), app, declaration, profile)
-    }
-
-    /// [`Self::connect_declared_as`] at an explicit endpoint.
-    pub fn connect_declared_as_at(
-        endpoint: &str,
-        app: &str,
-        declaration: AppDeclaration,
-        profile: Option<ProfileId>,
-    ) -> Result<Self, CustodyClientError> {
-        Self::connect_as_at_bounded(endpoint, app, Some(declaration), profile, None)
-    }
-
-    fn connect_as_at_bounded(
-        endpoint: &str,
-        app: &str,
-        declaration: Option<AppDeclaration>,
-        profile: Option<ProfileId>,
-        timeout: Option<Duration>,
-    ) -> Result<Self, CustodyClientError> {
-        let deadline = timeout
-            .map(|duration| Instant::now().checked_add(duration).ok_or_else(timed_out))
-            .transpose()?;
-        let remaining = || deadline.map(|end| end.saturating_duration_since(Instant::now()));
-        let app = AppId::new(app);
-        let requested_profile = profile.clone();
-        let opened_declaration = declaration.clone();
-        let open = move |endpoint: &str, app: AppId, limit: Option<Duration>| {
-            let declaration = opened_declaration.clone();
-            let opened = match (limit, declaration) {
-                (Some(timeout), declaration) => {
-                    BlockingCustodyClient::open_at_timeout_with(endpoint, app, declaration, timeout)
-                }
-                (None, Some(declaration)) => {
-                    BlockingCustodyClient::open_declared_at(endpoint, app, declaration)
-                }
-                (None, None) => BlockingCustodyClient::open_at(endpoint, app),
-            };
-            opened.map(|mut client| {
-                client.speak_as(profile.clone());
-                client
-            })
-        };
-        let (jobs, received) = mpsc::channel::<Job>();
-        let (ready, opened) = mpsc::channel();
-        let actor_endpoint = endpoint.to_string();
-        let actor_app = app.clone();
-        let stop = Arc::new(AtomicBool::new(false));
-        let actor_stop = stop.clone();
-        let job_thread = std::thread::Builder::new()
-            .name(format!("custody-{app}"))
-            .spawn(move || {
-                let initial_timeout =
-                    deadline.map(|end| end.saturating_duration_since(Instant::now()));
-                let mut client = match open(&actor_endpoint, actor_app.clone(), initial_timeout) {
-                    Ok(client) => {
-                        let _ = ready.send(Ok(()));
-                        Some(client)
-                    }
-                    Err(error) => {
-                        let _ = ready.send(Err(error));
-                        return;
-                    }
-                };
-                while let Ok(job) = received.recv() {
-                    if actor_stop.load(Ordering::SeqCst) {
-                        break;
-                    }
-                    if job.expired() {
-                        continue;
-                    }
-                    if client.is_none() {
-                        client = open(&actor_endpoint, actor_app.clone(), job.remaining()).ok();
-                    }
-                    if actor_stop.load(Ordering::SeqCst) {
-                        break;
-                    }
-                    if job.expired() {
-                        continue;
-                    }
-                    if let Some(client) = client.as_mut() {
-                        client.set_call_timeout(job.remaining());
-                    }
-                    if !job.run(client.as_mut()) {
-                        client = None;
-                    }
-                }
-            })
-            .map_err(|error| CustodyClientError::Absent(AppClientError::Io(error)))?;
-        let mut starting = StartingActor {
-            sender: Some(jobs),
-            thread: Some(job_thread),
-            stop: stop.clone(),
-        };
-        match timeout {
-            Some(_) => opened
-                .recv_timeout(remaining().expect("bounded startup"))
-                .map_err(|error| match error {
-                    mpsc::RecvTimeoutError::Timeout => timed_out(),
-                    mpsc::RecvTimeoutError::Disconnected => closed(),
-                })??,
-            None => opened.recv().map_err(|_| closed())??,
-        }
-
-        let status = ask_on_bounded(
-            starting.sender.as_ref().expect("startup sender"),
-            remaining(),
-            |client| client.status(),
-        )?;
-        let Some(master) = status
-            .persona_public_key
-            .filter(|_| status.lock == VaultLockView::Unlocked)
-        else {
-            return Err(CustodyClientError::Refused(
-                crate::custody::CustodyRefusal::Locked,
-            ));
-        };
-        let master = Ed25519PublicKey::from_bytes(&master).map_err(CustodyClientError::Release)?;
-        let this = Self {
-            endpoint: endpoint.to_owned(),
-            app: app.clone(),
-            declaration: declaration.clone(),
-            requested_profile,
-            master,
-            status,
-            jobs: Mutex::new(starting.sender.take()),
-            job_thread: Mutex::new(starting.thread.take()),
-            watch_thread: Mutex::new(None),
-            call_timeout: timeout,
-            held: Arc::default(),
-            locked: Arc::new(AtomicBool::new(false)),
-            epoch: Arc::new(AtomicU64::new(1)),
-            stop,
-        };
-        this.watch(endpoint.to_string(), app, declaration);
-        Ok(this)
-    }
-
     /// The status djinn answered when this connected.
     pub fn connected_status(&self) -> &ResidentStatus {
         &self.status
@@ -358,7 +151,13 @@ impl CustodyIdentity {
         let declaration = self.declaration.clone();
         let profile = self.requested_profile.clone();
         let result = bounded_worker(move || {
-            BlockingCustodyClient::status_at_timeout_with(&endpoint, app, declaration, profile, timeout)
+            BlockingCustodyClient::status_at_timeout_with(
+                &endpoint,
+                app,
+                declaration,
+                profile,
+                timeout,
+            )
         });
         if self.status.custody_epoch.is_some()
             && !result
@@ -494,77 +293,6 @@ impl CustodyIdentity {
             .ok_or_else(closed)?;
         ask_on_bounded(&jobs, self.call_timeout, call)
     }
-
-    /// Follow the lock broadcast on a second conversation: a Locked vault,
-    /// or a djinn that went away, drops every held key (D11, D12).
-    fn watch(&self, endpoint: String, app: AppId, declaration: Option<AppDeclaration>) {
-        let held = Arc::clone(&self.held);
-        let locked = Arc::clone(&self.locked);
-        let epoch = Arc::clone(&self.epoch);
-        let stop = Arc::clone(&self.stop);
-        let spawned = std::thread::Builder::new()
-            .name(format!("custody-lock-{app}"))
-            .spawn(move || {
-                let drop_all = || {
-                    invalidate_epoch(&locked, &epoch);
-                    held.lock().unwrap_or_else(|e| e.into_inner()).clear();
-                };
-                let Ok(runtime) = tokio::runtime::Builder::new_current_thread().enable_all().build() else {
-                    drop_all(); return;
-                };
-                while !stop.load(Ordering::SeqCst) {
-                    let opened = runtime.block_on(async {
-                        tokio::select! {
-                            _ = wait_stopped(&stop) => None,
-                            result = tokio::time::timeout(Duration::from_secs(2), CustodyClient::open_at_with(&endpoint, app.clone(), declaration.clone())) => Some(result),
-                        }
-                    });
-                    let mut client = match opened {
-                        None => return,
-                        Some(Ok(Ok(client))) => client,
-                        Some(_) => {
-                            drop_all();
-                            runtime.block_on(async {
-                                tokio::select! {
-                                    _ = wait_stopped(&stop) => {},
-                                    _ = tokio::time::sleep(Duration::from_secs(2)) => {},
-                                }
-                            });
-                            continue;
-                        },
-                    };
-                    let mut seen = VaultLockView::Unlocked;
-                    loop {
-                        let changed = runtime.block_on(async {
-                            tokio::select! {
-                                _ = wait_stopped(&stop) => None,
-                                result = client.watch_lock(seen) => Some(result),
-                            }
-                        });
-                        match changed {
-                            None => return,
-                            Some(Ok(VaultLockView::Locked)) => {
-                                drop_all(); seen = VaultLockView::Locked;
-                            },
-                            Some(Ok(VaultLockView::Unlocked)) => {
-                                locked.store(false, Ordering::SeqCst); seen = VaultLockView::Unlocked;
-                            },
-                            Some(Err(_)) => { drop_all(); break; },
-                        }
-                    }
-                }
-            });
-        match spawned {
-            Ok(thread) => {
-                *self.watch_thread.lock().unwrap_or_else(|e| e.into_inner()) = Some(thread)
-            }
-            Err(_) => {
-                invalidate_epoch(&self.locked, &self.epoch);
-                self.forget();
-                tracing::warn!("custody lock watcher could not start; identity remains locked");
-            }
-        }
-    }
 }
 
 fn advance_epoch(epoch: &AtomicU64) {
@@ -598,244 +326,7 @@ fn invalidate_epoch(locked: &AtomicBool, epoch: &AtomicU64) {
 }
 
 #[cfg(test)]
-mod epoch_tests {
-    use super::*;
-
-    fn actorless_fixture() -> (CustodyIdentity, mpsc::Receiver<Job>) {
-        use personae::IdentityProvider as _;
-        let root = personae::InMemoryProvider::from_seed([7; 32]);
-        let master = root.master_public_key();
-        let (jobs, receiver) = mpsc::channel();
-        let identity = CustodyIdentity {
-            endpoint: "/tmp/alembic-no-custody-runtime-test.sock".into(),
-            app: AppId::new("turnstone"),
-            declaration: None,
-            requested_profile: None,
-            master,
-            status: ResidentStatus {
-                lock: VaultLockView::Unlocked,
-                protection: dramatis::view::VaultProtectionView::Ephemeral,
-                profile: Some(ProfileId("test".into())),
-                persona_public_key: Some(master.to_bytes()),
-                wallet_public_key: None,
-                wallet_root: None,
-                custody_epoch: None,
-            },
-            jobs: Mutex::new(Some(jobs)),
-            job_thread: Mutex::new(None),
-            watch_thread: Mutex::new(None),
-            call_timeout: Some(Duration::from_secs(2)),
-            held: Arc::default(),
-            locked: Arc::new(AtomicBool::new(false)),
-            epoch: Arc::new(AtomicU64::new(1)),
-            stop: Arc::new(AtomicBool::new(false)),
-        };
-        (identity, receiver)
-    }
-
-    #[test]
-    fn bounded_payload_is_safe_inside_tokio_runtime() {
-        const CHILD: &str = "MERE_CUSTODY_NESTED_RUNTIME_CHILD";
-        if std::env::var_os(CHILD).is_none() {
-            let result = std::process::Command::new(std::env::current_exe().unwrap())
-                .args(["--exact", "custody_identity::epoch_tests::bounded_payload_is_safe_inside_tokio_runtime"])
-                .env(CHILD, "1").output().unwrap();
-            assert!(
-                result.status.success(),
-                "payload must not panic in Tokio: {}",
-                String::from_utf8_lossy(&result.stderr)
-            );
-            assert!(
-                String::from_utf8_lossy(&result.stdout).contains("1 passed"),
-                "child must execute the payload regression"
-            );
-            return;
-        }
-        let (identity, _receiver) = actorless_fixture();
-        let runtime = tokio::runtime::Builder::new_current_thread()
-            .enable_all()
-            .build()
-            .unwrap();
-        runtime.block_on(async {
-            let _ = eidetic::PayloadSealer::seal(&identity, &eidetic::Hash::of(b"test"), b"test");
-        });
-    }
-
-    #[test]
-    fn fresh_status_must_match_original_authoritative_epoch_profile_and_master() {
-        let (mut identity, _receiver) = actorless_fixture();
-        identity.status.custody_epoch = Some(crate::custody::CustodyEpoch {
-            instance: "test-custodian".into(),
-            generation: 4,
-        });
-        let original = identity.status.clone();
-        assert!(identity.status_matches_binding(&original));
-        let mut changed = original.clone();
-        changed.custody_epoch.as_mut().unwrap().generation += 1;
-        assert!(!identity.status_matches_binding(&changed));
-        let mut changed = original.clone();
-        changed.profile = Some(ProfileId("other".into()));
-        assert!(!identity.status_matches_binding(&changed));
-        let mut changed = original.clone();
-        changed.persona_public_key = Some([0; 32]);
-        assert!(!identity.status_matches_binding(&changed));
-        let mut changed = original;
-        changed.custody_epoch = None;
-        assert!(!identity.status_matches_binding(&changed));
-    }
-
-    #[test]
-    fn simultaneous_callers_can_enqueue_without_waiting_for_each_other() {
-        let (identity, receiver) = actorless_fixture();
-        let identity = Arc::new(identity);
-        let first = identity.clone();
-        let one = std::thread::spawn(move || first.status());
-        let first_job = receiver
-            .recv_timeout(Duration::from_secs(2))
-            .expect("first caller queued");
-        let second = identity.clone();
-        let two = std::thread::spawn(move || second.status());
-        let second_job = receiver.recv_timeout(Duration::from_millis(500));
-        assert!(
-            second_job.is_ok(),
-            "another caller must enqueue before the first answer"
-        );
-        first_job.run(None);
-        second_job.unwrap().run(None);
-        assert!(one.join().unwrap().is_err());
-        assert!(two.join().unwrap().is_err());
-    }
-
-    #[cfg(unix)]
-    #[test]
-    fn watcher_drop_joins_while_handshake_is_stalled() {
-        use std::os::unix::{fs::PermissionsExt, net::UnixListener};
-        use std::time::Instant;
-        let path = std::path::PathBuf::from(format!(
-            "/tmp/alembic-watch-{}.sock",
-            uuid::Uuid::new_v4().simple()
-        ));
-        let listener = UnixListener::bind(&path).unwrap();
-        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600)).unwrap();
-        let (accepted_tx, accepted_rx) = mpsc::channel();
-        let (stop_tx, stop_rx) = mpsc::channel::<()>();
-        let server = std::thread::spawn(move || {
-            if let Ok((_stream, _)) = listener.accept() {
-                let _ = accepted_tx.send(());
-                let _ = stop_rx.recv_timeout(Duration::from_secs(3));
-            }
-        });
-        let (identity, _receiver) = actorless_fixture();
-        identity.watch(path.to_str().unwrap().into(), AppId::new("turnstone"), None);
-        accepted_rx
-            .recv_timeout(Duration::from_secs(2))
-            .expect("watcher connected");
-        let start = Instant::now();
-        drop(identity);
-        assert!(
-            start.elapsed() < Duration::from_secs(1),
-            "watcher stop must interrupt stalled handshake"
-        );
-        let _ = stop_tx.send(());
-        server.join().unwrap();
-        std::fs::remove_file(path).unwrap();
-    }
-
-    #[test]
-    fn failed_initialization_closes_and_joins_actor() {
-        let (sender, receiver) = mpsc::channel::<Job>();
-        let exited = Arc::new(AtomicBool::new(false));
-        let observed = exited.clone();
-        let worker = std::thread::spawn(move || {
-            while receiver.recv().is_ok() {}
-            observed.store(true, Ordering::SeqCst);
-        });
-        let result: Result<(), ()> = (|| {
-            let _starting = StartingActor {
-                sender: Some(sender),
-                thread: Some(worker),
-                stop: Arc::new(AtomicBool::new(false)),
-            };
-            Err(())
-        })();
-        assert!(result.is_err());
-        assert!(
-            exited.load(Ordering::SeqCst),
-            "constructor failure must join its actor"
-        );
-    }
-
-    #[test]
-    fn caller_timeout_retires_a_queued_job_before_dispatch() {
-        let (sender, receiver) = mpsc::channel();
-        let caller = std::thread::spawn(move || {
-            ask_on_bounded(&sender, Some(Duration::from_millis(30)), |_| Ok(()))
-        });
-        let job: Job = receiver.recv_timeout(Duration::from_secs(2)).unwrap();
-        assert!(matches!(
-            caller.join().unwrap(),
-            Err(CustodyClientError::Transport(_))
-        ));
-        assert!(job.expired());
-        assert!(job.run(None), "expired job must not touch a provider");
-    }
-
-    #[test]
-    fn timed_out_or_cancelled_queued_job_never_dispatches() {
-        let calls = Arc::new(AtomicU64::new(0));
-        for (deadline, cancelled) in [
-            (Some(Instant::now()), false),
-            (Some(Instant::now() + Duration::from_secs(30)), true),
-        ] {
-            let observed = calls.clone();
-            let job = Job {
-                deadline,
-                cancelled: Arc::new(AtomicBool::new(cancelled)),
-                call: Box::new(move |_| {
-                    observed.fetch_add(1, Ordering::SeqCst);
-                    true
-                }),
-            };
-            assert!(job.run(None));
-        }
-        assert_eq!(calls.load(Ordering::SeqCst), 0);
-        let observed = calls.clone();
-        let job = Job {
-            deadline: None,
-            cancelled: Arc::new(AtomicBool::new(false)),
-            call: Box::new(move |_| {
-                observed.fetch_add(1, Ordering::SeqCst);
-                true
-            }),
-        };
-        assert!(job.run(None));
-        assert_eq!(calls.load(Ordering::SeqCst), 1);
-    }
-
-    #[test]
-    fn custody_epoch_remembers_lock_unlock_between_observations() {
-        let locked = AtomicBool::new(false);
-        let epoch = AtomicU64::new(1);
-        let admitted = epoch.load(Ordering::SeqCst);
-        invalidate_epoch(&locked, &epoch);
-        invalidate_epoch(&locked, &epoch);
-        locked.store(false, Ordering::SeqCst);
-        assert!(!locked.load(Ordering::SeqCst));
-        assert_ne!(epoch.load(Ordering::SeqCst), admitted);
-        assert_eq!(epoch.load(Ordering::SeqCst), 2);
-        invalidate_epoch(&locked, &epoch);
-        assert_eq!(epoch.load(Ordering::SeqCst), 3);
-    }
-
-    #[test]
-    fn custody_epoch_exhaustion_does_not_reuse_an_old_generation() {
-        let epoch = AtomicU64::new(u64::MAX);
-        advance_epoch(&epoch);
-        assert_eq!(epoch.load(Ordering::SeqCst), 0);
-        advance_epoch(&epoch);
-        assert_eq!(epoch.load(Ordering::SeqCst), 0);
-    }
-}
+mod epoch_tests;
 
 impl Drop for CustodyIdentity {
     fn drop(&mut self) {
@@ -996,95 +487,7 @@ impl eidetic::PayloadSealer for CustodyIdentity {
     }
 }
 
-impl CustodyIdentity {
-    fn invalidate_binding(&self) {
-        invalidate_epoch(&self.locked, &self.epoch);
-        self.held.lock().unwrap_or_else(|e| e.into_inner()).clear();
-    }
-
-    fn status_matches_binding(&self, status: &ResidentStatus) -> bool {
-        status.lock == VaultLockView::Unlocked
-            && status.profile == self.status.profile
-            && status.persona_public_key == Some(self.master.to_bytes())
-            && status.custody_epoch == self.status.custody_epoch
-    }
-
-    fn check_fresh_payload_binding(&self, timeout: Duration) -> eidetic::Result<()> {
-        let status = self.status_timeout(timeout);
-        if status
-            .as_ref()
-            .is_ok_and(|status| self.status_matches_binding(status))
-            && self.custody_epoch().is_some()
-        {
-            return Ok(());
-        }
-        self.invalidate_binding();
-        Err(eidetic::Error::new(
-            "custody binding unavailable or changed",
-        ))
-    }
-
-    fn retained_payload(
-        &self,
-        hash: &eidetic::Hash,
-        operation: super::custody_payload::PayloadOperation,
-    ) -> eidetic::Result<super::custody_payload::PayloadResult> {
-        self.pending()
-            .map_err(|e| eidetic::Error::new(e.to_string()))?;
-        let request = super::custody_payload::PayloadRequest {
-            profile: self.profile().cloned().ok_or_else(|| {
-                eidetic::Error::new("custody disclosed no retained-content profile")
-            })?,
-            master: self.master.to_bytes(),
-            content_hash: *hash,
-            custody_epoch: self.status.custody_epoch.clone(),
-            operation,
-        };
-        request.validate().map_err(eidetic::Error::new)?;
-        let timeout = self.call_timeout.unwrap_or(Duration::from_secs(5));
-        let deadline = Instant::now()
-            .checked_add(timeout)
-            .ok_or_else(|| eidetic::Error::new("custody deadline invalid"))?;
-        let local_epoch = self
-            .custody_epoch()
-            .ok_or_else(|| eidetic::Error::new("custody binding unavailable"))?;
-        let remaining = || deadline.saturating_duration_since(Instant::now());
-        if request.custody_epoch.is_some() {
-            self.check_fresh_payload_binding(remaining())?;
-        }
-        let endpoint = self.endpoint.clone();
-        let app = self.app.clone();
-        let declaration = self.declaration.clone();
-        let profile = self.requested_profile.clone();
-        let payload_timeout = remaining();
-        let result = bounded_worker(move || {
-            match BlockingCustodyClient::call_at_timeout_with(
-                &endpoint,
-                app,
-                declaration,
-                profile,
-                CustodyCall::Payload(request),
-                payload_timeout,
-            ) {
-                Ok(CustodyAnswer::Payload { result }) => Ok(result),
-                Ok(_) => Err(CustodyClientError::UnexpectedAnswer {
-                    asked: "retained payload",
-                    got: "another operation",
-                }),
-                Err(error) => Err(error),
-            }
-        });
-        if self.status.custody_epoch.is_some() {
-            self.check_fresh_payload_binding(remaining())?;
-        }
-        if self.custody_epoch() != Some(local_epoch) {
-            return Err(eidetic::Error::new(
-                "custody binding changed during payload",
-            ));
-        }
-        result.map_err(|e| eidetic::Error::new(e.to_string()))
-    }
-}
+impl CustodyIdentity {}
 
 /// Isolate synchronous one-shot Tokio runtimes from any caller runtime.
 /// The one-shot transport has its own deadline and is never retried.
@@ -1135,11 +538,11 @@ fn ask_on_bounded<T: Send + 'static>(
                     );
                     let _ = reply.send(result);
                     healthy
-                }
+                },
                 None => {
                     let _ = reply.send(Err(CustodyClientError::Absent(AppClientError::Closed)));
                     false
-                }
+                },
             }
         }),
     };
@@ -1156,3 +559,9 @@ fn ask_on_bounded<T: Send + 'static>(
     cancelled.store(true, Ordering::SeqCst);
     result?
 }
+
+mod connection;
+
+mod payload;
+
+mod watcher;

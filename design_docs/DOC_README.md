@@ -32,6 +32,8 @@ is tracked in the repository plan and Mere's workspace hygiene plan.
   1.97.1, qualified separately. Canonical policy:
   `repos/mere/design_docs/2026-08-12_family_composition_thesis_brief.md`,
   section "Shared Rust toolchain and minimum version".
+- Windows vault adoption must flush a write-enabled file handle: a read-only
+  open succeeds but `sync_all` fails with AccessDenied on this host.
 - Secure-channel authentication never fills an absent carrier-authenticated
   peer. Notochord's secure entrypoints bind both observations and the attested
   subject separately; service policy decides whether their identities must match.
@@ -120,3 +122,5 @@ is tracked in the repository plan and Mere's workspace hygiene plan.
   receipt files naming run evidence kept outside the repository in
   `Code/testing/dramatis/` (path cites, not links), and old-to-main hash tables
   for documents that cite pre-merge hashes.
+
+- [source_splits_plan](2026-11-03_source_splits_plan.md): H5 twenty-file responsibility and fixture splits, in progress.

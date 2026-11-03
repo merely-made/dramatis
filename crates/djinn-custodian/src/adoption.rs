@@ -16,7 +16,9 @@ use std::path::Path;
 
 use castellan::custody::bootstrap::PASSPHRASE_VAULT_FILE;
 use castellan::custody::roster::choice_path;
-use castellan::custody::{AUTO_UNLOCK_ROOT_FILE, IdentityStorage, PassphraseEncryptedStorage, SealedProfileStorage};
+use castellan::custody::{
+    AUTO_UNLOCK_ROOT_FILE, IdentityStorage, PassphraseEncryptedStorage, SealedProfileStorage,
+};
 use personae::{IdentityError, ProfileId};
 
 /// What a source directory holds.
@@ -35,7 +37,10 @@ pub fn kind(from: &Path) -> Result<VaultKind, String> {
     } else if from.join(AUTO_UNLOCK_ROOT_FILE).is_file() {
         Ok(VaultKind::OsRooted)
     } else {
-        Err(format!("no passphrase vault or OS-rooted vault at {}", from.display()))
+        Err(format!(
+            "no passphrase vault or OS-rooted vault at {}",
+            from.display()
+        ))
     }
 }
 
@@ -51,15 +56,24 @@ pub fn open_os_rooted(from: &Path) -> Result<SealedProfileStorage, String> {
 }
 
 /// Save every profile of `source` into `target`, whole, with its slots.
-pub fn copy_profiles(source: &dyn IdentityStorage, target: &dyn IdentityStorage) -> Result<Vec<ProfileId>, String> {
-    let summaries = source.list_profiles().map_err(|e| format!("list the source profiles: {e}"))?;
+pub fn copy_profiles(
+    source: &dyn IdentityStorage,
+    target: &dyn IdentityStorage,
+) -> Result<Vec<ProfileId>, String> {
+    let summaries = source
+        .list_profiles()
+        .map_err(|e| format!("list the source profiles: {e}"))?;
     if summaries.is_empty() {
         return Err("the source vault holds no profile".into());
     }
     let mut copied = Vec::with_capacity(summaries.len());
     for summary in summaries {
-        let profile = source.load_profile(&summary.id).map_err(|e| format!("read profile {}: {e}", summary.id.0))?;
-        target.save_profile(&profile).map_err(|e| format!("write profile {}: {e}", summary.id.0))?;
+        let profile = source
+            .load_profile(&summary.id)
+            .map_err(|e| format!("read profile {}: {e}", summary.id.0))?;
+        target
+            .save_profile(&profile)
+            .map_err(|e| format!("write profile {}: {e}", summary.id.0))?;
         copied.push(summary.id);
     }
     Ok(copied)
@@ -69,7 +83,12 @@ pub fn copy_profiles(source: &dyn IdentityStorage, target: &dyn IdentityStorage)
 /// carry the roster's choice file from `from`. The file is staged beside its
 /// name and moved into place only when complete; a vault already there is
 /// never replaced.
-pub fn into_passphrase_vault(source: &dyn IdentityStorage, from: &Path, directory: &Path, passphrase: &[u8]) -> Result<Vec<ProfileId>, String> {
+pub fn into_passphrase_vault(
+    source: &dyn IdentityStorage,
+    from: &Path,
+    directory: &Path,
+    passphrase: &[u8],
+) -> Result<Vec<ProfileId>, String> {
     let vault = directory.join(PASSPHRASE_VAULT_FILE);
     if vault.exists() {
         return Err("a vault already exists in the custodian's state directory".into());
@@ -78,12 +97,17 @@ pub fn into_passphrase_vault(source: &dyn IdentityStorage, from: &Path, director
     let staged = directory.join(format!("{PASSPHRASE_VAULT_FILE}.adopting"));
     let _ = std::fs::remove_file(&staged);
     let copied: Result<Vec<ProfileId>, String> = (|| {
-        let target = PassphraseEncryptedStorage::open(&staged, passphrase).map_err(|e| format!("create the passphrase vault: {e}"))?;
+        let target = PassphraseEncryptedStorage::open(&staged, passphrase)
+            .map_err(|e| format!("create the passphrase vault: {e}"))?;
         let copied = copy_profiles(source, &target)?;
         if choice_path(from).is_file() {
             std::fs::copy(choice_path(from), choice_path(directory)).map_err(|e| e.to_string())?;
         }
-        std::fs::File::open(&staged).and_then(|f| f.sync_all()).map_err(|e| e.to_string())?;
+        std::fs::OpenOptions::new()
+            .write(true)
+            .open(&staged)
+            .and_then(|f| f.sync_all())
+            .map_err(|e| e.to_string())?;
         Ok(copied)
     })();
     if copied.is_err() {
@@ -107,7 +131,11 @@ mod tests {
         names
             .iter()
             .map(|name| {
-                let profile = Profile::new(ProfileId((*name).into()), format!("{name} display"), Ed25519Keypair::generate());
+                let profile = Profile::new(
+                    ProfileId((*name).into()),
+                    format!("{name} display"),
+                    Ed25519Keypair::generate(),
+                );
                 storage.save_profile(&profile).unwrap();
                 ((*name).to_string(), profile.master.public_key().to_bytes())
             })
@@ -125,20 +153,48 @@ mod tests {
         let source = SealedProfileStorage::open_with_key(from.path(), KEY);
         let into = tempfile::tempdir().unwrap();
         let directory = into.path().join("vault");
-        let mut copied = into_passphrase_vault(&source, from.path(), &directory, b"a passphrase").unwrap();
+        let mut copied =
+            into_passphrase_vault(&source, from.path(), &directory, b"a passphrase").unwrap();
         copied.sort_by(|a, b| a.0.cmp(&b.0));
-        assert_eq!(copied, vec![ProfileId("home".into()), ProfileId("work".into())]);
+        assert_eq!(
+            copied,
+            vec![ProfileId("home".into()), ProfileId("work".into())]
+        );
 
-        let adopted = PassphraseEncryptedStorage::open(directory.join(PASSPHRASE_VAULT_FILE), b"a passphrase").unwrap();
+        let adopted = PassphraseEncryptedStorage::open(
+            directory.join(PASSPHRASE_VAULT_FILE),
+            b"a passphrase",
+        )
+        .unwrap();
         for (name, master) in masters {
             let profile = adopted.load_profile(&ProfileId(name.clone())).unwrap();
-            assert_eq!(profile.master.public_key().to_bytes(), master, "{name} keeps its master");
+            assert_eq!(
+                profile.master.public_key().to_bytes(),
+                master,
+                "{name} keeps its master"
+            );
             assert_eq!(profile.display_name, format!("{name} display"));
         }
-        assert_eq!(std::fs::read_to_string(choice_path(&directory)).unwrap(), "home", "the roster choice travels");
-        assert!(PassphraseEncryptedStorage::open(directory.join(PASSPHRASE_VAULT_FILE), b"another").is_err(), "only the new passphrase opens it");
-        assert!(!directory.join(format!("{PASSPHRASE_VAULT_FILE}.adopting")).exists(), "nothing is left staged");
-        assert!(from.path().join("profiles").is_dir(), "the source stays where it was");
+        assert_eq!(
+            std::fs::read_to_string(choice_path(&directory)).unwrap(),
+            "home",
+            "the roster choice travels"
+        );
+        assert!(
+            PassphraseEncryptedStorage::open(directory.join(PASSPHRASE_VAULT_FILE), b"another")
+                .is_err(),
+            "only the new passphrase opens it"
+        );
+        assert!(
+            !directory
+                .join(format!("{PASSPHRASE_VAULT_FILE}.adopting"))
+                .exists(),
+            "nothing is left staged"
+        );
+        assert!(
+            from.path().join("profiles").is_dir(),
+            "the source stays where it was"
+        );
     }
 
     #[test]
@@ -146,14 +202,28 @@ mod tests {
         let from = tempfile::tempdir().unwrap();
         let source = SealedProfileStorage::open_with_key(from.path(), KEY);
         let into = tempfile::tempdir().unwrap();
-        assert_eq!(into_passphrase_vault(&source, from.path(), into.path(), b"p").unwrap_err(), "the source vault holds no profile");
-        assert!(!into.path().join(PASSPHRASE_VAULT_FILE).exists(), "a failed copy leaves no vault");
-        assert!(!into.path().join(format!("{PASSPHRASE_VAULT_FILE}.adopting")).exists());
+        assert_eq!(
+            into_passphrase_vault(&source, from.path(), into.path(), b"p").unwrap_err(),
+            "the source vault holds no profile"
+        );
+        assert!(
+            !into.path().join(PASSPHRASE_VAULT_FILE).exists(),
+            "a failed copy leaves no vault"
+        );
+        assert!(
+            !into
+                .path()
+                .join(format!("{PASSPHRASE_VAULT_FILE}.adopting"))
+                .exists()
+        );
         sealed(from.path(), &["work"]);
         into_passphrase_vault(&source, from.path(), into.path(), b"p").unwrap();
         let before = std::fs::read(into.path().join(PASSPHRASE_VAULT_FILE)).unwrap();
         assert!(into_passphrase_vault(&source, from.path(), into.path(), b"p").is_err());
-        assert_eq!(std::fs::read(into.path().join(PASSPHRASE_VAULT_FILE)).unwrap(), before);
+        assert_eq!(
+            std::fs::read(into.path().join(PASSPHRASE_VAULT_FILE)).unwrap(),
+            before
+        );
     }
 
     #[test]
@@ -163,7 +233,11 @@ mod tests {
         std::fs::write(dir.path().join(AUTO_UNLOCK_ROOT_FILE), b"{}").unwrap();
         assert_eq!(kind(dir.path()), Ok(VaultKind::OsRooted));
         std::fs::write(dir.path().join(PASSPHRASE_VAULT_FILE), b"{}").unwrap();
-        assert_eq!(kind(dir.path()), Ok(VaultKind::Passphrase), "a vault.json wins");
+        assert_eq!(
+            kind(dir.path()),
+            Ok(VaultKind::Passphrase),
+            "a vault.json wins"
+        );
         #[cfg(not(windows))]
         {
             std::fs::remove_file(dir.path().join(PASSPHRASE_VAULT_FILE)).unwrap();

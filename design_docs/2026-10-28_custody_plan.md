@@ -1,14 +1,14 @@
 # Custody: isolation, the vault lock's open work and the parked Secret Service design
 
 **Status:** 2026-10-28: cut from `2026-10-21_custody_isolation_and_security_hardening_plan.md`, `2026-10-05_vault_lock_plan.md` and
-`2026-10-08_secret_service_plan.md`, with lane L4 of `2026-10-20_ownership_repair_plan.md` and the resident's custody tiers from
+`2026-10-08_secret_service_plan.md`, with lane L4 of `repos/mere/design_docs/mere_docs/implementation_strategy/2026-10-20_ownership_repair_plan.md` and the resident's custody tiers from
 `2026-08-20_device_resident_consolidation_plan.md`, archived in `repos/mere/design_docs/archive_docs/2026-10-28/`. H1 and H2 of custody isolation are
 on main: `djinn-custodian` is a separate process behind one authenticated contract (`custody-wire`) with Linux, macOS and
 Windows launchers, it holds Castellan's resident host, the wallet, the credential catalog and the SSH agent, and a
 production Djinn links no castellan. C04 and C07 are repaired. Gated: Hocket adoption is stopped; no deployment installs a
 custodian for daily use until the Linux and signed-macOS receiving runs (wallet at-rest check included) pass, and the
 Windows o-pc run is the Windows qualification. The vault lock's L1 to L4 landed; deployment is Mark's step. Open: H1 to H4
-remainders, the closing of ruling 44, ruling 91, pandect's wallets, the Q040 to Q052 repairs, lane L4, and the Secret
+remainders, the closing of ruling 44, ruling 91, the Q040 to Q052 repairs, lane L4, and the Secret
 Service, parked by SS8.
 
 **Ownership, 2026-11-03:** this plan follows `crates/djinn-custodian` and
@@ -23,15 +23,15 @@ isolation, his 2026-10-26 ruling that custody isolation is live work and a macOS
 lock's origin (2026-10-04, finding that the vault never locks: "we need to be able to lock the vault lmao. Otherwise it's
 just a big room").
 Not here:
-- extraction, receiving cohorts and observation and action gates: `2026-10-28_family_promotion_plan.md`; the pairing
+- extraction, receiving cohorts and observation and action gates: `repos/mere/design_docs/mere_docs/implementation_strategy/2026-10-28_family_promotion_plan.md`; the pairing
   ceremony, SSH host certificates and the resident's Linux launcher (the rules here must compose with them):
-  `2026-10-28_device_pairing_plan.md`; the Djinn update resident: `2026-10-28_family_update_resident_plan.md`; the
-  publication service a confined worker serves: `2026-10-28_site_publication_plan.md`;
+  `repos/mere/design_docs/mere_docs/implementation_strategy/2026-10-28_device_pairing_plan.md`; the Djinn update resident: `repos/mere/design_docs/mere_docs/implementation_strategy/2026-10-28_family_update_resident_plan.md`; the
+  publication service a confined worker serves: `repos/mere/design_docs/mere_docs/implementation_strategy/2026-10-28_site_publication_plan.md`;
 - the dramatis repo plan's work (facade, D5, the keeper feature split, PAKE and QR chrome, copy-mode export, sibling repins),
   the chatelaine CXF plan's P4 import and V4 item types, and the pinned threat statement and tier architecture (owning-repo
-  follow-up, no competing copy here); the public client `2026-10-11_dramatis_app_plan.md`;
-- ownership-repair lanes L1 to L3, L5 and L6 and the audit routing: `2026-10-28_graph_semantics_plan.md` (L1) and
-  `2026-10-28_source_audit_repairs_plan.md`; inference lock behaviour: `2026-10-28_resident_inference_plan.md`.
+  follow-up, no competing copy here); the public client `repos/mere/design_docs/dramatis_docs/implementation_strategy/2026-10-11_dramatis_app_plan.md`;
+- ownership-repair lanes L1 to L3, L5 and L6 and the audit routing: `repos/mere/design_docs/mere_docs/implementation_strategy/2026-10-28_graph_semantics_plan.md` (L1) and
+  `repos/mere/design_docs/mere_docs/implementation_strategy/2026-10-28_source_audit_repairs_plan.md`; inference lock behaviour: `repos/mere/design_docs/mere_docs/implementation_strategy/2026-10-28_resident_inference_plan.md`.
 
 Receipts from this plan's runs go to `archive_docs/<date>/`, never into this
 plan (DOC_POLICY §8). Evidence that matters is a test in the repository or a
@@ -304,7 +304,7 @@ SS8 parked the plan.
   `org.freedesktop.secrets` reports it. S3: a Djinn user unit starts the resident at logon. S4: on the ThinkPad
   `secret-tool` and a GNOME app store, read, lock and unlock through Djinn, a client `Lock` locks the whole vault, and the
   threat statement and tier architecture name the service.
-- Needs: SS8 reversed by an app needing Djinn's lock; `2026-10-28_device_pairing_plan.md` D2 for the Linux launcher
+- Needs: SS8 reversed by an app needing Djinn's lock; `repos/mere/design_docs/mere_docs/implementation_strategy/2026-10-28_device_pairing_plan.md` D2 for the Linux launcher
 - Rulings: SS1 to SS8; vault lock 10, 66, 67, 68, 69, 87
 - From: `repos/mere/design_docs/archive_docs/2026-10-28/2026-10-08_secret_service_plan.md:4-17,45-65,67-99,134-215`; `repos/mere/design_docs/archive_docs/2026-10-28/2026-07-03_archived_plan_tails_plan.md:1153-1156`
 

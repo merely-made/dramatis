@@ -29,7 +29,7 @@ impl Fixture {
             [ApprovalAction::Consent],
         );
         Self {
-            directory: tempfile::tempdir().unwrap(),
+            directory: crate::tests::protected_directory(),
             root,
             policy,
         }

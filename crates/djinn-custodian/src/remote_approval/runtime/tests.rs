@@ -20,7 +20,7 @@ struct Fixture {
 
 impl Fixture {
     fn new() -> Self {
-        let directory = tempfile::tempdir().unwrap();
+        let directory = crate::tests::protected_directory();
         let root = InMemoryProvider::from_seed([1; 32]);
         let device = InMemoryProvider::from_seed([2; 32]);
         let issuer = root.master_public_key().to_bytes();

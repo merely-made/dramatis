@@ -51,8 +51,8 @@ is tracked in the repository plan and Mere's workspace hygiene plan.
 
 - [custody_plan](2026-10-28_custody_plan.md): custody isolation, vault lock,
   tested absolute unlock expiry, fleet-wide one-week policy and the portable
-  root/device approval, durable enrollment and consent execution (VL-U;
-  network/UI/opening integration open), production
+  root/device approval, durable enrollment, consent execution and the public
+  SSH route (VL-U; native enrollment/P2P/UI/opening gates open), production
   receiving gates and the parked Secret Service design; moved with
   the custodian under D14. [Current receipts](archive_docs/receipts/2026-10-28_custody_plan_receipts.md);
   historical sources and receipts retain Mere paths.

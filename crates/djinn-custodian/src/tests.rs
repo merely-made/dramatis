@@ -45,10 +45,20 @@ fn admin() -> Peer {
 
 /// A real passphrase vault with one profile, `work`.
 pub(crate) fn vault() -> (tempfile::TempDir, [u8; 32]) {
-    let dir = tempfile::tempdir().unwrap();
+    let dir = protected_directory();
     let opened = bootstrap::open_storage(dir.path(), Unlock::passphrase(PASSPHRASE)).unwrap();
     let (profile, _) = bootstrap::load_or_create_profile(&*opened.storage, &ProfileId("work".into())).unwrap();
     (dir, profile.master.public_key().to_bytes())
+}
+
+pub(crate) fn protected_directory() -> tempfile::TempDir {
+    let directory = tempfile::tempdir().unwrap();
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        std::fs::set_permissions(directory.path(), std::fs::Permissions::from_mode(0o700)).unwrap();
+    }
+    directory
 }
 
 pub(crate) fn config(dir: &std::path::Path, consent: &str, release_consent: &str) -> Config {

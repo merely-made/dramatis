@@ -496,3 +496,9 @@ git diff --check
   A second device is deliberately not authorized on O-PC until the guard is
   deployed. Existing relay streams were coordinated before the attempted
   update; no further service restart occurred at this checkpoint.
+- Follow-up: the interactive T-PC sudo request timed out reading a password.
+  Its held diagnostic reports `sudo: timed out reading password` and
+  `sudo: a password is required`. No accepted elevation or activation occurred;
+  helper remains absent and the old service PID remains active. Native retry
+  now waits for the owner's readiness, with T-PC first and O-PC's guard UAC
+  afterward, avoiding simultaneous authentication dialogs.

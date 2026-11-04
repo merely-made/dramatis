@@ -162,3 +162,47 @@ They cover:
 - a sealed-record vault round-trips into a passphrase vault with its slots and roster choice, and an existing vault is never replaced ([`src/adoption.rs`](src/adoption.rs));
 - Djinn's lock holders forget their keys on a custodian lock and re-derive through it on unlock;
 - quarantine review and CXF import go through the custodian's catalog behind Djinn's native consent.
+
+## Remote consent and enrollment (host API)
+
+Remote approval is disabled unless protected service configuration contains
+`remote_approval`: an `ApprovalPolicy` with `root` (Notochord `TrustedRoot`),
+`target` public identity, exact `profile`, permitted `actions`, and configurable
+`max_grant_seconds` / `max_unlock_seconds` (one week by default). The profile
+must equal `vault.profile`, and its unlock limit cannot exceed the vault's.
+`consent: deny` remains deny. Channel mode can queue remote approval when its
+native helper is absent, provided the explicit remote consent policy applies.
+
+Owner setup calls `remote_approval::storage::EnrollmentStore::initialize`
+inside the existing OS-protected vault directory. This creates
+`remote-approval.redb` exclusively; service startup only opens existing state.
+Store initialization is a host API, not a client command or automatic fallback.
+The database contains public root pins, signed enrollments and signed
+withdrawals, with one exclusive database owner and transactional writes.
+Missing/corrupt state or mismatched root/target/profile refuses activation.
+Unix ownership/mode and indirect-path checks supplement the host's protection;
+Windows directory ACL enforcement remains the installed host's responsibility.
+
+The host calls `Core::enroll_remote_device` with the pinned root's signed
+certificate, then reads `remote_petition` and calls `request_remote_consent`
+for that exact request/digest. The approving custodian signs the returned
+statement under the remote-approval delegation audience after its admitted
+owner action; it releases no root seed. `approve_remote_consent` verifies the
+proof and current stored revocations, then rechecks the petition's existing
+requester permission at the serialized commit barrier. Revocation is persisted
+through `revoke_remote_device`; duplicate delivery does not advance generation.
+Each queued petition has a fresh identity even if client request ids repeat.
+
+Per-operation consent remains one-use. Per-generation consent has its own
+revocation-bound cache, capped by the signed grant and existing vault session;
+using it never renews either deadline. Storage is re-read on each cache use.
+History survives narrower settings without becoming renewed permission.
+Budgets are 1 MiB per state record, 256 enrollments and 1024 withdrawals;
+the store refuses growth beyond them rather than evicting authority history.
+Restoring the whole database from an old administrator snapshot is outside
+these rollback checks; the live handle detects revision regression.
+
+This API does not add a network route or OS-elevation bridge.
+`request_remote_unlock` explicitly refuses the current passphrase-only opening
+backend. The authenticated locked-state route, native approving UI, backend
+opening support and real O-PC/T-PC receiving remain separate qualification.

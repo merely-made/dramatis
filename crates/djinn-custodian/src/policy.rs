@@ -28,6 +28,10 @@ pub struct Config {
     /// `null` explicitly selects an indefinite lifetime in the owner policy.
     #[serde(default = "default_max_unlocked_seconds")]
     pub max_unlocked_seconds: Option<u64>,
+    /// Explicit protected root/target policy. Absent disables remote approval;
+    /// enabling it requires pre-initialized owner enrollment storage.
+    #[serde(default)]
+    pub remote_approval: Option<crate::remote_approval::ApprovalPolicy>,
     pub principals: Vec<PrincipalRule>,
     /// How petitions reach the owner.
     pub consent: ConsentMode,
@@ -406,6 +410,10 @@ impl Config {
     }
 
     fn validate(&self) -> Result<(), PolicyError> {
+        if let Some(remote) = &self.remote_approval {
+            remote.validate_for_vault(self.vault.profile.as_deref(), self.max_unlocked_seconds)
+                .map_err(|error| PolicyError(error.to_string()))?;
+        }
         if self.max_unlocked_seconds.is_some_and(|seconds| seconds == 0
             || std::time::Instant::now().checked_add(std::time::Duration::from_secs(seconds)).is_none()) {
             return Err(PolicyError("max_unlocked_seconds must be positive and representable, or null".into()));

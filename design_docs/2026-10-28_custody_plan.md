@@ -20,8 +20,9 @@ The wallet store and station-grant policy are now Sporran's.
 **Update, 2026-11-04:** the one-week policy applies fleet-wide to all already
 authorized work. The custodian's configurable absolute unlocked lifetime is
 implemented and tested. The portable root/device enrollment and remote-approval
-proof gate is implemented; fleet deployment, settings UI and remote approval's
-execution/network/backend integration remain open. Platform receiving is separate.
+proof gate, durable enrollment and consent execution are implemented at supplier
+scope. Settings UI, remote routing and storage-opening integration remain open.
+Platform receiving and the installed native cohort remain separate.
 
 **For:** making the custodian the only production owner of Castellan custody and proving it with enforcement evidence, and
 finishing what the lock left. Opened by Mark's request of 2026-10-21 for a security-boundary audit beginning with custody
@@ -375,16 +376,23 @@ Implementation slices, in order:
    The request uses the existing short consent deadline; it never slides a
    signed weekly grant. An unlock result is capped at the grant's remaining
    lifetime. Verification has no vault/SSH dependency and causes no unlock.
-2. **Custody execution and durable enrollment (open).** Persist root pins,
-   enrollment and revocations through protected owner storage; fail closed
-   on missing/stale state. Restrict approval signing to its exact delegation
-   audience in the approving custodian and require its admitted owner action.
-   Connect a verified result to the exact active petition or supported unlock
-   backend. Recheck requester grants, root/device revocation, target context,
-   request deadline and authorization bound at commitment, under custody's
-   serialization. Carry the absolute bound into the existing timer; ordinary
-   consent never renews it. Backend opening and native OS elevation are
-   separate capabilities. A native-only backend remains unsupported remotely.
+2. **Durable enrollment and consent execution (implemented; source/in-process).**
+   Optional protected `remote_approval` policy is disabled by default. Owner
+   setup exclusively initializes `remote-approval.redb` under the existing
+   protected vault directory; startup refuses absent/corrupt state or changed
+   root/target/profile pins. Muniment/redb commits public signed enrollments
+   and withdrawals transactionally, including withdrawals arriving before
+   enrollment. History survives narrower owner settings without granting use.
+   Core's host API verifies the registered grant and current ledger, then
+   rechecks the exact active petition, requester permission, generation and
+   expiry under one mutable custody owner. Petition identity is fresh even
+   when a caller repeats its request id. Per-operation approval is one-use;
+   per-generation remote consent has a distinct revocation-bound cache that
+   re-reads storage and never renews the original vault/grant deadline.
+   Executed controls cover derived-key release and per-use SSH signing.
+   The operator setup UI, approving-host native signing admission and remote
+   storage-opening backend remain open. The passphrase backend explicitly
+   refuses approval-only unlock; native OS elevation is a separate mechanism.
 3. **Locked-state route and O-PC/T-PC receiving (open).** Reuse the resident's
    authenticated channel machinery and Notochord's carrier/subject binding;
    authenticate/pin the target while locked without SSH keys from its vault.
@@ -500,7 +508,14 @@ SS8 parked the plan.
 
 ## Findings
 
-- 2026-11-04 (source-confirmed): the remote proof gate reuses Insigne's signed
+- 2026-11-04 (source/in-process): `core/remote.rs` now commits root/device
+  consent through the shared petition barrier; `remote_approval/storage.rs`
+  persists signed public authority and `runtime.rs` rechecks cached authority.
+  The host API adds no wire operation, network listener or opening credential.
+  Store ACL protection uses the installed custodian parent; whole-database
+  administrator rollback and additional OS receiving remain unqualified.
+
+- 2026-11-04 (source-confirmed at `0c59e2d`): the remote proof gate reuses Insigne's signed
   certificate/attenuation grammar and Notochord's chain/revocation checks.
   `crates/djinn-custodian/src/remote_approval.rs` is not wired to `Core`, the
   driver or a network route. Passing proof tests therefore proves neither
@@ -571,3 +586,7 @@ SS8 parked the plan.
   resident reloaded week-long idle with session/suspend locks disabled.
   Other hosts retain older residents: saved week-long idle is verified, but
   their absolute-expiry deployment and root-persona remote prompts remain open.
+- 2026-11-04: integrated durable root/device enrollment and signed withdrawals
+  with exact-petition remote consent, revocation-bound caching and duplicate-id
+  refusal. This source slice leaves installed receiver binaries unchanged;
+  network routing, approving UI and remote opening remain separate gates.

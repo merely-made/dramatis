@@ -21,18 +21,42 @@ use notochord::{RevocationLedger, TrustedRoot, validate_chain};
 
 use crate::{Refusal, Result};
 
+pub(crate) mod runtime;
+pub mod storage;
+
 /// Local owner policy, never a value accepted from a remote requester.
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ApprovalPolicy {
     pub root: TrustedRoot,
     pub target: [u8; 32],
     pub profile: String,
     pub actions: BTreeSet<ApprovalAction>,
+    #[serde(default = "weekly_seconds")]
     pub max_grant_seconds: u64,
+    #[serde(default = "weekly_seconds")]
     pub max_unlock_seconds: u64,
 }
 
+fn weekly_seconds() -> u64 {
+    WEEK_SECONDS
+}
+
 impl ApprovalPolicy {
+    pub(crate) fn validate_for_vault(
+        &self,
+        profile: Option<&str>,
+        limit: Option<u64>,
+    ) -> Result<()> {
+        ApprovalGate::new(self.clone(), "policy-check".into(), 1)?;
+        if profile != Some(self.profile.as_str())
+            || limit.is_some_and(|seconds| self.max_unlock_seconds > seconds)
+        {
+            return Err(Refusal("remote-profile-or-limit"));
+        }
+        Ok(())
+    }
+
     /// The selected one-week limits, with explicit operation permissions.
     /// A root pin without an action grants no remote custody authority.
     pub fn weekly(
@@ -199,6 +223,31 @@ impl ApprovalGate {
             certificate: grant.certificate.id(),
             expires_at_ms,
         })
+    }
+
+    /// Validate immutable history without treating it as current permission.
+    /// Narrower owner settings must not erase signed withdrawals or make old
+    /// enrollment records corrupt. Actual use still calls `check_enrollment`.
+    pub(crate) fn check_stored_enrollment(
+        &self,
+        grant: &SignedDelegationCertificate,
+    ) -> Result<()> {
+        if !bounded_scope(&grant.certificate.scope)
+            || grant.signature().len() != 64
+            || grant.signer.signature().len() != 64
+        {
+            return Err(Refusal("remote-proof-size"));
+        }
+        validate_chain(
+            std::slice::from_ref(grant),
+            grant.certificate.subject,
+            &[self.policy.root],
+            &RevocationLedger::new(),
+            1,
+            grant.certificate.not_before_ms,
+        )
+        .map_err(|_| Refusal("remote-chain"))?;
+        self.enrollment_shape(grant).map(|_| ())
     }
 
     /// Create a bounded challenge. This does not require the target vault to
@@ -376,11 +425,32 @@ impl ApprovalGate {
         signed: &SignedDelegationCertificate,
         now_ms: u64,
     ) -> Result<u64> {
+        let expires = self.enrollment_shape(signed)?;
+        let root_grant = &signed.certificate;
+        let allowed = self
+            .policy
+            .actions
+            .iter()
+            .map(|action| action.as_str().to_string())
+            .collect();
+        if !root_grant.scope.actions.is_subset(&allowed) {
+            return Err(Refusal("remote-enrollment-scope"));
+        }
+        if expires <= now_ms
+            || expires.saturating_sub(root_grant.issued_at_ms)
+                > self.policy.max_grant_seconds * 1000
+        {
+            return Err(Refusal("remote-grant-duration"));
+        }
+        Ok(expires)
+    }
+
+    fn enrollment_shape(&self, signed: &SignedDelegationCertificate) -> Result<u64> {
         let root_grant = &signed.certificate;
         let expected = enrollment_scope(
             self.policy.target,
             &self.policy.profile,
-            self.policy.actions.iter().copied(),
+            [ApprovalAction::Unlock, ApprovalAction::Consent],
         );
         if root_grant.scope.domain != DOMAIN
             || root_grant.scope.resource != expected.resource
@@ -393,10 +463,7 @@ impl ApprovalGate {
         let expires = root_grant
             .expires_at_ms
             .ok_or(Refusal("remote-grant-duration"))?;
-        if expires <= now_ms
-            || expires.saturating_sub(root_grant.issued_at_ms)
-                > self.policy.max_grant_seconds * 1000
-        {
+        if expires <= root_grant.not_before_ms {
             return Err(Refusal("remote-grant-duration"));
         }
         Ok(expires)

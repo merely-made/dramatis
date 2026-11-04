@@ -289,3 +289,79 @@ line ceiling, workspace all-target Clippy and dependency bans. No new isolated
 target or Cargo home was used. Protected original policies/image and compact
 private attempt results remain owned by `fleet-weekly-policy` for rollback;
 the remote-approval worktree is owned by its separate source-integration lane.
+
+## 2026-11-04: durable enrollment and custody consent integration
+
+Mark authorized continuing this source lane while Windows receiving recovered.
+The actual Core/manifest collision was isolated in
+`Code/worktrees/dramatis-remote-approval`, branch `lane/remote-approval`, from
+`0c59e2d`. Source checkpoint `a05217b` was then merged onto `e004e8a`, retaining
+the qualified Windows parity and native deployment receipts above. The merge
+also gives each queued petition a fresh identity, so caller-reused ids cannot
+move approval between immutable operations.
+
+Protected configuration gains optional `remote_approval`; absent means disabled.
+Explicit owner setup creates `remote-approval.redb` under the existing vault
+directory, and service startup only opens existing state. Muniment/redb provides
+exclusive ownership and transactional public authority records. Root/target/
+profile pins, every certificate and signed withdrawal are checked on load.
+Missing/corrupt state refuses activation; it never creates an empty replacement.
+Unix ownership/mode and indirect paths are checked; Windows parent ACLs remain
+the installed host's responsibility. These synthetic supplier tests do not add
+a cross-account filesystem or power-loss qualification. Restoring an entire
+administrator database snapshot remains outside the live revision check.
+
+Signed withdrawals survive restart and also arrive safely before enrollment.
+An old certificate cannot undo that tombstone. Duplicate enrollment does not
+renew its signed expiry; replayed withdrawal does not repeatedly advance Core's
+generation. Narrower owner settings preserve history and revocations while
+refusing authority those settings no longer permit. The bounded state budget
+is 1 MiB, 256 enrollments and 1024 withdrawals, with refusal rather than eviction.
+
+Core's trusted host API completes exact active consent petitions through the
+same serialized barrier as local consent. It rechecks requester permission,
+request/digest, profile, generation, clocks, registration and revocation. Remote
+per-generation consent has a separate cache that re-reads storage on every use;
+its original grant/vault bounds never slide. Per-operation consent stays one-use.
+The host API's approval result contains no secret; operation output remains
+addressed to the originally admitted requester. No wire operation is added.
+
+Executed integration controls include registered-device and direct-root
+approval of a real derived-key release, a valid per-use SSH signature through
+Castellan's broker, duplicate-id petition substitution, requester permission
+removed before commit, closed requester, lock, revocation, expiry, replay and
+restart. Store controls cover exclusive ownership, damaged/missing data,
+root/target/profile mismatch, invalid signature/scope, out-of-order withdrawal,
+duplicate delivery, historical expiry and live revision regression. Cache
+controls independently change the stored ledger, test invalid withdrawal
+without canceling good authority, and exercise both clocks and rollback.
+
+Initial failures are retained in summary: a sibling visibility error was
+corrected to Core-only visibility; the first focused test run passed 21/29,
+with eight fixtures using an invalid profile-scope JSON form. The fixtures now
+use the existing `named` scope grammar, without weakening policy validation.
+The isolated full run then passed 87 tests; the added policy-history and
+out-of-order controls passed separately, as did all 12 final Core remote tests.
+Final integrated checks passed **91/91 custodian library tests and 7/7 Windows
+wire tests**. Relevant all-target Clippy passed with no new-module diagnostics.
+The isolated source commit's hooks passed line ceiling, workspace Clippy and
+dependency bans; the main merge repeats those hooks before publication.
+
+The current passphrase opening backend explicitly refuses approval-only
+unlock. Native approving UI/admission, protected setup UI, authenticated
+locked-state network delivery, independent-uplink O-PC/T-PC enrollment and
+OS-elevation bridges remain separate gates. This source change enables none
+of them on the installed fleet. The native receiving executable remains
+`F9FD7C325BC06F54A7DBD29AD9C08EC5C5DA9F822A9C8EDAF972E626861B430D`.
+Builds reuse the normal Dramatis target/build directory, one job. Only compact
+summaries are retained; full new logs/captures and live fleet fault tests were
+not created. Worktree removal follows successful main integration; no isolated
+Cargo home or target is retained. The receipt stays within the 100 MB lane cap.
+
+Final source commands, with the stable Dramatis target/build overrides:
+
+```text
+cargo test -p djinn-custodian -p custody-wire --lib --locked --offline -- --test-threads=1
+cargo clippy -p djinn-custodian -p custody-wire --all-targets --locked --offline --no-deps
+git diff --check
+```

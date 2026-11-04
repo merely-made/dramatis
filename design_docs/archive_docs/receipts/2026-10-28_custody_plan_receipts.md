@@ -242,3 +242,50 @@ post-check replacement executable is 15,922,688 bytes, SHA256
 `F9FD7C325BC06F54A7DBD29AD9C08EC5C5DA9F822A9C8EDAF972E626861B430D`.
 It includes committed timer/proof plus receiving parity; the isolated new
 Core integration is excluded. Native receiving is pending at this checkpoint.
+
+### Corrected native receiving and fleet SSH
+
+`update-attempt-05.json` records successful native elevated installation at
+20:31:59 UTC, without rollback, of the exact F9FD image above and the protected
+604800-second policy. The fifteen-second startup check passed. Independent
+controller reads verified the installed hash, SCM Running/PID 28048, and
+Running consent task. The installed Djinn native unlock returned exit zero;
+the resident logged unlocked at 20:32:41 UTC. The real Windows agent then
+listed the same pre-existing Ed25519 key and certificate. Authenticated SSH
+using that key succeeded to Q-PC, iMac-M4, T-PC, Y-PC, S-PC, R-PC and X-PC.
+The M4 connection used its existing mesh fallback, not its independent uplink.
+X-PC requires its existing SSH HostKeyAlias: the inventory-address probe
+refused an unknown raw-address host key, and the configured alias succeeded
+with strict host-key checking. Host-key verification was never disabled.
+
+The first fleet inspection passed CRLF input to Unix `sh` and failed remote
+command parsing after authentication; the corrected byte-input probe passed.
+Those parsing failures were not network reachability failures. An Application
+event-log query by unregistered provider name also failed; it is not claimed
+as a receiving or diagnostic-channel receipt. SCM/hash/native unlock and real
+agent/SSH are the receiving evidence.
+
+Only after finite custodian receiving succeeded, O-PC's existing `lock.toml`
+was set to `session_lock=false`, `suspend=false`, `idle=true`, and
+`idle_minutes=10080`. Its resident logged the exact reload at 20:34:48 UTC.
+The original settings backup remains. Explicit lock and restart still lock;
+ordinary screen lock, sleep, activity and reconnect do not renew the fixed
+week. The source's injected-time controls qualify the expiry boundary; this
+deployment has not been observed running for a full week.
+
+All seven remote standard-root idle files were re-read as 10080. Active
+Q-PC launchd and T-PC systemd XDG overrides were also checked at their actual
+paths, both 10080. Fresh process/service inventory found T-PC, S-PC, Q-PC and
+iMac-M4 residents running; this lane did not start them. Y-PC and R-PC reported
+no user service; X-PC's saved setting was read via its configured SSH alias.
+Y-PC's now-readable unit reports not-found, closing the earlier unresolved
+inactive-launcher lookup. Remote Linux hosts checked do not have a separate
+custodian service. This does not deploy absolute elapsed expiry or remote
+root/device grants to those legacy residents; their other lock triggers were
+preserved. New cross-network approval integration stays in its source lane.
+
+Receiving/parity source is pushed as `f83c641`. Its full commit hooks passed
+line ceiling, workspace all-target Clippy and dependency bans. No new isolated
+target or Cargo home was used. Protected original policies/image and compact
+private attempt results remain owned by `fleet-weekly-policy` for rollback;
+the remote-approval worktree is owned by its separate source-integration lane.

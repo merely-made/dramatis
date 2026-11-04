@@ -566,5 +566,8 @@ SS8 parked the plan.
   Restored the exact previous executable and policy with a sustained Running
   check. Recovered four previously qualified Windows receiving fixes from
   Mere's historical custodian lane into their current Dramatis owners.
-  Replacement receiving and fleet-wide elapsed-expiry deployment remain open;
-  saved idle settings and portable proof tests do not establish these gates.
+  The corrected receiver then passed native install, unlock and existing-key
+  SSH to all seven remote fleet hosts. O-PC enforces the fixed week and its
+  resident reloaded week-long idle with session/suspend locks disabled.
+  Other hosts retain older residents: saved week-long idle is verified, but
+  their absolute-expiry deployment and root-persona remote prompts remain open.

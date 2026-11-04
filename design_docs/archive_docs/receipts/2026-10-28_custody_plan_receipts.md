@@ -117,3 +117,18 @@ elevation. The source/binary receiving checks do not establish a live absolute
 weekly deadline on any older installed resident. The owner was asked whether
 to reopen the native prompt or leave the tested update ready. Early session
 lock and suspend flags were preserved until finite expiry is deployed.
+
+### Inactive launcher path verification
+
+Systemd user-unit environment checks found T-PC's configured `XDG_DATA_HOME`
+override. Its actual `graphshell/lock.toml` was then written and parsed back
+as 10080 minutes, in addition to the standard-root file. R-PC and X-PC reported
+no installed `djinn.service`; their saved standard-root files are therefore
+configuration preparation, not active service deployment. iMac-M4's launchd
+environment has no data-root override. Q-PC's actual launchd override and its
+current file were checked directly; the recorded reload predates this pass.
+Y-PC became unreachable again before its inactive unit environment could be
+verified: its standard-root setting was written/read back, but its configured
+launcher-path verification remains open. These distinctions limit the earlier
+all-eight statement to saved configuration; they do not establish eight live
+residents or a fleet-wide enforced absolute deadline.

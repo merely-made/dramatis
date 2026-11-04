@@ -116,6 +116,7 @@ pub struct Core {
     active: Option<String>,
     signing: HashSet<uuid::Uuid>,
     unlock_deadline: Option<UnlockDeadline>,
+    remote: Option<crate::remote_approval::runtime::RemoteRuntime>,
 }
 
 const MAX_SALTS: usize = 32;
@@ -125,6 +126,12 @@ const MAX_PETITIONS_PER_SESSION: usize = 4;
 impl Core {
     /// Start locked, with a fresh instance id.
     pub fn start(config: Config) -> Result<Self, Refusal> {
+        let instance = crate::nonce()?;
+        let remote = config.remote_approval.as_ref().map(|policy| {
+            crate::remote_approval::runtime::RemoteRuntime::open(
+                &config.vault.directory, policy.clone(), instance.clone(), 1,
+            )
+        }).transpose()?;
         let vault = HostCustody::locked(
             &config.vault.directory,
             config.vault.profile.as_deref(),
@@ -133,7 +140,7 @@ impl Core {
         Ok(Self {
             config,
             vault,
-            instance: crate::nonce()?,
+            instance,
             generation: 1,
             exhausted: false,
             sessions: HashMap::new(),
@@ -144,6 +151,7 @@ impl Core {
             active: None,
             signing: HashSet::new(),
             unlock_deadline: None,
+            remote,
         })
     }
 
@@ -384,68 +392,6 @@ impl Core {
         }
     }
 
-    #[allow(clippy::too_many_arguments)]
-    fn decide_into(
-        &mut self,
-        decider: Decider,
-        request: u64,
-        digest: &str,
-        generation: u64,
-        accept: bool,
-        _now: Instant,
-        effects: &mut Effects,
-    ) -> Result<(), Refusal> {
-        let trusted = match decider {
-            Decider::Session(id) => {
-                self.config.consent == ConsentMode::Channel
-                    && self
-                        .sessions
-                        .get(&id)
-                        .is_some_and(|s| s.principal.consent_channel)
-            },
-            Decider::Mechanism => self.config.consent == ConsentMode::Polkit,
-        };
-        if !trusted {
-            return Err(Refusal("not-consent-channel"));
-        }
-        if self.active.as_deref() != Some(digest) {
-            return Err(Refusal("petition-not-active"));
-        }
-        let position = self
-            .queue
-            .iter()
-            .position(|p| p.digest == digest)
-            .ok_or(Refusal("petition-not-pending"))?;
-        let head = &self.queue[position];
-        if head.request != request || head.generation != generation || generation != self.generation
-        {
-            return Err(Refusal("petition-binding"));
-        }
-        let pending = self.queue.remove(position).expect("position is in range");
-        self.active = None;
-        // An SSH signing petition has no requesting session: the client
-        // waiting on the agent is the requester.
-        let requester_gone =
-            pending.session != NO_SESSION && !self.sessions.contains_key(&pending.session);
-        let (session, request) = (pending.session, pending.request);
-        let outcome = if !accept {
-            self.withdraw(&pending);
-            Outcome::refused("consent-denied")
-        } else if self.revoked.contains(&pending.principal) || requester_gone {
-            self.withdraw(&pending);
-            Outcome::refused("invalidated")
-        } else {
-            if pending.consent == Consent::PerGeneration {
-                self.consented
-                    .insert((pending.principal.clone(), pending.grant, self.generation));
-            }
-            self.execute(pending.deferred, effects)
-        };
-        self.settle(session, request, outcome, effects);
-        self.promote(effects);
-        Ok(())
-    }
-
     /// Answer the session that asked; a signing petition has none.
     fn settle(&self, session: SessionId, request: u64, outcome: Outcome, effects: &mut Effects) {
         if session != NO_SESSION {
@@ -555,3 +501,5 @@ mod exhaustion_tests;
 mod admission;
 
 mod actions;
+mod consent;
+mod remote;

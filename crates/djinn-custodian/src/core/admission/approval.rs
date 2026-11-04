@@ -10,7 +10,7 @@ impl Core {
     /// Which grant admits `operation`, its consent, and the petition summary.
     /// Purpose, audience, profile and namespace are all checked here, before
     /// any petition is shown.
-    pub(super) fn authorize(
+    pub(in crate::core) fn authorize(
         &self,
         principal: &Principal,
         operation: &Operation,
@@ -400,8 +400,14 @@ impl Core {
         let approved = match consent {
             Consent::None => true,
             Consent::PerGeneration => {
-                self.consented
-                    .contains(&(principal.name.clone(), grant, self.generation))
+                if self.consented.contains(&(principal.name.clone(), grant, self.generation)) {
+                    true
+                } else {
+                    match self.remote_cached_consent(&principal.name, grant, &summary.1, now) {
+                        Ok(approved) => approved,
+                        Err(error) => return Some(Outcome::refused(error.0)),
+                    }
+                }
             },
             Consent::PerOperation => false,
         };
@@ -413,6 +419,7 @@ impl Core {
         }
         if self.config.consent == ConsentMode::Channel
             && !self.sessions.values().any(|s| s.principal.consent_channel)
+            && !self.remote_available(&summary.1)
         {
             return Some(Outcome::refused("consent-unavailable"));
         }

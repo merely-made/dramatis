@@ -19,8 +19,9 @@ The wallet store and station-grant policy are now Sporran's.
 
 **Update, 2026-11-04:** the one-week policy applies fleet-wide to all already
 authorized work. The custodian's configurable absolute unlocked lifetime is
-implemented and tested; fleet deployment, settings UI and remote approval
-remain open. Existing platform and receiving gates remain separate.
+implemented and tested. The portable root/device enrollment and remote-approval
+proof gate is implemented; fleet deployment, settings UI and remote approval's
+execution/network/backend integration remain open. Platform receiving is separate.
 
 **For:** making the custodian the only production owner of Castellan custody and proving it with enforcement evidence, and
 finishing what the lock left. Opened by Mark's request of 2026-10-21 for a security-boundary audit beginning with custody
@@ -182,6 +183,17 @@ Do not claim unreachable computers were updated. Test fault/expiry controls in
 isolated custody fixtures so the battery does not revoke the fleet's real work.
 
 Links: area custody · refines custody D2 · plans VL-U · summary Apply the week to existing authorized work throughout the fleet.
+
+### custody D4. Root-persona approval across networks (2026-11-04)
+
+While coordinating with the remote-controls lane, Mark requested **"we also
+want to be able to do these prompts from root personas across networks, and
+that's a part of it."** Apply this to the fleet-wide authorization in D3.
+Root personas and explicitly enrolled devices may approve custody operations
+within their grants. Native OS administrator/presence mechanisms need their
+own supported bridge; a signed custody approval does not replace them.
+
+Links: area custody · refines custody D1 · draws on custody D3 · plans VL-U · summary Support root-persona custody approval across networks with separate native OS gates.
 
 ## Phases
 
@@ -349,6 +361,42 @@ A local-presence-only envelope requires a reviewed alternative before this
 flow can work; identity association alone cannot decrypt it. Keep unsupported
 targets locked and explain the missing capability in the interface.
 
+Implementation slices, in order:
+
+1. **Portable enrollment and proof gate (implemented; source/synthetic).**
+   `custody-wire::remote_approval` carries public request/proof records and
+   constructs ordinary Insigne delegation statements. A protected root pin
+   plus explicit action permission is required; root association alone is
+   insufficient. `djinn_custodian::remote_approval::ApprovalGate` validates a
+   root's enrollment, direct root-persona approval or an enrolled device's
+   one-request approval through Notochord's `validate_chain` and the current
+   authoritative revocation ledger. Profile/target, instance/generation,
+   petition/digest, nonce, selected duration and request expiry are bound.
+   The request uses the existing short consent deadline; it never slides a
+   signed weekly grant. An unlock result is capped at the grant's remaining
+   lifetime. Verification has no vault/SSH dependency and causes no unlock.
+2. **Custody execution and durable enrollment (open).** Persist root pins,
+   enrollment and revocations through protected owner storage; fail closed
+   on missing/stale state. Restrict approval signing to its exact delegation
+   audience in the approving custodian and require its admitted owner action.
+   Connect a verified result to the exact active petition or supported unlock
+   backend. Recheck requester grants, root/device revocation, target context,
+   request deadline and authorization bound at commitment, under custody's
+   serialization. Carry the absolute bound into the existing timer; ordinary
+   consent never renews it. Backend opening and native OS elevation are
+   separate capabilities. A native-only backend remains unsupported remotely.
+3. **Locked-state route and O-PC/T-PC receiving (open).** Reuse the resident's
+   authenticated channel machinery and Notochord's carrier/subject binding;
+   authenticate/pin the target while locked without SSH keys from its vault.
+   Relays carry bounded public proofs, never vault keys. Show target/profile,
+   operation and requested/effective expiry before signing. First qualify
+   O-PC's root enrolling T-PC and T-PC approving one O-PC request, then the
+   reverse authorized direction and independent-uplink reconnect. Controls
+   cover wrong root, bare pairing, wrong scope, replay, revocation during a
+   pending request, restart, fixed expiry and backend refusal. Expand to the
+   configured fleet only after this two-device gate. Existing Sporran grant
+   storage/validation and the resident channel are seams, not this receipt.
+
 - Done when: all four settings persist through restart and display the policy
   the custodian enforces; finite duration expires during active use; indefinite
   duration does not suppress separately enabled lock triggers; authorized
@@ -452,6 +500,12 @@ SS8 parked the plan.
 
 ## Findings
 
+- 2026-11-04 (source-confirmed): the remote proof gate reuses Insigne's signed
+  certificate/attenuation grammar and Notochord's chain/revocation checks.
+  `crates/djinn-custodian/src/remote_approval.rs` is not wired to `Core`, the
+  driver or a network route. Passing proof tests therefore proves neither
+  native presence nor remote vault opening; no fleet enrollment was performed.
+
 - 2026-10-21 (source-confirmed; the sources record a repair for C04 and C07 only): C01 root custody shared Djinn's address
   space; C02 any same-user client can claim an allowed AppId, which routes and does not identify; C03 release policy is a
   global salt and source allowlist, `AsProfile` opens a named profile without an app-to-profile grant, and the
@@ -504,3 +558,7 @@ SS8 parked the plan.
 - 2026-11-04: custody D3 makes the week fleet-wide for existing approved work.
   Implemented absolute custodian expiry and controls for renewal, sleep/clock
   changes and pending approval. Fleet receiving status is in the receipt.
+- 2026-11-04: custody D4 coordinates root-persona prompts across networks.
+  Added portable enrollment/approval records and a bounded target verifier
+  with fixed-week and adversarial controls. Core execution, protected durable
+  enrollment, a locked-state route and real O-PC/T-PC receiving remain open.

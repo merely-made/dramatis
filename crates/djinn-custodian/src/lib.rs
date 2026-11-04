@@ -38,6 +38,7 @@ pub mod platform;
 pub mod helper;
 pub mod host;
 pub mod policy;
+pub mod remote_approval;
 pub mod synthetic;
 pub mod wallet;
 

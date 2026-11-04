@@ -132,3 +132,52 @@ verified: its standard-root setting was written/read back, but its configured
 launcher-path verification remains open. These distinctions limit the earlier
 all-eight statement to saved configuration; they do not establish eight live
 residents or a fleet-wide enforced absolute deadline.
+
+## 2026-11-04: portable root/device enrollment and remote custody approval
+
+Bounded source slice for VL-U and custody D4. `custody-wire` adds public
+request/proof records; `djinn-custodian` adds an explicit-owner-policy gate.
+It reuses Insigne's existing signed delegation statements and Notochord's
+chain validator/current revocation ledger. No new crypto scheme, executable,
+network listener, native consent mechanism or automatic vault opening is added.
+
+The initial focused run passed 11/12: the remaining test restored only an
+unlock action in its target policy while presenting a grant also allowing
+consent. The gate correctly rejected that broader grant. The fixture now
+restores both intended actions; the failed-run summary is retained here.
+The succeeding full run passed 65 custodian library and four wire tests;
+two further boundary tests then brought the focused proof suite to 14/14.
+The final exact-source run passed **67/67 custodian library tests and 4/4
+wire tests**. The final all-target Clippy check passed, with no diagnostics
+in the new modules; pre-existing warnings elsewhere remain.
+
+The controls cover direct trusted-root approval; root-enrolled device proof;
+wrong root/action/profile/target; every request binding; replay, withdrawal,
+generation/restart invalidation; revocation rechecked from a serialized ledger;
+short request expiry under both clocks and rollback; bounded proof/request
+work; fixed-week expiry, shorter owner settings and arithmetic overflow.
+An approval in the final valid millisecond is capped at the root grant's
+original expiry; reconnecting at expiry cannot restart the week. Direct root
+approval keeps the short proof window separate from the selected unlock bound.
+
+The approving fixtures sign with synthetic local providers; the target gate
+holds only public policy and pending requests. This does not qualify O-PC/T-PC
+enrollment, approving-host native consent, durable policy/ledger handling,
+the target's Core execution barrier, any storage-opening backend, Iroh/relay
+delivery or independent-network behavior. OS administrator prompts remain
+native mechanisms. The other lane owns the installed O-PC updater/relay work.
+
+Builds reuse `C:\t\cargo-targets\dramatis` and its `build` directory, one job.
+Library tests and Clippy leave the reviewed `debug/djinn-custodian.exe` at
+SHA256 `7F3693D2833FF1B8F5876F3B36E139E5C42019A208300A8956325C87847C567B`.
+No native unlock/deployment was requested by this lane. No isolated target,
+Cargo home, worktree or full new capture/log was created; this compact summary
+is the retained receipt and stays within the plan's aggregate 100 MB cap.
+
+Final commands (the existing target/build directory overrides above applied):
+
+```text
+cargo test -p djinn-custodian -p custody-wire --lib --locked --offline -- --test-threads=1
+cargo clippy -p djinn-custodian -p custody-wire --all-targets --locked --offline --no-deps
+git diff --check
+```

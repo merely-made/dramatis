@@ -13,6 +13,7 @@ description = "The custody contract between Djinn and its independently launched
 base64.workspace = true
 # The public identity views and intents (secret-free; personae, gaz, serde).
 dramatis.workspace = true
+insigne = { workspace = true, features = ["digest"] }
 serde = { workspace = true, features = ["derive"] }
 # What the OS says about a peer; this crate keeps the custodian policy over it.
 peer-facts.workspace = true

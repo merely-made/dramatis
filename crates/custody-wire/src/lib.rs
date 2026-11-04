@@ -24,6 +24,7 @@ pub mod client;
 pub mod contract;
 pub mod frame;
 pub mod peer;
+pub mod remote_approval;
 pub mod secret;
 pub mod transport;
 

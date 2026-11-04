@@ -134,3 +134,135 @@ fn wire_withdrawal_is_durable_and_bad_root_enrollment_is_refused() {
         RemoteReply::Refused { .. }
     ));
 }
+
+#[test]
+fn root_and_approval_authority_signatures_require_the_native_consent_path() {
+    use crate::policy::{Matcher, PrincipalRule, ProfileScope, PurposeRule};
+    use custody_wire::remote_approval::DOMAIN;
+    use insigne::delegation::delegation_signing_salt;
+
+    for root_signature in [false, true] {
+        let mut f = Fixture::new("per-operation");
+        let master = f.h.core.vault.master_public_key().unwrap();
+        let certificate = DelegationCertificate::new(
+            DelegationParent::Root(master),
+            master,
+            f.grant.certificate.subject,
+            enrollment_scope(master, "work", [ApprovalAction::Consent]),
+            1000,
+            1000,
+            Some(2000),
+            1,
+            [7; 32],
+        );
+        let (purpose, salt, message, rule) = if root_signature {
+            (
+                Purpose::Root {},
+                vec![],
+                b"root statement".to_vec(),
+                PurposeRule::Root,
+            )
+        } else {
+            (
+                Purpose::Delegation {
+                    audience: DOMAIN.into(),
+                },
+                delegation_signing_salt(&certificate.scope),
+                certificate.signing_bytes(),
+                PurposeRule::Delegation {
+                    audience: DOMAIN.into(),
+                },
+            )
+        };
+        let grant = Grant::Sign {
+            profile: ProfileScope::Named("work".into()),
+            purpose: rule,
+            consent: Consent::PerOperation,
+        };
+        f.h.core.config.principals[0].grants.push(grant.clone());
+        f.h.core
+            .sessions
+            .get_mut(&f.session)
+            .unwrap()
+            .principal
+            .grants
+            .push(grant);
+        let operation = Operation::Sign {
+            profile: "work".into(),
+            purpose,
+            salt: Bytes(salt),
+            message: Bytes(message),
+        };
+        assert!(
+            matches!(
+                f.h.outcome(f.session, operation.clone()),
+                Outcome::Refused { .. }
+            ),
+            "an absent native helper must not fall back to remote approval"
+        );
+
+        f.h.core.config.principals.push(PrincipalRule {
+            name: "native-helper".into(),
+            matcher: Matcher::UnixUid(2000),
+            grants: vec![Grant::Status],
+            consent_channel: true,
+        });
+        let helper = f.h.open(Peer::Unix {
+            uid: 2000,
+            gid: 2000,
+            pid: Some(2000),
+        });
+        let (id, effects) = f.h.request(f.session, operation);
+        assert!(outcome_for(&effects, f.session, id).is_none());
+        let petition = f.h.core.queue.back().unwrap().summary.clone();
+        assert!(f.h.core.remote_petition().is_none());
+        assert!(
+            f.h.core
+                .request_remote_consent(id, &petition.digest, f.h.now)
+                .0
+                .is_err()
+        );
+        let (result, effects) = f.h.core.decide(
+            super::super::Decider::Session(helper),
+            id,
+            &petition.digest,
+            petition.generation,
+            true,
+            f.h.now,
+        );
+        result.unwrap();
+        assert!(matches!(
+            outcome_for(&effects, f.session, id),
+            Some(Outcome::Success {
+                answer: Answer::Signature { .. }
+            })
+        ));
+    }
+}
+
+#[test]
+fn cached_device_consent_does_not_authorize_root_or_approval_authority_signatures() {
+    let mut f = Fixture::new("per-generation");
+    let (_, request) = f.challenge();
+    let grant_index = f.h.core.queue.back().unwrap().grant;
+    let proof = f.proof(&request);
+    f.h.core
+        .approve_remote_consent(request.nonce, &proof, f.h.now)
+        .0
+        .unwrap();
+    for namespace in [
+        "root".to_string(),
+        format!("delegation:{}", custody_wire::remote_approval::DOMAIN),
+    ] {
+        assert!(
+            !f.h.core
+                .remote_cached_consent("djinn", grant_index, "work", &namespace, f.h.now)
+                .unwrap()
+        );
+    }
+    assert!(
+        f.h.core
+            .remote_cached_consent("djinn", grant_index, "work", "derived-keys", f.h.now)
+            .unwrap()
+    );
+}

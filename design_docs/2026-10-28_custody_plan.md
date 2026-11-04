@@ -21,8 +21,8 @@ The wallet store and station-grant policy are now Sporran's.
 authorized work. The custodian's configurable absolute unlocked lifetime is
 implemented and tested. The portable root/device enrollment and remote-approval
 proof gate, durable enrollment and consent execution are implemented at supplier
-scope. The public-only SSH route is implemented; installed O-PC/T-PC enrollment,
-settings UI, resident P2P routing and storage-opening integration remain open.
+scope. O-PC's public-only route and root self-enrollment are active; T-PC
+activation/enrollment, settings UI, P2P routing and remote opening remain open.
 Platform receiving and the installed native cohort remain separate.
 
 **For:** making the custodian the only production owner of Castellan custody and proving it with enforcement evidence, and
@@ -594,6 +594,6 @@ SS8 parked the plan.
   network routing, approving UI and remote opening remain separate gates.
 - 2026-11-04: added the public-only wire bridge, bounded pinned-SSH carrier,
   native delegation signer and explicit administrator activation tooling.
-  Windows and Linux source gates pass; exact O-PC/T-PC public identity pins
-  and receiving packages are prepared. Native activation and signed enrollment
-  await existing OS administrator authentication; O-PC's UAC was canceled.
+  Native O-PC activation, locked-state route and root self-enrollment passed.
+  T-PC awaits native activation. Root/approval-authority signing stays native;
+  delegated consent cannot issue or renew its own enrollment authority.

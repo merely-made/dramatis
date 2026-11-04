@@ -439,3 +439,33 @@ git diff --check
   after confirming the target cache marker and no live compiler owner.
   Compact failed-run summaries above remain. Private O-PC review/pin files
   total 3,414 bytes; activation commands/candidates remain for native approval.
+
+## 2026-11-04: O-PC activation and authority-signing restriction
+
+- An orphaned user-owned CredentialUIBroker from the earlier interrupted
+  identity query was stopped after verifying PID, owner and creation time.
+  Custodian service and unlocked vault stayed healthy. Mark then confirmed
+  completion; fresh native UAC succeeded and the updater installed the
+  prepared F137 custodian and 8C705 helper, initialized protected enrollment
+  storage and completed readiness without rollback.
+- The installed public route answered while locked, generation 1, with the
+  expected root/target/profile pins and an empty authority store. Mark
+  completed native vault unlock, advancing to generation 2. Pinned SSH to
+  T-PC and S-PC succeeded afterward. O-PC/default's root self-enrollment
+  was signed with native consent, stored and read back; its expiry is
+  1794433778140 ms (one week from issuance).
+- T-PC's visible sudo terminal exited before helper installation; its old
+  service remained active. The operator's error report is requested. No
+  T-PC enrollment or cross-device approval is claimed.
+- Before granting a second device authority, the receiver now excludes
+  root signatures and signatures in the approval delegation audience from
+  remote challenges, commit and cached consent. An absent local helper
+  cannot fall back to remote consent for those signatures. A delegated
+  approver therefore cannot authorize issuance/renewal of enrollment or
+  approval authority. Native signing still works; ordinary scoped release
+  remains remotely approvable. Targeted Windows route controls pass 5/5;
+  the full Windows rerun passes 96/96 custodian and 8/8 wire tests.
+- The revised candidate still needs native deployment before T-PC enrollment.
+  Linux tooling now supports updating an existing receiver while preserving
+  its root/target/profile pins, grants and enrollment DB; initialization is
+  exclusive to first activation.

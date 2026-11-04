@@ -217,6 +217,9 @@ audience through custody's native consent. It displays the public statement;
 no seed or derived signing key is exported. Protected setup must explicitly
 grant signing and bridge access. Use `validate-config --config PATH` before
 activation and initialize storage as its eventual custody account.
+Root signatures and signatures in the remote-approval delegation audience
+require native consent. Remote consent never authorizes new enrollments or
+signing another approval, including through its per-generation cache.
 
 This route does not approve OS elevation.
 `request_remote_unlock` explicitly refuses the current passphrase-only opening

@@ -58,6 +58,7 @@ def main():
     for name in ["user", "binary", "binary-sha256", "helper", "helper-sha256", "root", "target", "profile"]:
         parser.add_argument("--" + name, required=True)
     parser.add_argument("--prepare", help="write and validate public candidate policy only; no privileged changes")
+    parser.add_argument("--update-existing", action="store_true", help="update an enrolled receiver without resetting its policy or authority DB")
     args = parser.parse_args()
     if os.geteuid() != 0 and not args.prepare:
         raise ValueError("administrator authentication is required; run this reviewed command with sudo")
@@ -81,33 +82,44 @@ def main():
             raise ValueError("installed paths must be direct, root-owned and protected")
     before = config_path.read_bytes()
     policy = json.loads(before)
-    if policy.get("remote_approval") or any(p["name"] == "approval-bridge" for p in policy["principals"]):
-        raise ValueError("remote approval is already configured; refusing a reset")
+    existing = policy.get("remote_approval")
+    if existing:
+        if not args.update_existing:
+            raise ValueError("remote approval is already configured; refusing a reset")
+        if (existing["root"] != dict(authority=root, issuer=root)
+                or existing["target"] != target or existing["profile"] != args.profile):
+            raise ValueError("existing authority pins differ; refusing an implicit re-enrollment")
+    elif args.update_existing:
+        raise ValueError("no existing approval policy to update")
     if policy["owner"].get("unix_uid") != owner.pw_uid:
         raise ValueError("configured owner differs from target service instance")
     if policy["vault"].get("profile", args.profile) != args.profile:
         raise ValueError("profile differs from existing fixed policy")
     vault = Path(policy["vault"]["directory"])
-    if (vault / "remote-approval.redb").exists():
+    store_exists = (vault / "remote-approval.redb").exists()
+    if store_exists and not args.update_existing:
         raise ValueError("existing authority storage preserved; inspect before activation")
+    if args.update_existing and not store_exists:
+        raise ValueError("enrolled receiver has no authority storage")
     receiving = checked_binary(args.binary, args.binary_sha256)
     helper = checked_binary(args.helper, args.helper_sha256)
     policy["vault"]["profile"] = args.profile
     policy["max_unlocked_seconds"] = 604800
-    policy["remote_approval"] = dict(root=dict(authority=root, issuer=root), target=target,
-                                      profile=args.profile, actions=["consent"],
-                                      max_grant_seconds=604800, max_unlock_seconds=604800)
-    # Linux admission currently distinguishes UIDs, not executable paths.
-    # Preserve that existing boundary; signing still requires per-use polkit.
-    principal = next(p for p in policy["principals"] if p["match"] == {"unix-uid": owner.pw_uid})
-    principal["grants"].extend([
-        {"operation": "remote-approval-bridge"},
-        {"operation": "attest", "profile": {"named": args.profile},
-         "salts": [{"delegation": "merely.custody.remote-approval/v1"}], "consent": "per-operation"},
-        {"operation": "sign", "profile": {"named": args.profile},
-         "purpose": {"purpose": "delegation", "audience": "merely.custody.remote-approval/v1"},
-         "consent": "per-operation"},
-    ])
+    if not args.update_existing:
+        policy["remote_approval"] = dict(root=dict(authority=root, issuer=root), target=target,
+                                          profile=args.profile, actions=["consent"],
+                                          max_grant_seconds=604800, max_unlock_seconds=604800)
+        # Linux admission currently distinguishes UIDs, not executable paths.
+        # Preserve that existing boundary; signing still requires per-use polkit.
+        principal = next(p for p in policy["principals"] if p["match"] == {"unix-uid": owner.pw_uid})
+        principal["grants"].extend([
+            {"operation": "remote-approval-bridge"},
+            {"operation": "attest", "profile": {"named": args.profile},
+             "salts": [{"delegation": "merely.custody.remote-approval/v1"}], "consent": "per-operation"},
+            {"operation": "sign", "profile": {"named": args.profile},
+             "purpose": {"purpose": "delegation", "audience": "merely.custody.remote-approval/v1"},
+             "consent": "per-operation"},
+        ])
     updated = json.dumps(policy, indent=2).encode()
     if args.prepare:
         candidate = Path(args.prepare)
@@ -149,12 +161,13 @@ def main():
         atomic(helper_path, helper, 0o755)
         atomic(config_path, updated, stat.S_IMODE(meta.st_mode), meta.st_uid, meta.st_gid)
         run(str(binary_path), "validate-config", "--config", str(config_path))
-        # Keep this public setup record in the already protected service state.
-        setup_owned = vault.parent / "approval-setup.json"
-        if setup_owned.exists():
-            raise ValueError("existing setup config preserved")
-        atomic(setup_owned, updated, 0o400, service.pw_uid, service.pw_gid)
-        run("runuser", "-u", service.pw_name, "--", str(binary_path), "remote-init", "--config", str(setup_owned))
+        if not args.update_existing:
+            # Keep this public setup record in the already protected service state.
+            setup_owned = vault.parent / "approval-setup.json"
+            if setup_owned.exists():
+                raise ValueError("existing setup config preserved")
+            atomic(setup_owned, updated, 0o400, service.pw_uid, service.pw_gid)
+            run("runuser", "-u", service.pw_name, "--", str(binary_path), "remote-init", "--config", str(setup_owned))
         run("systemctl", "start", *active_sockets, unit)
         for _ in range(60):
             run("systemctl", "is-active", "--quiet", unit)

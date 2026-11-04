@@ -404,7 +404,7 @@ impl Core {
                 if self.consented.contains(&(principal.name.clone(), grant, self.generation)) {
                     true
                 } else {
-                    match self.remote_cached_consent(&principal.name, grant, &summary.1, now) {
+                    match self.remote_cached_consent(&principal.name, grant, &summary.1, &summary.2, now) {
                         Ok(approved) => approved,
                         Err(error) => return Some(Outcome::refused(error.0)),
                     }
@@ -420,7 +420,7 @@ impl Core {
         }
         if self.config.consent == ConsentMode::Channel
             && !self.sessions.values().any(|s| s.principal.consent_channel)
-            && !self.remote_available(&summary.1)
+            && !self.remote_allowed(&summary.1, &summary.2)
         {
             return Some(Outcome::refused("consent-unavailable"));
         }

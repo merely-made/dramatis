@@ -76,7 +76,7 @@ impl Core {
             .queue
             .iter()
             .find(|p| self.active.as_deref() == Some(p.digest.as_str()))?;
-        self.remote_available(&pending.summary.profile)
+        self.remote_allowed(&pending.summary.profile, &pending.summary.namespace)
             .then(|| pending.summary.clone())
     }
 
@@ -108,7 +108,9 @@ impl Core {
                 p.request == request && p.digest == digest && self.active.as_deref() == Some(digest)
             })
             .ok_or(Refusal("petition-not-active"))?;
-        if !self.remote_available(&pending.summary.profile) || !self.pending_authorized(pending) {
+        if !self.remote_allowed(&pending.summary.profile, &pending.summary.namespace)
+            || !self.pending_authorized(pending)
+        {
             return Err(Refusal("remote-operation-denied"));
         }
         let digest = *blake3::Hash::from_hex(digest)
@@ -183,7 +185,9 @@ impl Core {
             .iter()
             .find(|p| p.request == request && p.digest == digest)
             .ok_or(Refusal("petition-not-pending"))?;
-        if binding.profile != pending.summary.profile || !self.remote_available(&binding.profile) {
+        if binding.profile != pending.summary.profile
+            || !self.remote_allowed(&binding.profile, &pending.summary.namespace)
+        {
             return Err(Refusal("remote-operation-denied"));
         }
         let cache_key = (pending.principal.clone(), pending.grant, self.generation);
@@ -227,14 +231,23 @@ impl Core {
                 .is_some_and(|remote| remote.available(Some(profile)))
     }
 
+    /// Device consent cannot bootstrap new root authority or replace the
+    /// approving device's own native authentication of an approval signature.
+    pub(super) fn remote_allowed(&self, profile: &str, namespace: &str) -> bool {
+        namespace != "root"
+            && namespace.strip_prefix("delegation:") != Some(custody_wire::remote_approval::DOMAIN)
+            && self.remote_available(profile)
+    }
+
     pub(super) fn remote_cached_consent(
         &mut self,
         principal: &str,
         grant: usize,
         profile: &str,
+        namespace: &str,
         now: Instant,
     ) -> Result<bool, Refusal> {
-        if !self.remote_available(profile) {
+        if !self.remote_allowed(profile, namespace) {
             return Ok(false);
         }
         let remote = self.remote.as_mut().ok_or(Refusal("remote-disabled"))?;

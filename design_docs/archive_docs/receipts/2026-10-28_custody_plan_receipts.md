@@ -181,3 +181,64 @@ cargo test -p djinn-custodian -p custody-wire --lib --locked --offline -- --test
 cargo clippy -p djinn-custodian -p custody-wire --all-targets --locked --offline --no-deps
 git diff --check
 ```
+
+## 2026-11-04: O-PC receiving failure, recovery and Windows parity
+
+Native elevation eventually ran the first extracted weekly receiver. The
+initial `update-attempt-04.json` reported success at 19:55:52 UTC, but the
+service subsequently stopped with SCM exit code zero. That initial result
+does not qualify sustained receiving. The earlier `update-attempt-02.json`
+failed at policy replacement and rolled back: Windows PowerShell 5 binds
+the null backup argument of `File.Replace` as an invalid empty path. A real
+unique backup path fixes that binding; an isolated native-PS5 replacement
+control preserves both old and new bytes. Attempts 03 and recovery 01 never
+executed after Windows canceled elevation; their result files do not exist.
+
+`support/restore-custodian-windows.ps1` restored the verified previous image
+and exact original policy at 20:21:29 UTC. It selects the protected backup by
+hash and policy equivalence with only the weekly field removed, checks the
+existing service/helper identity, waits for stopped image handles, and holds
+the restored service Running for ten seconds. `restore-attempt-02.json`
+records success; a later controller read still found it Running. Restored
+SHA256: `3356778098629E7875FF8BCAAFB0DC2FB90472292DC484205D2492631731751E`.
+No vault migration, seed export, grant issuance or root enrollment occurred.
+
+The extracted supplier omitted four qualified Windows receiving fixes from
+the historical Mere lane: `ae90e8e2c` (limited process/token identification
+admission, reject unidentified clients without ending the listener, service
+stderr diagnostics), `b734b94ae` (overlapped full-duplex pipe I/O), `5570b218e`
+(OpenSSH client SID by pipe impersonation), and `a5dc790ea` (SCM stop-pending
+and return-before-exit). Their earlier receiving record is
+`repos/mere/design_docs/archive_docs/receipts/2026-11-02_custodian_windows_receiving_receipts.md`
+on `mere-d3-ssh-by-key`. These changes are now lifted to Dramatis's wire,
+platform, agent and executable owners. Windows transport is a submodule to
+keep each source below the repository line ceiling. Identification admission
+grants only process limited-query and token-query rights to configured SIDs;
+pipe DACLs and the custodian's operation grants still determine admission.
+
+The updater now refuses a stopped baseline, waits for installed image exit,
+uses a valid atomic-replacement backup, writes create-new diagnostic results,
+and requires fifteen seconds of Running before accepting the update. Failure
+restores the pre-update executable/policy. This checks startup, not native
+unlock, real agent signing, or a week-long live authorization boundary.
+
+Private compact results are retained under
+`Code/testing/dramatis/fleet-policy`; original binaries and policies remain
+under the protected `ProgramData/djinn-custodian/week-policy-backup` for
+rollback. They are receiving evidence, not cleanup candidates. The previously
+reviewed image `7F3693D2833FF1B8F5876F3B36E139E5C42019A208300A8956325C87847C567B`
+is superseded and must not be deployed. One-week idle remains saved locally;
+screen-lock and suspend triggers remain enabled pending compatible receiving.
+The remote-approval lane isolates its new Core/policy work in the approved
+`Code/worktrees/dramatis-remote-approval` worktree during this receiving gate.
+
+The parity source passes **67/67 custodian library tests and 7/7 wire tests**,
+including real Windows pipe identification before data, concurrent read/write
+and repeatable limited-query admission with malformed-SID refusal. Relevant
+all-target Clippy passes; existing documentation/style warnings remain.
+Clippy required the raw pipe-SID function to declare its handle-validity
+contract unsafe; both callers document their live connected handles. The
+post-check replacement executable is 15,922,688 bytes, SHA256
+`F9FD7C325BC06F54A7DBD29AD9C08EC5C5DA9F822A9C8EDAF972E626861B430D`.
+It includes committed timer/proof plus receiving parity; the isolated new
+Core integration is excluded. Native receiving is pending at this checkpoint.

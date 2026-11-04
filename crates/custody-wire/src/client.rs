@@ -82,6 +82,9 @@ pub struct Client {
 impl Client {
     /// Connect, verify the server and open a session.
     pub fn open(connector: &dyn Connector, expect: &ServerExpectation) -> Result<Self, ClientError> {
+        // The expected server identifies this client by opening its process.
+        #[cfg(windows)]
+        crate::transport::admit_identification(&expect.windows_sids).map_err(ClientError::Connect)?;
         let connection = connector.connect().map_err(ClientError::Connect)?;
         Self::over(connection, expect)
     }

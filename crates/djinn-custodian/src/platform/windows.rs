@@ -18,7 +18,7 @@ use std::sync::OnceLock;
 use windows_sys::Win32::System::Services::{
     RegisterServiceCtrlHandlerExW, SERVICE_ACCEPT_SHUTDOWN, SERVICE_ACCEPT_STOP,
     SERVICE_CONTROL_SHUTDOWN, SERVICE_CONTROL_STOP, SERVICE_RUNNING, SERVICE_STATUS,
-    SERVICE_STATUS_HANDLE, SERVICE_STOPPED, SERVICE_TABLE_ENTRYW, SERVICE_WIN32_OWN_PROCESS,
+    SERVICE_STATUS_HANDLE, SERVICE_STOP_PENDING, SERVICE_STOPPED, SERVICE_TABLE_ENTRYW, SERVICE_WIN32_OWN_PROCESS,
     SetServiceStatus, StartServiceCtrlDispatcherW,
 };
 use windows_sys::Win32::System::Threading::{
@@ -53,6 +53,56 @@ pub fn confine(plan: &Confinement) -> Result<Applied, String> {
     Ok(applied)
 }
 
+/// A service has no console, so its stderr goes nowhere. When this process
+/// has none, carry each stderr line to the Application event log under the
+/// service's name. A process with a console keeps it.
+pub fn stderr_to_event_log() -> Result<(), String> {
+    use std::io::BufRead;
+    use std::os::windows::io::{FromRawHandle, RawHandle};
+    use windows_sys::Win32::Foundation::{HANDLE, INVALID_HANDLE_VALUE};
+    use windows_sys::Win32::System::Console::{GetStdHandle, STD_ERROR_HANDLE, SetStdHandle};
+    use windows_sys::Win32::System::EventLog::{EVENTLOG_INFORMATION_TYPE, RegisterEventSourceW, ReportEventW};
+    use windows_sys::Win32::System::Pipes::CreatePipe;
+
+    // SAFETY: a query of this process's standard handle.
+    let current = unsafe { GetStdHandle(STD_ERROR_HANDLE) };
+    if !current.is_null() && current != INVALID_HANDLE_VALUE {
+        return Ok(());
+    }
+    let name = wide(SERVICE_NAME);
+    // SAFETY: the local machine and a NUL-terminated source name.
+    let source = unsafe { RegisterEventSourceW(std::ptr::null(), name.as_ptr()) };
+    if source.is_null() {
+        return Err(format!("register the event source: {}", std::io::Error::last_os_error()));
+    }
+    let (mut read, mut write): (HANDLE, HANDLE) = (std::ptr::null_mut(), std::ptr::null_mut());
+    // SAFETY: two valid out-pointers; default security, default size.
+    if unsafe { CreatePipe(&mut read, &mut write, std::ptr::null(), 0) } == 0 {
+        return Err(format!("stderr pipe: {}", std::io::Error::last_os_error()));
+    }
+    // SAFETY: the write end stays open for the process's life as its stderr.
+    if unsafe { SetStdHandle(STD_ERROR_HANDLE, write) } == 0 {
+        return Err(format!("stderr handle: {}", std::io::Error::last_os_error()));
+    }
+    let (read, source) = (read as usize, source as usize);
+    std::thread::Builder::new()
+        .name("custody-event-log".into())
+        .spawn(move || {
+            // SAFETY: this thread owns the read end from here on.
+            let lines = std::io::BufReader::new(unsafe { std::fs::File::from_raw_handle(read as RawHandle) });
+            for line in lines.lines().map_while(Result::ok) {
+                let text = wide(&line);
+                let strings = [text.as_ptr()];
+                // SAFETY: a registered source and one NUL-terminated string.
+                unsafe {
+                    ReportEventW(source as HANDLE, EVENTLOG_INFORMATION_TYPE, 0, 0, std::ptr::null_mut(), 1, 0, strings.as_ptr(), std::ptr::null())
+                };
+            }
+        })
+        .map_err(|e| format!("event log thread: {e}"))?;
+    Ok(())
+}
+
 type Body = Box<dyn FnOnce(Box<dyn Fn() + Send + Sync>) + Send>;
 
 static BODY: OnceLock<std::sync::Mutex<Option<Body>>> = OnceLock::new();
@@ -72,7 +122,7 @@ fn report(state: u32) {
             dwWin32ExitCode: 0,
             dwServiceSpecificExitCode: 0,
             dwCheckPoint: 0,
-            dwWaitHint: 0,
+            dwWaitHint: if state == SERVICE_STOP_PENDING { 10_000 } else { 0 },
         };
         // SAFETY: a handle SCM returned for this service.
         unsafe { SetServiceStatus(*handle as SERVICE_STATUS_HANDLE, &status) };
@@ -80,12 +130,17 @@ fn report(state: u32) {
 }
 
 unsafe extern "system" fn control(code: u32, _: u32, _: *mut core::ffi::c_void, _: *mut core::ffi::c_void) -> u32 {
+    // The SCM waits for this handler's return, so the lock and the exit run
+    // on their own thread: exiting here fails the caller's stop request.
     if code == SERVICE_CONTROL_STOP || code == SERVICE_CONTROL_SHUTDOWN {
-        if let Some(stop) = STOP.get() {
-            stop();
-        }
-        report(SERVICE_STOPPED);
-        std::process::exit(0);
+        report(SERVICE_STOP_PENDING);
+        std::thread::spawn(|| {
+            if let Some(stop) = STOP.get() {
+                stop();
+            }
+            report(SERVICE_STOPPED);
+            std::process::exit(0);
+        });
     }
     0
 }

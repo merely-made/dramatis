@@ -203,12 +203,19 @@ mod unix {
 
     impl Listener for UnixSocketListener {
         fn accept(&self) -> std::io::Result<Connection> {
-            let (stream, _) = self.listener.accept()?;
-            let peer = identify(stream.as_raw_fd(), &self.signed)?;
-            Ok(Connection {
-                stream: Box::new(stream),
-                peer,
-            })
+            loop {
+                let (stream, _) = self.listener.accept()?;
+                // A client that cannot be identified is dropped, not the listener.
+                match identify(stream.as_raw_fd(), &self.signed) {
+                    Ok(peer) => {
+                        return Ok(Connection {
+                            stream: Box::new(stream),
+                            peer,
+                        });
+                    }
+                    Err(error) => eprintln!("djinn-custodian: refused an unidentified socket client: {error}"),
+                }
+            }
         }
     }
 
@@ -256,230 +263,7 @@ mod unix {
 }
 
 #[cfg(windows)]
-pub use windows::{NamedPipeConnector, NamedPipeListener};
+pub use windows::{NamedPipeConnector, NamedPipeListener, admit_identification, impersonated_client_sid};
 
 #[cfg(windows)]
-pub(crate) mod windows {
-    use std::fs::File;
-    use std::os::windows::io::{AsRawHandle, FromRawHandle, RawHandle};
-
-    use windows_sys::Win32::Foundation::{
-        CloseHandle, ERROR_PIPE_BUSY, ERROR_PIPE_CONNECTED, GENERIC_READ, GENERIC_WRITE, HANDLE,
-        INVALID_HANDLE_VALUE, LocalFree,
-    };
-    use windows_sys::Win32::Security::Authorization::{
-        ConvertStringSecurityDescriptorToSecurityDescriptorW, SDDL_REVISION_1,
-    };
-    use windows_sys::Win32::Security::SECURITY_ATTRIBUTES;
-    use windows_sys::Win32::Storage::FileSystem::{
-        CreateFileW, FILE_FLAG_FIRST_PIPE_INSTANCE, OPEN_EXISTING, PIPE_ACCESS_DUPLEX,
-        SECURITY_IDENTIFICATION, SECURITY_SQOS_PRESENT,
-    };
-    use windows_sys::Win32::System::Pipes::{
-        ConnectNamedPipe, CreateNamedPipeW, DisconnectNamedPipe, PIPE_READMODE_BYTE,
-        PIPE_REJECT_REMOTE_CLIENTS, PIPE_TYPE_BYTE, PIPE_UNLIMITED_INSTANCES, PIPE_WAIT,
-        WaitNamedPipeW,
-    };
-
-    use super::{Connection, Connector, Duplex, Listener};
-
-    fn wide(text: &str) -> Vec<u16> {
-        text.encode_utf16().chain(std::iter::once(0)).collect()
-    }
-
-    struct Owned(HANDLE);
-
-    impl Drop for Owned {
-        fn drop(&mut self) {
-            if !self.0.is_null() && self.0 != INVALID_HANDLE_VALUE {
-                // SAFETY: this wrapper owns the handle.
-                unsafe { CloseHandle(self.0) };
-            }
-        }
-    }
-
-    /// A connected pipe end. Byte-mode synchronous pipe handles read and
-    /// write like files.
-    struct PipeStream {
-        file: File,
-        server: bool,
-    }
-
-    impl std::io::Read for PipeStream {
-        fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
-            match self.file.read(buf) {
-                // A closed pipe is the end of the stream.
-                Err(error) if error.raw_os_error() == Some(109) => Ok(0),
-                other => other,
-            }
-        }
-    }
-
-    impl std::io::Write for PipeStream {
-        fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
-            self.file.write(buf)
-        }
-
-        fn flush(&mut self) -> std::io::Result<()> {
-            self.file.flush()
-        }
-    }
-
-    impl Duplex for PipeStream {
-        fn try_clone_duplex(&self) -> std::io::Result<Box<dyn Duplex>> {
-            Ok(Box::new(PipeStream {
-                file: self.file.try_clone()?,
-                server: self.server,
-            }))
-        }
-
-        fn shutdown_both(&self) {
-            let handle = self.file.as_raw_handle() as HANDLE;
-            // SAFETY: the handle is live for this stream's lifetime.
-            unsafe {
-                windows_sys::Win32::System::IO::CancelIoEx(handle, std::ptr::null());
-                if self.server {
-                    DisconnectNamedPipe(handle);
-                }
-            }
-        }
-    }
-
-    /// The protected DACL every custodian pipe carries: full control for
-    /// SYSTEM and the creator (the service), read and write for the owner,
-    /// nothing inherited.
-    pub fn owner_pipe_sddl(owner_sid: &str) -> String {
-        format!("D:P(A;;GA;;;SY)(A;;GA;;;OW)(A;;GRGW;;;{owner_sid})")
-    }
-
-    /// A security descriptor from SDDL, for a pipe created here or by the
-    /// SSH agent's listener.
-    pub struct PipeSecurity(*mut core::ffi::c_void);
-
-    // SAFETY: the descriptor is immutable once converted and freed once.
-    unsafe impl Send for PipeSecurity {}
-    unsafe impl Sync for PipeSecurity {}
-
-    impl PipeSecurity {
-        pub fn from_sddl(sddl: &str) -> std::io::Result<Self> {
-            let text = wide(sddl);
-            let mut descriptor: *mut core::ffi::c_void = std::ptr::null_mut();
-            // SAFETY: a NUL-terminated SDDL string; the descriptor is freed on drop.
-            if unsafe { ConvertStringSecurityDescriptorToSecurityDescriptorW(text.as_ptr(), SDDL_REVISION_1, &mut descriptor, std::ptr::null_mut()) } == 0 {
-                return Err(std::io::Error::last_os_error());
-            }
-            Ok(Self(descriptor))
-        }
-
-        /// Attributes naming this descriptor, for a create call.
-        pub fn attributes(&self) -> SECURITY_ATTRIBUTES {
-            SECURITY_ATTRIBUTES {
-                nLength: std::mem::size_of::<SECURITY_ATTRIBUTES>() as u32,
-                lpSecurityDescriptor: self.0,
-                bInheritHandle: 0,
-            }
-        }
-    }
-
-    impl Drop for PipeSecurity {
-        fn drop(&mut self) {
-            // SAFETY: allocated by the system for this wrapper.
-            unsafe { LocalFree(self.0.cast()) };
-        }
-    }
-
-    /// A named pipe that admits only `owner_sid` (plus SYSTEM and the
-    /// service itself) and rejects remote clients.
-    pub struct NamedPipeListener {
-        name: Vec<u16>,
-        sddl: String,
-        first: std::sync::Mutex<bool>,
-    }
-
-    impl NamedPipeListener {
-        /// `owner_sid` is the desktop user whose vault this custodian holds.
-        pub fn new(name: &str, owner_sid: &str) -> Self {
-            Self {
-                name: wide(name),
-                sddl: owner_pipe_sddl(owner_sid),
-                first: std::sync::Mutex::new(true),
-            }
-        }
-
-        fn create(&self) -> std::io::Result<File> {
-            let security = PipeSecurity::from_sddl(&self.sddl)?;
-            let attributes = security.attributes();
-            let mut first = self.first.lock().unwrap_or_else(|e| e.into_inner());
-            let open_mode = PIPE_ACCESS_DUPLEX | if *first { FILE_FLAG_FIRST_PIPE_INSTANCE } else { 0 };
-            // SAFETY: valid name and attributes for the duration of the call.
-            let handle = unsafe {
-                CreateNamedPipeW(self.name.as_ptr(), open_mode, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT | PIPE_REJECT_REMOTE_CLIENTS, PIPE_UNLIMITED_INSTANCES, 64 * 1024, 64 * 1024, 0, &attributes)
-            };
-            if handle == INVALID_HANDLE_VALUE {
-                return Err(std::io::Error::last_os_error());
-            }
-            *first = false;
-            // SAFETY: a fresh owned pipe handle.
-            Ok(unsafe { File::from_raw_handle(handle as RawHandle) })
-        }
-    }
-
-    impl Listener for NamedPipeListener {
-        fn accept(&self) -> std::io::Result<Connection> {
-            let file = self.create()?;
-            let handle = file.as_raw_handle() as HANDLE;
-            // SAFETY: a synchronous connect on our own pipe instance.
-            if unsafe { ConnectNamedPipe(handle, std::ptr::null_mut()) } == 0 {
-                let error = std::io::Error::last_os_error();
-                if error.raw_os_error() != Some(ERROR_PIPE_CONNECTED as i32) {
-                    return Err(error);
-                }
-            }
-            // The DACL admits only the owner; the custodian's policy still
-            // selects a principal from this peer and refuses anything else.
-            let peer = peer_facts::pipe_client_peer(handle)?;
-            Ok(Connection {
-                stream: Box::new(PipeStream { file, server: true }),
-                peer,
-            })
-        }
-    }
-
-    /// Connect to the custodian's pipe at identification-only impersonation.
-    pub struct NamedPipeConnector {
-        name: Vec<u16>,
-    }
-
-    impl NamedPipeConnector {
-        pub fn new(name: &str) -> Self {
-            Self { name: wide(name) }
-        }
-    }
-
-    impl Connector for NamedPipeConnector {
-        fn connect(&self) -> std::io::Result<Connection> {
-            for _ in 0..50 {
-                // SAFETY: valid NUL-terminated name; the handle is owned below.
-                let handle = unsafe {
-                    CreateFileW(self.name.as_ptr(), GENERIC_READ | GENERIC_WRITE, 0, std::ptr::null(), OPEN_EXISTING, SECURITY_SQOS_PRESENT | SECURITY_IDENTIFICATION, std::ptr::null_mut())
-                };
-                if handle == INVALID_HANDLE_VALUE {
-                    let error = std::io::Error::last_os_error();
-                    if error.raw_os_error() == Some(ERROR_PIPE_BUSY as i32) {
-                        unsafe { WaitNamedPipeW(self.name.as_ptr(), 100) };
-                        continue;
-                    }
-                    return Err(error);
-                }
-                // SAFETY: a fresh owned handle.
-                let file = unsafe { File::from_raw_handle(handle as RawHandle) };
-                let peer = peer_facts::pipe_server_peer(handle)?;
-                return Ok(Connection {
-                    stream: Box::new(PipeStream { file, server: false }),
-                    peer,
-                });
-            }
-            Err(std::io::Error::new(std::io::ErrorKind::TimedOut, "the custodian pipe stayed busy"))
-        }
-    }
-}
+pub(crate) mod windows;

@@ -107,6 +107,8 @@ fn run() -> Result<(), String> {
 }
 
 fn serve(config: Config, args: &Args) -> Result<(), String> {
+    #[cfg(windows)]
+    platform::windows::stderr_to_event_log()?;
     let development = config.development;
     if args.socket.is_some() && !development {
         return Err("--socket is for development; a protected custodian takes its listener from the service manager".into());
@@ -145,7 +147,9 @@ fn serve(config: Config, args: &Args) -> Result<(), String> {
         let serving = service.clone();
         return platform::windows::run_service(
             Box::new(move |_| {
-                let _ = serving.serve(&*listener);
+                if let Err(error) = serving.serve(&*listener) {
+                    eprintln!("djinn-custodian: the custody listener failed: {error}");
+                }
             }),
             Box::new(move || stopping.lock_now()),
         );
@@ -204,6 +208,8 @@ fn listeners(config: &Config, args: &Args) -> Result<(Box<dyn custody_wire::tran
         let owner = config.owner.windows_sid.as_deref().ok_or("owner.windows_sid is required on Windows")?;
         let name = format!(r"\\.\pipe\djinn-custodian-{owner}");
         let agent = config.vault.agent_endpoint.clone().unwrap_or_else(|| djinn_custodian::agent_pipe::default_endpoint(owner));
+        // The owner's clients identify this service by opening its process.
+        custody_wire::transport::admit_identification(&[owner.to_string()]).map_err(|e| format!("admit the owner: {e}"))?;
         Ok((Box::new(custody_wire::transport::NamedPipeListener::new(&name, owner)), agent))
     }
 }

@@ -7,7 +7,7 @@
 //! The SSH agent on Windows, served on its own named pipe as the Unix agent
 //! is on its own socket ([`crate::agent`]). The pipe carries the same
 //! protected DACL as the custody pipe, and a connection is admitted only
-//! when the client process's token is the vault owner's and the vault has
+//! when the client's token (read by impersonation) is the vault owner's and the vault has
 //! been opened; before that the connection is closed. Win32-OpenSSH's
 //! `ssh.exe` treats `SSH_AUTH_SOCK` as a pipe name, so the owner points it
 //! at [`default_endpoint`]. Per-use approvals become the custodian's consent
@@ -18,8 +18,8 @@
 use std::fmt;
 use std::os::windows::io::AsRawHandle;
 
-use custody_wire::Peer;
-use custody_wire::peer::{PipeSecurity, owner_pipe_sddl, pipe_client_peer};
+use custody_wire::peer::{PipeSecurity, owner_pipe_sddl};
+use custody_wire::transport::impersonated_client_sid;
 use ssh_agent_lib::agent::{Agent, ListeningSocket, Session};
 use tokio::net::windows::named_pipe::{NamedPipeServer, ServerOptions};
 
@@ -82,8 +82,11 @@ impl fmt::Debug for Gated {
 }
 
 impl Gated {
+    /// The client's SID by impersonation: OpenSSH's clients cannot admit
+    /// the service to open their process, and the agent needs no image.
     fn admits(&self, connected: &NamedPipeServer) -> bool {
-        let owner = matches!(pipe_client_peer(connected.as_raw_handle()), Ok(Peer::Windows { sid, .. }) if sid == self.owner_sid);
+        // SAFETY: `connected` owns a connected server pipe for the whole call.
+        let owner = matches!(unsafe { impersonated_client_sid(connected.as_raw_handle()) }, Ok(sid) if sid == self.owner_sid);
         owner && self.service.agent_session().is_some()
     }
 }

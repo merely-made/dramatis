@@ -562,3 +562,9 @@ SS8 parked the plan.
   Added portable enrollment/approval records and a bounded target verifier
   with fixed-week and adversarial controls. Core execution, protected durable
   enrollment, a locked-state route and real O-PC/T-PC receiving remain open.
+- 2026-11-04: O-PC's first extracted weekly receiver stopped after startup.
+  Restored the exact previous executable and policy with a sustained Running
+  check. Recovered four previously qualified Windows receiving fixes from
+  Mere's historical custodian lane into their current Dramatis owners.
+  Replacement receiving and fleet-wide elapsed-expiry deployment remain open;
+  saved idle settings and portable proof tests do not establish these gates.

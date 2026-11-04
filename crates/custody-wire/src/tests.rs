@@ -218,3 +218,51 @@ mod unix {
         assert_eq!(client.call(Operation::Status {}, Duration::from_secs(1)), Outcome::unknown("custodian-lost"));
     }
 }
+
+#[cfg(windows)]
+#[test]
+fn a_client_admits_its_server_to_identify_it_and_can_do_so_again() {
+    let user = crate::peer::current_user_sid().unwrap();
+    for _ in 0..2 {
+        crate::transport::admit_identification(&["S-1-5-18".to_string(), user.clone()]).unwrap();
+    }
+    assert!(crate::transport::admit_identification(&["not a SID".to_string()]).is_err());
+    assert!(crate::transport::admit_identification(&[]).is_ok());
+}
+
+/// A pipe stream reads on one handle while another thread writes on its
+/// clone, as the client's reader thread and its calls do.
+#[cfg(windows)]
+#[test]
+fn a_pipe_writes_while_its_clone_is_blocked_in_a_read() {
+    use crate::transport::{Connector, Listener, NamedPipeConnector, NamedPipeListener};
+    use std::io::{Read, Write};
+    use std::time::Duration;
+    let user = crate::peer::current_user_sid().unwrap();
+    let name = format!(r"\\.\pipe\custody-wire-duplex-{}", std::process::id());
+    let listener = NamedPipeListener::new(&name, &user);
+    let server = std::thread::spawn(move || {
+        let mut connection = listener.accept().unwrap();
+        let mut byte = [0u8; 1];
+        connection.stream.read_exact(&mut byte).unwrap();
+        connection.stream.write_all(&byte).unwrap();
+        byte[0]
+    });
+    std::thread::sleep(Duration::from_millis(200));
+    let connection = NamedPipeConnector::new(&name).connect().unwrap();
+    let mut reader = connection.stream.try_clone_duplex().unwrap();
+    let read = std::thread::spawn(move || {
+        let mut byte = [0u8; 1];
+        reader.read_exact(&mut byte).map(|_| byte[0])
+    });
+    std::thread::sleep(Duration::from_millis(200));
+    let (done, wrote) = std::sync::mpsc::channel();
+    let mut writer = connection.stream;
+    std::thread::spawn(move || {
+        let _ = done.send(writer.write_all(&[7]).map(|_| writer));
+    });
+    let writer = wrote.recv_timeout(Duration::from_secs(3)).expect("a write must not wait behind the pending read").unwrap();
+    assert_eq!(server.join().unwrap(), 7);
+    assert_eq!(read.join().unwrap().unwrap(), 7);
+    drop(writer);
+}

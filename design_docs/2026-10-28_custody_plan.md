@@ -594,4 +594,6 @@ SS8 parked the plan.
   network routing, approving UI and remote opening remain separate gates.
 - 2026-11-04: added the public-only wire bridge, bounded pinned-SSH carrier,
   native delegation signer and explicit administrator activation tooling.
-  O-PC/T-PC deployment and signed enrollment are the next receiving gate.
+  Windows and Linux source gates pass; exact O-PC/T-PC public identity pins
+  and receiving packages are prepared. Native activation and signed enrollment
+  await existing OS administrator authentication; O-PC's UAC was canceled.

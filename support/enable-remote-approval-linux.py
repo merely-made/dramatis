@@ -57,8 +57,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ["user", "binary", "binary-sha256", "helper", "helper-sha256", "root", "target", "profile"]:
         parser.add_argument("--" + name, required=True)
+    parser.add_argument("--prepare", help="write and validate public candidate policy only; no privileged changes")
     args = parser.parse_args()
-    if os.geteuid() != 0:
+    if os.geteuid() != 0 and not args.prepare:
         raise ValueError("administrator authentication is required; run this reviewed command with sudo")
     if not re.fullmatch(r"[a-z_][a-z0-9_-]*", args.user):
         raise ValueError("invalid service instance")
@@ -108,6 +109,16 @@ def main():
          "consent": "per-operation"},
     ])
     updated = json.dumps(policy, indent=2).encode()
+    if args.prepare:
+        candidate = Path(args.prepare)
+        if not candidate.is_absolute():
+            raise ValueError("candidate policy path must be absolute")
+        with candidate.open("xb") as stream:
+            stream.write(updated)
+        candidate.chmod(0o600)
+        run(args.binary, "validate-config", "--config", str(candidate))
+        print(json.dumps(dict(status="prepared-only", policy_sha256=digest(updated))))
+        return
     backup = Path("/var/lib/djinn-custodian") / args.user / "approval-backup"
     backup.mkdir(mode=0o700, exist_ok=True)
     info = backup.lstat()

@@ -401,3 +401,33 @@ git diff --check
 - No vault adoption, secret export, binary install, service restart, root
   enrollment, remote vault opening or OS elevation occurred in this checkpoint.
   Retained receipts remain compact text, within the plan's 100 MB budget.
+
+## 2026-11-04: Linux candidate and native activation boundary
+
+- `d6f1e7a` was pushed with route, signer and activation tooling; `f902a4b`
+  corrects Unix test directories to mode 0700, without weakening production
+  ownership/mode checks. The first Linux run had 76 passing/27 failing
+  custodian tests because fixtures inherited broader temporary-directory modes.
+  After correction, T-PC passed custody-wire **9/9** and custodian **103/103**.
+  The Windows source gate was **8/8** wire and **94/94** custodian, plus three
+  Python controls. Commit hooks passed line ceiling, Clippy and dependency bans.
+- T-PC candidate used two Cargo jobs and reused its existing Mere target;
+  debug symbols were stripped after build. Both actual persona public keys
+  were read through OS-authenticated custody, are distinct, and are pinned in
+  the private receiving package. Root authority/issuer is O-PC/default.
+  T-PC has its own wallet records; O-PC's public wallet records are absent.
+- Prepared receiving hashes (SHA256): Windows custodian
+  `F13715DC8956A8DC92B07EF56279CBD6DF2B65AD5D0CED04C30C553710BF670C`,
+  helper `8C705DD411AC3BEFFCBA5DC78C1C0EF555A3D93B4B26045A45EBA3CAC1288F5A`;
+  Linux custodian `e96515a46f92a820c24777f204e00d285c76ed60da9127d598135a63022963d2`,
+  helper `528e0b25a7e990b2a9bf7fb8080ca6bd9b4a0a4cb1763194186e0bb7128a0715`.
+- Windows reported its native administrator prompt canceled; no activation
+  process ran. Installed F9FD and unlocked resident were reverified afterward.
+  T-PC refuses unattended sudo and root SSH; a concrete native sudo command
+  is prepared. Neither custodian's protected configuration, installed binary,
+  services or enrollment state changed. Enrollment and live bidirectional
+  approval remain unqualified. The first carrier is SSH, not resident P2P.
+- No isolated target, Cargo home or worktree was created. Receiving candidates
+  remain in stable existing build targets; small private public-pin/activation
+  packages remain owned by this O-PC/T-PC receiving lane. Compact receipts and
+  the stripped candidate cohort stay within the 100 MB retained-byte cap.

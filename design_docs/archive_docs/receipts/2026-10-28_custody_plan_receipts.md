@@ -431,3 +431,11 @@ git diff --check
   remain in stable existing build targets; small private public-pin/activation
   packages remain owned by this O-PC/T-PC receiving lane. Compact receipts and
   the stripped candidate cohort stay within the 100 MB retained-byte cap.
+- `e1b702d` adds nonprivileged Linux policy preparation; the native candidate
+  accepted the complete T-PC preview (SHA256
+  `c0aeb3dd4e410af64b465f11caab5835bf0e07b06eabcd4bba56286810d0d0d0`).
+  Windows 94/94 custodian and 8/8 wire were rerun after the fixture repair.
+  The receiving lane removed only its three generated logs (43,290 bytes),
+  after confirming the target cache marker and no live compiler owner.
+  Compact failed-run summaries above remain. Private O-PC review/pin files
+  total 3,414 bytes; activation commands/candidates remain for native approval.

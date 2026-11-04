@@ -99,3 +99,21 @@ No isolated target, Cargo home or worktree was created. Compiler outputs reuse
 the normal target; no new full raw logs or fleet payload capture were retained.
 Protected installer backups, if created, belong to this fleet policy update and
 must be measured in the final deployment receipt. The plan retains its 100 MB cap.
+
+### Fleet follow-up after network wake
+
+At approximately 2026-11-04 19:00 UTC, T-PC, Y-PC and R-PC became reachable
+after the wake attempt. Authentication succeeded with the existing agent key.
+Each selected application directory was resolved against the running resident's
+environment where available; all three idle settings were written and parsed
+back as **10080 minutes**, preserving other settings. All three residents were
+not running, so this proves saved configuration, not a live reload. This
+supersedes their earlier unreachable status above. All eight inventory machines
+now have the selected idle configuration; O-PC, S-PC and Q-PC are the running
+resident cases. No independent-uplink or independent-operator gate follows.
+
+The native administrator update remains unperformed after Windows canceled
+elevation. The source/binary receiving checks do not establish a live absolute
+weekly deadline on any older installed resident. The owner was asked whether
+to reopen the native prompt or leave the tested update ready. Early session
+lock and suspend flags were preserved until finite expiry is deployed.

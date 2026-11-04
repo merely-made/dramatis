@@ -176,7 +176,8 @@ native helper is absent, provided the explicit remote consent policy applies.
 Owner setup calls `remote_approval::storage::EnrollmentStore::initialize`
 inside the existing OS-protected vault directory. This creates
 `remote-approval.redb` exclusively; service startup only opens existing state.
-Store initialization is a host API, not a client command or automatic fallback.
+An administrator can run `djinn-custodian remote-init --config PATH` under
+the custody account; initialization is never a client command or fallback.
 The database contains public root pins, signed enrollments and signed
 withdrawals, with one exclusive database owner and transactional writes.
 Missing/corrupt state or mismatched root/target/profile refuses activation.
@@ -202,7 +203,22 @@ the store refuses growth beyond them rather than evicting authority history.
 Restoring the whole database from an old administrator snapshot is outside
 these rollback checks; the live handle detects revision regression.
 
-This API does not add a network route or OS-elevation bridge.
+The separately granted `remote-approval-bridge` operation carries only typed
+public state, challenges, signed enrollments, withdrawals and approval proofs.
+It can run while locked and returns only a public acknowledgement; the
+original admitted requester receives any result through its own session.
+`djinn-approval relay` exposes this bounded route over stdin/stdout;
+`support/remote-approval.py` connects over existing strictly pinned SSH aliases
+and independently checks configured root/target/profile pins. SSH server keys
+live outside the target vault; the approving device must be able to log in.
+This is the first network carrier, not resident P2P discovery or routing.
+The local `djinn-approval` signer uses only the remote-approval delegation
+audience through custody's native consent. It displays the public statement;
+no seed or derived signing key is exported. Protected setup must explicitly
+grant signing and bridge access. Use `validate-config --config PATH` before
+activation and initialize storage as its eventual custody account.
+
+This route does not approve OS elevation.
 `request_remote_unlock` explicitly refuses the current passphrase-only opening
-backend. The authenticated locked-state route, native approving UI, backend
-opening support and real O-PC/T-PC receiving remain separate qualification.
+backend. Native deployment, locked-state receiving, backend opening support
+and real O-PC/T-PC enrollment remain separate qualification.

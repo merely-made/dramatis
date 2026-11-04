@@ -375,7 +375,8 @@ impl Core {
                     ("credentials", current.clone(), kind.into(), String::new()),
                 )
             },
-            Operation::Status {}
+            Operation::RemoteApproval { .. }
+            | Operation::Status {}
             | Operation::Lock {}
             | Operation::Unlock { .. }
             | Operation::Revoke { .. } => Err(refused()),

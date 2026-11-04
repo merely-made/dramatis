@@ -254,7 +254,8 @@ impl Core {
                 |e| text("credentials-refused", e),
                 |value| success(Answer::Value { value }),
             ),
-            Operation::Status {}
+            Operation::RemoteApproval { .. }
+            | Operation::Status {}
             | Operation::Lock {}
             | Operation::Unlock { .. }
             | Operation::Revoke { .. } => Outcome::refused("operation-or-scope"),

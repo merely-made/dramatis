@@ -368,3 +368,36 @@ cargo test -p djinn-custodian -p custody-wire --lib --locked --offline -- --test
 cargo clippy -p djinn-custodian -p custody-wire --all-targets --locked --offline --no-deps
 git diff --check
 ```
+
+## 2026-11-04: public approval route source checkpoint
+
+- `custody-wire::remote_approval::route` admits only public state, challenges,
+  signed enrollment/withdrawal and exact-request proofs. A separate local
+  `remote-approval-bridge` grant is required. General signing, secret release
+  and passphrases cannot be forwarded through this command schema.
+- Core returns a public acknowledgement to the bridge; successful consent's
+  result is delivered to its original admitted requester only. Existing
+  generation, requester, proof/revocation and unsupported-opening barriers
+  remain in force. Active enrollment readback is checked against storage.
+- `djinn-approval` uses the installed OS-authenticated client and native
+  consent for signing under the approval delegation audience. The Python
+  carrier requires pinned SSH host keys and separate custody root/target/
+  profile pins; SSH server keys are outside target custody. Resident P2P
+  integration and independent-uplink qualification remain open.
+- Windows source gates: custody-wire 8/8 and custodian 94/94 library tests;
+  scoped all-target Clippy completed without diagnostics in the added route
+  or signer files. Initial compile found a digest argument type mismatch;
+  corrected before tests. Three Python pin/shell/refusal controls pass;
+  Python and PowerShell activation scripts parse. Native activation tools
+  are prepared, not qualified.
+- Live inventory correction: T-PC has an active **templated** isolated system
+  service `djinn-custodian@markik.service` and an unlocked resident. Older
+  absence claims based on the untemplated service name are superseded.
+  Its existing config remains remote-disabled. O-PC also remains unlocked
+  under the previously installed F9FD cohort at this checkpoint.
+- O-PC public custody view reports selected `default`, no wallet manifests
+  and no device roster. Root enrollment must pin its actual persona public
+  key; earlier architecture/roster assumptions are not deployment evidence.
+- No vault adoption, secret export, binary install, service restart, root
+  enrollment, remote vault opening or OS elevation occurred in this checkpoint.
+  Retained receipts remain compact text, within the plan's 100 MB budget.

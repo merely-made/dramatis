@@ -11,6 +11,8 @@ use insigne::delegation::{
 };
 use serde::{Deserialize, Serialize};
 
+pub mod route;
+
 /// A purpose separate from pairing, graph writes and transport authentication.
 pub const DOMAIN: &str = "merely.custody.remote-approval/v1";
 /// The selected default for newly issued device approval grants.

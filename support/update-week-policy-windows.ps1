@@ -1,11 +1,15 @@
 # Copyright 2026 Mark Alan Boykin
 # SPDX-License-Identifier: MPL-2.0
-# Update the existing custodian without adopting a vault or changing grants.
+# Update existing custody; optional explicit remote-approval activation.
 # Run elevated after reviewing the receiving build and this script.
 param(
     [Parameter(Mandatory = $true)][string]$Binary,
     [Parameter(Mandatory = $true)][string]$ExpectedSha256,
-    [string]$ResultFile
+    [string]$ResultFile,
+    [string]$RemotePolicy,
+    [string]$ExpectedRemotePolicySha256,
+    [string]$ApprovalHelper,
+    [string]$ExpectedHelperSha256
 )
 $ErrorActionPreference = 'Stop'
 $phase = 'preflight'
@@ -38,6 +42,17 @@ $source = (Resolve-Path -LiteralPath $Binary).Path
 if ((Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash -ne $ExpectedSha256) {
     throw 'Receiving binary hash differs from the reviewed build.'
 }
+$enableRemote = [bool]$RemotePolicy
+if (@($RemotePolicy,$ExpectedRemotePolicySha256,$ApprovalHelper,$ExpectedHelperSha256 | Where-Object { $_ }).Count -notin @(0,4)) {
+    throw 'Remote activation requires the policy, helper, and both reviewed hashes.'
+}
+if ($enableRemote) {
+    if ((Get-FileHash -LiteralPath $RemotePolicy -Algorithm SHA256).Hash -ne $ExpectedRemotePolicySha256 -or
+        (Get-FileHash -LiteralPath $ApprovalHelper -Algorithm SHA256).Hash -ne $ExpectedHelperSha256) {
+        throw 'Remote activation input differs from the reviewed package.'
+    }
+    $remote = Get-Content -Raw -LiteralPath $RemotePolicy | ConvertFrom-Json
+}
 $programRoot = Join-Path $env:ProgramFiles 'Merely\djinn-custodian'
 $exe = Join-Path $programRoot 'djinn-custodian.exe'
 $root = 'C:\ProgramData\djinn-custodian'
@@ -53,6 +68,24 @@ if ($service.State -ne 'Running') {
 $before = [IO.File]::ReadAllBytes($config)
 $policy = [Text.Encoding]::UTF8.GetString($before) | ConvertFrom-Json
 $policy | Add-Member -NotePropertyName max_unlocked_seconds -NotePropertyValue 604800 -Force
+if ($enableRemote) {
+    if ($policy.remote_approval -or @($policy.principals | Where-Object { $_.name -eq 'approval-bridge' }).Count) {
+        throw 'Remote approval is already configured; use an explicit policy update rather than resetting enrollment.'
+    }
+    if ($policy.vault.profile -and $policy.vault.profile -ne $remote.profile) {
+        throw 'Remote policy profile differs from the existing fixed vault profile.'
+    }
+    $policy.vault | Add-Member -NotePropertyName profile -NotePropertyValue $remote.profile -Force
+    $policy | Add-Member -NotePropertyName remote_approval -NotePropertyValue $remote -Force
+    $helperExe = Join-Path $programRoot 'djinn-approval.exe'
+    $approvalPrincipal = @{
+        name='approval-bridge'; match=@{'windows-image'=@{sid=$policy.owner.windows_sid;image=$helperExe}}
+        grants=@(@{operation='status'},@{operation='snapshot'},@{operation='remote-approval-bridge'},
+            @{operation='attest';profile=@{named=$remote.profile};salts=@(@{delegation='merely.custody.remote-approval/v1'});consent='per-operation'},
+            @{operation='sign';profile=@{named=$remote.profile};purpose=@{purpose='delegation';audience='merely.custody.remote-approval/v1'};consent='per-operation'})
+    }
+    $policy.principals = @($approvalPrincipal) + @($policy.principals)
+}
 $updated = $policy | ConvertTo-Json -Depth 32
 $backup = Join-Path $root 'week-policy-backup'
 $phase = 'backup'
@@ -95,6 +128,14 @@ try {
     Wait-InstalledImageExit
     $phase = 'copy'
     Copy-Item -LiteralPath $source -Destination $exe -Force
+    if ($enableRemote) {
+        if (Test-Path -LiteralPath $helperExe) {
+            $helperOldHash = (Get-FileHash -LiteralPath $helperExe -Algorithm SHA256).Hash
+            $oldHelper = Join-Path $backup ('approval-helper-' + $helperOldHash + '.exe')
+            if (-not (Test-Path -LiteralPath $oldHelper)) { Copy-Item -LiteralPath $helperExe -Destination $oldHelper }
+        }
+        Copy-Item -LiteralPath $ApprovalHelper -Destination $helperExe -Force
+    }
     $phase = 'policy'
     $staged = Join-Path $root ('week-policy-' + [guid]::NewGuid().ToString('N') + '.tmp')
     [IO.File]::WriteAllText($staged, $updated, (New-Object Text.UTF8Encoding($false)))
@@ -103,12 +144,22 @@ try {
     # exact replaced policy under the protected backup directory.
     $atomicBackup = Join-Path $backup ('policy-atomic-' + [guid]::NewGuid().ToString('N') + '.json')
     [IO.File]::Replace($staged, $config, $atomicBackup)
+    & $exe validate-config --config $config
+    if ($LASTEXITCODE -ne 0) { throw 'Receiving binary refused the updated policy.' }
+    if ($enableRemote) {
+        $phase = 'enrollment-store'
+        & $exe remote-init --config $config
+        if ($LASTEXITCODE -ne 0) { throw 'Could not initialize protected enrollment storage; preserving its result for inspection.' }
+    }
     $phase = 'restart'
     if ($wasRunning) { Start-Service -Name djinn-custodian }
     foreach ($entry in $task) { Start-ScheduledTask -TaskName $entry.TaskName -TaskPath $entry.TaskPath }
     $phase = 'verify'
     if ((Get-FileHash -LiteralPath $exe -Algorithm SHA256).Hash -ne $ExpectedSha256) {
         throw 'Installed executable hash mismatch.'
+    }
+    if ($enableRemote -and (Get-FileHash -LiteralPath $helperExe -Algorithm SHA256).Hash -ne $ExpectedHelperSha256) {
+        throw 'Installed approval helper hash mismatch.'
     }
     if ($wasRunning -and (Get-Service djinn-custodian).Status -ne 'Running') {
         throw 'Custodian did not return to Running.'
@@ -126,18 +177,20 @@ try {
     }
     $phase = 'receipt'
     $receipt = @{ updated_utc = [DateTime]::UtcNow.ToString('o'); binary_sha256 = $ExpectedSha256;
-        max_unlocked_seconds = 604800; previous_binary_sha256 = $oldHash; grants = 'preserved';
+        max_unlocked_seconds = 604800; previous_binary_sha256 = $oldHash; remote_approval_enabled=$enableRemote;
+        grants = $(if ($enableRemote) {'preserved-plus-explicit-approval-principal'} else {'preserved'});
         vault = 'not-migrated'; qualification = 'installed-awaiting-unlock' }
     $receiptPath = Join-Path $backup ('installed-' + [guid]::NewGuid().ToString('N') + '.json')
     $receipt | ConvertTo-Json | Set-Content -LiteralPath $receiptPath -Encoding UTF8
     Write-UpdateResult 'updated' '' 0
-    Write-Host 'Installed one-week maximum unlock policy. Unlock the resident once after this service restart.'
+    Write-Host 'Updated custody policy. Unlock the resident once after this service restart.'
 } catch {
     $failure = $_
     Stop-Service -Name djinn-custodian -ErrorAction SilentlyContinue
     foreach ($entry in $task) { Stop-ScheduledTask -TaskName $entry.TaskName -TaskPath $entry.TaskPath }
     Wait-InstalledImageExit
     Copy-Item -LiteralPath $oldExe -Destination $exe -Force
+    if ($enableRemote -and $oldHelper) { Copy-Item -LiteralPath $oldHelper -Destination $helperExe -Force }
     [IO.File]::WriteAllBytes($config, $before)
     if ($wasRunning) { Start-Service -Name djinn-custodian }
     foreach ($entry in $task) { Start-ScheduledTask -TaskName $entry.TaskName -TaskPath $entry.TaskPath }

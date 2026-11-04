@@ -6,10 +6,9 @@
 
 //! The messages of §5.6. Every decoder refuses unknown fields, so an extra
 //! `approved` or `principal` on a request is an invalid request rather than
-//! an ignored hint. There is no client approval operation: decisions are
-//! accepted only from a session the custodian admitted as its trusted
-//! consent channel, and only for the exact petition digest, request and
-//! generation they name.
+//! an ignored hint. Local decisions require the trusted consent channel;
+//! the public-only remote route independently verifies signed root authority
+//! and the exact petition digest, request, generation and one-use challenge.
 
 use serde::{Deserialize, Serialize};
 
@@ -44,6 +43,9 @@ pub enum ClientMessage {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "op", rename_all = "kebab-case", deny_unknown_fields)]
 pub enum Operation {
+    /// Public-only relay, requiring its own local principal grant. Signed
+    /// remote authority is verified separately before any effect.
+    RemoteApproval { command: Box<crate::remote_approval::route::RemoteCommand> },
     /// Public status, answerable while locked. Empty braces, not a unit
     /// variant: serde ignores extra fields on internally tagged unit variants.
     Status {},

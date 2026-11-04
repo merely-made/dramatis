@@ -58,7 +58,7 @@ impl Args {
 fn parse() -> Result<Args, String> {
     let mut raw = std::env::args().skip(1).peekable();
     let command = match raw.peek().map(String::as_str) {
-        Some("init") | Some("adopt") | Some("consent") => raw.next().expect("peeked"),
+        Some("init") | Some("adopt") | Some("consent") | Some("remote-init") | Some("validate-config") => raw.next().expect("peeked"),
         _ => "serve".to_string(),
     };
     let (mut config, mut client, mut socket, mut from, mut data_from) = (None, None, None, None, None);
@@ -100,6 +100,11 @@ fn run() -> Result<(), String> {
     let bytes = std::fs::read(path).map_err(|e| format!("read {}: {e}", path.display()))?;
     let config = Config::parse(&bytes).map_err(|e| e.to_string())?;
     match args.command.as_str() {
+        "validate-config" => Ok(()),
+        "remote-init" => djinn_custodian::remote_approval::storage::EnrollmentStore::initialize(
+            &config.vault.directory,
+            config.remote_approval.as_ref().ok_or("remote approval is not configured")?,
+        ).map_err(|e| e.to_string()),
         "init" => init(&config),
         "adopt" => adopt(&config, args.from.as_deref(), args.data_from.as_deref()),
         _ => serve(config, &args),

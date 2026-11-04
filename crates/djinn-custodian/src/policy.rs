@@ -150,6 +150,8 @@ fn same_image(pinned: &str, image: &str) -> bool {
 #[derive(Clone, Debug, Deserialize)]
 #[serde(tag = "operation", rename_all = "kebab-case", deny_unknown_fields)]
 pub enum Grant {
+    /// Carry public approval records. This grants no signing or secret release.
+    RemoteApprovalBridge,
     Status,
     Lock,
     Unlock,
@@ -531,6 +533,7 @@ impl Principal {
             .map(|grant| {
                 let (profile, operation, namespace, consent) = match grant {
                     Grant::Status => (String::new(), "status", String::new(), Consent::None),
+                    Grant::RemoteApprovalBridge => (String::new(), "remote-approval-bridge", String::new(), Consent::None),
                     Grant::Lock => (String::new(), "lock", String::new(), Consent::None),
                     Grant::Unlock => (String::new(), "unlock", String::new(), Consent::None),
                     Grant::Revoke { consent } => (String::new(), "revoke", String::new(), *consent),

@@ -1,7 +1,9 @@
 // Copyright 2026 Mark Alan Boykin
 // SPDX-License-Identifier: MPL-2.0
 
-//! Trusted host API; no client wire command or network listener is added here.
+//! Trusted host API and the independently granted public-only relay.
+
+mod route;
 
 use custody_wire::remote_approval::{ApprovalOperation, ApprovalProof, ApprovalRequest};
 use insigne::delegation::{SignedDelegationCertificate, SignedDelegationRevocation};

@@ -84,6 +84,12 @@ impl Core {
             return Some(Outcome::refused("stale-generation"));
         }
         match operation {
+            Operation::RemoteApproval { command } => Some(
+                match self.granted(&principal, |g| matches!(g, Grant::RemoteApprovalBridge)) {
+                    Ok(_) => self.remote_route(*command, now, effects),
+                    Err(error) => Outcome::refused(error.0),
+                },
+            ),
             Operation::Status {} => Some(
                 self.granted(&principal, |g| matches!(g, Grant::Status))
                     .map_or_else(

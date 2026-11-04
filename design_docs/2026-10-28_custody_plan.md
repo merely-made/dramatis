@@ -21,7 +21,8 @@ The wallet store and station-grant policy are now Sporran's.
 authorized work. The custodian's configurable absolute unlocked lifetime is
 implemented and tested. The portable root/device enrollment and remote-approval
 proof gate, durable enrollment and consent execution are implemented at supplier
-scope. Settings UI, remote routing and storage-opening integration remain open.
+scope. The public-only SSH route is implemented; installed O-PC/T-PC enrollment,
+settings UI, resident P2P routing and storage-opening integration remain open.
 Platform receiving and the installed native cohort remain separate.
 
 **For:** making the custodian the only production owner of Castellan custody and proving it with enforcement evidence, and
@@ -393,17 +394,18 @@ Implementation slices, in order:
    The operator setup UI, approving-host native signing admission and remote
    storage-opening backend remain open. The passphrase backend explicitly
    refuses approval-only unlock; native OS elevation is a separate mechanism.
-3. **Locked-state route and O-PC/T-PC receiving (open).** Reuse the resident's
-   authenticated channel machinery and Notochord's carrier/subject binding;
-   authenticate/pin the target while locked without SSH keys from its vault.
-   Relays carry bounded public proofs, never vault keys. Show target/profile,
+3. **Network route and O-PC/T-PC receiving (in progress).** First carrier:
+   pinned SSH to `djinn-approval relay`, with independent root/target/profile
+   pins and a separately granted public-only custody operation. SSH server
+   keys are outside target custody; the approver supplies login authority.
+   Resident P2P/carrier-subject integration remains open. Show target/profile,
    operation and requested/effective expiry before signing. First qualify
    O-PC's root enrolling T-PC and T-PC approving one O-PC request, then the
    reverse authorized direction and independent-uplink reconnect. Controls
    cover wrong root, bare pairing, wrong scope, replay, revocation during a
    pending request, restart, fixed expiry and backend refusal. Expand to the
-   configured fleet only after this two-device gate. Existing Sporran grant
-   storage/validation and the resident channel are seams, not this receipt.
+   configured fleet only after this two-device gate. The target never sends
+   secret operation results to the relay, only to its original local requester.
 
 - Done when: all four settings persist through restart and display the policy
   the custodian enforces; finite duration expires during active use; indefinite
@@ -590,3 +592,6 @@ SS8 parked the plan.
   with exact-petition remote consent, revocation-bound caching and duplicate-id
   refusal. This source slice leaves installed receiver binaries unchanged;
   network routing, approving UI and remote opening remain separate gates.
+- 2026-11-04: added the public-only wire bridge, bounded pinned-SSH carrier,
+  native delegation signer and explicit administrator activation tooling.
+  O-PC/T-PC deployment and signed enrollment are the next receiving gate.

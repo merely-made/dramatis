@@ -10,6 +10,8 @@ use notochord::TrustedRoot;
 use personae::delegation::Issue;
 use personae::{IdentityProvider, InMemoryProvider};
 
+mod route_tests;
+
 struct Fixture {
     _directory: tempfile::TempDir,
     config: Config,

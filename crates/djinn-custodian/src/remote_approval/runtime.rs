@@ -48,6 +48,13 @@ pub(crate) struct RemoteRuntime {
 }
 
 impl RemoteRuntime {
+    pub fn active_enrollments(&mut self, at_ms: u64) -> Result<Vec<SignedDelegationCertificate>> {
+        let snapshot = self.store.snapshot()?;
+        Ok(snapshot.enrollments.into_iter().filter(|grant| {
+            self.gate.check_enrollment(grant, &snapshot.ledger, at_ms).is_ok()
+        }).collect())
+    }
+
     pub fn open(
         vault: &Path,
         policy: ApprovalPolicy,

@@ -265,6 +265,7 @@ impl Core {
         &mut self,
         principal: &Principal,
         passphrase: Secret,
+        now: Instant,
         effects: &mut Effects,
     ) -> Outcome {
         if let Err(refusal) = self.granted(principal, |g| matches!(g, Grant::Unlock)) {
@@ -274,10 +275,23 @@ impl Core {
             self.lock(effects);
             return Outcome::refused("generation-exhausted");
         }
+        if !self.vault.is_locked() {
+            // An idempotent unlock request is not fresh owner authorization.
+            // In particular it must not slide an existing absolute deadline.
+            return Outcome::Success { answer: Answer::Unlocked { generation: self.generation } };
+        }
+        let deadline = match self.config.max_unlocked_seconds {
+            Some(seconds) => match UnlockDeadline::new(now, SystemTime::now(), Duration::from_secs(seconds)) {
+                Some(deadline) => Some(deadline),
+                None => return Outcome::refused("unlock-duration-unrepresentable"),
+            },
+            None => None,
+        };
         if let Err(refusal) = self.vault.unlock(passphrase.expose()) {
             return Outcome::refused(refusal.0);
         }
         drop(passphrase);
+        self.unlock_deadline = deadline;
         let advanced = self.advance();
         debug_assert!(advanced);
         self.broadcast(FactCause::Unlock, None, None, effects);
@@ -290,6 +304,7 @@ impl Core {
 
     /// Close admission, drop the root and every grant, persist the barrier.
     pub(super) fn lock(&mut self, effects: &mut Effects) -> LockReport {
+        self.unlock_deadline = None;
         let was_unlocked = !self.vault.is_locked();
         let durable = self.vault.lock();
         if !self.advance() {

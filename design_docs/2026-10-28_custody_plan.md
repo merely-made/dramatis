@@ -17,6 +17,11 @@ composition and client integration. Historical sources and receipts retain
 their Mere paths. Repository extraction does not qualify deployment on a new OS.
 The wallet store and station-grant policy are now Sporran's.
 
+**Update, 2026-11-04:** the one-week policy applies fleet-wide to all already
+authorized work. The custodian's configurable absolute unlocked lifetime is
+implemented and tested; fleet deployment, settings UI and remote approval
+remain open. Existing platform and receiving gates remain separate.
+
 **For:** making the custodian the only production owner of Castellan custody and proving it with enforcement evidence, and
 finishing what the lock left. Opened by Mark's request of 2026-10-21 for a security-boundary audit beginning with custody
 isolation, his 2026-10-26 ruling that custody isolation is live work and a macOS-only approach is insufficient, and the
@@ -73,7 +78,7 @@ line in Findings.
 - **Deny by default, with independent consent.** Policy binds principal, profile or persona, operation, key namespace,
   target, session generation and consent, rechecked at commitment. `AsProfile` and a persona UUID request scope and never
   grant it; the global releasable-salt permission becomes per-principal grants. Only a separately authorized trusted-consent
-  channel resolves a pending operation; `confirmed=true` is never consent. Unlock is a native custody prompt by default;
+  channel resolves a pending operation; `confirmed=true` is never consent. Current unlock is a native custody prompt by default;
   a terminal unlock is a documented exception over a separately authorized, mutually authenticated channel with zeroized
   buffers. Continuous key release is a per-consumer exception with exact derivation, lifetime and rotation limits.
   Native message boxes are not a secure attention sequence: where presence is required the custodian validates the OS
@@ -116,6 +121,67 @@ line in Findings.
   code evidence; one worktree per lane and at most three cargo builds at once; a dated successor receipt per lane updates
   register status and the sealed registers are never edited; custody code uses maintained libraries and standards only.
   Source: `repos/mere/design_docs/mere_docs/implementation_strategy/2026-10-20_ownership_repair_plan.md:57-72,190-196`.
+
+## Decisions
+
+### custody D1. Unlock controls and authorized device approval (2026-11-04)
+
+Mark answered **"Agreed."** to these interface controls:
+
+- Lock after N minutes idle.
+- Stay unlocked for N minutes/hours, or until explicitly locked.
+- Whether screen lock and sleep also lock the vault.
+- Which devices may approve unlocks for this device.
+
+This adopts the preceding clarification: approval may come from another device
+authorized under the owner's root identity, scoped to Dramatis custody. The
+fleet decision names O-PC as its roster root; that relationship does not prove
+every vault key is derived from O-PC or grant unlock authority by itself.
+OS-session unlock remains a separate capability.
+
+Links: area custody · plans VL-U · summary Expose configurable vault unlock duration, lock triggers and authorized remote approval.
+
+### custody D2. One-week vault timers and remote grants (2026-11-04)
+
+Mark requested **"We should set the djinn auth expiry and timeout to be a week"**
+and clarified **"Both vault timers and remote grants"**. The selected policy is:
+
+- Maximum elapsed unlocked duration: one week, including during active use.
+- Idle-lock timeout: one week since activity, distinct from elapsed duration.
+- Lifetime for newly issued remote authorization grants: one week from issue.
+
+One week is **604,800 seconds / 10,080 minutes**. Keep all three settings
+configurable. Existing independently enabled screen-lock and sleep triggers,
+explicit lock and revocation may end access sooner. An existing signed grant
+keeps its signed expiry; renewal/reissue requires its authorized issuer and
+must not silently extend that grant or confer vault-unlock permission.
+
+Implementation status: the resident's `lock.toml` supports the idle setting.
+The custodian now enforces configurable elapsed duration; installed receiving
+and remote vault-unlock issuance remain VL-U work. Remote device-grant issuance requires an
+explicit `expires_at_ms`; its host needs to apply this selected lifetime.
+Production preference does not set test duration: use injected clocks or
+explicitly isolated short-lived fixtures for boundary and expiry controls.
+
+Links: area custody · amends custody D1 · plans VL-U · summary Select configurable one-week unlock duration, idle timeout and remote-grant lifetime.
+
+### custody D3. Fleet-wide authorization for existing work (2026-11-04)
+
+Mark clarified **"The week is for all of the tasks, not just this one"** and
+wants to renew authorization at the end of a week rather than after keyboard
+inactivity. Apply the selected week to the entire configured fleet and all
+already approved work, not a relay-specific exception. Existing scopes and
+revocation still apply; authorization does not grow merely because it lasts
+longer. Short I/O, shutdown and consent-prompt deadlines remain separate.
+
+Treat elapsed authorization as a fixed deadline, not a sliding activity window.
+Deploy and verify finite expiry before removing earlier lock triggers that
+would otherwise interrupt that work. Distinguish a saved setting, an active
+resident reload, a compatible custodian deployment and a tested weekly boundary.
+Do not claim unreachable computers were updated. Test fault/expiry controls in
+isolated custody fixtures so the battery does not revoke the fleet's real work.
+
+Links: area custody · refines custody D2 · plans VL-U · summary Apply the week to existing authorized work throughout the fleet.
 
 ## Phases
 
@@ -250,6 +316,57 @@ the reason it stays.
 - Rulings: -
 - From: `repos/mere/design_docs/archive_docs/2026-10-28/2026-10-05_vault_lock_plan.md:2156,2176-2190,2209-2236,2250-2406,2416-2448`
 
+### VL-U. Unlock settings and approval from authorized devices (in progress)
+
+Dramatis owns policy and custody enforcement; Djinn presents settings and
+requests. Show the four agreed controls per target device, plus its current
+lock state and the active unlock deadline or absence of a duration limit.
+Keep inactivity and elapsed unlock duration distinct. Configured idle,
+screen-lock and sleep triggers continue to apply independently of a duration
+limit. Settings changes use the custodian's authorized configuration path;
+protected deployments must not acquire a writable-client policy bypass.
+The custodian's `max_unlocked_seconds` defaults to 604800; explicit owner-policy
+`null` permits indefinite duration. A successful unlock fixes the deadline;
+activity, reconnect and duplicate unlock do not renew it. Timer expiry locks,
+advances the generation and invalidates cached/pending consent. A calendar
+bound also covers suspended time; backwards clock movement fails closed.
+The configured I/O ticker and in-flight completion remain bounded separately.
+The selected finite duration, idle timeout and new remote-grant lifetime are
+one week each (custody D2); display each separately and allow configuration.
+
+Any device explicitly authorized under the owner's root may approve a target
+vault unlock after authentication on the approving device. Derivation proofs
+or signed delegation establish identity; a revocable permission separately
+authorizes the target, vault/profile and operation. Mere pairing, graph-write
+permission or a transport key does not authorize custody unlock. Bind each
+approval to the target custodian instance, current generation, fresh request
+and selected duration; recheck permission and revocation before opening.
+Approval travels through an authenticated channel available while the target
+vault is locked, without depending on SSH credentials held in that vault.
+
+The target storage backend must explicitly support remote-authorized opening.
+A local-presence-only envelope requires a reviewed alternative before this
+flow can work; identity association alone cannot decrypt it. Keep unsupported
+targets locked and explain the missing capability in the interface.
+
+- Done when: all four settings persist through restart and display the policy
+  the custodian enforces; finite duration expires during active use; indefinite
+  duration does not suppress separately enabled lock triggers; authorized
+  approval opens exactly the requested vault for the selected duration.
+  Controls refuse an unrelated root, a paired device without unlock permission,
+  revoked permission, wrong target/profile, replay, expired request, stale
+  generation or a restarted custodian. Exercise lock and revocation during a
+  pending approval. Test the one-week boundaries with injected time and verify
+  explicitly configured shorter fixture lifetimes. Retain one real two-device receipt and separate receipts
+  for each supported storage backend; unsupported backends stay unqualified.
+- Needs: root-bound device authorization, a locked-state approval channel,
+  backend support and Djinn's settings/approval surface.
+  The requested fleet is O-PC, T-PC, Q-PC, S-PC, Y-PC, iMac-M4 and X-PC;
+  verify root-bound enrollment before calling remote approval fleet-ready.
+- Receipts: focused policy and negative-control results plus the two-device
+  and backend summaries in this plan's archived receipt file; 100 MB total
+  retained-byte cap. Exploration retains compact summaries only.
+
 ### VL-E. Attended steps, deployment and the environment passphrase
 Deployment of the lock to the installed resident is Mark's step, as are a real Windows Hello prompt and the native terminal
 prompt. Not verified: the wire sign refusal against the real `ssh` binary. `Unlock::from_env()` remains in
@@ -310,6 +427,10 @@ SS8 parked the plan.
 
 ## Open questions
 
+- VL-U: which existing native storage backends can accept remote approval, and
+  which require an additional protected opening method? How should an
+  authenticated remote work session affect the configurable idle timer?
+  These implementation choices remain open; the four controls are agreed.
 - How does ruling 91 (a Linux auto-unlock root in the desktop's Secret Service, unlocked by PAM for the session) sit with the
   custodian's Linux design (a dedicated service UID with root-owned configuration and state outside the desktop home,
   passphrase AEAD inside it, polkit consent per generation)? Ruling 91 predates that design and its assessment is unmade.
@@ -373,3 +494,13 @@ SS8 parked the plan.
   source homes in Dramatis. The Windows suite retains its two baseline
   OS-vault adoption failures; portable independence and Mere integration do
   not close this plan's deployment, signed receiving or operating-system gates.
+
+- 2026-11-04: recorded the agreed unlock interface and root-authorized device
+  approval as custody D1 and planned phase VL-U. Documentation only; runtime
+  behavior and installed policies have not changed.
+- 2026-11-04: custody D2 selects one week for elapsed unlock, idle and new remote
+  grants. Applied the supported idle setting to O-PC's active resident; the
+  other controls retain their explicit implementation and deployment gates.
+- 2026-11-04: custody D3 makes the week fleet-wide for existing approved work.
+  Implemented absolute custodian expiry and controls for renewal, sleep/clock
+  changes and pending approval. Fleet receiving status is in the receipt.

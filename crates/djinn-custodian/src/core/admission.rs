@@ -102,7 +102,7 @@ impl Core {
                 let report = self.lock(effects);
                 Some(lock_outcome(report))
             },
-            Operation::Unlock { passphrase } => Some(self.unlock(&principal, passphrase, effects)),
+            Operation::Unlock { passphrase } => Some(self.unlock(&principal, passphrase, now, effects)),
             Operation::Revoke { principal: target } => {
                 let (index, consent) =
                     match self.granted(&principal, |g| matches!(g, Grant::Revoke { .. })) {

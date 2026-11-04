@@ -24,6 +24,10 @@ use serde::Deserialize;
 #[serde(deny_unknown_fields)]
 pub struct Config {
     pub vault: VaultConfig,
+    /// Absolute unlocked lifetime. Activity and reconnect do not renew it.
+    /// `null` explicitly selects an indefinite lifetime in the owner policy.
+    #[serde(default = "default_max_unlocked_seconds")]
+    pub max_unlocked_seconds: Option<u64>,
     pub principals: Vec<PrincipalRule>,
     /// How petitions reach the owner.
     pub consent: ConsentMode,
@@ -34,6 +38,10 @@ pub struct Config {
     /// protected deployment; reported in every status.
     #[serde(default)]
     pub development: bool,
+}
+
+fn default_max_unlocked_seconds() -> Option<u64> {
+    Some(7 * 24 * 60 * 60)
 }
 
 /// Where the vault lives, in the custodian's own state directory.
@@ -398,6 +406,10 @@ impl Config {
     }
 
     fn validate(&self) -> Result<(), PolicyError> {
+        if self.max_unlocked_seconds.is_some_and(|seconds| seconds == 0
+            || std::time::Instant::now().checked_add(std::time::Duration::from_secs(seconds)).is_none()) {
+            return Err(PolicyError("max_unlocked_seconds must be positive and representable, or null".into()));
+        }
         if !self.vault.directory.is_absolute() {
             return Err(PolicyError("the vault directory must be absolute".into()));
         }

@@ -50,8 +50,10 @@ is tracked in the repository plan and Mere's workspace hygiene plan.
 ## Active documents
 
 - [custody_plan](2026-10-28_custody_plan.md): custody isolation, vault lock,
-  production receiving gates and the parked Secret Service design; moved with
-  the custodian under D14. Historical sources and receipts retain Mere paths.
+  tested absolute unlock expiry, fleet-wide one-week policy and planned remote approval (VL-U), production
+  receiving gates and the parked Secret Service design; moved with
+  the custodian under D14. [Current receipts](archive_docs/receipts/2026-10-28_custody_plan_receipts.md);
+  historical sources and receipts retain Mere paths.
 - [castellan_custodian_integration](2026-10-22_castellan_custodian_integration.md):
   signed macOS native receiving design and evidence boundaries.
 

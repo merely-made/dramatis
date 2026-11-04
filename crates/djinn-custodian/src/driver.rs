@@ -75,7 +75,10 @@ impl Service {
 
     /// The SSH agent session over the vault, once it has been opened.
     pub fn agent_session(&self) -> Option<castellan::custody::agent::VaultAgent<Box<dyn castellan::custody::IdentityStorage>>> {
-        lock(&self.core).custody().agent_session()
+        let mut core = lock(&self.core);
+        let effects = core.tick(Instant::now());
+        self.deliver(&mut core, effects);
+        core.custody().agent_session()
     }
 
     /// Accept forever. Returns only when the listener fails.

@@ -18,7 +18,10 @@
 //! generation, cancel every pending petition and broadcast a fact.
 
 use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
-use std::time::{Duration, Instant};
+use std::time::{Duration, Instant, SystemTime};
+
+mod lifetime;
+use lifetime::UnlockDeadline;
 
 use custody_wire::contract::{
     Answer, Fact, FactCause, Limits, LockReport, Outcome, Petition, Purpose, ReleasedKey,
@@ -112,6 +115,7 @@ pub struct Core {
     queue: VecDeque<Pending>,
     active: Option<String>,
     signing: HashSet<uuid::Uuid>,
+    unlock_deadline: Option<UnlockDeadline>,
 }
 
 const MAX_SALTS: usize = 32;
@@ -139,6 +143,7 @@ impl Core {
             queue: VecDeque::new(),
             active: None,
             signing: HashSet::new(),
+            unlock_deadline: None,
         })
     }
 
@@ -492,6 +497,9 @@ impl Core {
 
     fn expire(&mut self, now: Instant) -> Effects {
         let mut effects = Effects::default();
+        if self.unlock_deadline.as_mut().is_some_and(|deadline| deadline.expired(now, SystemTime::now())) {
+            self.lock(&mut effects);
+        }
         let mut kept = VecDeque::new();
         for pending in std::mem::take(&mut self.queue) {
             if pending.deadline <= now {
@@ -514,9 +522,9 @@ impl Core {
         effects
     }
 
-    /// The next petition deadline, for a driver's timer.
+    /// The next petition or absolute unlock deadline, for a driver's timer.
     pub fn next_deadline(&self) -> Option<Instant> {
-        self.queue.iter().map(|p| p.deadline).min()
+        self.queue.iter().map(|p| p.deadline).chain(self.unlock_deadline.map(|deadline| deadline.instant)).min()
     }
 }
 

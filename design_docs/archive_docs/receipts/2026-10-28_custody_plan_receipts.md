@@ -469,3 +469,30 @@ git diff --check
   Linux tooling now supports updating an existing receiver while preserving
   its root/target/profile pins, grants and enrollment DB; initialization is
   exclusive to first activation.
+
+### Guard candidate and interactive retry checkpoint
+
+- `dba42f0` pushed after passing commit hooks. Windows guard cohort: custodian
+  `1F40036B54FC3C509CC9DEFCFFDEE37710BB178F688BAFECC2480FF86E1A6280`;
+  unchanged approval helper `8C705DD411AC3BEFFCBA5DC78C1C0EF555A3D93B4B26045A45EBA3CAC1288F5A`.
+  Matching stripped Linux custodian
+  `2ecd847b6be19323c4e2b96b82fbaf84d9a69470330738c5eaf8a74842181c1e`
+  passes 105/105 custodian tests; prior 9/9 wire result is unchanged.
+- T-PC's sudo journal reports conversation failure/could not read a
+  password for the first directly launched SSH terminal. It does not report
+  an accepted authentication or privileged change. The retry uses Windows
+  Terminal, forces a PTY, verifies interactive stdin and keeps diagnostics
+  visible. Its generated launcher SHA256 is
+  `df82119308815fa01d6ac24afab1802c092db27c114335c05874106eee88d77e`.
+  It offers the existing resident's terminal unlock after successful activation.
+- The matching T-PC public policy preview again passes `validate-config`,
+  with unchanged hash `c0aeb3dd4e410af64b465f11caab5835bf0e07b06eabcd4bba56286810d0d0d0`.
+  Its interactive terminal is open with an empty diagnostic log, awaiting
+  sudo input. Existing service remains active at its prior PID; helper is
+  not installed and remote policy/enrollment remain unactivated.
+- Windows closed the guard-update administrator request without starting
+  the update. O-PC stays on installed F137, unlocked generation 2, with one
+  active root self-enrollment. Fresh pinned T-PC and S-PC SSH access is good.
+  A second device is deliberately not authorized on O-PC until the guard is
+  deployed. Existing relay streams were coordinated before the attempted
+  update; no further service restart occurred at this checkpoint.

@@ -355,3 +355,53 @@ development-custodian startup/CLI proof on T-PC, separate from required native
 confinement, personal adoption, polkit and real owner application admission.
 The revised receiving driver's rollback, inventory, catalog and weekly-trigger
 failure-path qualification remains open before native installation.
+
+### Final S-PC execution review and native-entry qualification
+
+Final receiver is 46499 bytes, SHA256
+`54491738d94a080ce43bb0bdd7bb5baa69e53ffcbf428d919d65f9ddf557fec7`.
+The fleet lane reviewed the full receiving flow and successive bounded recovery
+fixes. Final `receiving-safety-04.json` is 2148 bytes, SHA256
+`764d2e379080411a9fa797f97c1277049b637fd12d734020f02a8e32bf60e13c`;
+all nineteen nonprivileged synthetic helper checks pass and bind that source.
+They cover bounded input/hash/length failures, non-executable partials, indirect
+paths, recovery validation, sockets, failed quiescence, concurrent state,
+diagnostic failure, interrupted owner stop and complete original restoration.
+The final regression proves canceled sudo differs from started/completed root
+execution even when a private descendant cannot be observed by the owner.
+Root publishes a non-secret create-new marker before creating private recovery;
+recovery privacy is unchanged. Owned test fixtures were removed.
+
+Final dispatcher is 2719 bytes, SHA256
+`9bf6f8fb7664659aa27775268400f3f28cb58ef588cfe2a9d359c10fae509e6b`.
+The fleet lane independently executed Windows PowerShell 5 with `-NonInteractive`
+and `-VerifyOnly`: exit zero, remote hashes and read-only S preflight passed.
+Actual launch stays disabled in that check. The dispatcher refuses an existing
+receiving unit, then opens a separate held Konsole through S-PC's user manager;
+the receiver's initial Enter precedes every baseline prompt and service stop.
+All native inputs stay on S-PC. Controller dispatch captures no terminal contents.
+
+Immutable controller `receive-s-pc-qualified-01.py` and
+`start-s-pc-receiving-qualified-01.ps1` preserve those exact reviewed bytes and add
+49218 bytes to retained receipt accounting. Earlier source/qualification snapshots
+remain intact. `receiving-budget-03.json` is 1820 bytes, SHA256
+`044c47a8806b409dcd7868aad548a52fa64083f6a9d5ee5d3e5a7c3ba8b47223`;
+it retains the 154982504-byte maximum with the approved gzip/RAM sequence.
+
+Executable review is accepted for the bounded native ceremony under the existing
+fleet rollout authorization. The auth-controls chat owns the single window
+dispatch and human handoff. This entry qualifies source review, simulated helper
+failures and actual read-only preflight, not a completed personal installation or
+end-to-end native rollback trial. Cold reopen, fresh outbound SSH and root-trust
+setup remain separate from the initial receiving result.
+
+Actual dispatch then succeeded through the exact noninteractive PS5 launcher.
+`receiving-window-01.json` is 568 bytes, SHA256
+`5c74a99ecccf62399eff48f5d3aea26191f67ae25b3eff562ac4ff518a44b44b`.
+The independent `djinn-custody-receiving.service` ran Konsole PID 231909 with owner
+Python PID 231933 on native `pts/4`; SSH had disconnected successfully. At that
+snapshot, the owner had no children, receiving-state/root-start marker were absent,
+and the original resident PID 3866 and encrypted vault bytes were unchanged.
+This establishes the initial Enter gate without capturing terminal contents;
+native administration and receiving acceptance were still pending. The existing
+auth-controls chat owns the sole human prompt sequence.

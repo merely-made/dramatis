@@ -184,6 +184,10 @@ review and synthetic preflight; the plan does not qualify an untested runner.
 Stage and qualify everything possible before human interaction. Use target-local
 or foreground Enter-triggered launchers. Human readiness is not a short test
 deadline; preserve diagnostics and reuse verified state after an expired prompt.
+For S-PC's full receiving ceremony, use one fresh Konsole window on S-PC with
+an initial Enter before baseline prompts or source stop. The O-PC dispatcher
+verifies inputs/preflight and opens that window; passwords and native dialogs
+stay on S-PC, with terminal contents uncaptured.
 Avoid overlapping password, Hello and administrator dialogs. A native prompt is
 an OS input boundary, not a request to repeat authorization already given in chat.
 Preflight the exact shell executable used to launch, including native argument
@@ -226,6 +230,11 @@ not qualify Windows PowerShell 5's quoting path.
   before startup, after default startup and after the tested CLI/lifecycle sequence.
   This closes the pre-personal no-wallet prerequisite for that sequence; native
   personal acceptance and the revised receiving-driver qualification remain open.
+- 2026-11-05: final executable review and nineteen synthetic helper-safety checks
+  qualify the S-PC receiving driver for the native handoff. Explicit root-start
+  indication prevents ambiguous double restoration across the privilege boundary.
+  Exact PS5 noninteractive dispatch/read-only S preflight also pass. These are
+  execution prerequisites; personal installation results remain separate.
 
 ## Progress
 
@@ -256,3 +265,12 @@ not qualify Windows PowerShell 5's quoting path.
   live verification. Recorded exact successful-shell attribution and the repaired
   PS5 dispatch. Quiescent recovery and native personal installation remain open;
   the auth-controls chat owns the single foreground handoff.
+- 2026-11-05: accepted final receiver/dispatcher source review and qualification;
+  preserved immutable controller copies. The auth-controls chat may open the one
+  paused S-PC terminal under the existing rollout authorization. Its native
+  recovery/adoption/acceptance, cold reopen, fresh SSH and root-trust results
+  remain individually recorded gates.
+- 2026-11-05: dispatched one independent S-PC Konsole and verified its initial
+  Enter gate from unit/process/TTY metadata. At dispatch, the original resident
+  and vault were unchanged and receiving/root-start state was absent. Native
+  interaction continues in the auth-controls chat, with no competing prompt here.

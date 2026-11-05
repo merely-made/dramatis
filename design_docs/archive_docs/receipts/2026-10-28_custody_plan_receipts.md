@@ -559,3 +559,9 @@ git diff --check
   catalog path validation. The fix permits readlink/readlinkat metadata queries
   (architecture-appropriate), while file/content access remains bounded by
   Landlock's explicit roots. No network, exec or tracing permission is added.
+- Native unlock/catalog gate then passed 1/1 explicitly executed, including
+  omitted-root failure, positive unlock and denied sibling/config access.
+  Linux candidate: `bb0d9c9dc7cfe9c83cdcaf6c34e19b967beb1bb82325b5226fc1b5d315fd4c9f`;
+  Windows candidate: `DFA9311626A916ABCB634D512B4EC1AB0118A193ADD2DCF8C01936DEAC87FA0D`.
+  Fresh update-existing launcher `edf42eb91232c59f6f552ccb2df0a4cb8a7c620dcfc669139b59ea5497a83aa4`
+  opened as `T-PC catalog repair - password`, awaiting native sudo input.

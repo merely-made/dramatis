@@ -162,3 +162,12 @@ has zero PS5 parser errors. `agent-dispatcher-qualification-01.json`, SHA256
 retains those outcomes. New terminal/root/state markers were absent afterward;
 original resident261760 remained active. One paused native handoff was authorized
 under the existing rollout instruction; personal acceptance is still pending.
+
+The exact dispatcher then exited0 and opened one independent paused Konsole:
+unit `djinn-custody-resume-agent.service`, invocation
+`040e2ba911664158955f8d03609a5e6c`, Konsole267374, owner267397 on pts/1.
+`agent-native-handoff-01.json` records matching source/manifest arguments, the
+initial Enter gate, no owner children, absent root/baseline state and original
+resident261760 still active. Only process/unit metadata was observed; terminal
+contents were not captured. The fleet chat issued one native sudo/vault completion
+card. The already accepted application decision is to be verified and reused.

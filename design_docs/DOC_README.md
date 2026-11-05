@@ -28,6 +28,9 @@ is tracked in the repository plan and Mere's workspace hygiene plan.
 - Custody and release policy belong to Castellan and its host. Sporran supplies
   the host-instantiated wallet store and sealer adapters. Portable identity
   models and views must preserve that authority boundary.
+- Fleet status separates saved settings, synthetic tests and personal receiving.
+  Check the actual service instance and launchd scope. A signed test account's
+  receipt does not qualify the operator's personal installation.
 - Rust: working toolchain 1.99.1 (`rust-toolchain.toml`) and shared MSRV
   1.97.1, qualified separately. Canonical policy:
   `repos/mere/design_docs/2026-08-12_family_composition_thesis_brief.md`,
@@ -58,6 +61,10 @@ is tracked in the repository plan and Mere's workspace hygiene plan.
   historical sources and receipts retain Mere paths.
 - [castellan_custodian_integration](2026-10-22_castellan_custodian_integration.md):
   signed macOS native receiving design and evidence boundaries.
+- [fleet_custody_rollout](2026-11-05_fleet_custody_rollout_plan.md): remaining-six
+  personal deployment continuation of custody D3/D4; Linux synthetic gates pass,
+  while first installs/adoption, signed macOS receiving and live consent remain open.
+  [Receipts](archive_docs/receipts/2026-11-05_fleet_custody_rollout_plan_receipts.md).
 
 
 - [subject_reference_plan](2026-10-16_subject_reference_plan.md): **reference

@@ -23,7 +23,7 @@ implemented and tested. The portable root/device enrollment and remote-approval
 proof gate, durable enrollment and consent execution are implemented at supplier
 scope. O-PC/T-PC now share the pinned root and T-PC's signed approval grant.
 Live network consent, Hello timeout cleanup, settings UI, P2P routing and remote opening remain open.
-Platform receiving and the installed native cohort remain separate.
+Remaining receiving follows the [fleet rollout](2026-11-05_fleet_custody_rollout_plan.md); installed native cohorts remain separate.
 
 **For:** making the custodian the only production owner of Castellan custody and proving it with enforcement evidence, and
 finishing what the lock left. Opened by Mark's request of 2026-10-21 for a security-boundary audit beginning with custody

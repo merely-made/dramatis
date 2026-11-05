@@ -405,3 +405,36 @@ and the original resident PID 3866 and encrypted vault bytes were unchanged.
 This establishes the initial Enter gate without capturing terminal contents;
 native administration and receiving acceptance were still pending. The existing
 auth-controls chat owns the sole human prompt sequence.
+
+### S-PC native admission failure and verified restoration
+
+The first native ceremony reached isolated custody at 13:52:46 UTC, ready
+resident/custodian agent at 13:52:58, and the selected false/false/true/10080
+trigger hot reload at 13:53:13 on November 5. Application admission then recorded
+false at 13:53:14 and refused the explicit retry. The original resident restarted
+at 13:53:59 (08:53:59 Eastern). These user-journal observations do not qualify
+catalog/agent continuity through the refused application or root trust.
+
+Private `receiving-outcome.json` is 120 bytes, SHA256
+`9afd626e140ace3264039fbe003e7aee172859d6d18788aeb946629e3e11a3b9`:
+receiving failed, original restored, new custody disabled. The source lane then
+ran the exact driver's read-only `assert_originals`: all seven files' bytes,
+uid/gid/modes/sizes, complete custody inventory and links passed. The original
+public master remained unchanged, legacy PID 243846 was active/unlocked and
+new custody was inactive with both sockets disabled. Protected adopted state,
+configuration, account, failed owner settings and recovery remain retained.
+
+`receiving-diagnostic-01.json` is 2001 bytes, SHA256
+`2c7ebff7e81284dc95889b3d18909dce2db02cecb9321df8de5a19c49d774ee9`.
+The fleet lane parsed and hash-checked both controller receipts. Protected phase
+events were not read: fresh native administration would be required. Public
+outcome and the user journal establish the stated failure/restoration boundary.
+
+The exact source's negative-default KDialog command emits unsupported
+`--defaultno`. Installed offscreen `kdialog --defaultno --help` returns exit 1,
+`Unknown option 'defaultno'`, without opening a consent dialog. The adapter maps
+nonzero to false and the host persists that as an owner refusal. The failed No
+is preserved; no policy reset, grant insertion or native retry was performed.
+Mere's native-confirmation plan owns the shared UI fix and candidate qualification.
+S-PC's next ceremony must resume existing reviewed protected state, with no
+second first-install/adoption or duplicate recovery archive.

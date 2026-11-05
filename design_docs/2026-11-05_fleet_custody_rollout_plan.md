@@ -38,7 +38,7 @@ Additional approval directions must be explicit in the reviewed setup.
 | Machines | Current receiving position | Next required work |
 |---|---|---|
 | O-PC, T-PC | Personal update/unlock and mutual root/device trust qualified | Preserve baseline; live remote-consent execution remains separate |
-| S-PC | Legacy resident; original public identity read back; native gate passed | Quiescent recovery, first isolated installation and identity-preserving cutover |
+| S-PC | Original resident restored; protected custody/recovery retained but stopped after admission failure | Repair Mere confirmation; resume existing state and qualify cutover |
 | Y-PC, R-PC, X-PC | No running resident/custodian; no standard-path vault/data found; native gate passed | Locate existing identity state before initial resident/custodian setup |
 | Q-PC, iMac-M4 | Running legacy macOS residents; standard vault/data present | Exact signed host/consumer integration and personal receiving |
 
@@ -67,6 +67,14 @@ This phase is complete for the four remaining x86_64 Linux hosts. It provides
 no personal vault adoption, service or enrollment qualification.
 
 ## F1. Linux personal receiving, starting with S-PC
+
+S-PC's first native ceremony reached isolated unlock and weekly trigger reload,
+then rolled back at application admission. Its protected account, adopted state,
+configuration and recovery now exist. Resume that reviewed state after Mere's
+native-confirmation repair; validate and reuse the retained recovery and adopted
+identity without reinitializing or repeating adoption. The original resident is
+active, new custody/sockets are disabled, and the failed refusal stays preserved.
+The initial-install recipe below still applies to unprovisioned hosts.
 
 Prepare a reviewable packet before native administration: exact service and
 resident binaries, installed-client contract, target/profile/root pins, current
@@ -235,6 +243,12 @@ not qualify Windows PowerShell 5's quoting path.
   indication prevents ambiguous double restoration across the privilege boundary.
   Exact PS5 noninteractive dispatch/read-only S preflight also pass. These are
   execution prerequisites; personal installation results remain separate.
+- 2026-11-05: S-PC's native attempt reached isolated custody, original-master
+  readback and selected trigger hot reload, then failed application admission.
+  A KDialog parser error was converted into a remembered false answer. Rollback
+  restored the original seven-file baseline and active resident while disabling
+  the new custodian/sockets. Mere owns the checked-confirmation repair; S-PC now
+  needs a reviewed resume against existing protected state.
 
 ## Progress
 
@@ -274,3 +288,7 @@ not qualify Windows PowerShell 5's quoting path.
   Enter gate from unit/process/TTY metadata. At dispatch, the original resident
   and vault were unchanged and receiving/root-start state was absent. Native
   interaction continues in the auth-controls chat, with no competing prompt here.
+- 2026-11-05: retained the failed native attempt and public rollback diagnostic.
+  Original bytes/metadata/inventory, public identity and unlocked legacy resident
+  were verified afterward. Prepared read-only resume inventory; new receiving,
+  owner admission and root trust remain pending while Mere's UI repair is qualified.

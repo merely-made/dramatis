@@ -10,6 +10,8 @@ use std::process::{Child, Command};
 use std::time::{Duration, Instant};
 
 use castellan::custody::bootstrap::{self, Unlock};
+use castellan::custody::ssh_slot;
+use castellan::custody::vault::{IdentityVault, InMemoryStorage, UnlockTier};
 use custody_wire::contract::{Answer, Outcome, ServerMessage};
 use custody_wire::secret::Secret;
 use custody_wire::{ClientMessage, Operation, Peer};
@@ -18,6 +20,8 @@ use djinn_custodian::driver::Service;
 use djinn_custodian::platform::{self, Confinement};
 use djinn_custodian::policy::Config;
 use personae::ProfileId;
+use ssh_agent_lib::proto::{PublicCredential, SignRequest};
+use ssh_key::{HashAlg, PrivateKey, PublicKey};
 
 const CHILD: &str = "DJINN_AGENT_CONFINEMENT_FIXTURE";
 const OMIT_DATA: &str = "DJINN_AGENT_FIXTURE_OMIT_DATA";
@@ -133,6 +137,32 @@ fn agent_and_unlock_run_inside_linux_confinement() {
                 .kind(),
             std::io::ErrorKind::PermissionDenied
         );
+        // Hostname discovery is needed for certificate self-grants, but
+        // network socket creation and executing programs remain forbidden.
+        // SAFETY: a plain socket request; an unexpected descriptor is closed.
+        let socket = unsafe { libc::socket(libc::AF_INET, libc::SOCK_STREAM, 0) };
+        if socket >= 0 {
+            // SAFETY: the socket call just returned this owned descriptor.
+            unsafe { libc::close(socket) };
+            panic!("confinement allowed network socket creation");
+        }
+        assert_eq!(
+            std::io::Error::last_os_error().raw_os_error(),
+            Some(libc::EPERM)
+        );
+        let program = std::ffi::CString::new("/nonexistent-custodian-fixture-program").unwrap();
+        let args = [program.as_ptr(), std::ptr::null()];
+        let env = [std::ptr::null()];
+        // SAFETY: valid NUL-terminated arguments. The nonexistent path cannot
+        // execute even if the filter regresses; it must be refused by seccomp.
+        assert_eq!(
+            unsafe { libc::execve(program.as_ptr(), args.as_ptr(), env.as_ptr()) },
+            -1
+        );
+        assert_eq!(
+            std::io::Error::last_os_error().raw_os_error(),
+            Some(libc::EPERM)
+        );
         std::fs::write(
             config.vault.directory.join("finished"),
             if omit_data {
@@ -143,6 +173,27 @@ fn agent_and_unlock_run_inside_linux_confinement() {
         )
         .unwrap();
         drop(core);
+        if !omit_data {
+            let deadline = Instant::now() + Duration::from_secs(8);
+            while !config.vault.directory.join("agent-checked").exists() {
+                assert!(
+                    Instant::now() < deadline,
+                    "parent did not finish certificate operations"
+                );
+                std::thread::sleep(Duration::from_millis(20));
+            }
+            // A successful listing must leave the custody mutex usable.
+            service.core().lock().unwrap().custody().snapshot().unwrap();
+            let mut host = std::mem::MaybeUninit::<libc::utsname>::uninit();
+            // SAFETY: uname receives storage for exactly one utsname. Checking
+            // the raw result also catches a denied call in release builds.
+            assert_eq!(unsafe { libc::uname(host.as_mut_ptr()) }, 0);
+            std::fs::write(
+                config.vault.directory.join("agent-healthy"),
+                b"certificates and custody healthy",
+            )
+            .unwrap();
+        }
         std::thread::sleep(Duration::from_secs(10));
         return;
     }
@@ -166,7 +217,20 @@ fn run_fixture(omit_data: bool) {
         Unlock::passphrase(b"synthetic-agent-fixture".to_vec()),
     )
     .unwrap();
-    bootstrap::load_or_create_profile(&*opened.storage, &ProfileId("fixture".into())).unwrap();
+    let (mut profile, _) =
+        bootstrap::load_or_create_profile(&*opened.storage, &ProfileId("fixture".into())).unwrap();
+    let mut private = PrivateKey::from(ssh_key::private::Ed25519Keypair::from_seed(&[42; 32]));
+    private.set_comment("confined certificate fixture");
+    let public = PublicKey::from(&private);
+    profile.slots.insert(
+        ssh_slot::protocol_key_for(&private),
+        ssh_slot::slot_for(&private, UnlockTier::Session).unwrap(),
+    );
+    opened.storage.save_profile(&profile).unwrap();
+    let provider = IdentityVault::with_profile(InMemoryStorage::new(), profile);
+    let authority = personae::ssh_ca::SshCertAuthority::derive(&provider)
+        .unwrap()
+        .public_key();
     drop(opened);
     let uid = custody_wire::peer::effective_uid();
     std::fs::write(root.join("config.json"), serde_json::to_vec(&serde_json::json!({
@@ -228,4 +292,71 @@ fn run_fixture(omit_data: bool) {
             "unlocked"
         }
     );
+    if !omit_data {
+        let stream = UnixStream::connect(root.join("agent.sock")).unwrap();
+        stream
+            .set_read_timeout(Some(Duration::from_secs(3)))
+            .unwrap();
+        stream
+            .set_write_timeout(Some(Duration::from_secs(3)))
+            .unwrap();
+        let mut agent = ssh_agent_lib::blocking::Client::new(stream);
+        for _ in 0..2 {
+            let identities = agent
+                .request_identities()
+                .expect("confined certificate-bearing listing must work");
+            assert_eq!(
+                identities.len(),
+                2,
+                "both certificate and bare credential must survive confinement"
+            );
+            let PublicCredential::Cert(certificate) = &identities[0].credential else {
+                panic!("certificate missing")
+            };
+            assert_eq!(certificate.public_key(), public.key_data());
+            assert_eq!(certificate.signature_key(), authority.key_data());
+            assert_eq!(
+                certificate.cert_type(),
+                ssh_key::certificate::CertType::User
+            );
+            assert_eq!(certificate.valid_principals(), &[String::from("fixture")]);
+            assert!(certificate.critical_options().is_empty());
+            let ca = authority.fingerprint(HashAlg::Sha256);
+            let now = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_secs();
+            certificate.validate_at(now, [&ca]).unwrap();
+            assert!(matches!(identities[1].credential, PublicCredential::Key(_)));
+            for identity in identities {
+                assert_eq!(identity.credential.key_data(), public.key_data());
+                let data = b"confined certificate continuity";
+                let signature = agent
+                    .sign(SignRequest {
+                        credential: identity.credential,
+                        data: data.to_vec(),
+                        flags: 0,
+                    })
+                    .unwrap();
+                let signature = personae::Ed25519Signature::from_bytes(
+                    signature.as_bytes().try_into().unwrap(),
+                );
+                assert!(
+                    personae::Ed25519Keypair::from_seed([42; 32])
+                        .public_key()
+                        .verify(data, &signature)
+                );
+            }
+        }
+        std::fs::write(state.join("agent-checked"), b"continue").unwrap();
+        let deadline = Instant::now() + Duration::from_secs(5);
+        while !state.join("agent-healthy").exists() {
+            assert!(
+                child.0.try_wait().unwrap().is_none(),
+                "custody failed after certificate operations"
+            );
+            assert!(Instant::now() < deadline, "custody did not remain healthy");
+            std::thread::sleep(Duration::from_millis(20));
+        }
+    }
 }

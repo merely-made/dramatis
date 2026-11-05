@@ -180,6 +180,8 @@ fn allowed() -> Vec<libc::c_long> {
         libc::SYS_mkdirat, libc::SYS_getdents64, libc::SYS_flock, libc::SYS_ftruncate,
         libc::SYS_prctl, libc::SYS_tgkill, libc::SYS_restart_syscall, libc::SYS_newfstatat,
         libc::SYS_ppoll, libc::SYS_membarrier, libc::SYS_prlimit64, libc::SYS_clock_getres,
+        // SSH certificate self-grants derive this device's id from its hostname.
+        libc::SYS_uname,
         // The SSH agent's single-threaded tokio runtime.
         libc::SYS_epoll_create1, libc::SYS_epoll_ctl, libc::SYS_epoll_pwait, libc::SYS_epoll_pwait2,
         libc::SYS_eventfd2, libc::SYS_readlinkat,

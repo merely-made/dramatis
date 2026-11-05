@@ -127,3 +127,29 @@ measurement. Private `s-pc-receiving/mutation-journal-01.json` prepares before h
 touched paths, acceptance, retirement and rollback; it is a draft, not a finalized
 immutable ceremony receipt. The locked legacy resident and all personal state
 remain in place. Protected installation paths/account/drop-ins are still absent.
+
+### macOS signature and Linux identity-location follow-up
+
+Direct `codesign -d --verbose=4` and `codesign --verify --strict` probes checked
+the actual installed resident paths from the process/launchd inventory, rather
+than a launcher wrapper. Q-PC's 271994944-byte consumer is unsigned, SHA256
+`2aaec49c73d2231c1e37f3913ac5f2049b32484694b7b5255e4ad0671eb6bea2`;
+both display and verification refused it as unsigned. M4's 279351792-byte consumer,
+SHA256 `268f973f3953af2bb29504785828f795d74a49ffd7fa8cf2b4ed957c0dad54f7`,
+passes strict integrity verification but has an ad hoc linker signature, no
+hardened runtime and no Team ID. Neither qualifies the production signed-client
+contract. These were metadata checks only, with no Keychain access or prompts.
+
+Y/R/X were checked under known Djinn/personae/Graphshell application roots,
+including declared XDG overrides, with a maximum depth of five and excluded
+content/cache trees. Only `/home/markik/.local/share/graphshell/lock.toml` was
+found (21 bytes per host); no XDG override was set. Secret contents were not
+read. This is bounded location evidence, not proof of identity absence. The
+existing-store versus fresh device-vault question remains pending before setup.
+
+Private immutable `testing/dramatis/fleet-policy/remaining-readiness-followup-01.json`
+is 2342 bytes, SHA256
+`eea0a96af30248358da0db14254f283c52087807706f0a15728bf8828cff8555`.
+Its JSON parse, two macOS and three Linux host records were independently checked.
+The initial `mac-signature-readiness-01.json` is retained as well. No personal
+state, installed service, identity, authority grant or native setting was changed.

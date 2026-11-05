@@ -117,6 +117,11 @@ current personal-root migration or qualify the Apple Silicon host. The generic
 installer's `consent: deny` and absent production data-protection integration
 must be resolved through the signed host design, not hidden by replacing a binary.
 
+The checked personal Q-PC resident is unsigned. The M4 resident has an ad hoc
+linker signature, without hardened runtime or a Team ID. Neither is a compatible
+production signed consumer. Prepare the signed host/consumer cohort before
+requesting native receiving; a valid ad hoc integrity check is insufficient.
+
 **Done when:** an exact signed host/resident cohort passes the required native
 boundaries on that machine; identity-preserving adoption and cold reopen work;
 personal wallet/catalog and agent receiving pass; finite weekly settings and
@@ -159,6 +164,13 @@ an OS input boundary, not a request to repeat authorization already given in cha
 - 2026-11-05: S/Y/R/X meet the checked systemd/polkit/Landlock prerequisites and
   explicitly pass `agent_and_unlock_run_inside_linux_confinement`. Their personal
   services, identities, configuration and enrollment were not changed by the gate.
+- 2026-11-05: direct signature checks of the actual Q-PC/M4 resident paths confirm
+  unsigned/ad hoc consumers respectively. No Keychain, signing or runtime changes
+  were needed to establish the missing production signed-consumer requirement.
+- 2026-11-05: bounded known-application-root inventory on Y/R/X found only the
+  weekly Graphshell settings and no XDG overrides or Djinn/personae stores. This
+  does not establish exhaustive identity absence; existing-store location versus
+  fresh device-vault provisioning remains a user choice before personal setup.
 
 ## Progress
 

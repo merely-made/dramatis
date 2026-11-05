@@ -216,6 +216,11 @@ not qualify Windows PowerShell 5's quoting path.
   the original vault bytes and running legacy service remained unchanged. A
   separate Windows PowerShell 5 quoting failure was reproduced and repaired in
   a new launcher, whose safe dispatch and wrong-hash refusal both pass.
+- 2026-11-05: initial receiving-driver review found incomplete rollback shutdown
+  verification, source-inventory coverage, actual catalog acceptance and weekly
+  trigger application. These existing receiving requirements must be qualified
+  in the executable ceremony before native installation; public status alone
+  does not prove credential-catalog use.
 
 ## Progress
 

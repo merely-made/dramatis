@@ -568,3 +568,6 @@ retention02 measures public1371450 bytes plus a reviewed600000-byte private
 producer bound, not a live private measurement. The unused counter draft remains
 preserved; it was not activated. One completion/error card is pending in the fleet
 chat. Native receiving and later trust/lifecycle gates remain open.
+
+The subsequent native agent failure and corrected certificate-bearing confinement
+qualification continue in [agent continuity receipts](2026-11-05_fleet_agent_continuity_receipts.md).

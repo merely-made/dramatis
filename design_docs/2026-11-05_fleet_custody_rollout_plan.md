@@ -5,6 +5,10 @@ and root-trust setup. The other six have saved weekly idle settings. Their
 personal custodian deployment remains open. The four remaining Linux hosts
 have passed the current synthetic native confinement/unlock gate.
 
+The certificate-bearing agent path subsequently exposed a confined-hostname
+syscall failure on S-PC. The [agent continuity receipts](archive_docs/receipts/2026-11-05_fleet_agent_continuity_receipts.md)
+record the native failure, synthetic reproduction and expanded qualification.
+
 This is the fleet receiving continuation of custody D3/D4 and VL-U in the
 [custody plan](2026-10-28_custody_plan.md). That plan retains authority over
 custody mechanisms and platform security requirements. This plan owns the
@@ -37,9 +41,9 @@ Additional approval directions must be explicit in the reviewed setup.
 
 | Machines | Current receiving position | Next required work |
 |---|---|---|
-| O-PC, T-PC | Personal update/unlock and mutual root/device trust qualified | Preserve baseline; live remote-consent execution remains separate |
-| S-PC | Original resident restored after an incorrect help-exit check; corrected resident still qualified | Repair the receiving check, restage consumed inputs, resume existing state |
-| Y-PC, R-PC, X-PC | No running resident/custodian; no standard-path vault/data found; native gate passed | Locate existing identity state before initial resident/custodian setup |
+| O-PC, T-PC | Personal update/unlock and mutual root/device trust qualified for tested flows | Preserve baseline; qualify the Linux agent fix and later live remote consent |
+| S-PC | Original restored after confined-agent crash; native vault/CLI admission reached | Qualify corrected custodian and resume existing state with preserved owner grant |
+| Y-PC, R-PC, X-PC | No resident/custodian or standard-path store; expanded certificate/signing gate passed | Locate identity state before personal setup |
 | Q-PC, iMac-M4 | Running legacy macOS residents; standard vault/data present | Exact signed host/consumer integration and personal receiving |
 
 Saved idle settings alone do not prove a running service, absolute expiry,
@@ -65,16 +69,30 @@ Every owned child is reaped. Temporary generated delivery copies are removed
 after marker/hash and ownership checks; maintained Cargo artifacts are preserved.
 This phase is complete for the four remaining x86_64 Linux hosts. It provides
 no personal vault adoption, service or enrollment qualification.
+The earlier receipts covered an empty SSH profile. The expanded gate now lists
+and signs through a seeded key and its certificate under enforced confinement,
+verifies continued custody health and retains the previous negative controls.
+It passes on T/S/Y/R/X with the qualified fixture. This is distinct from an
+installed personal daemon accepting its real identity and operator policy.
 
 ## F1. Linux personal receiving, starting with S-PC
 
 S-PC's first native ceremony reached isolated unlock and weekly trigger reload,
 then rolled back at application admission. Its protected account, adopted state,
 configuration and recovery now exist. Resume that reviewed state after Mere's
-native-confirmation repair; validate and reuse the retained recovery and adopted
+corrected-custodian qualification; the Mere confirmation repair already reached
+real owner admission. Validate and reuse the retained recovery and adopted
 identity without reinitializing or repeating adoption. The original resident is
 active, new custody/sockets are disabled, and the failed refusal stays preserved.
 The initial-install recipe below still applies to unprovisioned hosts.
+For the corrected-agent retry, validate the actual prior owner-approved settings
+against the unchanged CLI and exact declaration, then restore those bytes before
+resident start. Preserve every prior decision snapshot as history. Stage the new
+custodian once under root control and atomically rename it into the product on
+the same filesystem; remove its delivery inputs before resident/CLI expansion.
+Rollback restores the original seven files and legacy resident while keeping a
+verified corrected custodian installed but stopped. This is an explicit product
+baseline, not a claim that the former custodian executable was restored.
 
 Prepare a reviewable packet before native administration: exact service and
 resident binaries, installed-client contract, target/profile/root pins, current
@@ -176,10 +194,10 @@ file and backup and verify the full peak before copying; do not overlap receivin
 packages from different hosts.
 For S-PC's existing-state resume, custody/helper remain installed. Deliver only
 the qualified replacement resident and unchanged CLI. Reallocate the all-host
-small-record reserve to 2000000 bytes, including both failed attempts and the
+small-record reserve to 3000000 bytes, including the accumulated failed attempts and
 new private resume code/journals;
 keep recovery at 60600000 and other transient state at 1000000 bytes. The
-verified replacement pair makes the controlling window 155972520 bytes. Stream
+verified replacement pair makes the controlling window 156972520 bytes. Stream
 compressed delivery without persistent T-PC/controller archives; never retain
 an upstream archive copy while S-PC expands the raw pair. This reallocates
 headroom within the same peak cap.
@@ -320,3 +338,13 @@ not qualify Windows PowerShell 5's quoting path.
   fourteen recovery safety cases pass. A distinct resume-loader attempt preserves
   both failed runs and reports a fixed public failure stage. Restaging and actual
   PS5 read-only preflight pass; native acceptance is still pending.
+- 2026-11-05: the next native attempt passed vault/CLI admission and original slot
+  comparison, then the confined SSH agent crashed during hostname discovery for
+  its certificate. Originals were verified after rollback. A seeded synthetic
+  regression reproduces it; read-only uname fixes that gate on T-PC while retaining
+  confinement denials. Corrected binary and expanded fleet/native receiving remain.
+- 2026-11-05: the expanded certificate/signing gate passes on S/Y/R/X; all
+  fixture process groups quiesced and generated copies were removed. Corrected
+  normal custodian e356 passed ten isolated interoperability/no-wallet checks.
+  Reviewed atomic single-copy receiving and actual approved-grant reuse; the
+  new native updater remains to be qualified before its human handoff.

@@ -2,9 +2,9 @@
 
 **Status, 2026-11-05: in progress.** O-PC/T-PC have qualified personal receiving
 and root-trust setup. S-PC passed local receiving, cold reopen, outbound SSH and
-readback of the O-PC consent pin. Live remote consent remains pending. All eight
-have saved weekly idle settings. The expanded synthetic Linux confinement gate
-passed on S-PC, Y-PC, R-PC and X-PC.
+one live consent from O-PC over SSH. R-PC is next for personal receiving. All
+eight have saved weekly idle settings. The expanded synthetic Linux confinement
+gate passed on S-PC, Y-PC, R-PC and X-PC.
 
 The certificate-bearing agent path subsequently exposed a confined-hostname
 syscall failure on S-PC. The [agent continuity receipts](archive_docs/receipts/2026-11-05_fleet_agent_continuity_receipts.md)
@@ -43,8 +43,9 @@ Additional approval directions must be explicit in the reviewed setup.
 | Machines | Current receiving position | Next required work |
 |---|---|---|
 | O-PC, T-PC | Personal update/unlock and mutual root/device trust qualified for tested flows | Preserve baseline; qualify the Linux agent fix and later live remote consent |
-| S-PC | Original vault/CLI/SSH continuity, cold reopen and O-PC consent pin verified | Pilot actual O-PC to S-PC consent over the SSH carrier |
-| Y-PC, R-PC, X-PC | No resident/custodian or standard-path store; expanded certificate/signing gate passed | Locate identity state before personal setup |
+| S-PC | Original vault/CLI/SSH continuity, cold reopen and live O-PC consent over strict SSH verified | Preserve this baseline and its receipts |
+| R-PC | Weekly idle setting saved, active native desktop, expanded agent gate passed, checked vault locations empty | Confirm identity source, then personal receiving with O-PC as consent authority |
+| Y-PC, X-PC | Checked resident/custodian and standard-path store locations empty, expanded certificate/signing gate passed | Locate identity state before personal setup |
 | Q-PC, iMac-M4 | Running legacy macOS residents; standard vault/data present | Exact signed host/consumer integration and personal receiving |
 
 Saved idle settings alone do not prove a running service, absolute expiry,
@@ -366,3 +367,8 @@ not qualify Windows PowerShell 5's quoting path.
   application approval and original identity. O-PC verified the consent pin and
   empty peer ledger over strict SSH. All four S-PC outbound aliases still work
   after restart. Actual remote consent execution remains a separate gate.
+- 2026-11-05: the live O-PC to S-PC pilot passed for one per-operation signing
+  request. S-PC verified the signature locally, O-PC received the public Done
+  acknowledgment and the target authentication helper exited. The installed
+  resident stayed active, and the consent pin and generation matched afterward.
+  R-PC is next after confirming its vault source.

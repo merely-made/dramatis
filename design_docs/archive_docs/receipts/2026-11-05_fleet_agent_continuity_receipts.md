@@ -246,3 +246,34 @@ live instance and generation to the O-PC authority and issuer, S-PC default
 profile, consent action, 604800-second grant cap and empty peer ledger. S-PC also
 retested fresh agent authentication through all four saved outbound aliases
 after the restart. Actual remote consent execution remains the next gate.
+
+## 2026-11-05: live one-use O-PC to S-PC consent passed
+
+The original two-connection principal limit stays in force. With the resident
+holding one connection, the pilot uses the other for one S-local Sign and the
+typed remote-approval calls. Separate request IDs keep the signature outcome on
+S-PC. Exact-binary synthetic tests exercised the occupied resident seat, third
+connection refusal, one-use consent, proof replay and requester-close cleanup.
+The existing core regression covers deadline renewal. Live state readback
+covers the installed pins and generation.
+
+Native packet SHA256
+`6de7bb047904b9b05c5eaa2bd6217b19f559a37d48e6d48d7b0b24ef3acd3b6e`
+pins an O-generated, unpublished revocation for a fresh random resource and
+certificate ID. The O-only readiness gate precedes both S-helper launch and the
+120-second request lifetime. `consent-native-review-03.json` records read-only
+PS5 preflight and refusal of changed input, absent rendezvous and pre-Enter EOF.
+
+After the operator completed Windows Hello on O-PC, the strict SSH route returned
+State, Challenge, State and Done for the reviewed petition. The O receipt
+`39da45a625631e5cb254e7e5062db2c05237bbead91f9b2546ca5265faa0e2b4` matches the
+independently retrieved S result
+`311b5b89ee371b0f2aa2588ac215baf65cfb85cb49c68a019a12aa3d098dd350`.
+S verified the Ed25519 signature and master attestation locally and retained
+their hashes. The original consent pin, empty peer list and generation 2 matched
+afterward. The cleanup receipt
+`ec4bede6a26298f1c7b622af5ff711a1fad84e2b2c06df9ad5a53efe2ee1f121` records the
+matched S authentication process exiting on its own. The pilot unit was inactive
+and both existing services remained active. This qualifies one consent direction
+over the existing SSH carrier. Approval-only opening and P2P routing remain
+separate rollout gates.

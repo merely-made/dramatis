@@ -124,6 +124,7 @@ fn serve(config: Config, args: &Args) -> Result<(), String> {
     }
     let plan = Confinement {
         state: config.vault.directory.clone(),
+        data_root: config.vault.data_root.clone(),
         config: args.config()?.to_path_buf(),
         required: !development,
     };

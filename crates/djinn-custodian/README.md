@@ -228,6 +228,11 @@ keeping arbitrary `ioctl` requests outside the seccomp allowlist. The opt-in
 native gate `cargo test -p djinn-custodian --test linux_agent_confinement -- --ignored`
 checks the agent worker under required Landlock and seccomp, using a synthetic
 vault in a child process. Library-only gates do not qualify that startup path.
+The native gate also opens a synthetic vault with a separate credential data
+root. Omitting that root reproduces `vault-storage`; granting exactly the
+configured root permits unlock while unrelated files and config writes stay
+denied. Linux confines the vault and optional data root separately, without
+granting their common parent.
 
 This route does not approve OS elevation.
 `request_remote_unlock` explicitly refuses the current passphrase-only opening

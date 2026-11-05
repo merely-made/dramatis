@@ -125,6 +125,11 @@ fn landlock(plan: &Confinement) -> Result<i64, String> {
     let ruleset = unsafe { OwnedFd::from_raw_fd(ruleset as RawFd) };
     let state = FS_READ_FILE | FS_WRITE_FILE | FS_READ_DIR | FS_REMOVE_FILE | FS_REMOVE_DIR | FS_MAKE_DIR | FS_MAKE_REG | (handled & (FS_REFER | FS_TRUNCATE));
     allow(&ruleset, &plan.state, state & handled)?;
+    if let Some(root) = &plan.data_root {
+        if root != &plan.state {
+            allow(&ruleset, root, state & handled)?;
+        }
+    }
     allow(&ruleset, &plan.config, FS_READ_FILE)?;
     let _ = FS_EXECUTE;
     // SAFETY: a valid ruleset descriptor, no flags.

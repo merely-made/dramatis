@@ -595,5 +595,5 @@ SS8 parked the plan.
 - 2026-11-04: added the public-only wire bridge, bounded pinned-SSH carrier,
   native delegation signer and explicit administrator activation tooling.
   Native O-PC activation, locked-state route and root self-enrollment passed.
-  T-PC awaits native activation. Native-only authority signing is source-tested;
-  its receiver update remains pending before authorizing a second device.
+  T-PC's route now runs while locked; catalog access blocks unlock. Exact data-
+  root confinement repair and O-PC's authority guard await native receiving.

@@ -534,3 +534,23 @@ git diff --check
   Recovery launcher SHA256
   `ab37d9cff138277bb0905a60a59b5fafd9016475f4ab11f13240a865483ef364`
   was opened in a fresh interactive T-PC window; it awaits native sudo input.
+
+### T-PC activation succeeded; separate catalog root blocks unlock
+
+- Mark restarted the timed-out recovery terminal, authenticated sudo and
+  supplied the vault passphrase. Diagnostic `approval-recovery.cVTQZY.log`
+  reports installed fd6c74/528e0b cohort and successful readiness, followed
+  by `vault-storage` at unlock. Live service PID99150 is active with remote
+  policy enabled, generation1, locked, no enrollments. Its network route
+  answers public state while the vault is locked.
+- `HostCustody::unlock` maps opening failures separately from `vault-storage`.
+  The latter can arise while claiming credential stores. Config places the
+  catalog/wallet at the sibling data root, while the launcher granted only
+  the vault directory to Landlock. The repair adds the explicitly configured
+  optional data root to confinement, retaining independent vault/data grants;
+  it does not grant the common parent or change service-account permissions.
+- The native gate now exercises actual unlock/catalog initialization in a
+  synthetic child, with a negative case omitting the data-root rule. It also
+  verifies unrelated sibling reads and config writes stay denied. This gate
+  must pass before another native activation/unlock prompt; current enrolled
+  identity/vault, authority DB and failed receiving logs remain preserved.

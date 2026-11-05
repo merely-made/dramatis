@@ -27,6 +27,8 @@ pub mod windows;
 pub struct Confinement {
     /// The vault directory: read and write.
     pub state: PathBuf,
+    /// Separately configured wallet and credential catalog, when present.
+    pub data_root: Option<PathBuf>,
     /// The configuration file: read only.
     pub config: PathBuf,
     /// Refuse to run unless every mechanism applied.

@@ -153,3 +153,29 @@ is 2342 bytes, SHA256
 Its JSON parse, two macOS and three Linux host records were independently checked.
 The initial `mac-signature-readiness-01.json` is retained as well. No personal
 state, installed service, identity, authority grant or native setting was changed.
+
+### S-PC optimized delivery and explicit receiving budget
+
+The unchanged locked Mere `ae0321429` default production resident built in the
+existing T-PC release target with opt-level 1 and strip=symbols. Candidate:
+84872960 bytes, SHA256
+`821a2888d49c880a95fad41af4ac8d319739fd32e71b81580e6b3d00a33c14a2`.
+The source lane reports the selected graph remains free of forbidden custody
+host/harness features. Build evidence is private `resident-release-build-01.json`;
+it is not installed personal-runtime acceptance.
+
+The reviewed conservative sequence needs 84.873 MB of raw resident staging and
+60.6 MB of reserved compressed rollback capacity, approximately 145.473 MB before
+compact records. The continuation brief explicitly raises its receiving peak to
+160000000 bytes across hosts/controller, limits raw staging to one candidate,
+and requires cleanup back below 100000000 bytes. Backups and staging remain in
+the count. The final packet must independently account for its whole peak before
+copying; no over-cap staging or personal mutation occurred under the old cap.
+
+The first exact-binary synthetic run reached source-master agreement and the
+resident's custodian-agent route, then refused CLI use because the synthetic
+application settings lacked the required owner grant. Its failed receipt is
+preserved as `production-interop-01.json`; no passing result is inferred. A fresh
+run must configure the declared synthetic grant, prove successful CLI use, verify
+locked refusal, then re-unlock and prove successful use before the custodian-loss
+negative so that loss is not confused with the preceding locked state.

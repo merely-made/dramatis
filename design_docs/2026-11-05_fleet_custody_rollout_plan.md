@@ -144,10 +144,15 @@ backends cannot open a locked vault using a public approval proof alone.
 
 ## Receipts and operator interaction
 
-Retained cap: **100 MB across this rollout's repositories and hosts**. Prefer
-compact immutable receipts; budget any staged binaries/backups before copying.
-Preserve existing receipts and personal state. Reuse stable targets; create no
-isolated target/home/worktree without an actual collision or reproducibility need.
+Receiving peak cap: **160000000 bytes across this rollout's repositories and
+hosts**. S-PC's measured resident candidate and compressed rollback allocation
+require about 145.5 MB before compact records. Stage one raw candidate at a time,
+count backups and delivery copies, and verify the full peak before copying.
+After owned delivery cleanup, retain at most **100000000 bytes** of receipts and
+rollback artifacts. Preserve existing receipts and personal state; this cap does
+not authorize deleting them. Maintained Cargo artifacts stay in their existing
+stable build target. Create no isolated target/home/worktree without an actual
+collision or reproducibility need.
 
 Stage and qualify everything possible before human interaction. Use target-local
 or foreground Enter-triggered launchers. Human readiness is not a short test
@@ -185,3 +190,7 @@ an OS input boundary, not a request to repeat authorization already given in cha
   per-process Dramatis dependencies and isolated-custody features. Release delivery
   sizing and the final runtime/rollback packet remain open; the measured compressed
   originals require about 60.5 MB. No personal installation or prompt occurred.
+- 2026-11-05: the optimized production resident built successfully. Its candidate
+  plus measured rollback allocation requires a brief-specific 160 MB receiving
+  peak cap, serial staging and cleanup back below 100 MB. Exact runtime interop,
+  final peak accounting and personal receiving remain open.

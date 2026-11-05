@@ -597,3 +597,4 @@ SS8 parked the plan.
   Native O-PC activation, locked-state route and root self-enrollment passed.
   T-PC's catalog access repair and native unlock passed. O-PC's native-only
   authority guard and cross-device enrollments await completion.
+  T-PC also reloaded weekly idle with screen-lock/suspend triggers disabled after finite custody expiry was deployed.

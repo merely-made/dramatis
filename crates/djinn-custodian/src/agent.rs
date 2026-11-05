@@ -14,6 +14,7 @@
 #![cfg(unix)]
 
 use std::fmt;
+use std::os::fd::AsRawFd;
 
 use ssh_agent_lib::agent::{Agent, ListeningSocket, Session};
 use tokio::net::{UnixListener, UnixStream};
@@ -22,7 +23,7 @@ use crate::driver::Service;
 
 /// Serve the agent on `listener` until the process exits.
 pub fn spawn(service: Service, listener: std::os::unix::net::UnixListener, owner_uid: Option<u32>) -> std::io::Result<()> {
-    listener.set_nonblocking(true)?;
+    nonblocking(&listener)?;
     std::thread::Builder::new().name("custody-agent".into()).spawn(move || {
         let Ok(runtime) = tokio::runtime::Builder::new_current_thread().enable_io().enable_time().build() else {
             return;
@@ -39,6 +40,19 @@ pub fn spawn(service: Service, listener: std::os::unix::net::UnixListener, owner
             let _ = ssh_agent_lib::agent::listen(socket, CustodianAgent { service }).await;
         });
     })?;
+    Ok(())
+}
+
+/// Rust's socket convenience method uses FIONBIO on Linux. Custody permits
+/// fcntl, not arbitrary ioctl requests; keep this within that existing policy.
+fn nonblocking(listener: &std::os::unix::net::UnixListener) -> std::io::Result<()> {
+    let fd = listener.as_raw_fd();
+    // SAFETY: the borrowed listener owns this live descriptor; these commands
+    // read its status flags and preserve every flag except setting O_NONBLOCK.
+    let flags = unsafe { libc::fcntl(fd, libc::F_GETFL) };
+    if flags < 0 || unsafe { libc::fcntl(fd, libc::F_SETFL, flags | libc::O_NONBLOCK) } < 0 {
+        return Err(std::io::Error::last_os_error());
+    }
     Ok(())
 }
 

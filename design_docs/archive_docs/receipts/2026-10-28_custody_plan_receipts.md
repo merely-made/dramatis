@@ -502,3 +502,25 @@ git diff --check
   helper remains absent and the old service PID remains active. Native retry
   now waits for the owner's readiness, with T-PC first and O-PC's guard UAC
   afterward, avoiding simultaneous authentication dialogs.
+
+### T-PC accepted authentication; confined agent startup repair
+
+- Fresh sudo PID95955 on a real PTY accepted administrator authentication.
+  The installer initialized public enrollment storage and attempted the new
+  service. Readiness failed; rollback restored binary/policy and old service
+  returned active at PID96070. Its vault is locked after restart. The new
+  public helper remains installed but the old receiver refuses its new command.
+- Journal pinpoints `agent: Operation not permitted` after required Landlock
+  ABI10 and seccomp enforcement. A synthetic protected-mode trace reproduces
+  `ioctl(4, FIONBIO, ...) = -1 EPERM`. Agent startup now uses already-allowed
+  `fcntl(F_GETFL/F_SETFL)`; the syscall allowlist is not expanded. A native
+  confinement regression checks that the worker actually accepts/closes an
+  owner's connection while locked, beyond library-only source tests.
+- Diagnostic development mode only logs disallowed syscalls, so its first
+  tracing attempt timed out. That owned synthetic child was identified by its
+  exact generated config path and terminated. Subsequent diagnostics bounded
+  and reaped the whole owned process group before removing synthetic state.
+- Failed setup, original vault, signed authority DB and rollback records are
+  preserved. Explicit `resume-initialized` validates the stored root/target/
+  profile through `remote-check`, never recreates storage, and retains the
+  original failed setup alongside a content-addressed public setup record.

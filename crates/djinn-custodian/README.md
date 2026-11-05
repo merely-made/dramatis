@@ -217,9 +217,17 @@ audience through custody's native consent. It displays the public statement;
 no seed or derived signing key is exported. Protected setup must explicitly
 grant signing and bridge access. Use `validate-config --config PATH` before
 activation and initialize storage as its eventual custody account.
+`remote-check --config PATH` verifies existing signed storage under that account
+without creating or resetting it; failed first activation can resume explicitly.
 Root signatures and signatures in the remote-approval delegation audience
 require native consent. Remote consent never authorizes new enrollments or
 signing another approval, including through its per-generation cache.
+
+On Linux the agent uses already-permitted `fcntl` to enable nonblocking I/O,
+keeping arbitrary `ioctl` requests outside the seccomp allowlist. The opt-in
+native gate `cargo test -p djinn-custodian --test linux_agent_confinement -- --ignored`
+checks the agent worker under required Landlock and seccomp, using a synthetic
+vault in a child process. Library-only gates do not qualify that startup path.
 
 This route does not approve OS elevation.
 `request_remote_unlock` explicitly refuses the current passphrase-only opening

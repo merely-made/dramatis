@@ -59,7 +59,10 @@ def main():
         parser.add_argument("--" + name, required=True)
     parser.add_argument("--prepare", help="write and validate public candidate policy only; no privileged changes")
     parser.add_argument("--update-existing", action="store_true", help="update an enrolled receiver without resetting its policy or authority DB")
+    parser.add_argument("--resume-initialized", action="store_true", help="reuse authority storage preserved by a failed first activation")
     args = parser.parse_args()
+    if args.update_existing and args.resume_initialized:
+        raise ValueError("choose either receiver update or failed-initialization recovery")
     if os.geteuid() != 0 and not args.prepare:
         raise ValueError("administrator authentication is required; run this reviewed command with sudo")
     if not re.fullmatch(r"[a-z_][a-z0-9_-]*", args.user):
@@ -84,6 +87,8 @@ def main():
     policy = json.loads(before)
     existing = policy.get("remote_approval")
     if existing:
+        if args.resume_initialized:
+            raise ValueError("receiver already enabled; use update-existing")
         if not args.update_existing:
             raise ValueError("remote approval is already configured; refusing a reset")
         if (existing["root"] != dict(authority=root, issuer=root)
@@ -97,9 +102,9 @@ def main():
         raise ValueError("profile differs from existing fixed policy")
     vault = Path(policy["vault"]["directory"])
     store_exists = (vault / "remote-approval.redb").exists()
-    if store_exists and not args.update_existing:
+    if store_exists and not (args.update_existing or args.resume_initialized):
         raise ValueError("existing authority storage preserved; inspect before activation")
-    if args.update_existing and not store_exists:
+    if (args.update_existing or args.resume_initialized) and not store_exists:
         raise ValueError("enrolled receiver has no authority storage")
     receiving = checked_binary(args.binary, args.binary_sha256)
     helper = checked_binary(args.helper, args.helper_sha256)
@@ -161,13 +166,17 @@ def main():
         atomic(helper_path, helper, 0o755)
         atomic(config_path, updated, stat.S_IMODE(meta.st_mode), meta.st_uid, meta.st_gid)
         run(str(binary_path), "validate-config", "--config", str(config_path))
-        if not args.update_existing:
-            # Keep this public setup record in the already protected service state.
-            setup_owned = vault.parent / "approval-setup.json"
-            if setup_owned.exists():
-                raise ValueError("existing setup config preserved")
+        # Content-address this public setup record; preserve prior failed setup.
+        setup_owned = vault.parent / ("approval-setup-" + digest(updated)[:16] + ".json")
+        if setup_owned.is_symlink():
+            raise ValueError("indirect setup config refused")
+        if setup_owned.exists():
+            if setup_owned.read_bytes() != updated:
+                raise ValueError("existing setup config differs")
+        else:
             atomic(setup_owned, updated, 0o400, service.pw_uid, service.pw_gid)
-            run("runuser", "-u", service.pw_name, "--", str(binary_path), "remote-init", "--config", str(setup_owned))
+        command = "remote-check" if args.update_existing or args.resume_initialized else "remote-init"
+        run("runuser", "-u", service.pw_name, "--", str(binary_path), command, "--config", str(setup_owned))
         run("systemctl", "start", *active_sockets, unit)
         for _ in range(60):
             run("systemctl", "is-active", "--quiet", unit)

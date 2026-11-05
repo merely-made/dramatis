@@ -221,6 +221,11 @@ not qualify Windows PowerShell 5's quoting path.
   trigger application. These existing receiving requirements must be qualified
   in the executable ceremony before native installation; public status alone
   does not prove credential-catalog use.
+- 2026-11-05: a bounded synthetic run of the unchanged exact production binaries
+  preserved identity/personas absence in custody, resident and XDG data roots
+  before startup, after default startup and after the tested CLI/lifecycle sequence.
+  This closes the pre-personal no-wallet prerequisite for that sequence; native
+  personal acceptance and the revised receiving-driver qualification remain open.
 
 ## Progress
 

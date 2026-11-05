@@ -335,3 +335,23 @@ unlock. `launcher-recovery-preflight-02.json` is 2046 bytes, SHA256
 `1df0ba42866b01af7838a95472e3b2885c6a8bc747662ab5332a504eea88a170`.
 This qualifies repaired PS5 transport only. The accepted personal readback came
 from the original PS7 terminal, not from either verification-only test.
+
+### Bounded production startup/CLI no-wallet qualification
+
+`production-no-wallet-03.json` is 1380 bytes, SHA256
+`520f656d588fba5b1cfe8d7a2e8f0186c9e44597019f22250aac6f1f0a901888`.
+The fleet lane independently parsed ten passing checks and inspected the exact
+12598-byte driver, SHA256
+`ed22cf099bc65388eac1f7a29b3151f16b823c20adb56a781461610111dc58c4`.
+The unchanged resident/CLI/custodian/helper hashes match the prior interop run.
+No feature reduction, dependency repin or replacement identity was introduced.
+
+The existing synthetic private-namespace interop sequence now additionally
+asserts no `identity/` or `personas/` in custody data, resident app-data and XDG
+Graphshell data before resident startup, after default production startup and
+after CLI use, lock/re-unlock and custodian outage. All ten checks passed,
+namespace exit was zero and owned fixture state was removed. This is a bounded
+development-custodian startup/CLI proof on T-PC, separate from required native
+confinement, personal adoption, polkit and real owner application admission.
+The revised receiving driver's rollback, inventory, catalog and weekly-trigger
+failure-path qualification remains open before native installation.

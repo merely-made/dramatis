@@ -554,3 +554,8 @@ git diff --check
   verifies unrelated sibling reads and config writes stay denied. This gate
   must pass before another native activation/unlock prompt; current enrolled
   identity/vault, authority DB and failed receiving logs remain preserved.
+- Expanded native gate first reproduced the omitted-data-root `vault-storage`
+  refusal. Its positive case then exposed `readlink(...) = -1 EPERM` during
+  catalog path validation. The fix permits readlink/readlinkat metadata queries
+  (architecture-appropriate), while file/content access remains bounded by
+  Landlock's explicit roots. No network, exec or tracing permission is added.

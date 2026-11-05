@@ -298,3 +298,40 @@ three receiving-window sums. Packet02-to03 comparison changes only journal/hando
 references and the final pre-receiving-gate reference; receiving behavior, launcher
 and budget bytes are unchanged. Historical inputs remain intact. Budget02 SHA256:
 `ecba2d4db63e1d3d4e7a2f3b275538fc3ed77205f592f00b91de28efe17683bc`.
+
+### S-PC original public identity readback accepted; PS5 dispatch repaired
+
+The owner completed the source readback at 2026-11-05 06:36:38 UTC (01:36:38
+Eastern). Private `source-identity-before.json` is 340 bytes, SHA256
+`2541a28d6f07ae7293709f8390c4b9ffeddef5f1410e855589741356588741f7`.
+The fleet lane independently re-read it from S-PC: profile `default`, `Unlocked`,
+valid matching original public master. The encrypted vault remained SHA256
+`5649db6557c12087fde83c66298445e33bdad7eed97e95f5855ee025cad2ffc3` and
+the original service remained active at PID 3866. Controller copy/hash also match.
+`source-readback-validation-01.json` is 1562 bytes, SHA256
+`425d18dd60d6fa77bc0f40ad8955f97781a9b4152b25c19316d5f76327b9e4df`.
+No installation, service stop, root policy, peer enrollment or application
+admission is qualified by this public-readback result.
+
+The successful native interaction used the original launcher through explicit
+PowerShell 7 (`pwsh.exe` PID 44012, owned SSH child 25788), then waited at its
+final Enter. A guarded check for an obsolete `powershell.exe` process preserved
+that PS7 process; no stop occurred. The single native handoff remains in the
+existing auth-controls chat. The fleet lane opened no competing terminal.
+
+Separately, the fleet lane reproduced the user's earlier launch failure under
+Windows PowerShell 5.1.26100.9836 with unlock disabled: embedded double quotes in
+the SSH Python/JSON command were stripped, producing `SyntaxError: invalid decimal
+literal` after SSH connected. The source readback scripts and original launcher
+remain intact. New `start-s-pc-identity-ps5.ps1` is 2944 bytes, SHA256
+`4c510d35f538c2ca4d72c455d0afed256f0a54a3fa21491e864e98d9f64dd21b`.
+It uses fixed paths/hashes and single-quoted printf/checksum dispatch, verifies
+the unchanged remote scripts, waits for Enter and retains bounded phase/exit
+metadata without terminal contents or passphrases.
+
+The exact new PS5 launcher `-VerifyOnly` passed remote hash dispatch with exit 0.
+A wrong-remote-hash probe refused with checksum exit 1. Both explicitly disabled
+unlock. `launcher-recovery-preflight-02.json` is 2046 bytes, SHA256
+`1df0ba42866b01af7838a95472e3b2885c6a8bc747662ab5332a504eea88a170`.
+This qualifies repaired PS5 transport only. The accepted personal readback came
+from the original PS7 terminal, not from either verification-only test.

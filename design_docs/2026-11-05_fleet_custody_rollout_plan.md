@@ -38,7 +38,7 @@ Additional approval directions must be explicit in the reviewed setup.
 | Machines | Current receiving position | Next required work |
 |---|---|---|
 | O-PC, T-PC | Personal update/unlock and mutual root/device trust qualified | Preserve baseline; live remote-consent execution remains separate |
-| S-PC | Running legacy resident; standard vault/data present; native gate passed | First isolated installation, identity-preserving adoption and compatible resident |
+| S-PC | Legacy resident; original public identity read back; native gate passed | Quiescent recovery, first isolated installation and identity-preserving cutover |
 | Y-PC, R-PC, X-PC | No running resident/custodian; no standard-path vault/data found; native gate passed | Locate existing identity state before initial resident/custodian setup |
 | Q-PC, iMac-M4 | Running legacy macOS residents; standard vault/data present | Exact signed host/consumer integration and personal receiving |
 
@@ -176,6 +176,10 @@ or foreground Enter-triggered launchers. Human readiness is not a short test
 deadline; preserve diagnostics and reuse verified state after an expired prompt.
 Avoid overlapping password, Hello and administrator dialogs. A native prompt is
 an OS input boundary, not a request to repeat authorization already given in chat.
+Preflight the exact shell executable used to launch, including native argument
+transport with privileged/unlock execution disabled. Preserve failed launchers
+and bind any replacement explicitly; a successful run through PowerShell 7 does
+not qualify Windows PowerShell 5's quoting path.
 
 ## Findings
 
@@ -197,6 +201,11 @@ an OS input boundary, not a request to repeat authorization already given in cha
   synthetic protocol checks, including re-unlocked successful use before outage
   refusal. S-PC separately passes native loader/argument checks. These results
   do not qualify installed personal custody, polkit or owner application consent.
+- 2026-11-05: S-PC's attended original-identity readback succeeded through the
+  original launcher under PowerShell 7. The source profile/master were verified;
+  the original vault bytes and running legacy service remained unchanged. A
+  separate Windows PowerShell 5 quoting failure was reproduced and repaired in
+  a new launcher, whose safe dispatch and wrong-hash refusal both pass.
 
 ## Progress
 
@@ -223,3 +232,7 @@ an OS input boundary, not a request to repeat authorization already given in cha
   windows. The Enter-triggered original-identity readback launcher is prepared,
   preflighted and running on O-PC for native input. Source readback and personal
   installation have not yet been accepted; their receipts remain separate.
+- 2026-11-05: accepted S-PC's original public-identity readback after independent
+  live verification. Recorded exact successful-shell attribution and the repaired
+  PS5 dispatch. Quiescent recovery and native personal installation remain open;
+  the auth-controls chat owns the single foreground handoff.

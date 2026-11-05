@@ -31,6 +31,8 @@ is tracked in the repository plan and Mere's workspace hygiene plan.
 - Fleet status separates saved settings, synthetic tests and personal receiving.
   Check the actual service instance and launchd scope. A signed test account's
   receipt does not qualify the operator's personal installation.
+- Qualify attended launchers under their actual shell executable and native
+  argument transport. Record syntax checks and runtime dispatch separately.
 - Rust: working toolchain 1.99.1 (`rust-toolchain.toml`) and shared MSRV
   1.97.1, qualified separately. Canonical policy:
   `repos/mere/design_docs/2026-08-12_family_composition_thesis_brief.md`,

@@ -596,3 +596,5 @@ git diff --check
   refused unsupported backend. Network consent execution remains unqualified.
 - Immutable private enrollment receipt SHA256:
   `7fdd51f136865857612b770527d9233416cc920ac75f38a4610027d107d07f63`.
+- Expired Hello dialogs required consent-helper restart and stale-broker cleanup;
+  vaults/grants unchanged. Automatic timeout UI cleanup remains an open defect.

@@ -22,7 +22,7 @@ authorized work. The custodian's configurable absolute unlocked lifetime is
 implemented and tested. The portable root/device enrollment and remote-approval
 proof gate, durable enrollment and consent execution are implemented at supplier
 scope. O-PC/T-PC now share the pinned root and T-PC's signed approval grant.
-Live network consent, settings UI, P2P routing and remote opening remain open.
+Live network consent, Hello timeout cleanup, settings UI, P2P routing and remote opening remain open.
 Platform receiving and the installed native cohort remain separate.
 
 **For:** making the custodian the only production owner of Castellan custody and proving it with enforcement evidence, and

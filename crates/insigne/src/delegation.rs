@@ -498,7 +498,7 @@ fn expiry_within(child: Option<u64>, parent: Option<u64>) -> bool {
     }
 }
 
-fn push_scope(bytes: &mut Vec<u8>, scope: &CapabilityScope) {
+pub(crate) fn push_scope(bytes: &mut Vec<u8>, scope: &CapabilityScope) {
     push_str(bytes, &scope.domain);
     push_bytes(bytes, &scope.resource);
     push_str(bytes, &scope.path_prefix);
@@ -508,16 +508,16 @@ fn push_scope(bytes: &mut Vec<u8>, scope: &CapabilityScope) {
     }
 }
 
-fn push_str(bytes: &mut Vec<u8>, value: &str) {
+pub(crate) fn push_str(bytes: &mut Vec<u8>, value: &str) {
     push_bytes(bytes, value.as_bytes());
 }
 
-fn push_bytes(bytes: &mut Vec<u8>, value: &[u8]) {
+pub(crate) fn push_bytes(bytes: &mut Vec<u8>, value: &[u8]) {
     bytes.extend_from_slice(&(value.len() as u64).to_le_bytes());
     bytes.extend_from_slice(value);
 }
 
-fn push_expiry(bytes: &mut Vec<u8>, value: Option<u64>) {
+pub(crate) fn push_expiry(bytes: &mut Vec<u8>, value: Option<u64>) {
     match value {
         Some(value) => {
             bytes.push(1);

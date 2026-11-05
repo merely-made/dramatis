@@ -69,6 +69,7 @@
 #![warn(missing_docs)]
 #![doc(html_no_source)]
 
+pub mod association;
 pub mod attestation;
 #[cfg(feature = "verify")]
 mod check;
@@ -76,6 +77,12 @@ pub mod delegation;
 mod encoding;
 pub mod key;
 
+#[cfg(feature = "verify")]
+pub use association::CheckedAssociation;
+pub use association::{
+    AssociationClaim, AssociationId, AssociationRevocation, SignedAssociationClaim,
+    SignedAssociationRevocation,
+};
 #[cfg(feature = "verify")]
 pub use attestation::CheckedAttestation;
 pub use attestation::DerivedKeyAttestation;

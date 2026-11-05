@@ -69,8 +69,8 @@ mod provider;
 mod retained;
 pub mod reticulum;
 pub mod seal;
-pub mod sennet;
 pub mod sealed_record_storage;
+pub mod sennet;
 pub mod signing;
 #[cfg(feature = "ssh")]
 pub mod ssh_ca;
@@ -80,6 +80,7 @@ pub mod ssh_face;
 pub mod ssh_krl;
 pub mod startup_unlock;
 pub mod tucket;
+mod unassociated;
 pub mod vault;
 pub mod zeroizing_json;
 
@@ -94,6 +95,7 @@ pub use crate::sealed_record_storage::{
     ResolvedDirectory, SealedRecordChange, SealedRecordStorage,
 };
 pub use crate::startup_unlock::StartupUnlockMode;
+pub use crate::unassociated::{CarrierKeypair, KeyTier, UnassociatedKeypair};
 pub use crate::vault::{
     CredentialLineage, ProfileId, ProfileSummary, ProtocolKey, PublicProfile, SlotSummary,
     UnlockTier, default_vault_dir,

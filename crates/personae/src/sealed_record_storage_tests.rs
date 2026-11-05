@@ -126,7 +126,9 @@ fn authoritative_store(root: &Path, freshness: &Path) -> SealedRecordStorage {
 
 #[test]
 fn authoritative_opening_is_exclusive_until_every_clone_drops() {
-    let _turn = AUTHORITY_TESTS.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    let _turn = AUTHORITY_TESTS
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
     let dir = tempdir().unwrap();
     let records = dir.path().join("records");
     let freshness = dir.path().join("freshness");
@@ -175,7 +177,9 @@ fn authority_child_probe() {
 
 #[test]
 fn authoritative_opening_is_exclusive_across_processes() {
-    let _turn = AUTHORITY_TESTS.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    let _turn = AUTHORITY_TESTS
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
     let dir = tempdir().unwrap();
     let records = dir.path().join("records");
     let freshness = dir.path().join("freshness");
@@ -402,7 +406,9 @@ fn a_resolved_child_refuses_a_link_in_its_path() {
 
 #[test]
 fn resolved_roots_must_still_be_separate() {
-    let _turn = AUTHORITY_TESTS.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    let _turn = AUTHORITY_TESTS
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
     let dir = tempdir().unwrap();
     let base = ResolvedDirectory::resolve(dir.path()).unwrap();
     let records = base.child("records").unwrap();

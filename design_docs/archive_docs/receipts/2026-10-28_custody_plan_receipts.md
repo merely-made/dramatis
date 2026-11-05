@@ -524,3 +524,13 @@ git diff --check
   preserved. Explicit `resume-initialized` validates the stored root/target/
   profile through `remote-check`, never recreates storage, and retains the
   original failed setup alongside a content-addressed public setup record.
+- Repair checkpoint `14cdfbd`: native Linux agent-confinement test executed
+  explicitly with `--ignored --nocapture` and passed 1/1 (not skipped).
+  The child applied required Landlock/seccomp, started the worker and closed
+  the owner's locked-vault connection. Updated stripped Linux candidate is
+  `fd6c74a80d7e34dec76a5eceebeaf3fa04b3190ceb1af5a18c648fc78866b606`;
+  rebuilt Windows candidate is
+  `BC0A16C944255476380CBD71DA3D576D8C6E415DF3E0A72D3FAC660D00DAC181`.
+  Recovery launcher SHA256
+  `ab37d9cff138277bb0905a60a59b5fafd9016475f4ab11f13240a865483ef364`
+  was opened in a fresh interactive T-PC window; it awaits native sudo input.

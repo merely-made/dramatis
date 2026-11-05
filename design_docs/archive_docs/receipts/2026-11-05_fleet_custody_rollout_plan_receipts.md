@@ -101,3 +101,29 @@ recovery accounting remain open. Its old resident is 294078912 bytes: duplicatin
 it uncompressed would exceed the 100 MB budget, so verified compressed recovery
 is required. No classification exception exempts that backup. There was no
 personal installation/adoption, service stop, new identity or native prompt.
+
+### S-PC production graph and recovery-size preparation
+
+On clean T-PC Mere `ae0321429`, both selected production graphs built with the
+locked dependencies unchanged. The resident's default `cxf/personal-sync`
+runtime graph uses Dramatis family `6b65ea4`; graphshell's `native/webrtc-join`
+CLI graph uses `798a1a7`. Each selected normal runtime graph contains one coherent
+Dramatis revision and excludes `castellan`, `djinn-custodian`, in-process custody
+and passphrase-fd. This is graph/build evidence; installed protocol and personal
+receiving acceptance remain separate requirements. O-PC Mere's unrelated dirty
+work was left untouched.
+
+The debug resident was about 286 MB; Cargo rustc stripping reduced it to about
+154 MB, still unsuitable for this receiving budget. A release-profile resident
+build with explicit opt-level 1 and strip=symbols is in progress, using two jobs
+in the existing T-PC Mere target and its build directory. Candidate hashes and
+exact staging peak accounting remain open; no qualified runtime result is inferred
+from these compile checks.
+
+Read-only S-PC gzip level 6 roundtrips matched the original file hashes: resident
+56211399 compressed bytes and CLI 4299480, total **60510879 bytes**, before small
+vault/catalog/unit/settings recovery records. No archives were retained by that
+measurement. Private `s-pc-receiving/mutation-journal-01.json` prepares before hashes,
+touched paths, acceptance, retirement and rollback; it is a draft, not a finalized
+immutable ceremony receipt. The locked legacy resident and all personal state
+remain in place. Protected installation paths/account/drop-ins are still absent.

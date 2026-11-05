@@ -169,3 +169,7 @@ an OS input boundary, not a request to repeat authorization already given in cha
   resident/client hashes and feature/dependency qualification, attended original
   master/profile readback, exact mutation journal and bounded recovery sizing
   remain prerequisites for a runnable ceremony. Personal state is unchanged.
+- 2026-11-05: selected production resident/client graphs compile with coherent
+  per-process Dramatis dependencies and isolated-custody features. Release delivery
+  sizing and the final runtime/rollback packet remain open; the measured compressed
+  originals require about 60.5 MB. No personal installation or prompt occurred.

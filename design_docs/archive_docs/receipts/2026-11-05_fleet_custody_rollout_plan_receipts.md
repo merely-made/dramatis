@@ -559,3 +559,12 @@ Final dispatcher SHA256 is
 The fleet lane independently ran actual noninteractive PS5 VerifyOnly: read-only
 S preflight exit0; wrong manifest hash refused locally before SSH. This is source,
 input and dispatch qualification. No new native continuation was run by it.
+
+The exact reviewed continuation was then opened, paused at Enter. Window receipt
+SHA256 `50bf435d6c6d27d7efe06c35a7c0fc9db00cdd0697c99d219161d2774e406f1f`
+binds active d89/1f15/e894. Konsole259572/owner259595 used native pts/1; owner
+children/state and root marker were absent, original255690 still active. Final
+retention02 measures public1371450 bytes plus a reviewed600000-byte private
+producer bound, not a live private measurement. The unused counter draft remains
+preserved; it was not activated. One completion/error card is pending in the fleet
+chat. Native receiving and later trust/lifecycle gates remain open.

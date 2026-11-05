@@ -176,9 +176,10 @@ file and backup and verify the full peak before copying; do not overlap receivin
 packages from different hosts.
 For S-PC's existing-state resume, custody/helper remain installed. Deliver only
 the qualified replacement resident and unchanged CLI. Reallocate the all-host
-small-record reserve to 1500000 bytes, including private resume code/journals;
+small-record reserve to 2000000 bytes, including both failed attempts and the
+new private resume code/journals;
 keep recovery at 60600000 and other transient state at 1000000 bytes. The
-verified replacement pair makes the controlling window 155472520 bytes. Stream
+verified replacement pair makes the controlling window 155972520 bytes. Stream
 compressed delivery without persistent T-PC/controller archives; never retain
 an upstream archive copy while S-PC expands the raw pair. This reallocates
 headroom within the same peak cap.
@@ -314,3 +315,8 @@ not qualify Windows PowerShell 5's quoting path.
   loader check wrongly required exit zero for Djinn help, which intentionally
   exits two. All seven originals were verified after restoration; the receiving
   check is being repaired against the exact unchanged binary's measured contract.
+- 2026-11-05: corrected the receiving check to require the measured exact exit,
+  stdout/stderr lengths and digests. Its real-binary gate passes ten cases and
+  fourteen recovery safety cases pass. A distinct resume-loader attempt preserves
+  both failed runs and reports a fixed public failure stage. Restaging and actual
+  PS5 read-only preflight pass; native acceptance is still pending.

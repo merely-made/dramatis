@@ -528,3 +528,34 @@ run state is preserved. A later `sudo -n` read was refused without a new prompt.
 The corrected resident never started and its real application dialog remains
 unqualified. Repair only the receiving check and reuse the qualified pair and
 original recovery; consumed delivery inputs need fresh verified staging.
+
+### Corrected help contract and separate continuation qualification
+
+`resume-loader-s-pc.py` SHA256
+`d89ccb3d528750dfb8d72dca960086f67c6827bd259da5d8968c054f59a94c60`
+requires exact exit, stdout/stderr byte lengths and digests, with a16384-byte
+channel bound. Ten actual T-PC binary/invalid-result cases pass and bind this
+source; fourteen synthetic recovery/input cases pass. No production rebuild or
+dependency repin occurred. Public outcomes now include a fixed non-secret
+`failed_stage`. Distinct public/private resume-loader directories preserve both
+failed attempts, the original recovery and the protected adopted state.
+
+The record reserve is reallocated to2000000 bytes for retained failed/new-attempt
+code, journals and public records, within the unchanged160000000-byte peak cap.
+The raw-pair window becomes155972520 bytes. The same qualified resident/CLI were
+streamed again with exact hashes, at most1MiB controller buffers, and no persistent
+T/controller gzip copy. `resume-stream-delivery-02.json` records the windows;
+v2 `resume-loader/candidate.json` SHA256 is
+`e8945ee4fd3f6cf197989c5e91abe5a31518741ac103dfceb70d9f850306f485`.
+Its qualification binds the original production proof, new driver/gate/safety
+receipts and measured help contracts.
+
+The prior held error Konsole was closed only after exact invocation/executable,
+UID, no children, no owner/root driver processes, rollback outcome and actual KDE
+scope membership were verified. Its original service cgroup was empty; the KDE
+scope contained only the owned Konsole. Before/after receipts were retained.
+Final dispatcher SHA256 is
+`1f15faa6a32e69a1eda944b306af41b8906f9274d216ac3447d432509fbdca9e`.
+The fleet lane independently ran actual noninteractive PS5 VerifyOnly: read-only
+S preflight exit0; wrong manifest hash refused locally before SSH. This is source,
+input and dispatch qualification. No new native continuation was run by it.

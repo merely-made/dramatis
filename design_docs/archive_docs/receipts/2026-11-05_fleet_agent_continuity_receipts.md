@@ -171,3 +171,25 @@ initial Enter gate, no owner children, absent root/baseline state and original
 resident261760 still active. Only process/unit metadata was observed; terminal
 contents were not captured. The fleet chat issued one native sudo/vault completion
 card. The already accepted application decision is to be verified and reused.
+
+## 2026-11-05: S-PC native receiving passed and outbound SSH restored
+
+`agent-native-result-01.json`, SHA256
+`2f7437432751e529856634d6f30c30faab947e6a2a313488e45b1382268fb245`, records native
+unlock, original public master and vault slots, the exact original SSH identity
+listing, and reuse of the actual owner approval. The three exact loader checks
+passed. The original recovery and failed-attempt evidence remain. The corrected
+e356 custodian and resident were observed active, both sockets enabled, temporary
+unit drop-in removed and compressed delivery inputs consumed. S-PC's installed
+config sets 604800 seconds and its reloaded idle policy sets 10080 minutes.
+The owner process exited. Konsole's hold option kept the completion text visible.
+
+Fresh SSH to O-PC and T-PC first passed with an explicit corrected agent socket.
+The saved SSH aliases still pointed to the absent legacy socket. The fleet lane
+updated exactly four `IdentityAgent` paths in S-PC's owner SSH config, retaining
+an owner-only copy of the original. The normal aliases then authenticated using
+the original agent key to O-PC, T-PC, iMac-M4 and Q-PC. All four used strict host
+key checking and fresh connections. `ssh-alias-custody-01.json`, SHA256
+`fa51cb61e4b5f19096095777393f535dcd6597e757c4e69c4016410fdc13accd`, records the
+config hashes and four successes. Cold reopen, O-PC root pin and live remote
+approval still require their own receipts.

@@ -1,9 +1,10 @@
 # Fleet custody rollout
 
 **Status, 2026-11-05: in progress.** O-PC/T-PC have qualified personal receiving
-and root-trust setup. The other six have saved weekly idle settings. Their
-personal custodian deployment remains open. The four remaining Linux hosts
-have passed the current synthetic native confinement/unlock gate.
+and root-trust setup. S-PC passed local receiving with its original identity and
+fresh outbound SSH through its installed agent. Cold reopen and root setup are
+pending there. All eight have saved weekly idle settings. The expanded synthetic
+Linux confinement gate passed on S-PC, Y-PC, R-PC and X-PC.
 
 The certificate-bearing agent path subsequently exposed a confined-hostname
 syscall failure on S-PC. The [agent continuity receipts](archive_docs/receipts/2026-11-05_fleet_agent_continuity_receipts.md)
@@ -42,7 +43,7 @@ Additional approval directions must be explicit in the reviewed setup.
 | Machines | Current receiving position | Next required work |
 |---|---|---|
 | O-PC, T-PC | Personal update/unlock and mutual root/device trust qualified for tested flows | Preserve baseline; qualify the Linux agent fix and later live remote consent |
-| S-PC | Original restored after confined-agent crash; native vault/CLI admission reached | Qualify corrected custodian and resume existing state with preserved owner grant |
+| S-PC | Corrected custodian live, original vault/CLI/SSH continuity verified, four outbound aliases tested | Cold reopen and O-PC root pin/readback |
 | Y-PC, R-PC, X-PC | No resident/custodian or standard-path store; expanded certificate/signing gate passed | Locate identity state before personal setup |
 | Q-PC, iMac-M4 | Running legacy macOS residents; standard vault/data present | Exact signed host/consumer integration and personal receiving |
 
@@ -78,12 +79,11 @@ installed personal daemon accepting its real identity and operator policy.
 ## F1. Linux personal receiving, starting with S-PC
 
 S-PC's first native ceremony reached isolated unlock and weekly trigger reload,
-then rolled back at application admission. Its protected account, adopted state,
-configuration and recovery now exist. Resume that reviewed state after Mere's
-corrected-custodian qualification; the Mere confirmation repair already reached
-real owner admission. Validate and reuse the retained recovery and adopted
-identity without reinitializing or repeating adoption. The original resident is
-active, new custody/sockets are disabled, and the failed refusal stays preserved.
+then rolled back at application admission. Later attempts preserved the original
+resident and retained the failed refusal. The successful corrected-agent retry
+reused the protected account, adopted identity, retained recovery and actual owner
+approval. The corrected resident and custodian are active with both custody
+sockets enabled. The original profile, vault slots and SSH identities matched.
 The initial-install recipe below still applies to unprovisioned hosts.
 For the corrected-agent retry, validate the actual prior owner-approved settings
 against the unchanged CLI and exact declaration, then restore those bytes before
@@ -116,7 +116,7 @@ authoritative originals through actual-data acceptance. Prove the existing
 master/profile before initializing remote authority. A production resident/client
 binary and exact dependency/feature receipt are separate receiving inputs.
 
-S-PC has no checked owner application-settings grant for `personae-vault`.
+S-PC initially had no checked owner application-settings grant for `personae-vault`.
 Obtain the owner's application consent through its supported admission surface
 for the exact CLI declaration before using it for personal readback/acceptance.
 Preserve that consent across replacement where its identity contract permits.
@@ -354,3 +354,8 @@ not qualify Windows PowerShell 5's quoting path.
   within the 156972520-byte peak. Actual PS5 VerifyOnly and wrong-manifest refusal
   pass. One paused native handoff is authorized; personal acceptance remains open
   and the preserved actual application approval will be reused.
+- 2026-11-05: S-PC passed native local receiving and reused the prior actual grant.
+  The installed weekly policy and original SSH identity were verified. Corrected
+  the old agent socket in the four existing SSH aliases and confirmed fresh
+  outbound authentication to O-PC, T-PC, iMac-M4 and Q-PC through those aliases.
+  Cold reopen, O-PC root setup and live remote consent remain distinct checks.

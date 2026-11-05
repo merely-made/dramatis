@@ -161,7 +161,8 @@ backends cannot open a locked vault using a public approval proof alone.
 Receiving peak cap: **160000000 bytes across this rollout's repositories and
 hosts**. S-PC's installer requires its resident/CLI pair together. The measured
 pair, compressed rollback allocation and staging/record reserves require about
-155 MB. Stage custody/helper candidates separately and remove their delivery
+155 MB. The four verified public gzip inputs may be staged together. Unpack
+custody/helper raw candidates separately and remove their raw/archive delivery
 copies before the single resident/CLI receiving package. Count every staged
 file and backup and verify the full peak before copying; do not overlap receiving
 packages from different hosts.
@@ -170,6 +171,15 @@ rollback artifacts. Preserve existing receipts and personal state; this cap does
 not authorize deleting them. Maintained Cargo artifacts stay in their existing
 stable build target. Create no isolated target/home/worktree without an actual
 collision or reproducibility need.
+
+For the resident/CLI pair, a verified compressed input may be held in a bounded
+volatile public-input buffer (at most 80000000 bytes) while its generated archive
+is removed before unpacking. Stream raw output with an exact expected size/hash;
+release the input buffer before the next executable. Retained disk copies remain
+counted. Preserve protected recovery and compact failure diagnostics if extraction
+fails after archive removal. Verify execution code into root-private storage
+before privileged use. This transport sequence still requires implementation
+review and synthetic preflight; the plan does not qualify an untested runner.
 
 Stage and qualify everything possible before human interaction. Use target-local
 or foreground Enter-triggered launchers. Human readiness is not a short test

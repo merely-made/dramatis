@@ -82,3 +82,22 @@ test tails. Marker/metadata files identify `fleet-weekly-policy-generated-native
 as their owner. Controller retention before its small cleanup receipt was
 2593 bytes. No copied gate executable remains. No isolated Cargo target, Cargo
 home or Git worktree was created; normal targets and unrelated work are preserved.
+
+### S-PC first-install review packet
+
+Read-only packet `testing/dramatis/fleet-policy/s-pc-receiving/packet-01.json`
+is 17479 bytes, SHA256 `2134e3050a0e54d5c4ca6a1ee7343aff573b1d0aa1f564bef4d5d309fc66d44e`.
+Its immutable `baseline-01.json` is 3483 bytes, SHA256
+`1a5eda066e3bad4848d35e1c7e386343f1ee0d7daed97bbfc69b95263e8da643`.
+Both hashes and JSON parse were independently checked by the fleet lane.
+The legacy resident is locked; only the standard catalog, not an identity or
+personas directory, was observed. No replacement wallet was created.
+
+The packet defines original-preserving quiescent inputs, confinement, finite
+604800-second policy, actual-data/identity/client/SSH acceptance, trust and
+rollback. A compatible production resident/client build with exact dependency
+and feature receipt, native original master/profile readback and final mutation/
+recovery accounting remain open. Its old resident is 294078912 bytes: duplicating
+it uncompressed would exceed the 100 MB budget, so verified compressed recovery
+is required. No classification exception exempts that backup. There was no
+personal installation/adoption, service stop, new identity or native prompt.

@@ -494,3 +494,13 @@ packet: read-only S preflight passed, exit zero, with window launch disabled.
 Native protected-state inspection, target loaders, owner application choice and
 personal receiving remain open. Cold reopen, fresh SSH and root trust remain
 separate subsequent gates; no competing native handoff was opened here.
+
+The reviewed dispatcher subsequently opened exactly one independent S-PC resume
+Konsole, actual PS5 exit zero. `resume-window-01.json` SHA256 is
+`0cc6da1f4534bebfa818fdf6644cfba113e7fe1eeab45e4ed6a5abe1667ef7b5`.
+The active resume unit ran Konsole250656 and owner Python250678 on native pts/1;
+SSH had returned. At the initial Enter-gate snapshot, owner children, owner state
+and the privileged-start marker were absent; original resident243846 remained
+active. Terminal contents were not captured. This proves paused dispatch, not
+native receiving. The fleet chat owns the single human completion/error card.
+No isolated Cargo home, target or worktree was created for this repair.

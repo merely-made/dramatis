@@ -305,3 +305,7 @@ not qualify Windows PowerShell 5's quoting path.
   interoperability/no-wallet checks and was streamed to S-PC within the cap.
   Final resume source/helper review, twelve safety checks and actual PS5
   read-only preflight pass. Native personal acceptance remains open.
+- 2026-11-05: opened the single reviewed S-PC resume Konsole and verified the
+  initial Enter gate from unit/process/TTY metadata. Original resident remained
+  active and owner/root resume state was absent at that snapshot. One native
+  readiness/completion handoff is pending in the fleet chat.

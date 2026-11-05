@@ -193,3 +193,39 @@ key checking and fresh connections. `ssh-alias-custody-01.json`, SHA256
 `fa51cb61e4b5f19096095777393f535dcd6597e757c4e69c4016410fdc13accd`, records the
 config hashes and four successes. Cold reopen, O-PC root pin and live remote
 approval still require their own receipts.
+
+## 2026-11-05: S-PC cold reopen and root-pin qualification
+
+The proposed policy pins O-PC as both authority and issuer for S-PC's existing
+default profile. It allows consent with 604800-second grant and unlock caps and
+adds the local owner bridge. The original policy, compared field by field, is
+otherwise preserved. Candidate SHA256
+`467cd776f1a4a9a01b31188b0dbb046e92eeafe271d18523468816000529a71a`
+binds this config. The current O-PC public identity matches its root pin.
+
+`root-pin-native-fixture-03.json`, SHA256
+`06b53b2879b2212108b601559a39107d5e1b4cb0ae938cb68c06b26ac833899c`, exercises the
+installed e356 custodian and 528 helper on S-PC in an isolated synthetic vault
+with inherited sockets and enforced Landlock/seccomp. Cold instances differed,
+the locked agent refused access, and local unlock restored the same synthetic
+master and encrypted vault. The consent-only state stayed empty. Duplicate
+initialization, the wrong root and remote unlock were refused. The fixture exited
+cleanly and was removed. Personal cold reopen and live root setup follow through
+the attended transaction.
+
+The reviewed follow-up packet SHA256 is
+`fae61f25abfda31b6624d6c7693f2104e6382069331be83045d6b1656a76c0d5`.
+It binds the driver, dispatcher, candidate, synthetic checks, retained recovery
+lineage and the release of the finished receiving terminal. The config-only
+transaction passed five isolated checks for guarded replacement, rollback and
+changed input. Actual Windows PowerShell 5.1 read-only preflight passed and a
+changed packet hash was refused locally. Rollback verifies the original config,
+vault, settings and SSH hashes, service activation and restored bridge denial.
+The prospective empty authority database is about 4.2 MB logical. The follow-up
+reuses the retained archives and stages only small policy records and scripts.
+
+`root-pin-native-handoff-01.json` records one paused window on S-PC. The dispatcher
+returned zero, Konsole275089 started owner275113 on pts/1, and metadata confirmed
+the initial Enter gate without reading the terminal. The original policy and
+running custodian/resident were still live at handoff. One native sudo/vault
+completion card is pending in the fleet chat.

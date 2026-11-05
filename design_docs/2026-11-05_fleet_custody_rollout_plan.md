@@ -359,3 +359,6 @@ not qualify Windows PowerShell 5's quoting path.
   the old agent socket in the four existing SSH aliases and confirmed fresh
   outbound authentication to O-PC, T-PC, iMac-M4 and Q-PC through those aliases.
   Cold reopen, O-PC root setup and live remote consent remain distinct checks.
+- 2026-11-05: the S-PC cold reopen and consent-only O-PC pin passed exact-binary
+  synthetic and guarded config replacement checks. The reviewed config-only
+  follow-up is open at Enter on S-PC. Personal restart and readback are pending.

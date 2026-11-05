@@ -236,5 +236,8 @@ granting their common parent.
 
 This route does not approve OS elevation.
 `request_remote_unlock` explicitly refuses the current passphrase-only opening
-backend. Native deployment, locked-state receiving, backend opening support
-and real O-PC/T-PC enrollment remain separate qualification.
+backend. O-PC/T-PC native trust receiving is qualified: both pin O-PC/default,
+T-PC's one-week device grant is stored on O-PC, and O-PC uses its direct root
+authority on T-PC. Root authority needs no duplicate device enrollment.
+Live network-consent execution, resident P2P routing and approval-only storage
+opening remain separate qualification. Enrollment alone does not prove them.

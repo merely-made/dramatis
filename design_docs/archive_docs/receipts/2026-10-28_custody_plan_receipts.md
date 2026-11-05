@@ -582,3 +582,17 @@ git diff --check
   in that shell environment. Launcher/updater now use streaming .NET SHA256
   and explicit native module imports. Both read-only preflights pass with
   module autoloading disabled; wrong-hash preflight fails before mutation.
+
+### Final O-PC/T-PC trust receiving
+
+- O-PC DFA931 guard update and native unlock passed, generation2; its root
+  self-grant survived restart. T-PC bb0d9c is unlocked with its original key.
+- Native signing stored/read back T-PC's consent grant on O-PC, expiring at
+  1794448233268 ms. O-PC has two records; T-PC has zero device records because
+  O-PC already has direct pinned-root authority there. Redundant root-self
+  signing attempts expired without writes and are not required for that role.
+- Live controls: identical grant retry preserved record/expiry; wrong-target
+  grant refused `remote-enrollment-scope`; both approval-only unlock calls
+  refused unsupported backend. Network consent execution remains unqualified.
+- Immutable private enrollment receipt SHA256:
+  `7fdd51f136865857612b770527d9233416cc920ac75f38a4610027d107d07f63`.

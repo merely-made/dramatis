@@ -21,8 +21,8 @@ The wallet store and station-grant policy are now Sporran's.
 authorized work. The custodian's configurable absolute unlocked lifetime is
 implemented and tested. The portable root/device enrollment and remote-approval
 proof gate, durable enrollment and consent execution are implemented at supplier
-scope. O-PC's public-only route and root self-enrollment are active; T-PC
-activation/enrollment, settings UI, P2P routing and remote opening remain open.
+scope. O-PC/T-PC now share the pinned root and T-PC's signed approval grant.
+Live network consent, settings UI, P2P routing and remote opening remain open.
 Platform receiving and the installed native cohort remain separate.
 
 **For:** making the custodian the only production owner of Castellan custody and proving it with enforcement evidence, and
@@ -398,10 +398,10 @@ Implementation slices, in order:
    pinned SSH to `djinn-approval relay`, with independent root/target/profile
    pins and a separately granted public-only custody operation. SSH server
    keys are outside target custody; the approver supplies login authority.
-   Resident P2P/carrier-subject integration remains open. Show target/profile,
-   operation and requested/effective expiry before signing. First qualify
-   O-PC's root enrolling T-PC and T-PC approving one O-PC request, then the
-   reverse authorized direction and independent-uplink reconnect. Controls
+   Both targets pin O-PC/default; T-PC's signed one-week consent grant is
+   registered on O-PC. O-PC uses direct root authority on T-PC, without a
+   redundant device grant. Native network-consent execution, resident P2P
+   integration and independent-uplink reconnect remain open. Controls
    cover wrong root, bare pairing, wrong scope, replay, revocation during a
    pending request, restart, fixed expiry and backend refusal. Expand to the
    configured fleet only after this two-device gate. The target never sends
@@ -595,6 +595,6 @@ SS8 parked the plan.
 - 2026-11-04: added the public-only wire bridge, bounded pinned-SSH carrier,
   native delegation signer and explicit administrator activation tooling.
   Native O-PC activation, locked-state route and root self-enrollment passed.
-  T-PC's catalog access repair and native unlock passed. O-PC's native-only
-  authority guard and cross-device enrollments await completion.
+  Both native unlocks, O-PC's signing guard and shared-root approval trust passed.
+  Live network-consent execution and storage-opening integration remain open.
   T-PC also reloaded weekly idle with screen-lock/suspend triggers disabled after finite custody expiry was deployed.

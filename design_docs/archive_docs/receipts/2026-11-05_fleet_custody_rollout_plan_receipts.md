@@ -286,3 +286,15 @@ GUI metadata readiness is separately retained in the 731-byte
 `9e6caa90bc4fa2fb554cbeb7959abdfb83bd53423c7ced1cf1a625819172fdb2`.
 That snapshot found active local KDE Wayland and kdialog/zenity; it does not prove
 execution of the later native application-consent dialog.
+
+The current frozen handoff supersedes packet02 with `packet-03.json` (23972 bytes,
+SHA256 `bcd1e48ea5678b301d931d8a439d140702dd4efeb8d4a19ad4ae6185068939eb`)
+and `mutation-journal-02.json` (15331 bytes, SHA256
+`e8c54c7745f7a7a18e5b0099e9005cbc217c4d3aaf11e272c0eeee12c47958e2`).
+`manifest-03.json` is 3374 bytes, SHA256
+`86d63cf81566ed9845adc10decdd6cf2798926403a1210927276aca0727574af`.
+The fleet lane independently verified all 19 bound files (92050 bytes) and the
+three receiving-window sums. Packet02-to03 comparison changes only journal/handoff
+references and the final pre-receiving-gate reference; receiving behavior, launcher
+and budget bytes are unchanged. Historical inputs remain intact. Budget02 SHA256:
+`ecba2d4db63e1d3d4e7a2f3b275538fc3ed77205f592f00b91de28efe17683bc`.

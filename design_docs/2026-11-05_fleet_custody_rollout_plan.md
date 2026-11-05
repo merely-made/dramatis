@@ -1,10 +1,10 @@
 # Fleet custody rollout
 
 **Status, 2026-11-05: in progress.** O-PC/T-PC have qualified personal receiving
-and root-trust setup. S-PC passed local receiving with its original identity and
-fresh outbound SSH through its installed agent. Cold reopen and root setup are
-pending there. All eight have saved weekly idle settings. The expanded synthetic
-Linux confinement gate passed on S-PC, Y-PC, R-PC and X-PC.
+and root-trust setup. S-PC passed local receiving, cold reopen, outbound SSH and
+readback of the O-PC consent pin. Live remote consent remains pending. All eight
+have saved weekly idle settings. The expanded synthetic Linux confinement gate
+passed on S-PC, Y-PC, R-PC and X-PC.
 
 The certificate-bearing agent path subsequently exposed a confined-hostname
 syscall failure on S-PC. The [agent continuity receipts](archive_docs/receipts/2026-11-05_fleet_agent_continuity_receipts.md)
@@ -43,7 +43,7 @@ Additional approval directions must be explicit in the reviewed setup.
 | Machines | Current receiving position | Next required work |
 |---|---|---|
 | O-PC, T-PC | Personal update/unlock and mutual root/device trust qualified for tested flows | Preserve baseline; qualify the Linux agent fix and later live remote consent |
-| S-PC | Corrected custodian live, original vault/CLI/SSH continuity verified, four outbound aliases tested | Cold reopen and O-PC root pin/readback |
+| S-PC | Original vault/CLI/SSH continuity, cold reopen and O-PC consent pin verified | Pilot actual O-PC to S-PC consent over the SSH carrier |
 | Y-PC, R-PC, X-PC | No resident/custodian or standard-path store; expanded certificate/signing gate passed | Locate identity state before personal setup |
 | Q-PC, iMac-M4 | Running legacy macOS residents; standard vault/data present | Exact signed host/consumer integration and personal receiving |
 
@@ -362,3 +362,7 @@ not qualify Windows PowerShell 5's quoting path.
 - 2026-11-05: the S-PC cold reopen and consent-only O-PC pin passed exact-binary
   synthetic and guarded config replacement checks. The reviewed config-only
   follow-up is open at Enter on S-PC. Personal restart and readback are pending.
+- 2026-11-05: S-PC passed native cold reopen and preserved its encrypted vault,
+  application approval and original identity. O-PC verified the consent pin and
+  empty peer ledger over strict SSH. All four S-PC outbound aliases still work
+  after restart. Actual remote consent execution remains a separate gate.

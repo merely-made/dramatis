@@ -229,3 +229,20 @@ returned zero, Konsole275089 started owner275113 on pts/1, and metadata confirme
 the initial Enter gate without reading the terminal. The original policy and
 running custodian/resident were still live at handoff. One native sudo/vault
 completion card is pending in the fleet chat.
+
+## 2026-11-05: personal cold reopen and live S-PC pin verified
+
+`root-pin-native-result-01.json`, SHA256
+`379c8824b542f208a663555953c79084f8c683c243dea628cfa331e910a52f4d`, records a new
+locked instance at generation 1 with the agent refusing access. Native reopen
+advanced that same instance to generation 2. The original master, encrypted
+vault, slot and agent lists, prior application policy and SSH config matched.
+The corrected custodian and resident were active, with both sockets enabled.
+
+O-PC independently queried the existing `support/remote-approval.py` state
+route over strict SSH. `root-pin-live-readback-01.json`, SHA256
+`d47bd750f7f8ffefc582e8aa995066dc822e67747415c25770d9d1da14ac4088`, binds the same
+live instance and generation to the O-PC authority and issuer, S-PC default
+profile, consent action, 604800-second grant cap and empty peer ledger. S-PC also
+retested fresh agent authentication through all four saved outbound aliases
+after the restart. Actual remote consent execution remains the next gate.

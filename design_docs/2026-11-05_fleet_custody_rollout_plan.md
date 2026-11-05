@@ -38,7 +38,7 @@ Additional approval directions must be explicit in the reviewed setup.
 | Machines | Current receiving position | Next required work |
 |---|---|---|
 | O-PC, T-PC | Personal update/unlock and mutual root/device trust qualified | Preserve baseline; live remote-consent execution remains separate |
-| S-PC | Original resident restored; protected custody/recovery retained but stopped after admission failure | Repair Mere confirmation; resume existing state and qualify cutover |
+| S-PC | Original resident restored; corrected resident qualified and staged; protected custody stopped | Run reviewed existing-state resume and qualify native cutover |
 | Y-PC, R-PC, X-PC | No running resident/custodian; no standard-path vault/data found; native gate passed | Locate existing identity state before initial resident/custodian setup |
 | Q-PC, iMac-M4 | Running legacy macOS residents; standard vault/data present | Exact signed host/consumer integration and personal receiving |
 
@@ -174,6 +174,14 @@ custody/helper raw candidates separately and remove their raw/archive delivery
 copies before the single resident/CLI receiving package. Count every staged
 file and backup and verify the full peak before copying; do not overlap receiving
 packages from different hosts.
+For S-PC's existing-state resume, custody/helper remain installed. Deliver only
+the qualified replacement resident and unchanged CLI. Reallocate the all-host
+small-record reserve to 1500000 bytes, including private resume code/journals;
+keep recovery at 60600000 and other transient state at 1000000 bytes. The
+verified replacement pair makes the controlling window 155472520 bytes. Stream
+compressed delivery without persistent T-PC/controller archives; never retain
+an upstream archive copy while S-PC expands the raw pair. This reallocates
+headroom within the same peak cap.
 After owned delivery cleanup, retain at most **100000000 bytes** of receipts and
 rollback artifacts. Preserve existing receipts and personal state; this cap does
 not authorize deleting them. Maintained Cargo artifacts stay in their existing
@@ -292,3 +300,8 @@ not qualify Windows PowerShell 5's quoting path.
   Original bytes/metadata/inventory, public identity and unlocked legacy resident
   were verified afterward. Prepared read-only resume inventory; new receiving,
   owner admission and root trust remain pending while Mere's UI repair is qualified.
+- 2026-11-05: Mere's checked-confirmation fix passed Linux/Windows source tests
+  and required hooks. The clean production replacement passed ten exact-binary
+  interoperability/no-wallet checks and was streamed to S-PC within the cap.
+  Final resume source/helper review, twelve safety checks and actual PS5
+  read-only preflight pass. Native personal acceptance remains open.

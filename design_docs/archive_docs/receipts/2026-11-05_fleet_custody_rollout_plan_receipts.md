@@ -438,3 +438,59 @@ is preserved; no policy reset, grant insertion or native retry was performed.
 Mere's native-confirmation plan owns the shared UI fix and candidate qualification.
 S-PC's next ceremony must resume existing reviewed protected state, with no
 second first-install/adoption or duplicate recovery archive.
+
+### Corrected resident and reviewed existing-state resume
+
+Mere source `6f542e515aed71785ac3fee8aa9e90afca87e872` repairs checked Linux
+confirmations: literal argument transport, supported negative-default choices,
+and explicit native answers distinct from backend failure/cancel. No policy or
+identity was reset. Windows dialog/host tests pass (25 plus 4; two headed fixtures
+ignored); Linux library, application door and native-process integration pass
+(21 plus 4 plus 4). All mandatory Mere hooks pass. Its native-confirmation plan
+retains the implementation receipts and exact source-test scope.
+
+Clean production resident is 84862976 bytes, SHA256
+`c5387a8854edfd3959f57fcb8b2cb9e71c75403fdba0584fb95775827d77174d`.
+Features are cxf/default/personal-sync, with no in-process custody, passphrase-FD,
+Castellan host or custodian artifact. The lock is unchanged. CLI remains 7509544
+bytes, SHA256 `23c66b92769a4f32b50e3a9e675afccd86fed9fef988c5bffef026128dd1205c`.
+`resident-release-build-02.json` SHA256
+`ecaf394f1f1cb6855422cdd8f41696cab918c437490c5290919309bd94405c05`
+binds the clean source/features/build. Fresh `production-no-wallet-04.json`, SHA256
+`420dacec3c78b13eca2225f4ee31b0ff77dad12126cd62111cba5b59662b123d`,
+passes all ten exact-binary synthetic interoperability/no-wallet checks, namespace
+exit zero, with generated fixtures removed. This does not qualify personal custody
+or a real graphical answer.
+
+Both public inputs were compressed deterministically and streamed T-PC through
+O-PC into exclusive non-executable S-PC files. Controller buffers are at most
+1048576 bytes; no persistent T-PC/controller gzip copy exists. Resident gzip is
+31673695 bytes, SHA256
+`30e0f7cfac9732732159af0ac29f4f0ff5fbf79a3580726b13cf9db1e64b9b6c`;
+CLI gzip remains 1629118 bytes and its previous fd270e93 hash. Controller
+`resume-stream-delivery-01.json` binds that transport and the following windows.
+The record reserve is reallocated to 1500000 bytes to count private resume code
+and journals as well as public records; recovery60600000/transient1000000 remain.
+Compressed staging is 96402813 bytes, CLI-plus-resident-gzip 102283239, and raw pair
+155472520. Peak160000000/retained100000000 caps are unchanged.
+
+Qualified `replacement-qualification-01.json` SHA256
+`19c7264a6ace819864e4d78a013995930af40159a0dde5f9dde72d2b59e65b5b`
+and `resume/candidate.json` SHA256
+`3c494426892e98b4d1be3590443be8a084292242a4fab99aeb64b820718218e6`
+are identical on controller/S-PC. The final reviewed resume driver SHA256 is
+`05e30295351bc540d63e9b27afeb088711734a0f48195c0173616a3ff9a4a8ab`;
+it reuses the exact original helper/archive tree and never repeats adoption/init.
+Twelve synthetic safety checks pass, including interrupted stop, changed originals,
+and preserved failed-admission evidence; earlier failed qualification remains.
+The fleet lane reviewed the complete executable and reused rollback helpers.
+Protected archives/catalog/events are validated under attended sudo before stop.
+Installed hashes precede actual target `--help` loaders and resident start.
+
+Final PS5 dispatcher SHA256 is
+`6c5daf92c1bfb4e0e235999ccc77a9f9f691cc1f75391ee5f04a164de74abc4e`.
+The fleet lane executed actual noninteractive PS5 `-VerifyOnly` against the staged
+packet: read-only S preflight passed, exit zero, with window launch disabled.
+Native protected-state inspection, target loaders, owner application choice and
+personal receiving remain open. Cold reopen, fresh SSH and root trust remain
+separate subsequent gates; no competing native handoff was opened here.

@@ -90,6 +90,20 @@ authoritative originals through actual-data acceptance. Prove the existing
 master/profile before initializing remote authority. A production resident/client
 binary and exact dependency/feature receipt are separate receiving inputs.
 
+S-PC has no checked owner application-settings grant for `personae-vault`.
+Obtain the owner's application consent through its supported admission surface
+for the exact CLI declaration before using it for personal readback/acceptance.
+Preserve that consent across replacement where its identity contract permits.
+Application admission is separate from sudo, vault unlock, polkit and root
+authorization. A synthetic fixture grant is not a personal application grant.
+Current Mere `applications::peer_identity` pins Windows images only; the Linux
+grant is unpinned and records the reviewed declaration, not an executable hash.
+Record this boundary without adding identity machinery to the receiving slice.
+`SystemNativeIdentityUi::confirm_application` requires a graphical backend.
+Name the actual target desktop/backend and the initial refusal/dialog/retry
+sequence; SSH on O-PC does not relocate S-PC's dialog. Root custody approval
+does not yet provide resident application admission across networks.
+
 The protected recipe requires a non-login service account, root-owned config and
 client files, private state, and exact configured vault/data-root Landlock grants.
 Custody remains without networking, execution or tracing permission. Preserve the
@@ -145,9 +159,12 @@ backends cannot open a locked vault using a public approval proof alone.
 ## Receipts and operator interaction
 
 Receiving peak cap: **160000000 bytes across this rollout's repositories and
-hosts**. S-PC's measured resident candidate and compressed rollback allocation
-require about 145.5 MB before compact records. Stage one raw candidate at a time,
-count backups and delivery copies, and verify the full peak before copying.
+hosts**. S-PC's installer requires its resident/CLI pair together. The measured
+pair, compressed rollback allocation and staging/record reserves require about
+155 MB. Stage custody/helper candidates separately and remove their delivery
+copies before the single resident/CLI receiving package. Count every staged
+file and backup and verify the full peak before copying; do not overlap receiving
+packages from different hosts.
 After owned delivery cleanup, retain at most **100000000 bytes** of receipts and
 rollback artifacts. Preserve existing receipts and personal state; this cap does
 not authorize deleting them. Maintained Cargo artifacts stay in their existing
@@ -176,6 +193,10 @@ an OS input boundary, not a request to repeat authorization already given in cha
   weekly Graphshell settings and no XDG overrides or Djinn/personae stores. This
   does not establish exhaustive identity absence; existing-store location versus
   fresh device-vault provisioning remains a user choice before personal setup.
+- 2026-11-05: the exact production resident/CLI/custodian combination passes seven
+  synthetic protocol checks, including re-unlocked successful use before outage
+  refusal. S-PC separately passes native loader/argument checks. These results
+  do not qualify installed personal custody, polkit or owner application consent.
 
 ## Progress
 
@@ -192,5 +213,9 @@ an OS input boundary, not a request to repeat authorization already given in cha
   originals require about 60.5 MB. No personal installation or prompt occurred.
 - 2026-11-05: the optimized production resident built successfully. Its candidate
   plus measured rollback allocation requires a brief-specific 160 MB receiving
-  peak cap, serial staging and cleanup back below 100 MB. Exact runtime interop,
+  peak cap, serial packages and cleanup back below 100 MB. Exact runtime interop,
   final peak accounting and personal receiving remain open.
+- 2026-11-05: corrected exact-binary protocol interop passed seven checks; S-PC's
+  resident/CLI native checks also passed and delivery copies were removed. The
+  reviewed serial receiving reserve fits the explicit cap. Final runnable packet,
+  original-master readback, owner application consent and personal receiving remain.

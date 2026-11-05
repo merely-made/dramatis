@@ -179,3 +179,71 @@ preserved as `production-interop-01.json`; no passing result is inferred. A fres
 run must configure the declared synthetic grant, prove successful CLI use, verify
 locked refusal, then re-unlock and prove successful use before the custodian-loss
 negative so that loss is not confused with the preceding locked state.
+
+### S-PC corrected exact-binary protocol and native checks
+
+`production-interop-02.json` independently parses as seven passing checks:
+same synthetic master, production resident uses custodian agent, CLI roster,
+CLI vault command, locked-use refusal, successful re-unlocked CLI use immediately
+before outage, and custodian-loss refusal without fallback. Namespace exit is
+zero; owned fixture state was removed and children reaped. Scope remains an
+unprivileged private namespace with a development custodian, not required
+confinement, installed personal state or polkit qualification. The corrected
+fixture supplies only the exact declared synthetic CLI application grant.
+
+Exact binaries are resident `821a2888d49c880a95fad41af4ac8d319739fd32e71b81580e6b3d00a33c14a2`,
+CLI `23c66b92769a4f32b50e3a9e675afccd86fed9fef988c5bffef026128dd1205c`,
+custodian `bb0d9c9dc7cfe9c83cdcaf6c34e19b967beb1bb82325b5226fc1b5d315fd4c9f`,
+and helper `528e0b25a7e990b2a9bf7fb8080ca6bd9b4a0a4cb1763194186e0bb7128a0715`.
+The 1219-byte receipt SHA256 is
+`11e3022f23eb8b7971e130c27e9c386773cce42ec3a7da3f90ad2203a5ad5359`;
+driver SHA256 `49f410dca16c298116304a54fb5bdebf0af7a79cc7f22efa03a05ef70c2038b5`.
+The failed first receipt and original driver remain intact.
+
+S-PC separately passed four exact resident loader/argument/refusal checks and
+two CLI loader/argument checks. Their generated deliveries were removed after
+marker/hash/no-live-owner checks. Legacy PID 3866 remained active and the original
+vault hash remained `5649db6557c12087fde83c66298445e33bdad7eed97e95f5855ee025cad2ffc3`.
+Private `resident-native-01.json` is 1977 bytes, SHA256
+`c1f1ce64e4a885a36a79bd1bdc2ee8643d63cba3bfb3c093ce03eebe8c47c2bc`;
+`client-native-01.json` is 1412 bytes, SHA256
+`8824e293f987bae84dfffecf570eb02b73cc1301ca16311a90b29e03c2648355`.
+These checks did not start a candidate personal resident or perform custody use.
+
+Known fleet-policy receipt/delivery roots across all eight hosts totaled 184132
+bytes with no large retained files (`receipt-budget-inventory-01.json`, 1474 bytes,
+SHA256 `a5736bf8edd17c156fcfdb1b875b48d48ea333b4a968b5fb3f13aedf34f180ef`).
+Mere's reviewed `ports/mere-resident/install-linux.sh` takes both binaries and
+copies them in one receiving invocation. The final serial reserve therefore uses
+60600000 bytes recovery, 92382504 resident/CLI package (84872960 + 7509544),
+1000000 all-host/controller records and 1000000 secret-source/public-template
+staging, total **154982504 bytes**, below the 160000000-byte peak cap by 5017496
+bytes. The 33181128-byte custodian and 8646912-byte helper are staged/installed/
+removed separately before the pair. This supersedes the preliminary resident-only
+staging estimate; no custom decompression installer or product behavior change is
+needed. Final receiving must enforce these boundaries. No personal installation
+has occurred.
+
+The source lane additionally measured a SHA-matching resident gzip roundtrip of
+31677695 bytes. Compressed candidates together with the original recovery would
+still total 103279543 bytes before records. Compression alone therefore does
+not remove the measured need for the brief-specific receiving cap.
+
+The missing personal owner-application grant remains a separate prerequisite.
+Receiving must use the real owner's supported admission surface and the exact
+CLI declaration; the fixture's synthetic grant cannot be copied into personal
+settings or inferred from sudo/root approval. Original master/profile readback,
+protected personal receiving and live remote consent remain unqualified.
+
+Read-only Mere source review further bounds application consent:
+`ports/mere-resident/src/applications.rs` grants the reviewed declaration after
+`OwnerConsent::decide`, but `peer_identity` returns an identity pin only for a
+Windows image. Linux's Unix peer produces no executable identity pin, which the
+dialog describes as unpinned. File hashes in this receipt identify tested
+artifacts; they do not turn that owner grant into executable-bound admission.
+`identity_ui::SystemNativeIdentityUi::confirm_application` requires a graphical
+backend. The first ungranted connection is refused while an asynchronous dialog
+is requested; success requires a subsequent connection. UI-unavailable attempts
+are asked again only after a resident restart. The receiving launcher must name
+the actual S-PC desktop/backend and preserve these existing semantics; a terminal
+on O-PC and a root custody proof do not provide that application-consent UI.

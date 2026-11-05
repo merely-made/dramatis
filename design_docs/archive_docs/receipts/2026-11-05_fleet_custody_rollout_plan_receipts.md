@@ -504,3 +504,27 @@ and the privileged-start marker were absent; original resident243846 remained
 active. Terminal contents were not captured. This proves paused dispatch, not
 native receiving. The fleet chat owns the single human completion/error card.
 No isolated Cargo home, target or worktree was created for this repair.
+
+### Resume failed at the added help-exit check; originals restored
+
+The attended resume validated existing protected recovery/catalog/events, stopped
+the legacy resident, started locked custody and installed/hash-checked the qualified
+pair. At driver line320, `djinn --help` emitted its usage and the receiving helper
+rejected its nonzero exit before corrected-resident startup. The human supplied
+the traceback; no protected log or terminal capture was read. Pinned source and
+the exact T-PC replacement independently confirm help intentionally exits2 with
+1198 stderr bytes; the CLI exits0 with316 stdout bytes. Requiring exit0 for both
+was an error in the added receiving gate, not evidence that the loader failed.
+
+`replacement-help-contract-01.json` SHA256
+`dfc2296410c8edcfd5c4a4b8063d11d88aff17f5b0b2d0e4efb8d7c3b145281e`
+records exact binary hashes, exits, output lengths and both output hashes.
+`resume-outcome-01.json` SHA256
+`86f0f09063c83c74392dfaf392b62e95b72c099a60919f49127c4f3dda2c71c7`
+records failure with original-restored/new-custody-disabled. Exact accepted helper
+assertions reverified all seven originals' bytes/metadata, inventory and links;
+legacy255690 is active and new custody/sockets are inactive/disabled. All failed
+run state is preserved. A later `sudo -n` read was refused without a new prompt.
+The corrected resident never started and its real application dialog remains
+unqualified. Repair only the receiving check and reuse the qualified pair and
+original recovery; consumed delivery inputs need fresh verified staging.

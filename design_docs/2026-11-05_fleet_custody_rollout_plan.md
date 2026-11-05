@@ -38,7 +38,7 @@ Additional approval directions must be explicit in the reviewed setup.
 | Machines | Current receiving position | Next required work |
 |---|---|---|
 | O-PC, T-PC | Personal update/unlock and mutual root/device trust qualified | Preserve baseline; live remote-consent execution remains separate |
-| S-PC | Original resident restored; corrected resident qualified and staged; protected custody stopped | Run reviewed existing-state resume and qualify native cutover |
+| S-PC | Original resident restored after an incorrect help-exit check; corrected resident still qualified | Repair the receiving check, restage consumed inputs, resume existing state |
 | Y-PC, R-PC, X-PC | No running resident/custodian; no standard-path vault/data found; native gate passed | Locate existing identity state before initial resident/custodian setup |
 | Q-PC, iMac-M4 | Running legacy macOS residents; standard vault/data present | Exact signed host/consumer integration and personal receiving |
 
@@ -309,3 +309,8 @@ not qualify Windows PowerShell 5's quoting path.
   initial Enter gate from unit/process/TTY metadata. Original resident remained
   active and owner/root resume state was absent at that snapshot. One native
   readiness/completion handoff is pending in the fleet chat.
+- 2026-11-05: the resume passed existing protected-state validation and installed
+  hash checks, then rolled back before corrected-resident startup. The added
+  loader check wrongly required exit zero for Djinn help, which intentionally
+  exits two. All seven originals were verified after restoration; the receiving
+  check is being repaired against the exact unchanged binary's measured contract.

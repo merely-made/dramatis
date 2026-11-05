@@ -247,3 +247,42 @@ is requested; success requires a subsequent connection. UI-unavailable attempts
 are asked again only after a resident restart. The receiving launcher must name
 the actual S-PC desktop/backend and preserve these existing semantics; a terminal
 on O-PC and a root custody proof do not provide that application-consent UI.
+
+### S-PC reviewed packet and attended identity-readback entry
+
+The frozen `s-pc-receiving/packet-02.json` is 23555 bytes, SHA256
+`8a2afc5940e91b37e14eb82ecd935985194a530e04760d0fe7b0dfc155290217`.
+Its independently reviewed `receiving-budget-02.json` includes two-copy protected
+transfer windows for custodian/helper and the later resident/CLI pair. Its maximum
+remains 154982504 bytes; actual installed product payload is separately enumerated
+as 134210544 bytes. Existing stable Cargo products remain build output. Runtime
+interop qualifies the differing coherent per-process supplier graphs; the packet
+does not require repinning those already-qualified graphs to one common revision.
+
+The foreground `start-s-pc-identity.ps1` SHA256 is
+`2da1b6525990fdf46ab3d87275e698b736a4a1e8e1488d35922857b62fe8993b`.
+Its remote `identity-step.sh` and `read-personal-status.py` hashes are respectively
+`f27a57deda41590224954c4868e650601fd5c43223f41436ec6bf6dbc8516a80`
+and `81c15f3d14e8c30380f81293b8cac9cffa553519d3322cd4cca5602ed4108989`.
+Independent source review and PowerShell AST check passed. The source lane's
+`launcher-preflight-01.json` also records bash syntax and remote hash dispatch
+with execution disabled; its SHA256 is
+`a160c8157306d9807b27409659483bb7156085e3475ed744d341e8fc6561378d`.
+
+The scripts check the original resident/vault hashes, unlock the existing vault
+in the foreground SSH terminal only if locked, and create only a public profile/
+master receipt. They neither create a replacement identity nor perform privileged
+installation, authority changes or application-grant writes. A public-status probe
+was checked on locked S and unlocked T; it is not an S personal-unlock receipt.
+
+The controller opened the unchanged launcher after correcting its own Windows
+Terminal title quoting. One matching launcher process was observed; the user was
+asked for Enter and any required existing-vault passphrase directly in that
+terminal. Native completion remains pending. Private `controller-handoff-01.json`
+is 901 bytes, SHA256
+`36ef630f0107a054389dc3828182f395f5f3454e25ea3b40ae3fb422945317ff`.
+GUI metadata readiness is separately retained in the 731-byte
+`graphical-readiness-01.json`, SHA256
+`9e6caa90bc4fa2fb554cbeb7959abdfb83bd53423c7ced1cf1a625819172fdb2`.
+That snapshot found active local KDE Wayland and kdialog/zenity; it does not prove
+execution of the later native application-consent dialog.

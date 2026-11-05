@@ -348,3 +348,9 @@ not qualify Windows PowerShell 5's quoting path.
   normal custodian e356 passed ten isolated interoperability/no-wallet checks.
   Reviewed atomic single-copy receiving and actual approved-grant reuse; the
   new native updater remains to be qualified before its human handoff.
+- 2026-11-05: frozen v3 receiving source passes ten replacement/grant checks and
+  twelve manifest/loader checks; unchanged normal binaries qualify actual approval
+  serialization under S-PC's measured umask. All three exact inputs are staged
+  within the 156972520-byte peak. Actual PS5 VerifyOnly and wrong-manifest refusal
+  pass. One paused native handoff is authorized; personal acceptance remains open
+  and the preserved actual application approval will be reused.

@@ -105,3 +105,60 @@ Delivery used at most 1MiB controller buffers and retained no T/controller archi
 copy. One raw fixture plus full shared recovery/record/transient reserves reaches
 93729128 bytes. Generated copies were removed before personal updater staging.
 S-PC personal acceptance and T-PC's installed Linux runtime update remain open.
+
+## 2026-11-05: corrected receiving packet and preserved actual approval
+
+The unchanged c538 resident and 23c CLI produced an approval through their real
+OwnerConsent path in a synthetic namespace, with no preseeded grant. The measured
+S-PC service umask0002 produces mode0664 and 328 policy bytes. Those exact bytes
+pass the receiving validator. `production-owner-grant-01.json` also passes all ten
+interoperability/no-wallet checks and records fixture cleanup. Synthetic native
+confirmation here qualifies serialization, not a new personal authorization.
+
+The updater requires the prior d89 native failure lineage and protected preserved
+policy, validates its exact authority/client cohort under attended sudo, and
+restores those unchanged approval bytes before resident startup. The actual S-PC
+policy is not read or replaced by a synthetic grant during preparation. Another
+application-consent ceremony is not required for that same recorded decision.
+
+Frozen receiver SHA256
+`2928dabb3b4a7e06cdd0ba2c286c57bb80cab76c650a649f40d13c902eda4ded`
+pins support SHA256
+`f92bbbe1ad7d355789ab08a82a1da8c4732326e3e24b22056539b2a8b71212ce`.
+Ten synthetic receiving checks cover atomic single-copy replacement, interrupted
+replacement before/after rename, changed products, unowned stages, invalid raw
+hashes, exact approval lineage, and descriptor-pinned changed/indirect compressed
+inputs. Twelve manifest/loader checks also pass. Custodian validation uses the
+actual new product's pure `validate-config` success and measured empty outputs;
+resident help retains its measured exit2 contract. No guessed loader exit is used.
+
+Replacement records intent before same-parent atomic rename and fsyncs the parent.
+If a later receiving gate fails, the corrected product is an explicit installed,
+stopped baseline while original resident/custody paths are restored. There is one
+raw custodian stage and no additional product backup hidden outside the budget.
+
+Final review `637e4d4e66adfa222459c4f706db88209601b28967b6b843b79093aec815b963`
+binds sixteen qualification/history receipts. The v3 manifest SHA256 is
+`fc2a2b5196f55f7db479d025aa452923de3877bca7688b94fe3b9fbf65f119eb`;
+qualification receipt SHA256 is
+`b8700295f1aa54c9037c46cde41f6cad6eeab62df2331ac39d5efed8fa41cfca`.
+Custodian/client/resident gzip inputs were streamed serially T-PC through O-PC to
+S-PC, verified at both ends, and retained only on the receiving host. Staging peaks
+at 105014460 bytes; atomic custodian receiving at 136748868; the resident/CLI raw
+pair at 156972520. All include 60600000 recovery, 3000000 records and 1000000 other
+transient bytes within the 160000000 cap. No new Cargo target/home/worktree exists.
+
+The old held terminal was closed only after exact ownership, exited children and
+the failed-agent rollback were verified. Original resident261760 remains active.
+New native receiving, cold reopen, fresh outbound SSH and shared-root custody
+authorization remain separate pending gates at this packet-staging checkpoint.
+
+Actual Windows PowerShell5.1.26100.9836 `-NoProfile -NonInteractive -File` checks
+then passed against that exact manifest: VerifyOnly exits0 with read-only preflight
+success; an all-zero manifest hash exits1 locally before SSH. Dispatcher SHA256
+`9e5b967994bd81a52f55cadaf90dbb29778edc020686f460dfa065853ed5e135`
+has zero PS5 parser errors. `agent-dispatcher-qualification-01.json`, SHA256
+`9bbab24740efcbfcf81b2275063cec47d6640772ea5d63a2e9aa66839d4b837d`,
+retains those outcomes. New terminal/root/state markers were absent afterward;
+original resident261760 remained active. One paused native handoff was authorized
+under the existing rollout instruction; personal acceptance is still pending.

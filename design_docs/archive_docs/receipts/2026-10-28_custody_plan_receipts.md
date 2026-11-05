@@ -578,3 +578,7 @@ git diff --check
   `a2e71ac725dd67221e2a09b15989b17435693618324d8bbfc0d385728e6e1e04`;
   create-new before-copy: `1ccba7de7e214a4fcae5c5ba0ba44de190e099e17e80a2ac360b7d849bf3f28b`.
   Immutable private receipt: `Code/testing/dramatis/fleet-policy/T-PC-week-window-01.json`.
+- Foreground O-PC launcher failed before UAC because Get-FileHash was missing
+  in that shell environment. Launcher/updater now use streaming .NET SHA256
+  and explicit native module imports. Both read-only preflights pass with
+  module autoloading disabled; wrong-hash preflight fails before mutation.

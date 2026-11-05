@@ -9,9 +9,24 @@ param(
     [string]$RemotePolicy,
     [string]$ExpectedRemotePolicySha256,
     [string]$ApprovalHelper,
-    [string]$ExpectedHelperSha256
+    [string]$ExpectedHelperSha256,
+    [switch]$PreflightOnly
 )
 $ErrorActionPreference = 'Stop'
+foreach ($module in @('Microsoft.PowerShell.Utility','Microsoft.PowerShell.Management','CimCmdlets','ScheduledTasks')) {
+    Import-Module ([IO.Path]::Combine($PSHOME, 'Modules', $module, ($module + '.psd1'))) -ErrorAction Stop
+}
+function Get-ReviewedHash([string]$Path) {
+    $hash = [Security.Cryptography.SHA256]::Create()
+    $stream = $null
+    try {
+        $stream = [IO.File]::OpenRead($Path)
+        return [BitConverter]::ToString($hash.ComputeHash($stream)).Replace('-', '')
+    } finally {
+        if ($stream) { $stream.Dispose() }
+        $hash.Dispose()
+    }
+}
 $phase = 'preflight'
 $rolledBack = $false
 function Write-UpdateResult([string]$status, [string]$message, [int]$line) {
@@ -34,12 +49,8 @@ if ($ResultFile -and (-not [IO.Path]::IsPathRooted($ResultFile) -or
     (Test-Path -LiteralPath $ResultFile) -or -not (Test-Path -LiteralPath (Split-Path -Parent $ResultFile)))) {
     throw 'Result path must be new, absolute, and under an existing private directory.'
 }
-$principal = [Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()
-if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-    throw 'An elevated Windows process is required to update the installed custodian.'
-}
 $source = (Resolve-Path -LiteralPath $Binary).Path
-if ((Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash -ne $ExpectedSha256) {
+if ((Get-ReviewedHash $source) -ne $ExpectedSha256) {
     throw 'Receiving binary hash differs from the reviewed build.'
 }
 $enableRemote = [bool]$RemotePolicy
@@ -47,8 +58,8 @@ if (@($RemotePolicy,$ExpectedRemotePolicySha256,$ApprovalHelper,$ExpectedHelperS
     throw 'Remote activation requires the policy, helper, and both reviewed hashes.'
 }
 if ($enableRemote) {
-    if ((Get-FileHash -LiteralPath $RemotePolicy -Algorithm SHA256).Hash -ne $ExpectedRemotePolicySha256 -or
-        (Get-FileHash -LiteralPath $ApprovalHelper -Algorithm SHA256).Hash -ne $ExpectedHelperSha256) {
+    if ((Get-ReviewedHash $RemotePolicy) -ne $ExpectedRemotePolicySha256 -or
+        (Get-ReviewedHash $ApprovalHelper) -ne $ExpectedHelperSha256) {
         throw 'Remote activation input differs from the reviewed package.'
     }
     $remote = Get-Content -Raw -LiteralPath $RemotePolicy | ConvertFrom-Json
@@ -64,6 +75,17 @@ if (-not $service -or $service.PathName -ne $expectedCommand) {
 }
 if ($service.State -ne 'Running') {
     throw 'Restore the known working service before attempting an update from a stopped baseline.'
+}
+if ($PreflightOnly) {
+    foreach ($name in @('Get-CimInstance','Get-Service','Start-Service','Stop-Service','Get-ScheduledTask','Start-ScheduledTask','Stop-ScheduledTask')) {
+        Get-Command $name -ErrorAction Stop | Out-Null
+    }
+    Write-Host ('Read-only preflight passed. Reviewed SHA256: ' + $ExpectedSha256)
+    return
+}
+$principal = [Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()
+if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    throw 'An elevated Windows process is required to update the installed custodian.'
 }
 $before = [IO.File]::ReadAllBytes($config)
 $policy = [Text.Encoding]::UTF8.GetString($before) | ConvertFrom-Json
@@ -93,14 +115,14 @@ if (-not (Test-Path -LiteralPath $backup)) { New-Item -ItemType Directory -Path 
 if ((Get-Item -LiteralPath $backup).Attributes -band [IO.FileAttributes]::ReparsePoint) {
     throw 'Backup directory is a reparse point.'
 }
-$oldHash = (Get-FileHash -LiteralPath $exe -Algorithm SHA256).Hash
+$oldHash = Get-ReviewedHash $exe
 $oldExe = Join-Path $backup ('custodian-' + $oldHash + '.exe')
 if (-not (Test-Path -LiteralPath $oldExe)) { Copy-Item -LiteralPath $exe -Destination $oldExe }
-$configHash = (Get-FileHash -LiteralPath $config -Algorithm SHA256).Hash
+$configHash = Get-ReviewedHash $config
 $oldConfig = Join-Path $backup ('policy-' + $configHash + '.json')
 if (-not (Test-Path -LiteralPath $oldConfig)) { [IO.File]::WriteAllBytes($oldConfig, $before) }
-if ((Get-FileHash -LiteralPath $oldExe -Algorithm SHA256).Hash -ne $oldHash -or
-    (Get-FileHash -LiteralPath $oldConfig -Algorithm SHA256).Hash -ne $configHash) {
+if ((Get-ReviewedHash $oldExe) -ne $oldHash -or
+    (Get-ReviewedHash $oldConfig) -ne $configHash) {
     throw 'Existing backup does not match the installed files.'
 }
 $task = @(Get-ScheduledTask -TaskName 'djinn-custodian-consent')
@@ -130,7 +152,7 @@ try {
     Copy-Item -LiteralPath $source -Destination $exe -Force
     if ($enableRemote) {
         if (Test-Path -LiteralPath $helperExe) {
-            $helperOldHash = (Get-FileHash -LiteralPath $helperExe -Algorithm SHA256).Hash
+            $helperOldHash = Get-ReviewedHash $helperExe
             $oldHelper = Join-Path $backup ('approval-helper-' + $helperOldHash + '.exe')
             if (-not (Test-Path -LiteralPath $oldHelper)) { Copy-Item -LiteralPath $helperExe -Destination $oldHelper }
         }
@@ -155,10 +177,10 @@ try {
     if ($wasRunning) { Start-Service -Name djinn-custodian }
     foreach ($entry in $task) { Start-ScheduledTask -TaskName $entry.TaskName -TaskPath $entry.TaskPath }
     $phase = 'verify'
-    if ((Get-FileHash -LiteralPath $exe -Algorithm SHA256).Hash -ne $ExpectedSha256) {
+    if ((Get-ReviewedHash $exe) -ne $ExpectedSha256) {
         throw 'Installed executable hash mismatch.'
     }
-    if ($enableRemote -and (Get-FileHash -LiteralPath $helperExe -Algorithm SHA256).Hash -ne $ExpectedHelperSha256) {
+    if ($enableRemote -and (Get-ReviewedHash $helperExe) -ne $ExpectedHelperSha256) {
         throw 'Installed approval helper hash mismatch.'
     }
     if ($wasRunning -and (Get-Service djinn-custodian).Status -ne 'Running') {

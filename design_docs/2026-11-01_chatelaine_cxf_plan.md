@@ -57,7 +57,7 @@ Links: area documentation · draws on 2026-10-01_chatelaine_cxf_plan P4 · summa
 
 ### O1. P5: other native platforms and distribution packaging
 
-The first slice is Mere's `ports/dramatis` (package `dramatis-app`, binary `dramatis-ui`). It selects existing personae, shows public quarantined cards for the bound destination, and requests exact-item accept, delete or older-import assignment; Djinn owns sealed records, profile authority and native consent. It is qualified on Windows only, with synthetic fixtures (evidence: `repos/mere/support/receipts/dramatis-app/README.md`; app plan: `repos/mere/design_docs/dramatis_docs/implementation_strategy/2026-10-11_dramatis_app_plan.md`).
+The first slice is the Dramatis app (package `dramatis-app`, binary `dramatis-ui`), Mere's `ports/dramatis` until it moved to `apps/dramatis` here on 2026-11-06. It selects existing personae, shows public quarantined cards for the bound destination, and requests exact-item accept, delete or older-import assignment; Djinn owns sealed records, profile authority and native consent. It is qualified on Windows only, with synthetic fixtures (evidence: `repos/mere/support/receipts/dramatis-app/README.md`; app plan: `2026-10-11_dramatis_app_plan.md`).
 
 **Done when:** the same receipt (persona selection, public quarantined cards, accept and delete with native consent, absent and Locked custody) repeats on Linux and macOS with the machine and commit recorded; and Mark names the distribution packaging targets, each of which installs and passes that receipt.
 
@@ -75,7 +75,7 @@ The first slice is Mere's `ports/dramatis` (package `dramatis-app`, binary `dram
 - 2026-11-01: the old Status cites "(§8)" for the Signalman desktop's separate stack and custody refresh; the plan has no §8, and the closing box is P4's last one (§3). It is met: `repos/murm/design_docs/archive_docs/2026-11-02/2026-10-11_signalman_stack_refresh_plan.md`.
 - 2026-11-01: `ssh_slot.rs` and `ssh_sign.rs` moved from personae to castellan with the custody split (DR-B): `repos/mere/ports/mere-resident/castellan/src/custody/ssh_slot.rs` and `ssh_sign.rs`. The archived plan's `crates/personae/src/ssh_*.rs` cites are historical.
 - 2026-11-01: unsupported OTP digit counts are preserved in quarantine (ruling 68), which settles the digit-count policy that the repository plan's 2026-10-11 entry said awaited Mark.
-- 2026-11-01: persona creation, contacts and fill, named in the P5 receipt as follow-on work, belong to Mere's app plan (`repos/mere/design_docs/dramatis_docs/implementation_strategy/2026-10-11_dramatis_app_plan.md`), not to a chatelaine phase.
+- 2026-11-01: persona creation, contacts and fill, named in the P5 receipt as follow-on work, belong to the app plan (`2026-10-11_dramatis_app_plan.md`), not to a chatelaine phase.
 
 - 2026-11-02: V4, "broader item types" (archived plan line 1111, inherited from the identity vault SSH agent plan), is fulfilled by P4. `CredentialKind` covers CXF v1.0's 17 kinds, the Secret Service generic secret and `Unknown` (archived plan lines 497-499), and the P4 fixture holds all 17 kinds plus one unknown type, each asserted (lines 588-589 and 965-966).
 

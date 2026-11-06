@@ -18,6 +18,9 @@ members = [
     "crates/custody-wire",
     "crates/dramatis-resident",
 ]
+# The application is its own workspace (apps/dramatis/Cargo.toml), so the
+# GUI chain and its git sources never enter this lock.
+exclude = ["apps/dramatis"]
 
 [workspace.package]
 rust-version = "1.97.1"

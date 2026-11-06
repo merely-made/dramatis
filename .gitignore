@@ -4,6 +4,7 @@ target/
 # The root lock is tracked, and the fixtures' (their checks run --locked).
 Cargo.lock
 !/Cargo.lock
+!/apps/dramatis/Cargo.lock
 !/support/fixtures/*/*/Cargo.lock
 
 # Machine-local cargo config: the build directory, and while a sibling is

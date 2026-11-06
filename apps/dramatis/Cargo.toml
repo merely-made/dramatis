@@ -1,0 +1,95 @@
+# The Dramatis application: persona selection, local authentication and
+# quarantine review through the Djinn resident. Copied from Mere's
+# `ports/dramatis` at 9c60e04ab (source homes map, ownership cut 1).
+#
+# Its own workspace, so the identity tier's root lock stays registry-only and
+# the GUI chain never enters it. GUI crates track mere.git main until they
+# are published (cambium-publish D1). Mere's GUI crates name this repository's
+# crates through dramatis.git; the patch below serves them from this checkout,
+# so the app and Mere share one copy of each.
+[workspace]
+resolver = "2"
+
+[workspace.package]
+rust-version = "1.97.1"
+edition = "2024"
+license = "MPL-2.0"
+repository = "https://github.com/merely-made/dramatis"
+
+[workspace.lints.rust]
+unsafe_code = "warn"
+
+[workspace.lints.clippy]
+all = "warn"
+
+[package]
+rust-version.workspace = true
+name = "dramatis-app"
+version = "0.0.1"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+description = "Persona selection, local authentication and quarantine review through the Djinn resident."
+
+[package.metadata.packager]
+product-name = "Dramatis"
+identifier = "com.merely.dramatis"
+publisher = "Merely"
+authors = ["Mark Alan Boykin"]
+icons = ["icons/merely.png"]
+binaries = [{ path = "dramatis-ui", main = true }]
+# Run from this directory. The driver supplies profile/target paths to this hook.
+before-packaging-command = "python package.py prepare"
+
+[package.metadata.packager.nsis]
+install-mode = "currentUser"
+# Vault data belongs to the shared Djinn resident, not this uninstaller.
+
+
+[[bin]]
+name = "dramatis-ui"
+path = "src/main.rs"
+
+[dependencies]
+cambium = { git = "https://github.com/merely-made/mere.git", branch = "main" }
+mandrake = { git = "https://github.com/merely-made/mere.git", branch = "main" }
+taproot = { version = "0.1.0", git = "https://github.com/merely-made/genet.git", branch = "main", default-features = false, features = ["accesskit"] }
+cambium-desktop = { git = "https://github.com/merely-made/mere.git", branch = "main" }
+persona-picker = { git = "https://github.com/merely-made/mere.git", branch = "main" }
+# The custody client and quarantine types, without the Graphshell port
+# (stack lift plan, L1).
+ostiary = { version = "0.0.1", git = "https://github.com/merely-made/armillary.git", branch = "main", default-features = false, features = ["native"] }
+castellan-client = { version = "0.0.2", path = "../../crates/castellan-client", features = ["client"] }
+dramatis = { version = "0.0.5", path = "../../crates/dramatis" }
+personae = { version = "0.3.1", path = "../../crates/personae" }
+serde_json = "1"
+tokio = { version = "1", features = ["rt", "time", "macros"] }
+
+image = { version = "0.25", default-features = false, features = ["png"] }
+
+[dev-dependencies]
+chatelaine = { version = "0.0.3", path = "../../crates/chatelaine" }
+taproot = { version = "0.1.0", git = "https://github.com/merely-made/genet.git", branch = "main", default-features = false, features = ["accesskit", "estimated-probe-fixtures"] }
+luggage = { git = "https://github.com/merely-made/eidetic.git", branch = "main", default-features = false, features = ["native"] }
+tempfile = "3"
+
+[build-dependencies]
+sha2 = "0.11"
+
+[lints]
+workspace = true
+
+[patch."https://github.com/merely-made/dramatis.git"]
+castellan-client = { path = "../../crates/castellan-client" }
+chatelaine = { path = "../../crates/chatelaine" }
+dramatis = { path = "../../crates/dramatis" }
+personae = { path = "../../crates/personae" }
+
+# This repository's crates take these from crates.io; Mere's graph takes them
+# from their homes. The same redirection as Mere's own [patch.crates-io] keeps
+# one copy of each.
+[patch.crates-io]
+chartulary = { git = "https://github.com/merely-made/eidetic.git", branch = "main" }
+muniment = { git = "https://github.com/merely-made/eidetic.git", branch = "main" }
+ostiary = { git = "https://github.com/merely-made/armillary.git", branch = "main" }

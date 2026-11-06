@@ -37,7 +37,7 @@ Not here:
   publication service a confined worker serves: `repos/mere/design_docs/mere_docs/implementation_strategy/2026-10-28_site_publication_plan.md`;
 - the dramatis repo plan's work (facade, D5, the keeper feature split, PAKE and QR chrome, copy-mode export, sibling repins),
   the chatelaine CXF plan's P4 import and V4 item types, and the pinned threat statement and tier architecture (owning-repo
-  follow-up, no competing copy here); the public client `repos/mere/design_docs/dramatis_docs/implementation_strategy/2026-10-11_dramatis_app_plan.md`;
+  follow-up, no competing copy here); the public client `2026-10-11_dramatis_app_plan.md`;
 - ownership-repair lanes L1 to L3, L5 and L6 and the audit routing: `repos/mere/design_docs/mere_docs/implementation_strategy/2026-10-28_graph_semantics_plan.md` (L1) and
   `repos/mere/design_docs/mere_docs/implementation_strategy/2026-10-28_source_audit_repairs_plan.md`; inference lock behaviour: `repos/mere/design_docs/mere_docs/implementation_strategy/2026-10-28_resident_inference_plan.md`.
 

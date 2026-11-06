@@ -280,6 +280,36 @@ not qualify Windows PowerShell 5's quoting path.
 - **fleet_custody_rollout D7 (2026-11-05).** X-PC's bounded inventory was empty.
   Mark chose "Fresh vault", as on R-PC and Y-PC.
   Links: area receiving · draws on D1 · summary X-PC gets a fresh vault
+- **fleet_custody_rollout D8 (2026-11-05).** Protected macOS custody requires a
+  hardened-runtime signature, and its peer check is `anchor apple generic` plus
+  the certificate's Team ID, so ad hoc and self-signed identities cannot pass.
+  Asked what identity the Mac cohort signs with, Mark chose "Paid Developer
+  ID": an Apple Developer Program team with a Developer ID Application
+  certificate, the production path that also allows notarization.
+  Links: area platform · plans F2 · summary Mac cohorts sign with a Developer ID team
+- **fleet_custody_rollout D9 (2026-11-05).** The Developer ID identity (team
+  `HWVZ5S7ACJ`) is in `markik`'s login Keychain on the M4, which is also the
+  receiving account, against H1-F1. Asked where signing should happen, Mark
+  answered: "consider: delete it afterwards. no lingering test profile. very
+  annoying. not my computer; a favor, letting me use it, and you take terrible
+  advantage using up the storage and permissions. not respectful". The M4 is
+  Mayola's machine on loan: any signing account made there is temporary and
+  removed when signing ends, and work there keeps its storage and permissions
+  footprint minimal and cleans up after itself.
+  Links: area platform · plans F2 · summary temporary signing user on the M4, nothing lingers
+- **fleet_custody_rollout D10 (2026-11-05).** Asked whether the Mac binaries
+  build from the Linux cohort revisions (Mere 6f542e515, Dramatis 8bc1959 plus
+  05183e8) or current mains, Mark answered: "there better be a way to bump the
+  fleet at the end of this :<". Mac cohorts build from the Linux cohort
+  revisions, and the rollout owes a fleet-wide update path that moves every
+  host to a newer qualified cohort, rather than one-off receivers per host.
+  Links: area receiving · plans F2 · summary one cohort now, a fleet bump path owed
+- **fleet_custody_rollout D11 (2026-11-05).** macOS installs write `consent:
+  deny`: no native consent channel (per-use SSH keys refused) and no
+  data-protection Keychain envelope in the binary. Mark chose "Wait for consent
+  work": the native macOS consent dialog and the envelope are built first, as
+  separate Dramatis work, and Q-PC and the M4 are received afterwards.
+  Links: area platform · plans F2 · summary Mac receiving waits for consent and envelope
 
 ## Findings
 
@@ -469,3 +499,7 @@ not qualify Windows PowerShell 5's quoting path.
   resumed from that state; O-PC read the consent pin back over SSH. All five
   Linux hosts now run the e356/c538/23c cohort beside O-PC's Windows custody;
   Q-PC and iMac-M4 remain.
+- 2026-11-05: inventoried Q-PC and the M4 read-only (M4 now reached at
+  192.168.4.50) and listed the M4's code-signing identities. Mac receiving
+  waits for the macOS consent channel and envelope (D11); the M4 is a loaned
+  machine whose footprint is being measured for cleanup (D9).

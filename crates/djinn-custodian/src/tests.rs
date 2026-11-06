@@ -520,3 +520,4 @@ mod driver_tests;
 mod h2_tests;
 mod wallet_tests;
 mod lifetime_tests;
+mod unassociated_tests;

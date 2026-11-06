@@ -197,6 +197,10 @@ pub enum Grant {
     Credentials {
         consent: Consent,
     },
+    /// Create, sign with and release unassociated keys (release log D3).
+    Unassociated {
+        consent: Consent,
+    },
 }
 
 /// Which root a release or attestation grant draws from.
@@ -573,6 +577,7 @@ impl Principal {
                     Grant::Wallet { consent } => (String::new(), "wallet", String::new(), *consent),
                     Grant::Payload { consent } => (String::new(), "payload", String::new(), *consent),
                     Grant::Credentials { consent } => (String::new(), "credentials", String::new(), *consent),
+                    Grant::Unassociated { consent } => (String::new(), "unassociated", String::new(), *consent),
                 };
                 custody_wire::contract::Scope {
                     profile,

@@ -30,6 +30,8 @@ use zeroize::Zeroizing;
 
 use crate::Refusal;
 
+mod unassociated;
+
 type Host = PersonaeHost<Box<dyn IdentityStorage>>;
 
 /// The credential catalog's two salts, exactly as Djinn derived them.

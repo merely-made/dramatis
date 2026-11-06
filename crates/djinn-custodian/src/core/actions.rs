@@ -141,6 +141,22 @@ impl Core {
                     .sign(source, profile.as_deref(), &salt.0, &message.0)
                     .map_or_else(refuse, signature)
             },
+            Operation::Unassociated { action } => match action {
+                UnassociatedAction::Create {} => self
+                    .vault
+                    .unassociated_create()
+                    .map_or_else(refuse, |key| success(Answer::PublicKey { key })),
+                UnassociatedAction::Sign { public_key, message } => self
+                    .vault
+                    .unassociated_sign(&public_key.0, &message.0)
+                    .map_or_else(refuse, signature),
+                UnassociatedAction::Release { public_key } => self
+                    .vault
+                    .unassociated_release(&public_key.0)
+                    .map_or_else(refuse, |(public_key, seed)| {
+                        success(Answer::Seed { public_key, seed: Secret::copy_from(&*seed) })
+                    }),
+            },
             Operation::Snapshot {} => self.vault.snapshot().map_or_else(refuse, |snapshot| {
                 success(Answer::Snapshot {
                     snapshot: Box::new(snapshot),

@@ -88,6 +88,9 @@ pub enum Operation {
         salt: Bytes,
         message: Bytes,
     },
+    /// A key born outside every root's derivation tree (release log D3),
+    /// created, stored sealed and used inside custody.
+    Unassociated { action: UnassociatedAction },
     /// The public key of `source`'s root (a named persona or the wallet).
     PublicKey {
         source: Source,
@@ -298,6 +301,21 @@ impl Outcome {
     }
 }
 
+/// What a principal may do with an unassociated key. The master stays out of
+/// reach: the key shares nothing with it, and the store is sealed under a key
+/// only the unlocked custodian derives.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(tag = "kind", rename_all = "kebab-case", deny_unknown_fields)]
+pub enum UnassociatedAction {
+    /// Mint a fresh key; answers its public key.
+    Create {},
+    /// Sign inside custody with the key `public_key` names.
+    Sign { public_key: Bytes, message: Bytes },
+    /// Release the seed so a transport can bind the key in its own process,
+    /// as a derived key is released.
+    Release { public_key: Bytes },
+}
+
 /// What a successful operation answers.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "answer", rename_all = "kebab-case", deny_unknown_fields)]
@@ -318,6 +336,12 @@ pub enum Answer {
         #[serde(with = "fixed")]
         master_public_key: [u8; 32],
         keys: Vec<ReleasedKey>,
+    },
+    /// A released unassociated key: its public half and seed.
+    Seed {
+        #[serde(with = "fixed")]
+        public_key: [u8; 32],
+        seed: Secret,
     },
     Lock {
         report: LockReport,

@@ -25,7 +25,7 @@ use lifetime::UnlockDeadline;
 
 use custody_wire::contract::{
     Answer, Fact, FactCause, Limits, LockReport, Outcome, Petition, Purpose, ReleasedKey,
-    ServerMessage, Session, Source, Status,
+    ServerMessage, Session, Source, Status, UnassociatedAction,
 };
 use custody_wire::secret::{Bytes, Secret};
 use custody_wire::{ClientMessage, Operation, Peer, limits};

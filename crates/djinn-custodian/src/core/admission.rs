@@ -207,7 +207,8 @@ impl Core {
             Grant::Manage { consent }
             | Grant::Wallet { consent }
             | Grant::Payload { consent }
-            | Grant::Credentials { consent } => *consent,
+            | Grant::Credentials { consent }
+            | Grant::Unassociated { consent } => *consent,
             _ => Consent::None,
         };
         Ok((index, consent, summary))

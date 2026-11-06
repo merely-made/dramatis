@@ -216,6 +216,23 @@ impl Core {
                     ),
                 ))
             },
+            Operation::Unassociated { action } => {
+                let (name, key, bytes): (&'static str, String, &[u8]) = match action {
+                    UnassociatedAction::Create {} => ("unassociated-create", String::new(), &[]),
+                    UnassociatedAction::Sign { public_key, message } => {
+                        if message.0.len() > MAX_SIGNED_BYTES {
+                            return Err(Refusal("message-too-large"));
+                        }
+                        ("unassociated-sign", digest(&public_key.0), &message.0)
+                    },
+                    UnassociatedAction::Release { public_key } => ("unassociated-release", digest(&public_key.0), &[]),
+                };
+                self.coarse(
+                    principal,
+                    |g| matches!(g, Grant::Unassociated { .. }),
+                    (name, String::new(), key, digest(bytes)),
+                )
+            },
             Operation::Snapshot {} => self.coarse(
                 principal,
                 |g| matches!(g, Grant::Snapshot),

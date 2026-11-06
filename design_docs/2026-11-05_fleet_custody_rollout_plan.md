@@ -48,7 +48,7 @@ Additional approval directions must be explicit in the reviewed setup.
 | S-PC | Original vault/CLI/SSH continuity, cold reopen and live O-PC consent over strict SSH verified | Preserve this baseline and its receipts |
 | R-PC | New protected vault, native first unlock, weekly settings and O-PC consent pin verified | Preserve fresh baseline and empty SSH agent until credentials are needed |
 | Y-PC | New protected vault, native first unlock through Zenity, weekly settings, `bin_t` custody labels and O-PC consent pin verified | Preserve fresh baseline and empty SSH agent until credentials are needed |
-| X-PC | Checked resident/custodian and standard-path store locations empty, expanded certificate/signing gate passed | Locate identity state before personal setup |
+| X-PC | New protected vault, native unlock through Ubuntu's zenity 4.2.1 on Xfce/X11, weekly settings and O-PC consent pin verified | Preserve fresh baseline and empty SSH agent until credentials are needed |
 | Q-PC, iMac-M4 | Running legacy macOS residents; standard vault/data present | Exact signed host/consumer integration and personal receiving |
 
 Saved idle settings alone do not prove a running service, absolute expiry,
@@ -272,6 +272,14 @@ not qualify Windows PowerShell 5's quoting path.
   resident, 23c client), after showing c538 accepts the drop-in's arguments,
   keeping config, protected state, root pin and grants.
   Links: area receiving · draws on S-PC and R-PC cohort qualification · summary T-PC joins the fleet cohort
+- **fleet_custody_rollout D6 (2026-11-05).** X-PC (Xubuntu 26.04, Xfce on X11,
+  MATE polkit agent) has no zenity, kdialog or yad, so the resident cannot
+  prompt. Mark chose "zenity": install it from Ubuntu's archive, then repeat the
+  real-dialog timeout check and pin its version before the attended window.
+  Links: area platform · draws on D3 · summary X-PC prompts through Ubuntu's zenity
+- **fleet_custody_rollout D7 (2026-11-05).** X-PC's bounded inventory was empty.
+  Mark chose "Fresh vault", as on R-PC and Y-PC.
+  Links: area receiving · draws on D1 · summary X-PC gets a fresh vault
 
 ## Findings
 
@@ -453,3 +461,11 @@ not qualify Windows PowerShell 5's quoting path.
   passed: T-PC now runs e356/c538/23c with its vault, O-PC consent pin, persona
   drop-in, weekly settings and owner settings preserved, and O-PC read the
   state back over SSH. X-PC and the Macs remain.
+- 2026-11-05: X-PC's inventory came up empty and it had no dialog backend. With
+  zenity 4.2.1 installed (D6) and qualified, its fresh-vault packet (D7) is
+  staged inert and PS5 VerifyOnly passes. The attended window awaits sign-off.
+- 2026-11-05: X-PC run 01 failed its single post-unlock read on a 3.9 GB host
+  and rolled back, keeping the new vault. Run 02 waited for the unlock and
+  resumed from that state; O-PC read the consent pin back over SSH. All five
+  Linux hosts now run the e356/c538/23c cohort beside O-PC's Windows custody;
+  Q-PC and iMac-M4 remain.

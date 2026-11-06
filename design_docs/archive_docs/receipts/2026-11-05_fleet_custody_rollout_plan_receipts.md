@@ -680,3 +680,49 @@ instance equal to the receipt; sockets and resident active and enabled; config,
 clients, polkit policy, unit, persona drop-in and weekly `lock.toml` unchanged;
 no staging temps left. Root-private xz rollback copies remain for runs 01 and 02
 (about 27.6 MB each).
+
+## 2026-11-05: X-PC inventory and fresh-vault packet
+
+Evidence lives in `Code/testing/dramatis/fleet-policy/x-pc-receiving/`.
+`inventory-01.json`: Xubuntu 26.04.1, kernel 7.0.0-42-generic, glibc 2.43,
+Python 3.14.4, Xfce on X11 (lightdm seat0), `polkit-mate-authentication-agent-1`
+running, xfce4-terminal 1.1.5, AppArmor enabled and no SELinux, 3.9 GB RAM. No
+custody paths, units, accounts or residents; the depth-six name search was
+empty; `~/.ssh` holds `authorized_keys` only; `lock.toml` is the 21-byte
+weekly file at mode 0664. No zenity, kdialog or yad was installed.
+
+The owner installed Ubuntu's zenity 4.2.1-1 (D6). `zenity-qualification-01.json`:
+the exact approval, masked-entry and notice shapes each exited 5 on the
+one-second timeout (the approval printed its default tag `no`); an
+unknown-option control exited 255. Products streamed T-PC to X-PC with loader
+contracts equal to R-PC's (95127079 retained, 156972520 peak); the fresh-init
+fixture passed and was removed. The receiver differs from Y-PC's by checking
+the MATE agent process and the Xfce session, pinning zenity 4.2.1, accepting the
+0664 original `lock.toml`, and having no SELinux stage. Manifest
+`eca440af528570670610ae1b56ed19632fbc63520b708d0c9777db8aad8b96ed`, driver
+`4328c77caf405e930b2155e56b4e3137ecd0420543d9243c81072cd73f0f81e9`. PS5
+VerifyOnly exit 0; a zero manifest hash was refused. No window opened.
+
+X-PC run 01 (window `djinn-x-pc-first-01`, opened at the owner's word) installed
+the four products, created the vault (master `d2c7ffb3…08f5`), pinned O-PC and
+started custody locked (instance `c2a317c2…187a`; landlock ABI 8, seccomp
+enforcing). The owner saw the Zenity prompt and entered the passphrase; the
+terminal Enter came 8 seconds after resident start, and the single relay read
+that followed still reported the vault locked ("Protected root or lock state
+differs"). Rollback stopped and disabled every unit and restored `lock.toml`;
+the encrypted vault, config (`9b43d5a8…79c1`), products and links remain.
+Likely cause: the driver read once, before the unlock (key derivation and any
+polkit step on this 3.9 GB host) had finished. Run 02's driver waits up to 180 s
+for the unlock and adds a resume path that starts from run 01's preserved state
+without installing, initializing or re-pinning. Resume manifest
+`95dab611901eaf45fcedbdc6aaa9e24a9624777b3b4259ba87cf8a9ad027af46`, driver
+`2b181251ad0e751ab1d096385c54267dc9e4945e7451d5641d666e43cc7a9aca`; PS5
+VerifyOnly ran the resume preflight (exit 0); a zero hash was refused.
+
+X-PC run 02 (resume, window `djinn-x-pc-resume-02`) passed: `native-result-02.json`
+SHA256 `bb2262348e79a3510f1d93cf73f4e88f97dd3e1e7daec8221d29d170b48ad1f6`.
+`x-pc-live-root-readback-02.json` (O-PC over strict SSH): O-PC root pin, target
+equal to run 01's master `d2c7ffb3…08f5`, consent only, 604800-second cap, no
+enrollments, unlocked at generation 2, instance `44e387b8…cf08` equal to the
+receipt; both sockets active and enabled, resident active and enabled; custody
+agent empty; payloads consumed; weekly `lock.toml` `807ba9fb…ba36`; zenity 4.2.1.

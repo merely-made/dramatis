@@ -571,3 +571,57 @@ chat. Native receiving and later trust/lifecycle gates remain open.
 
 The subsequent native agent failure and corrected certificate-bearing confinement
 qualification continue in [agent continuity receipts](2026-11-05_fleet_agent_continuity_receipts.md).
+
+## 2026-11-05: Y-PC inventory and fresh-vault packet
+
+Evidence lives in `Code/testing/dramatis/fleet-policy/y-pc-receiving/`.
+Y-PC was reached through Windows OpenSSH and the O-PC Djinn agent pipe; Git
+Bash's ssh cannot use that pipe and was refused by publickey.
+
+- `inventory-01.json`: metadata only, no sudo. Fedora 45 Workstation, kernel
+  7.2.15-300.fc45, glibc 2.44, Python 3.15.0, active local GNOME Wayland
+  session 6 on seat0, `org.gnome.Shell@user.service` active, Ptyxis 50.1,
+  Zenity 4.2.2, polkit 127, SELinux enforcing, auditd active. No custody
+  paths, units, accounts or residents; name search over home, `/var/lib`,
+  `/etc`, `/opt`, `/srv` to depth six empty; `~/.ssh` holds `authorized_keys`
+  only. `lock.toml` mode 600, SHA256 `1ccba7deâ€¦f28b`.
+- Donor recheck on T-PC: e356 custodian, c538 release resident, 23c client and
+  528 helper match the candidate; installed custodian still bb0d9c9. Hashes
+  unchanged after the Mere test build.
+- `zenity-qualification-01.json` (D3): exact approval, masked-entry and notice
+  argument shapes from Mere 6f542e515 with `--timeout=1` each exited 5 after
+  1.3 to 2.0 s; the approval list printed its hidden default tag `no`. An
+  unknown-option control exited 255 in 0.05 s.
+- Mere `5e950a51b`: four Zenity cases added to `native_confirmation.rs`
+  (parser failure, timeout with default tag, explicit no, explicit yes). Eight
+  of eight passed on T-PC at 6f542e515, whose confirmation sources match main.
+- `receiver-calls-qualification-01.json`: `matchpathcon` reports `usr_t` for
+  `/usr/local/libexec/djinn-custodian` before the D2 rule; tool paths under
+  `/usr/bin`; `ausearch -ts` with C-locale `%x` found one custody denial in a
+  synthetic log and ignored an older record and an unrelated one.
+- `y-pc-artifact-qualification-01.json`: four products streamed T-PC to Y-PC;
+  loader exit codes and output digests equal R-PC's. Retained 95127079 bytes,
+  raw-pair peak 156972520 bytes. The first staging run stopped because the
+  R-PC script assumed a pre-existing `client.gz`; the owned partial
+  `resident.xz` was removed and the script now delivers the client.
+- `y-pc-fresh-bootstrap-01.json`: exact custodian passed the unprivileged
+  fresh-init, mismatch, duplicate-init and authority-store fixture; fixture removed.
+- Packet `candidate-01.json` SHA256
+  `bc3a213fd81d62e632910f6968713e73cfb45054dc5be15c0e66d9bc69810d67`, driver
+  `receive-y-pc-fresh.py` SHA256
+  `ed29cf3a3d0daf4d7b3e83ca07d47d1fd380da5cae3145c84ce52600630e2967`.
+  Windows PowerShell 5 VerifyOnly ran the read-only Y-PC preflight (exit 0);
+  a zero manifest hash was refused before SSH. No window has been opened.
+
+Native run: the owner opened the one Ptyxis window (unit `djinn-y-pc-first-01`,
+driver pid 12849 on pts/0 at the Enter gate, no sudo or custody state at
+dispatch) and reported success. `native-result-01.json` SHA256
+`6a523b30f09b8212d9b0e7121440431f385992a2036e197d7b28b6a9e219861e`: master
+`7f0620277ab4524996bb85b14b70457cb1aa50646d589001a726722200f94348`, policy
+`36671bc8…b782`, generation 1 to 2, instance `2a317992…40c0`, zero AVC records
+since the run started, no failure outcome. `y-pc-live-root-readback-01.json`
+(O-PC over strict SSH): root, target master, profile, consent-only action,
+604800-second cap, no enrollments, unlocked, instance equal to the receipt;
+both sockets active and enabled, resident active and enabled, agent empty,
+both executables `bin_t`, payload directory empty, weekly `lock.toml`
+`807ba9fb…ba36`. The window unit has exited.

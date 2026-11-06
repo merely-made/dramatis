@@ -3,7 +3,8 @@
 **Status, 2026-11-05: in progress.** O-PC/T-PC have qualified personal receiving
 and root-trust setup. S-PC passed local receiving, cold reopen, outbound SSH and
 one live consent from O-PC over SSH. R-PC passed fresh receiving and O-PC consent
-pin readback. All eight have saved weekly idle settings. The expanded synthetic
+pin readback. Y-PC passed the same on Fedora/GNOME under SELinux
+enforcing. All eight have saved weekly idle settings. The expanded synthetic
 Linux confinement gate passed on S-PC, Y-PC, R-PC and X-PC.
 
 The certificate-bearing agent path subsequently exposed a confined-hostname
@@ -45,7 +46,8 @@ Additional approval directions must be explicit in the reviewed setup.
 | O-PC, T-PC | Personal update/unlock and mutual root/device trust qualified for tested flows | Preserve baseline; qualify the Linux agent fix and later live remote consent |
 | S-PC | Original vault/CLI/SSH continuity, cold reopen and live O-PC consent over strict SSH verified | Preserve this baseline and its receipts |
 | R-PC | New protected vault, native first unlock, weekly settings and O-PC consent pin verified | Preserve fresh baseline and empty SSH agent until credentials are needed |
-| Y-PC, X-PC | Checked resident/custodian and standard-path store locations empty, expanded certificate/signing gate passed | Locate identity state before personal setup |
+| Y-PC | New protected vault, native first unlock through Zenity, weekly settings, `bin_t` custody labels and O-PC consent pin verified | Preserve fresh baseline and empty SSH agent until credentials are needed |
+| X-PC | Checked resident/custodian and standard-path store locations empty, expanded certificate/signing gate passed | Locate identity state before personal setup |
 | Q-PC, iMac-M4 | Running legacy macOS residents; standard vault/data present | Exact signed host/consumer integration and personal receiving |
 
 Saved idle settings alone do not prove a running service, absolute expiry,
@@ -231,6 +233,34 @@ transport with privileged/unlock execution disabled. Preserve failed launchers
 and bind any replacement explicitly; a successful run through PowerShell 7 does
 not qualify Windows PowerShell 5's quoting path.
 
+## Decisions
+
+- **fleet_custody_rollout D1 (2026-11-05).** Y-PC's bounded inventory found no
+  vault, custodian, resident, custodian account or private SSH key. Asked which
+  vault Y-PC should use, Mark chose "Fresh vault": a new local vault at
+  `/var/lib/djinn-custodian/markik`, first unlock in a native prompt, an empty
+  SSH agent, and activation deferred until the protected profile and O-PC
+  consent pin are ready, as on R-PC.
+  Links: area receiving · draws on R-PC fresh receiving · summary Y-PC gets a fresh vault
+- **fleet_custody_rollout D2 (2026-11-05).** Y-PC runs SELinux enforcing, and
+  the default type for `/usr/local/libexec/djinn-*` is `usr_t`. Mark chose
+  "Persistent bin_t rule": a `semanage fcontext` rule giving
+  `/usr/local/libexec/djinn-.*` the `bin_t` type, `restorecon` over every
+  installed path, and a journal/AVC denial check before relying on it. Stock
+  types only; no custom policy module.
+  Links: area platform · plans Fedora receiving · summary label custody binaries bin_t on SELinux hosts
+- **fleet_custody_rollout D3 (2026-11-05).** On GNOME the resident prompts
+  through Zenity, and Mere's only exact-binary confirmation test fakes KDialog.
+  Mark chose "Both": run Y-PC's real Zenity 4.2.2 with the exact unlock and
+  approval arguments plus a one-second timeout, which must end in the timeout
+  exit with no parser error, and add a Zenity variant of Mere's synthetic
+  confirmation test.
+  Links: area platform · draws on the S-PC KDialog parser failure · summary qualify Zenity both ways before Y-PC's window
+- **fleet_custody_rollout D4 (2026-11-05).** Ptyxis has no hold option. Mark
+  chose "Driver waits for Enter": the receiver's owner mode ends with a
+  close prompt on success or failure, launched as `ptyxis -s --new-window --`.
+  Links: area receiving · summary the driver holds Y-PC's window open
+
 ## Findings
 
 - 2026-11-05: the six remaining machines are reachable and selected idle files
@@ -277,6 +307,15 @@ not qualify Windows PowerShell 5's quoting path.
   restored the original seven-file baseline and active resident while disabling
   the new custodian/sockets. Mere owns the checked-confirmation repair; S-PC now
   needs a reviewed resume against existing protected state.
+- 2026-11-05: Y-PC's metadata-only inventory found Fedora 45 Workstation with
+  glibc 2.44, an active local GNOME Shell 51.1 Wayland session (gnome-shell is
+  the polkit agent; no `plasma-polkit-agent.service`), Ptyxis 50.1, Zenity 4.2.2,
+  polkit 127, `gcr-ssh-agent` as the session agent, and SELinux enforcing. A
+  name search of home, `/var/lib`, `/etc`, `/opt` and `/srv` to depth six found
+  no vault, custody or persona artefacts, and `~/.ssh` holds only
+  `authorized_keys`. Default labels: `usr_t` for `/usr/local/libexec`,
+  `var_lib_t`, `etc_t` and `var_run_t` for state, config and run paths. The
+  R-PC receiver's KDE agent check and terminal do not carry over unchanged.
 
 ## Progress
 
@@ -380,3 +419,15 @@ not qualify Windows PowerShell 5's quoting path.
   owner-approved vault client. Both custody sockets and the resident are enabled.
   O-PC verified the consent pin and one-week grant cap over SSH. The fresh agent
   has an empty identity list and the delivery inputs were consumed.
+- 2026-11-05: Y-PC's read-only inventory came up empty. The owner chose a fresh
+  vault (D1) and a persistent `bin_t` rule for the custody binaries (D2). The
+  Fedora/GNOME receiver, donor hash recheck and inert qualification are next.
+- 2026-11-05: Zenity qualified both ways (D3; Mere `5e950a51b`). The Y-PC
+  receiver adds the GNOME agent check, the D2 label stage, AVC checks and the
+  D4 close prompt. Products, fresh-init fixture and packet are staged inert;
+  PS5 VerifyOnly passes. The single attended Y-PC window awaits sign-off.
+- 2026-11-05: Y-PC passed native first unlock with the new local master and the
+  owner-approved vault client through Zenity. Custody executables carry `bin_t`
+  and no AVC records appeared during the run. Both custody sockets and the
+  resident are enabled. O-PC verified the consent pin, one-week grant cap and
+  receipt instance over SSH. The agent is empty and the payloads were consumed.

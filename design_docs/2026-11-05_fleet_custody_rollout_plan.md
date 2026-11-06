@@ -43,7 +43,8 @@ Additional approval directions must be explicit in the reviewed setup.
 
 | Machines | Current receiving position | Next required work |
 |---|---|---|
-| O-PC, T-PC | Personal update/unlock and mutual root/device trust qualified for tested flows | Preserve baseline; qualify the Linux agent fix and later live remote consent |
+| O-PC | Personal update/unlock and mutual root/device trust qualified for tested flows | Preserve baseline; later live remote consent |
+| T-PC | On the fleet cohort (e356/c538/23c) with its vault, root pin, persona drop-in and settings preserved; `bin_t` labels | Preserve baseline; later live remote consent |
 | S-PC | Original vault/CLI/SSH continuity, cold reopen and live O-PC consent over strict SSH verified | Preserve this baseline and its receipts |
 | R-PC | New protected vault, native first unlock, weekly settings and O-PC consent pin verified | Preserve fresh baseline and empty SSH agent until credentials are needed |
 | Y-PC | New protected vault, native first unlock through Zenity, weekly settings, `bin_t` custody labels and O-PC consent pin verified | Preserve fresh baseline and empty SSH agent until credentials are needed |
@@ -247,8 +248,12 @@ not qualify Windows PowerShell 5's quoting path.
   "Persistent bin_t rule": a `semanage fcontext` rule giving
   `/usr/local/libexec/djinn-.*` the `bin_t` type, `restorecon` over every
   installed path, and a journal/AVC denial check before relying on it. Stock
-  types only; no custom policy module.
-  Links: area platform · plans Fedora receiving · summary label custody binaries bin_t on SELinux hosts
+  types only; no custom policy module. Refined the same day: T-PC's bb0d
+  custodian had run as `usr_t` under enforcing since 2026-11-04, so the exec
+  failure the question cited does not occur. Asked again, Mark chose "Keep
+  rule, fleet-wide": the explicit stock `bin_t` rule is for consistency on
+  every SELinux host, T-PC included at its update.
+  Links: area platform · plans Fedora receiving · summary label custody binaries bin_t on every SELinux host
 - **fleet_custody_rollout D3 (2026-11-05).** On GNOME the resident prompts
   through Zenity, and Mere's only exact-binary confirmation test fakes KDialog.
   Mark chose "Both": run Y-PC's real Zenity 4.2.2 with the exact unlock and
@@ -260,6 +265,13 @@ not qualify Windows PowerShell 5's quoting path.
   chose "Driver waits for Enter": the receiver's owner mode ends with a
   close prompt on success or failure, launched as `ptyxis -s --new-window --`.
   Links: area receiving · summary the driver holds Y-PC's window open
+- **fleet_custody_rollout D5 (2026-11-05).** T-PC runs custodian bb0d9c9 and
+  an unrecorded personal resident build (`9f634052…`, 119714632 bytes) behind a
+  persona drop-in. Asked what its update should replace, Mark chose "Custodian
+  and resident": move T-PC onto the qualified cohort (e356 custodian, c538
+  resident, 23c client), after showing c538 accepts the drop-in's arguments,
+  keeping config, protected state, root pin and grants.
+  Links: area receiving · draws on S-PC and R-PC cohort qualification · summary T-PC joins the fleet cohort
 
 ## Findings
 
@@ -431,3 +443,13 @@ not qualify Windows PowerShell 5's quoting path.
   and no AVC records appeared during the run. Both custody sockets and the
   resident are enabled. O-PC verified the consent pin, one-week grant cap and
   receipt instance over SSH. The agent is empty and the payloads were consumed.
+- 2026-11-05: prepared T-PC's cohort update under D5. A dedicated updater keeps
+  config, protected state, root pin, unit, persona drop-in, weekly settings and
+  owner settings, swaps e356/c538 in atomically, adds the 23c client, applies
+  the D2 rule and keeps xz rollback copies of bb0d and 9f63. Nine sandbox helper
+  checks and PS5 VerifyOnly pass. The attended T-PC window awaits sign-off.
+- 2026-11-05: T-PC run 01 rolled back cleanly on a false positive in the
+  updater's identity check (live Knot sync writes under `personas/`). Run 02
+  passed: T-PC now runs e356/c538/23c with its vault, O-PC consent pin, persona
+  drop-in, weekly settings and owner settings preserved, and O-PC read the
+  state back over SSH. X-PC and the Macs remain.

@@ -625,3 +625,58 @@ since the run started, no failure outcome. `y-pc-live-root-readback-01.json`
 both sockets active and enabled, resident active and enabled, agent empty,
 both executables `bin_t`, payload directory empty, weekly `lock.toml`
 `807ba9fb�ba36`. The window unit has exited.
+
+## 2026-11-05: T-PC cohort update packet
+
+Evidence lives in `Code/testing/dramatis/fleet-policy/t-pc-update/`.
+Read-only inventory: Fedora 45 GNOME Wayland, SELinux enforcing. Custodian
+bb0d9c9 (`usr_t`, active since 2026-11-04 20:03), helper 528, resident
+`9f634052…` (119714632 bytes, installed 2026-11-01, not in any earlier receipt)
+behind drop-in `10-fresh-persona-20261023.conf`. The custody agent is empty;
+T-PC's SSH key is the file `~/.ssh/id_ed25519` via the gcr agent. Relay state:
+O-PC root pin, target `2cb17ee3…9ace`, consent only, 604800-second cap, no
+enrollments, unlocked, generation 2. c538's usage line equals 9f63's, so the
+drop-in's `--dir` and `--data-root` carry over. Owner settings hold `sync`,
+`knot` and `distillery`, so the updater checks them for equality and accepts
+only one added personae-vault approval instead of using the stock validator.
+
+Measured xz rollback copies: custodian 4402444 bytes, resident 23573980 bytes.
+Staged peak 152162804 bytes (rollback copies plus the three replacement temps).
+`helper-qualification-01.json`: nine sandbox cases pass on T-PC (stage/commit,
+restore, wrong-bytes restore refusal, changed-donor refusal, foreign-client
+refusal, xz round trip, settings acceptance and four refusal shapes, identity
+snapshot). The first VerifyOnly refused Cargo's hard-linked donors (`nlink` 2);
+donors are now checked by hash only, since the copy is verified as written.
+Manifest `9ea38b9393da9fb74f5ceb28a0066feb43177037e2477a389f95bcecba456cb7`,
+driver `6493ddcc6bd3ece4bd0ec7ef5684f0719b19112ee9d8bac689ae375e7ed28f57`.
+PS5 VerifyOnly exit 0; a zero manifest hash was refused. No window opened.
+
+T-PC run 01 (window `djinn-t-pc-update-01`, opened at the owner's word): backups
+4379088 and 23213308 bytes xz; e356 and c538 installed, custody executables
+`bin_t`, zero AVC records after start and at failure; native unlock through
+Zenity reopened the pinned master; personae-vault admission passed and the
+settings check accepted the one added approval (`01cffa58…` to `4605f126…`).
+The verify stage then failed and rolled back: every cleanup step exited 0 and
+bb0d/9f63 were reinstalled, services active, custody unlocked again by the
+owner, pinned files unchanged. Cause, from current state and the journal: the
+updater's identity snapshot compared sizes and times under `personas/`, which
+holds the resident's live Knot `sync.redb` (written 21:28:56). The outcome did
+not record the exception text. Run 02's driver compares which identity files
+exist, reuses the identical prior approval, records the error text and uses
+`t-pc-update-02` for private state; run 01's files are kept under `-01` names.
+Ten helper cases pass. Manifest
+`a6ce84f1b9d8c217c29d7bade999cd0ac52b8db7dcade051e1b992acbdf990c1`, driver
+`3f0b55edc420b54f8ec33e85533728c77822ab2e757bcab4cf49eef2f770ed52`; PS5
+VerifyOnly exit 0, zero hash refused.
+
+T-PC run 02 passed (`update-result-02.json` SHA256
+`3cbfaad452c0ec9cc8047cd1d06136e21e9f659ff0bc4ae77a02f9fa05736379`): e356, c538,
+23c and helper 528 installed; custody `bin_t`; zero AVC records after start and
+at the end; cold generation 1 to 2, instance `22cf42c7…428b`; the run-01
+approval was reused unchanged (`4605f126…`); custody agent empty, as before.
+`t-pc-live-root-readback-02.json` (O-PC over strict SSH): O-PC root pin, target
+`2cb17ee3…9ace`, consent only, 604800-second cap, no enrollments, unlocked,
+instance equal to the receipt; sockets and resident active and enabled; config,
+clients, polkit policy, unit, persona drop-in and weekly `lock.toml` unchanged;
+no staging temps left. Root-private xz rollback copies remain for runs 01 and 02
+(about 27.6 MB each).

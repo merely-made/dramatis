@@ -277,3 +277,53 @@ matched S authentication process exiting on its own. The pilot unit was inactive
 and both existing services remained active. This qualifies one consent direction
 over the existing SSH carrier. Approval-only opening and P2P routing remain
 separate rollout gates.
+
+## 2026-11-05: R-PC first-install qualification and handoff
+
+The owner chose a new R-PC vault under the existing O-PC consent authority.
+R-PC's active Wayland desktop and native authentication agent were verified.
+The checked resident, custody and vault paths were empty before launch. The
+existing weekly idle setting was present. The packet uses the qualified e356
+custodian, 528 helper, c538 resident and 23c client without rebuilding them.
+
+`r-pc-artifact-qualification-01.json` records four actual R-PC loader outcomes
+and removal of their generated raw copies. The resident's compact XZ delivery
+replaced the earlier verified staging archive. All four compressed inputs and
+shared reserves total 95127079 bytes. Serial expansion peaks at 156972520 bytes
+with the same reserves. Existing S-PC recovery stays in place.
+
+`r-pc-fresh-bootstrap-01.json` verifies new profile creation with the exact
+custodian in an isolated fixture. Mismatched entries left the directory empty,
+duplicate initialization preserved the encrypted vault, and the consent-only
+authority store passed init/readback with duplicate initialization refused.
+The fixture was removed. The two stock installers are used with activation
+deferred until the protected policy and native identity checks pass.
+
+Manifest SHA256
+`38480ac3bf5e0dbe69f0933d537911d1ad16b67746cf4ad4dbdb1cd800011eb7`
+binds the product cohort, actual loader and bootstrap receipts, reviewed
+recipes and driver. Actual Windows PS5 preflight passed and refused a changed
+hash. The dispatcher opened one Konsole under invocation
+`cb4d5bd6705343e8ac1d6d59256c1978`. The owner entered before the first metadata
+snapshot. At that snapshot the foreground sudo and root driver were active and
+the new config existed. Native vault and root-pin acceptance are pending at
+this handoff record. Terminal contents were not captured.
+
+## 2026-11-05: R-PC new vault and O-PC consent pin verified
+
+`r-pc-native-result-01.json`, SHA256
+`b4f2d21540967776bdc8cec34278ff2c0948b6a52a440b0e695ee3a76a042e30`, records the
+new public master, first native unlock, actual owner-approved vault client,
+protected storage and the new agent's empty identity list. The first cold
+instance advanced from locked generation 1 to unlocked generation 2. The
+installed policy hash is
+`6843b788095c382d7ca04e29d50d361c70f6d3e025ce25b09a1d75eba85479ef`.
+Its vault maximum is 604800 seconds and R-PC's idle setting is 10080 minutes.
+
+O-PC independently read the protected state over the strict SSH carrier.
+`r-pc-live-root-readback-01.json`, SHA256
+`564ae49a609a2c2d85874cb2e75a6d07293b2b8dba7aee22a02c26223d22612e`, matches the
+new R-PC profile, O-PC authority/issuer, consent action, one-week grant cap,
+empty peer ledger and the native instance/generation. The resident and both
+custody sockets were active and enabled. All delivery archives were consumed.
+The separate live signing pilot receipt remains scoped to O-PC to S-PC.

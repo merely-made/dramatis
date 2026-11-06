@@ -2,9 +2,9 @@
 
 **Status, 2026-11-05: in progress.** O-PC/T-PC have qualified personal receiving
 and root-trust setup. S-PC passed local receiving, cold reopen, outbound SSH and
-one live consent from O-PC over SSH. R-PC is next for personal receiving. All
-eight have saved weekly idle settings. The expanded synthetic Linux confinement
-gate passed on S-PC, Y-PC, R-PC and X-PC.
+one live consent from O-PC over SSH. R-PC passed fresh receiving and O-PC consent
+pin readback. All eight have saved weekly idle settings. The expanded synthetic
+Linux confinement gate passed on S-PC, Y-PC, R-PC and X-PC.
 
 The certificate-bearing agent path subsequently exposed a confined-hostname
 syscall failure on S-PC. The [agent continuity receipts](archive_docs/receipts/2026-11-05_fleet_agent_continuity_receipts.md)
@@ -44,7 +44,7 @@ Additional approval directions must be explicit in the reviewed setup.
 |---|---|---|
 | O-PC, T-PC | Personal update/unlock and mutual root/device trust qualified for tested flows | Preserve baseline; qualify the Linux agent fix and later live remote consent |
 | S-PC | Original vault/CLI/SSH continuity, cold reopen and live O-PC consent over strict SSH verified | Preserve this baseline and its receipts |
-| R-PC | Weekly idle setting saved, active native desktop, expanded agent gate passed, checked vault locations empty | Confirm identity source, then personal receiving with O-PC as consent authority |
+| R-PC | New protected vault, native first unlock, weekly settings and O-PC consent pin verified | Preserve fresh baseline and empty SSH agent until credentials are needed |
 | Y-PC, X-PC | Checked resident/custodian and standard-path store locations empty, expanded certificate/signing gate passed | Locate identity state before personal setup |
 | Q-PC, iMac-M4 | Running legacy macOS residents; standard vault/data present | Exact signed host/consumer integration and personal receiving |
 
@@ -372,3 +372,11 @@ not qualify Windows PowerShell 5's quoting path.
   acknowledgment and the target authentication helper exited. The installed
   resident stayed active, and the consent pin and generation matched afterward.
   R-PC is next after confirming its vault source.
+- 2026-11-05: the owner chose a new R-PC vault. The exact four Linux binaries
+  passed loader checks there. The isolated fresh bootstrap and duplicate-init
+  checks passed, the compact packet fits both storage caps, and actual PS5
+  VerifyOnly passed. The owner started one native R-PC window.
+- 2026-11-05: R-PC passed native first unlock with the new local master and
+  owner-approved vault client. Both custody sockets and the resident are enabled.
+  O-PC verified the consent pin and one-week grant cap over SSH. The fresh agent
+  has an empty identity list and the delivery inputs were consumed.

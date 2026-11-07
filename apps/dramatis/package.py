@@ -135,6 +135,9 @@ def generated_notices():
 
 
 def licenses(args):
+    accepted = tomllib.loads((PACKAGE / "about.toml").read_text(encoding="utf-8"))["accepted"]
+    allowed = tomllib.loads((REPOSITORY / "deny.toml").read_text(encoding="utf-8"))["licenses"]["allow"]
+    require(sorted(accepted) == sorted(allowed), "about.toml's accepted licences differ from deny.toml's allow list")
     current = generated_notices()
     if args.check:
         require(NOTICES.is_file() and NOTICES.read_bytes().replace(b"\r\n", b"\n") == current,
@@ -175,6 +178,20 @@ def config(args):
     return path
 
 
+def luggage_manifest(args):
+    """Build luggage-manifest from the source the app's lock pins, into the app's target."""
+    meta = json.loads(output(["cargo", "+" + args.toolchain, "metadata", "--locked", "--format-version", "1"]))
+    sources = [p for p in meta["packages"] if p["name"] == "luggage"]
+    require(len(sources) == 1, "expected one locked luggage source")
+    print("luggage source:", sources[0]["id"], flush=True)
+    target = target_dir(args)
+    # The checkout under CARGO_HOME is cargo's; its build directory stays in the app's target.
+    run(["cargo", "+" + args.toolchain, "build", "--manifest-path", sources[0]["manifest_path"],
+         "--bin", "luggage-manifest", "--features", "native", "--locked", "--target-dir", str(target),
+         "--config", f"build.build-dir='{(target / 'luggage-build').as_posix()}'", "-j", str(args.jobs)])
+    return target / "debug" / ("luggage-manifest.exe" if os.name == "nt" else "luggage-manifest")
+
+
 def pack(args):
     if not os.environ.get("CARGO_PACKAGER_SIGN_PRIVATE_KEY"):
         raise ValueError("Set CARGO_PACKAGER_SIGN_PRIVATE_KEY outside the repository before packing.")
@@ -196,8 +213,7 @@ def pack(args):
     artifact = artifacts[0]
     require(Path(str(artifact) + ".sig").is_file(), "packager did not sign the artifact")
     manifest = out / "luggage.json"
-    command = cargo(args, "run", "-p", "luggage", "--bin", "luggage-manifest", "-j", str(args.jobs))
-    command += ["--", "--artifact", str(artifact), "--version", info["version"], "--format", args.format, "--out", str(manifest)]
+    command = [str(luggage_manifest(args)), "--artifact", str(artifact), "--version", info["version"], "--format", args.format, "--out", str(manifest)]
     if args.artifact_url:
         if not args.artifact_url.startswith("https://"):
             raise ValueError("Published artifact URLs must use HTTPS.")

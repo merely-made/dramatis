@@ -49,8 +49,9 @@ pub struct Spec<'a> {
     pub agent: bool,
 }
 
-/// Create the vault under `root` and serve it on a socket there.
-#[cfg(unix)]
+/// Create the vault under `root` and serve it: on a socket there on Unix, on
+/// a named pipe of the fixture's own on Windows.
+#[cfg(any(unix, windows))]
 pub fn start(root: &Path, spec: Spec<'_>) -> Result<Fixture, String> {
     start_inner(root, spec, true, root.join("run"), None)
 }
@@ -102,9 +103,8 @@ pub fn receipt(root: &Path, spec: Spec<'_>, create: bool) -> Result<Fixture, Str
     start_inner(&state, spec, create, run, Some(lock))
 }
 
-#[cfg(unix)]
+#[cfg(any(unix, windows))]
 fn start_inner(root: &Path, spec: Spec<'_>, create: bool, run: PathBuf, lease: Option<Arc<std::fs::File>>) -> Result<Fixture, String> {
-    use std::os::unix::fs::PermissionsExt;
     let vault = root.join("vault");
     let data_root = root.join("data");
     if create {
@@ -117,37 +117,29 @@ fn start_inner(root: &Path, spec: Spec<'_>, create: bool, run: PathBuf, lease: O
     } else if !vault.is_dir() || vault.is_symlink() || !data_root.is_dir() || data_root.is_symlink() {
         return Err("receipt fixture vault or wallet root missing or unsafe".into());
     }
-    let uid = custody_wire::peer::effective_uid();
+    let account = Account::current()?;
     let first = spec.profiles.first().ok_or("a fixture needs a profile")?.0;
     let config = serde_json::json!({
         "vault": {"directory": vault, "profile": first, "data_root": data_root},
-        "owner": {"unix_uid": uid}, "consent": spec.consent, "development": true,
-        "principals": [{"name": "djinn", "match": {"unix-uid": uid}, "grants": spec.grants}]
+        "owner": account.owner(), "consent": spec.consent, "development": true,
+        "principals": [{"name": "djinn", "match": account.principal(), "grants": spec.grants}]
     });
     let config = Config::parse(&serde_json::to_vec(&config).map_err(|e| e.to_string())?).map_err(|e| e.0)?;
-    std::fs::create_dir(&run).map_err(|e| e.to_string())?;
-    std::fs::set_permissions(&run, std::fs::Permissions::from_mode(0o700)).map_err(|e| e.to_string())?;
-    let socket = run.join("custody.sock");
-    let listener = custody_wire::transport::UnixSocketListener::bind(&socket).map_err(|e| e.to_string())?;
+    let (listener, endpoint) = account.listen(&run)?;
     let service = Arc::new(Service::new(Core::start(config).map_err(|r| r.to_string())?, spec.mechanism)
         .with_fixture_lease(lease));
     let serving = Arc::clone(&service);
     std::thread::Builder::new()
         .name("fixture-custodian".into())
-        .spawn(move || serving.serve(&listener))
+        .spawn(move || serving.serve(&*listener))
         .map_err(|e| e.to_string())?;
+    account.ready(&endpoint)?;
     let agent = match spec.agent {
-        true => {
-            let path = run.join("agent.sock");
-            let listener = std::os::unix::net::UnixListener::bind(&path).map_err(|e| e.to_string())?;
-            std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600)).map_err(|e| e.to_string())?;
-            crate::agent::spawn(Service::clone(&service), listener, Some(uid)).map_err(|e| e.to_string())?;
-            Some(path)
-        },
+        true => Some(account.agent(&service, &run, &endpoint)?),
         false => None,
     };
     let client_file = root.join("client.json");
-    let client = serde_json::json!({"endpoint": socket, "server": {"unix_uids": [uid]}, "agent": agent});
+    let client = serde_json::json!({"endpoint": endpoint, "server": account.server(), "agent": agent});
     std::fs::write(&client_file, serde_json::to_vec(&client).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
     Ok(Fixture {
         vault,
@@ -156,6 +148,134 @@ fn start_inner(root: &Path, spec: Spec<'_>, create: bool, run: PathBuf, lease: O
         agent,
         service,
     })
+}
+
+/// The caller's own account: the fixture's owner, its one principal and
+/// the server a client expects.
+#[cfg(unix)]
+struct Account(u32);
+
+#[cfg(unix)]
+impl Account {
+    fn current() -> Result<Self, String> {
+        Ok(Self(custody_wire::peer::effective_uid()))
+    }
+    fn owner(&self) -> serde_json::Value {
+        serde_json::json!({"unix_uid": self.0})
+    }
+    fn principal(&self) -> serde_json::Value {
+        serde_json::json!({"unix-uid": self.0})
+    }
+    fn server(&self) -> serde_json::Value {
+        serde_json::json!({"unix_uids": [self.0]})
+    }
+    fn listen(&self, run: &Path) -> Result<(Box<dyn custody_wire::transport::Listener + Send>, PathBuf), String> {
+        use std::os::unix::fs::PermissionsExt;
+        std::fs::create_dir(run).map_err(|e| e.to_string())?;
+        std::fs::set_permissions(run, std::fs::Permissions::from_mode(0o700)).map_err(|e| e.to_string())?;
+        let socket = run.join("custody.sock");
+        let listener = custody_wire::transport::UnixSocketListener::bind(&socket).map_err(|e| e.to_string())?;
+        Ok((Box::new(listener), socket))
+    }
+    /// A bound socket already accepts.
+    fn ready(&self, _: &Path) -> Result<(), String> {
+        Ok(())
+    }
+    fn agent(&self, service: &Service, run: &Path, _: &Path) -> Result<PathBuf, String> {
+        use std::os::unix::fs::PermissionsExt;
+        let path = run.join("agent.sock");
+        let listener = std::os::unix::net::UnixListener::bind(&path).map_err(|e| e.to_string())?;
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600)).map_err(|e| e.to_string())?;
+        crate::agent::spawn(Service::clone(service), listener, Some(self.0)).map_err(|e| e.to_string())?;
+        Ok(path)
+    }
+}
+
+#[cfg(windows)]
+struct Account(String);
+
+#[cfg(windows)]
+impl Account {
+    fn current() -> Result<Self, String> {
+        custody_wire::peer::current_user_sid().map(Self).map_err(|e| e.to_string())
+    }
+    fn owner(&self) -> serde_json::Value {
+        serde_json::json!({"windows_sid": self.0})
+    }
+    fn principal(&self) -> serde_json::Value {
+        serde_json::json!({"windows-sid": self.0})
+    }
+    fn server(&self) -> serde_json::Value {
+        serde_json::json!({"windows_sids": [self.0]})
+    }
+    /// The installed custodian's pipe and admission, under a name of the
+    /// fixture's own so it never meets an installed custodian.
+    fn listen(&self, _: &Path) -> Result<(Box<dyn custody_wire::transport::Listener + Send>, PathBuf), String> {
+        let name = format!(r"\\.\pipe\djinn-custodian-fixture-{}", uuid::Uuid::new_v4());
+        custody_wire::transport::admit_identification(std::slice::from_ref(&self.0)).map_err(|e| format!("admit the owner: {e}"))?;
+        Ok((Box::new(custody_wire::transport::NamedPipeListener::new(&name, &self.0)), name.into()))
+    }
+    /// The listener makes its first instance on the serving thread; wait
+    /// for it without connecting, as a client finding none fails at once.
+    fn ready(&self, endpoint: &Path) -> Result<(), String> {
+        use windows_sys::Win32::System::Pipes::WaitNamedPipeW;
+        let name: Vec<u16> = endpoint.as_os_str().to_string_lossy().encode_utf16().chain([0]).collect();
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(10);
+        // SAFETY: a live NUL-terminated pipe name.
+        while unsafe { WaitNamedPipeW(name.as_ptr(), 50) } == 0 {
+            if std::time::Instant::now() > deadline {
+                return Err("the fixture pipe never appeared".into());
+            }
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        }
+        Ok(())
+    }
+    fn agent(&self, service: &Service, _: &Path, endpoint: &Path) -> Result<PathBuf, String> {
+        let name = format!("{}-agent", endpoint.display());
+        crate::agent_pipe::spawn(Service::clone(service), name.clone(), self.0.clone()).map_err(|e| e.to_string())?;
+        Ok(name.into())
+    }
+}
+
+#[cfg(all(test, any(unix, windows)))]
+mod transport_tests {
+    use super::*;
+    use custody_wire::contract::{Answer, Outcome};
+    use custody_wire::secret::Secret;
+    use custody_wire::{Client, Operation, ServerExpectation};
+    use std::time::Duration;
+
+    const PASSPHRASE: &str = "public transport fixture";
+
+    fn connector(endpoint: &str) -> Box<dyn custody_wire::transport::Connector> {
+        #[cfg(unix)]
+        return Box::new(custody_wire::transport::UnixSocketConnector::new(endpoint));
+        #[cfg(windows)]
+        return Box::new(custody_wire::transport::NamedPipeConnector::new(endpoint));
+    }
+
+    /// Djinn's way in: the client file, the platform transport and the
+    /// owner's admission, then an operation only the principal's grant allows.
+    #[test]
+    fn a_client_file_reaches_the_fixture_and_a_wrong_server_is_refused() {
+        let root = tempfile::tempdir().unwrap();
+        let fixture = start(root.path(), Spec {
+            passphrase: PASSPHRASE,
+            profiles: &[("family", "Family", [0x52; 32])],
+            grants: serde_json::json!([{"operation": "status"}, {"operation": "unlock"}]),
+            consent: "deny",
+            mechanism: None,
+            agent: false,
+        }).unwrap();
+        let file = crate::helper::ClientFile::read(&fixture.client_file).unwrap();
+        let wrong = ServerExpectation { unix_uids: vec![u32::MAX], windows_sids: vec!["S-1-5-18".into()], ..ServerExpectation::default() };
+        assert!(Client::open(&*connector(&file.endpoint), &wrong).is_err(), "only the owner's own server is admitted");
+        let client = Client::open(&*connector(&file.endpoint), &file.server).unwrap();
+        let status = client.call(Operation::Status {}, Duration::from_secs(10));
+        assert!(matches!(status, Outcome::Success { answer: Answer::Status { .. } }), "{status:?}");
+        let unlocked = client.call(Operation::Unlock { passphrase: Secret::copy_from(PASSPHRASE.as_bytes()) }, Duration::from_secs(30));
+        assert!(matches!(unlocked, Outcome::Success { answer: Answer::Unlocked { .. } }), "{unlocked:?}");
+    }
 }
 
 impl Fixture {

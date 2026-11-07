@@ -126,7 +126,9 @@ def consent_control():
     try:
         GATE.write_bytes(broken)
         # Without this process-scoped flag the broken build still asks for consent.
-        run("control-unflagged", suite + ["--", "--exact", FOCUSED], MERE, ordinary, patched=True)
+        log = run("control-unflagged", suite + ["--", "--exact", FOCUSED], MERE, ordinary, patched=True)
+        # The suite is cfg(unix) since custody isolation H2; zero tests proves nothing.
+        assert "running 1 test" in log and "test result: ok. 1 passed" in log, "the focused test did not run"
         log = run("negative-consent", suite + ["--", "--exact", FOCUSED], MERE, dict(ordinary, **{FLAG: "1"}), expected=101, patched=True)
         assert f"{FOCUSED} ... FAILED" in log and "error[E" not in log
     finally:
@@ -244,6 +246,8 @@ def main():
     if args.control_only:
         return write("control-scope.json", **consent_control())
     if args.window_only:
+        if not args.skip_build:
+            mere("host-build", "build", "-p", "mere-resident", "--bin", "dramatis-review-host", "--features", "custody-receipt-host,cxf")
         app("app-build", "build", "-p", "dramatis-app", "--bin", "dramatis-ui")
         app("app-state", "test", "-p", "dramatis-app", "--test", "state")
         app("interaction", "test", "-p", "dramatis-app", "--test", "interaction")

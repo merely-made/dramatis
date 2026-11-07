@@ -79,6 +79,8 @@ def main():
         shutil.copyfile(Path(str(private) + ".pub"), public)
         shutil.copyfile(Path(str(other) + ".pub"), public_other)
         env = dict(os.environ, CARGO_PACKAGER_SIGN_PRIVATE_KEY=str(private), CARGO_PACKAGER_SIGN_PRIVATE_KEY_PASSWORD="")
+        # Regenerated from the lock; a stale committed copy is refused.
+        run("licenses", [sys.executable, str(APP / "package.py"), "licenses", "--check"])
         # Only the local gate's child gets the ephemeral signing identity.
         run("pack", [sys.executable, str(APP / "package.py"), "pack", "--profile", "dev", "--jobs", "1"], env)
         feed = GENERATED / "dev/nsis"
@@ -97,7 +99,9 @@ def main():
             entries = [p.relative_to(scratch).as_posix() for p in scratch.rglob("*") if p.is_file() and p.name != ".dramatis-generated"]
             forbidden = [p for p in entries if any(s in p.lower() for s in ["djinn.exe", "dramatis-review-host", "personae-vault", ".key", "luggage.json"])]
             assert not forbidden, forbidden
-            apps = list(scratch.rglob("dramatis-ui.exe"))
+            notices = {Path(p).name for p in entries} & {"LICENSE", "LICENSES.md"}
+            assert notices == {"LICENSE", "LICENSES.md"}, ("installer notices", sorted(notices))
+            apps =list(scratch.rglob("dramatis-ui.exe"))
             assert len(apps) == 1
             info = package.validate_binary(apps[0])
             run("version", [str(apps[0]), "--version"])
@@ -117,7 +121,8 @@ def main():
         receipt = {"platform": "windows-x86_64", "profile": "dev", "synthetic_signing_only": True,
                    "native_host_qualification": {"Windows": "debug package pipeline passed; release/installed trust pending", "Fedora": "pending; wait until reachable", "macOS Intel": "pending; wait until reachable", "macOS ARM": "pending; wait until reachable"},
                    "source_revision": git("rev-parse", "HEAD"), "controller_sha256": digest(Path(__file__)),
-                   "compiled_source_sha256": package.source_hash(), "commands": records, "manifest": manifest,
+                   "compiled_source_sha256": package.source_hash(), "licenses_md_sha256": digest(package.NOTICES),
+                   "commands": records, "manifest": manifest,
                    "package_path": str(artifact), "package_feed_sha256": before,
                    "scope": "test-signed debug installer; extracted native client; signed manifest/artifact, publisher, staging tamper gates; no installation, publication or actual vault"}
         receipt["artifacts_sha256"] = {p.name: digest(p) for p in OUT.iterdir() if p.is_file() and p.name != "receipt.json"}

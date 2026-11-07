@@ -20,10 +20,13 @@ import platform
 import shlex
 import subprocess
 import sys
+import tempfile
 import tomllib
 
 PACKAGE = Path(__file__).resolve().parent
 ROOT = PACKAGE  # its own workspace
+REPOSITORY = PACKAGE.parents[1]  # LICENSE lives at the repository root
+NOTICES = PACKAGE / "LICENSES.md"
 MARKER = ".dramatis-packaging.json"
 DJINN_SOURCE_FLOOR = "ec1e65caed335010308566c8db51ad0e1e002799"
 
@@ -121,6 +124,25 @@ def prepare(args):
     return info
 
 
+def generated_notices():
+    """LICENSES.md as cargo-about writes it from the current lock (LF line ends)."""
+    with tempfile.TemporaryDirectory() as scratch:
+        out = Path(scratch) / "LICENSES.md"
+        # --fail: a licence outside about.toml's accepted list stops generation.
+        run(["cargo", "about", "generate", "--locked", "--fail", "--config", str(PACKAGE / "about.toml"),
+             "--output-file", str(out), str(PACKAGE / "about.hbs")])
+        return out.read_bytes().replace(b"\r\n", b"\n")
+
+
+def licenses(args):
+    current = generated_notices()
+    if args.check:
+        require(NOTICES.is_file() and NOTICES.read_bytes().replace(b"\r\n", b"\n") == current,
+                "LICENSES.md is stale; run `python package.py licenses`")
+    else:
+        NOTICES.write_bytes(current)
+
+
 def camel(name):
     head, *tail = name.split("-")
     return head + "".join(s.title() for s in tail)
@@ -140,9 +162,9 @@ def config(args):
     cfg = config_keys(package["metadata"]["packager"])
     cfg.update(name=package["name"], version=package["version"], description=package["description"],
                binariesDir=str(profile_dir(args)), outDir=str(out / args.format),
-               licenseFile=str(ROOT / "LICENSE"))
+               licenseFile=str(REPOSITORY / "LICENSE"))
     cfg["icons"] = [str(PACKAGE / name) for name in package["metadata"]["packager"]["icons"]]
-    cfg["resources"] = [str(PACKAGE / "package-requirements.txt"), str(ROOT / "LICENSE"), str(ROOT / "LICENSES.md"), str(out / "release-info.json")]
+    cfg["resources"] = [str(PACKAGE / "package-requirements.txt"), str(REPOSITORY / "LICENSE"), str(NOTICES), str(out / "release-info.json")]
     command = [sys.executable, str(Path(__file__).resolve()), "prepare", "--profile", args.profile,
                "--jobs", str(args.jobs), "--toolchain", args.toolchain, "--target-dir", str(target_dir(args))]
     cfg["beforePackagingCommand"] = {"script": subprocess.list2cmdline(command) if os.name == "nt" else shlex.join(command), "dir": str(ROOT)}
@@ -164,6 +186,7 @@ def pack(args):
         dirty = output(["git", "diff", "--name-only", "HEAD"]).splitlines()
         dirty += output(["git", "ls-files", "--others", "--exclude-standard"]).splitlines()
         require(not any(p.endswith((".rs", "Cargo.toml", "Cargo.lock")) for p in dirty), "commit compiled source before a release build")
+    licenses(argparse.Namespace(check=True))
     run(["cargo", "packager", "--config", str(config(args)), "--formats", args.format])
     info = validate_binary(binary(args))
     out = output_dir(args) / args.format
@@ -186,7 +209,8 @@ def pack(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=["prepare", "pack"])
+    parser.add_argument("action", choices=["prepare", "pack", "licenses"])
+    parser.add_argument("--check", action="store_true", help="licenses: refuse a stale LICENSES.md instead of writing it")
     parser.add_argument("--profile", choices=["dev", "release"], default="release")
     parser.add_argument("--format", choices=["nsis", "app", "appimage"], default={"Windows": "nsis", "Darwin": "app", "Linux": "appimage"}[platform.system()])
     parser.add_argument("--jobs", type=int, default=1)
@@ -202,7 +226,7 @@ def main():
     expected = {"Windows": "nsis", "Darwin": "app", "Linux": "appimage"}[platform.system()]
     if args.format != expected:
         parser.error(f"Qualify natively on the {args.format} host; this host uses {expected}.")
-    (prepare if args.action == "prepare" else pack)(args)
+    {"prepare": prepare, "pack": pack, "licenses": licenses}[args.action](args)
 
 
 if __name__ == "__main__":

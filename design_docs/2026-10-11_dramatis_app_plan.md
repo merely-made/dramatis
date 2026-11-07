@@ -178,6 +178,28 @@ its option and the non-Windows formats remain unqualified on Windows.
   Mark on finding that Mere's GUI crates name `dramatis`, `personae` and `castellan-client`
   through `dramatis.git`, so path dependencies here would double their types, and that the
   root lock had no git package. Outcome: new.
+- **D5. Port the receipt drivers, then remove Mere's copy (Mark, 2026-11-06):** "Port drivers,
+  then remove", over removing `ports/dramatis` at once and over removing it after one native run.
+  Outcome: new.
+- **D6. Drivers build the resident in a sibling Mere checkout (Mark, 2026-11-06):** "Sibling Mere
+  checkout", over building from the locked `mere.git` revision and over splitting the drivers
+  between the two repositories. Outcome: new.
+- **D7. Re-author the review driver (Mark, 2026-11-06):** "Re-author it", over porting only its
+  live steps and over retiring it. Put to Mark on finding its consent gate moved to
+  `dramatis-resident/src/keeper/review.rs` and its store-discovery test deleted in Mere H2.
+  Outcome: new.
+- **D8. The custody fixture serves on the named pipe on Windows (Mark, 2026-11-07):** "Named-pipe
+  transport in Mere", then "Both repos" on finding the fixture in this repository and the pipe
+  transport already in `custody-wire`; over a Windows-plus-Unix split of the review receipt and
+  over dropping the locked and unlocked captures. Outcome: new.
+- **D9. Receipts live outside the repository (Mark, 2026-11-07):** "Outside, hashes in archive".
+  Outcome: applies the repository plan's "Move both out" (2026-11-01).
+- **D10. Generated third-party notices under one enforced licence list (Mark, 2026-11-07):**
+  "Generate LICENSES.md", over copying Mere's (a licence-posture document, not notices) and over
+  shipping `LICENSE` alone; then "deny.toml allow-list first", over an about.toml-only list.
+  `deny.toml` holds the list, `about.toml` copies it and packing refuses drift. Outcome: new.
+- **D11. `luggage-manifest` is built from the lock (Mark, 2026-11-07):** "Build it from the
+  lock", over `cargo install` from Eidetic and over a wrapper member. Outcome: new.
 
 ## Move (2026-11-06)
 
@@ -197,7 +219,8 @@ revisions and land in `Code/testing/dramatis/support-receipts/<name>/`, with the
 [the receipts file](archive_docs/receipts/2026-10-11_dramatis_app_plan_receipts.md). The custodian
 fixture serves on the custody-wire named pipe on Windows; Mere's quarantine review suite and review
 host still have to be widened to Windows on Mere's side before the review driver's custody gates run
-there. `package.py` ships the repository's `LICENSE` and this app's
+there; that waits on Mere building again (its `794a88c77` removed `scenomise::backdrops`
+before Knot adopted `sceno-backdrops`; Mark, 2026-11-07: "Wait for the Knot fix"). `package.py` ships the repository's `LICENSE` and this app's
 `LICENSES.md`, which cargo-about generates from the app's lock (`about.toml`); packing refuses a
 stale copy.
 

@@ -63,7 +63,8 @@ is tracked in the repository plan and Mere's workspace hygiene plan.
   historical sources and receipts retain Mere paths.
 - [dramatis_app_plan](2026-10-11_dramatis_app_plan.md): **moved from Mere with the app
   (2026-11-06)**: persona selection, local authentication and quarantine review through Djinn,
-  `apps/dramatis` as its own workspace (D1 to D4); Windows slice qualified, receipts in Mere.
+  `apps/dramatis` as its own workspace (D1 to D4); receipt drivers ported to `support/` (2026-11-07).
+  [Receipts](archive_docs/receipts/2026-10-11_dramatis_app_plan_receipts.md); earlier ones stay in Mere.
 - [castellan_custodian_integration](2026-10-22_castellan_custodian_integration.md):
   signed macOS native receiving design and evidence boundaries.
 - [fleet_custody_rollout](2026-11-05_fleet_custody_rollout_plan.md): remaining-six

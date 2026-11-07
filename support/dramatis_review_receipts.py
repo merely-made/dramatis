@@ -7,10 +7,10 @@
 """Reproduce the Windows Dramatis app's synthetic custody receipts and native captures.
 
 The app builds here. Djinn's review host and custody tests build in the sibling
-Mere checkout (--mere). The consent control breaks this checkout's review gate
-and runs Mere's test against it, with Mere's dramatis.git packages patched to
-this checkout through a lock copy in the receipt directory; no Mere file is
-written. No actual vault is opened. Deletes only marker-identified fixture data.
+Mere checkout (--mere), with every dramatis.git package patched to this
+checkout through a lock copy in the receipt directory, so they test this
+checkout; no Mere file is written. The consent control breaks this checkout's
+review gate and runs Mere's test against it. No actual vault is opened. Deletes only marker-identified fixture data.
 """
 from pathlib import Path
 import argparse, hashlib, json, os, shutil, subprocess, time, tomllib
@@ -18,7 +18,6 @@ import argparse, hashlib, json, os, shutil, subprocess, time, tomllib
 ROOT = Path(__file__).resolve().parents[1]
 APP = ROOT / "apps/dramatis"
 APP_TARGET = Path("C:/t/cargo-targets/dramatis-app")
-MERE_TARGET = Path("C:/t/cargo-targets/mere")
 GATE = ROOT / "crates/dramatis-resident/src/keeper/review.rs"
 FLAG = "DRAMATIS_SYNTHETIC_CONSENT_CONTROL"
 FOCUSED = "cards_are_secret_free_scoped_and_denial_preserves_the_item"
@@ -33,7 +32,8 @@ MERE_GIT = "https://github.com/merely-made/mere.git"
 CODE = ("*.rs", "*.toml", "Cargo.lock")
 records = []
 JOBS = 1
-OUT = MERE = None
+OUT = MERE = MERE_TARGET = None
+PATCH, PATCHED = [], []
 
 
 def git(repo, *args):
@@ -73,8 +73,24 @@ def app(name, *args, env=None, after=()):
     return run(name, cargo(ROOT, APP_TARGET, *args) + list(after), APP, env)
 
 
-def mere(name, *args, env=None, after=()):
-    return run(name, cargo(MERE, MERE_TARGET, *args) + list(after), MERE, env)
+def mere_cargo(*args):
+    return cargo(MERE, MERE_TARGET, *args, *PATCH)
+
+
+def mere(name, *args, env=None, after=(), expected=0):
+    return run(name, mere_cargo(*args) + list(after), MERE, env, expected, patched=True)
+
+
+def patch_mere():
+    """Resolve Mere's graph with this checkout's packages into a lock copy."""
+    lock = OUT / "mere-lock/Cargo.lock"  # cargo requires this file name
+    lock.parent.mkdir(exist_ok=True)
+    shutil.copyfile(MERE / "Cargo.lock", lock)
+    names, patch = patch_config(lock)
+    run("mere-lock", ["cargo", "+" + channel(MERE), "tree", "-p", "mere-resident", "--depth", "0", *patch], MERE, patched=True)
+    check_patched_lock(lock, names)
+    PATCH[:], PATCHED[:] = patch, names
+    return {"patched_packages": names, "patched_lock_sha256": digest(lock)}
 
 
 def lock_packages(path):
@@ -115,29 +131,22 @@ def consent_control():
     assert original.count(b"if !self", start) == 1, "the per-item consent gate moved"
     offset = original.index(b"if !self", start)
     broken = original[:offset] + b'if std::env::var_os("' + FLAG.encode() + b'").is_none() && !self' + original[offset + 8:]
-    lock = OUT / "control-lock/Cargo.lock"  # cargo requires this file name
-    lock.parent.mkdir()
-    shutil.copyfile(MERE / "Cargo.lock", lock)
-    names, patch = patch_config(lock)
-    run("control-lock", ["cargo", "+" + channel(MERE), "tree", "-p", "mere-resident", "--depth", "0", *patch], MERE, patched=True)
-    check_patched_lock(lock, names)
-    suite = cargo(MERE, MERE_TARGET, "test", "-p", "mere-resident", "--test", "quarantine_review", "--features", "cxf", *patch)
+    suite = ["test", "-p", "mere-resident", "--test", "quarantine_review", "--features", "cxf"]
     ordinary = {k: v for k, v in os.environ.items() if k != FLAG}
     try:
         GATE.write_bytes(broken)
         # Without this process-scoped flag the broken build still asks for consent.
-        log = run("control-unflagged", suite + ["--", "--exact", FOCUSED], MERE, ordinary, patched=True)
-        # The suite is cfg(unix) since custody isolation H2; zero tests proves nothing.
+        log = mere("control-unflagged", *suite, env=ordinary, after=["--", "--exact", FOCUSED])
+        # Zero tests (a platform gate) would prove nothing.
         assert "running 1 test" in log and "test result: ok. 1 passed" in log, "the focused test did not run"
-        log = run("negative-consent", suite + ["--", "--exact", FOCUSED], MERE, dict(ordinary, **{FLAG: "1"}), expected=101, patched=True)
+        log = mere("negative-consent", *suite, env=dict(ordinary, **{FLAG: "1"}), after=["--", "--exact", FOCUSED], expected=101)
         assert f"{FOCUSED} ... FAILED" in log and "error[E" not in log
     finally:
         GATE.write_bytes(original)
     assert GATE.read_bytes() == original and not git(ROOT, "status", "--porcelain", "--", str(GATE))
-    log = run("restored", suite, MERE, ordinary, patched=True)
+    log = mere("restored", *suite, env=ordinary)
     assert f"test result: ok. {REVIEW_TESTS} passed" in log
-    return {"synthetic_process_flag": FLAG, "patched_packages": names, "restored_consent_sha256": digest(GATE),
-            "patched_lock_sha256": digest(lock)}
+    return {"synthetic_process_flag": FLAG, "restored_consent_sha256": digest(GATE)}
 
 
 def remove_runtime(root):
@@ -232,6 +241,7 @@ def main():
     assert os.name == "nt", "Windows receipt; other native hosts remain pending"
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--mere", type=Path, default=primary().parent / "mere", help="Mere checkout that builds the resident host")
+    parser.add_argument("--mere-target", type=Path, default=Path("C:/t/cargo-targets/mere"), help="That checkout's own target")
     parser.add_argument("--out", type=Path, default=primary().parents[1] / "testing/dramatis/support-receipts/dramatis-app")
     parser.add_argument("--jobs", type=int, default=1, help="Compiler jobs; keep memory for concurrent lanes")
     parser.add_argument("--skip-build", action="store_true")
@@ -239,12 +249,15 @@ def main():
     parser.add_argument("--control-only", action="store_true", help="Requalify the scoped control and restore the gate")
     args = parser.parse_args()
     assert args.jobs > 0
-    JOBS, OUT, MERE = args.jobs, args.out.resolve(), args.mere.resolve()
+    JOBS, OUT, MERE, MERE_TARGET = args.jobs, args.out.resolve(), args.mere.resolve(), args.mere_target.resolve()
     clean_code(ROOT)
     clean_code(MERE)
     OUT.mkdir(parents=True, exist_ok=True)
+    if not args.window_only and not args.control_only:
+        assert not any(OUT.iterdir()), f"{OUT} holds an earlier run"
+    patched = patch_mere()
     if args.control_only:
-        return write("control-scope.json", **consent_control())
+        return write("control-scope.json", **patched, **consent_control())
     if args.window_only:
         if not args.skip_build:
             mere("host-build", "build", "-p", "mere-resident", "--bin", "dramatis-review-host", "--features", "custody-receipt-host,cxf")
@@ -254,9 +267,8 @@ def main():
         absent()
         fixture("locked")
         fixture("unlocked")
-        return write("window-scope.json", build_info=built_app(), source_sha256={"dramatis": tracked(ROOT, "apps/dramatis")})
-    assert not any(OUT.iterdir()), f"{OUT} holds an earlier run"
-    # The control runs first, so the shared target's later builds are Mere's own.
+        return write("window-scope.json", **patched, build_info=built_app(), source_sha256={"dramatis": tracked(ROOT, "apps/dramatis")})
+    # The control runs first, so every later build has the restored gate.
     control = consent_control()
     if not args.skip_build:
         mere("host-build", "build", "-p", "mere-resident", "--bin", "dramatis-review-host", "--features", "custody-receipt-host,cxf")
@@ -272,7 +284,7 @@ def main():
     absent()
     fixture("locked")
     fixture("unlocked")
-    write("receipt.json", **control, build_info=built_app(), app_source_sha256=app_source_digest(),
+    write("receipt.json", **patched, **control, build_info=built_app(), app_source_sha256=app_source_digest(),
           source_sha256={"dramatis": tracked(ROOT, "Cargo.toml", "Cargo.lock", "apps/dramatis", "crates"),
                          "mere": tracked(MERE, "Cargo.toml", "Cargo.lock", "rust-toolchain.toml", "ports/mere-resident")},
           scope="synthetic fixtures; no actual vault; native captures require separate visual review; consent gate restored byte-exact")

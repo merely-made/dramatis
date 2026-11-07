@@ -187,7 +187,17 @@ own lock and target (`C:/t/cargo-targets/dramatis-app` on Windows). GUI crates c
 serves this repository's crates from the checkout; `[patch.crates-io]` sends `chartulary`,
 `muniment` and `ostiary` to their homes as Mere's own patch table does. All family rows use
 `branch = "main"` (Mere's cycle-breaks constraints, 2026-11-06). `build.rs` and `package.py`
-hash the app's own manifest, lock and sources. Mere's receipt drivers
-(`support/dramatis_review_receipts.py`, `support/dramatis_package_receipts.py`) are not ported;
-they qualified the app before the move.
+hash the app's own manifest, lock and sources. Mere's receipt drivers are ported to this repository's `support/` (2026-11-07):
+`dramatis_review_receipts.py`, `dramatis_package_receipts.py`, `dramatis_auth_receipts.py`,
+`dramatis_auth_freeze.py` and their self-test `test_dramatis_auth_tools.py`. The app builds here.
+Drivers that need Djinn's resident take `--mere` (default: the `mere` checkout beside this
+repository) and build it there. Every dramatis.git package is patched to this checkout through a
+copy of Mere's lock in the receipt directory, so no Mere file is written. Receipts record both
+revisions and land in `Code/testing/dramatis/support-receipts/<name>/`, with their SHA-256 values in
+[the receipts file](archive_docs/receipts/2026-10-11_dramatis_app_plan_receipts.md). The custodian
+fixture serves on the custody-wire named pipe on Windows; Mere's quarantine review suite and review
+host still have to be widened to Windows on Mere's side before the review driver's custody gates run
+there. `package.py` ships the repository's `LICENSE` and this app's
+`LICENSES.md`, which cargo-about generates from the app's lock (`about.toml`); packing refuses a
+stale copy.
 

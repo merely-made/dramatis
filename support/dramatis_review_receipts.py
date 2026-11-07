@@ -115,7 +115,8 @@ def consent_control():
     assert original.count(b"if !self", start) == 1, "the per-item consent gate moved"
     offset = original.index(b"if !self", start)
     broken = original[:offset] + b'if std::env::var_os("' + FLAG.encode() + b'").is_none() && !self' + original[offset + 8:]
-    lock = OUT / "control-Cargo.lock"
+    lock = OUT / "control-lock/Cargo.lock"  # cargo requires this file name
+    lock.parent.mkdir()
     shutil.copyfile(MERE / "Cargo.lock", lock)
     names, patch = patch_config(lock)
     run("control-lock", ["cargo", "+" + channel(MERE), "tree", "-p", "mere-resident", "--depth", "0", *patch], MERE, patched=True)

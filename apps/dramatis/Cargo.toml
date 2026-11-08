@@ -52,11 +52,10 @@ name = "dramatis-ui"
 path = "src/main.rs"
 
 [dependencies]
-cambium = { git = "https://github.com/merely-made/mere.git", branch = "main" }
+cambium = { git = "https://github.com/merely-made/mere.git", branch = "main", features = ["persona-picker"] }
 mandrake = { git = "https://github.com/merely-made/mere.git", branch = "main" }
 taproot = { version = "0.1.0", git = "https://github.com/merely-made/genet.git", branch = "main", default-features = false, features = ["accesskit"] }
 cambium-desktop = { git = "https://github.com/merely-made/mere.git", branch = "main" }
-persona-picker = { git = "https://github.com/merely-made/mere.git", branch = "main" }
 # The custody client and quarantine types, without the Graphshell port
 # (stack lift plan, L1).
 ostiary = { version = "0.0.1", git = "https://github.com/merely-made/armillary.git", branch = "main", default-features = false, features = ["native"] }

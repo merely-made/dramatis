@@ -427,6 +427,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "chirograph"
+version = "0.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cc9aaf08f8396ce257e950c2a44f9daf9b2e4006ea7121a204bd26eb3f536588"
+dependencies = [
+ "base64 0.22.1",
+ "blake3",
+ "hest",
+ "sceno",
+ "scenotime",
+ "serde",
+ "serde_json",
+ "sha2 0.11.0",
+]
+
+[[package]]
 name = "chrono"
 version = "0.4.45"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -795,6 +811,23 @@ dependencies = [
  "uuid",
  "windows-sys 0.59.0",
  "zeroize",
+]
+
+[[package]]
+name = "dramatis-surface"
+version = "0.0.1"
+dependencies = [
+ "castellan-client",
+ "chatelaine",
+ "chirograph",
+ "dramatis",
+ "graphshell-endpoint",
+ "ostiary",
+ "personae",
+ "sceno",
+ "scenotime",
+ "serde_json",
+ "tokio",
 ]
 
 [[package]]
@@ -1226,6 +1259,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "graphshell-endpoint"
+version = "0.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7925c01072192c64938b9497e78e96a90f9333265cda63d130fc5a33c572f14b"
+dependencies = [
+ "chirograph",
+]
+
+[[package]]
 name = "group"
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1283,6 +1325,15 @@ dependencies = [
  "serde",
  "spin",
  "stable_deref_trait",
+]
+
+[[package]]
+name = "hest"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3c969fdd07b93c0c74bac312f06ed50b65ab1be93e13f40f00f73c7f6d377e71"
+dependencies = [
+ "serde",
 ]
 
 [[package]]
@@ -2464,6 +2515,27 @@ name = "ryu"
 version = "1.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9774ba4a74de5f7b1c1451ed6cd5285a32eddb5cccb8cc655a4e50009e06477f"
+
+[[package]]
+name = "sceno"
+version = "0.0.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "091a94f4f1937ae87d3dad0b7b3e8d46fec308eae6b904d431e881173575dd3c"
+dependencies = [
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "scenotime"
+version = "0.0.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "76bb8af50b45362bfa66914143d6a9ffa3fda7799249812c5b03542ab2b64d32"
+dependencies = [
+ "sceno",
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "scopeguard"

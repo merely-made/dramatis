@@ -1,0 +1,28 @@
+[package]
+rust-version = "1.97.1"
+name = "dramatis-surface"
+version = "0.0.1"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+description = "Dramatis as a projection producer: the roster, quarantine review, vault lock and passphrase change served to any host as portable cards and bounded action forms, over Djinn's custody route."
+
+[dependencies]
+castellan-client = { workspace = true, features = ["client"] }
+chirograph.workspace = true
+dramatis.workspace = true
+graphshell-endpoint.workspace = true
+ostiary = { workspace = true, features = ["native"] }
+personae.workspace = true
+sceno.workspace = true
+scenotime.workspace = true
+serde_json.workspace = true
+tokio = { version = "1", features = ["rt", "time", "macros"] }
+
+[dev-dependencies]
+chatelaine.workspace = true
+tokio = { version = "1", features = ["rt", "time", "macros"] }
+
+[lints]
+workspace = true

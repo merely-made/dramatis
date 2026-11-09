@@ -17,7 +17,7 @@
 //!
 //! The secret-free views (vault browse, credential status, code tiles) live
 //! in `dramatis::view` (dramatis repo plan, ruling D24). The persona and
-//! quarantine UI is `dramatis-app` (`apps/dramatis` here). Castellan stays its
+//! quarantine UI is `dramatis-surface` (here), which a host presents as a pane. Castellan stays its
 //! own crate so the custody code keeps its dependency boundary and the
 //! `deny.toml` wrapper check.
 //!

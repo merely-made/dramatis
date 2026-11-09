@@ -7,7 +7,7 @@ the office of the gate. This crate is that keeper for your credentials. It
 holds secret custody inside djinn (release, signing, presentation), answering
 participant-gate petitions over an agent-style channel. It has no screens: the
 secret-free views live in `dramatis::view` (dramatis repo plan, ruling D24),
-and the persona and quarantine UI is `dramatis-app` (`apps/dramatis` here).
+and the persona and quarantine UI is `dramatis-surface` (here), which a host presents as a pane.
 Applications call djinn's custody route; only djinn links castellan, as
 enforced by Mere's `deny.toml`. It stays its own crate so the custody code
 keeps that dependency boundary.

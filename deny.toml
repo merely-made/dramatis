@@ -16,10 +16,9 @@ all-features = true
 multiple-versions = "allow"
 wildcards = "allow"
 
-# The licences the app's graph uses (Mark, 2026-11-07: "deny.toml allow-list
-# first"). apps/dramatis/about.toml accepts the same list for LICENSES.md, and
-# package.py refuses the two drifting apart. The app is checked against this
-# file: cargo deny --manifest-path apps/dramatis/Cargo.toml --config deny.toml check licenses
+# The licences the graph uses (Mark, 2026-11-07: "deny.toml allow-list
+# first"). The application that once checked itself against this file with its
+# own manifest is retired (cycle-breaks D26); the root workspace is checked.
 [licenses]
 allow = [
     "Apache-2.0",

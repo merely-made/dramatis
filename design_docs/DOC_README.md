@@ -61,9 +61,10 @@ is tracked in the repository plan and Mere's workspace hygiene plan.
   receiving gates and the parked Secret Service design; moved with
   the custodian under D14. [Current receipts](archive_docs/receipts/2026-10-28_custody_plan_receipts.md);
   historical sources and receipts retain Mere paths.
-- [dramatis_app_plan](2026-10-11_dramatis_app_plan.md): **moved from Mere with the app
-  (2026-11-06)**: persona selection, local authentication and quarantine review through Djinn,
-  `apps/dramatis` as its own workspace (D1 to D4); receipt drivers ported to `support/` (2026-11-07).
+- [dramatis_app_plan](2026-10-11_dramatis_app_plan.md): **the window retired (2026-11-08,
+  cycle-breaks D26)**: persona selection, local authentication and quarantine review through Djinn
+  are now `crates/dramatis-surface`, presented as a pane by hosts; `apps/dramatis` and its receipt
+  drivers are gone (D1 to D4 and the packaging record stay as history).
   [Receipts](archive_docs/receipts/2026-10-11_dramatis_app_plan_receipts.md); earlier ones stay in Mere.
 - [castellan_custodian_integration](2026-10-22_castellan_custodian_integration.md):
   signed macOS native receiving design and evidence boundaries.

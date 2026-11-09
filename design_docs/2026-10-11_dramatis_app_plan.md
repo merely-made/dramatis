@@ -7,6 +7,18 @@ app itself: Mere's `ports/dramatis` at `9c60e04ab` is now `apps/dramatis` here, 
 workspace (D1 to D4). Receipts and the archives this plan cites stay in Mere; their paths below
 are Mere's.
 
+**Retired as a window (2026-11-08, Mere cycle-breaks D26):** Dramatis is a projection producer, and
+hosts present it as a pane. `apps/dramatis` (the `dramatis-ui` binary, its views, window glue,
+Mandrake acceptance lane, packaging, Luggage feed test and `package.py`) and the receipt drivers
+ported in 2026-11-07 (`dramatis_review_receipts.py`, `dramatis_package_receipts.py`,
+`dramatis_auth_receipts.py`, `dramatis_auth_freeze.py`, `test_dramatis_auth_tools.py`) were deleted,
+along with the `cambium`, `cambium-desktop`, `mandrake` and `taproot` rows and the dev `luggage`
+row, so Dramatis names neither Mere nor Genet nor Eidetic by git. The custody state machine and
+worker moved to `crates/dramatis-surface`, which serves them as titulus cards and `ActionFormV1`
+actions; the window's interaction tests were rebuilt in Mere's `graphshell-dramatis-pane`. The
+sections below describe the window as it was and its qualification stays historical: its Windows
+receipts qualify the window, not the pane, and a headed receipt for the pane is open.
+
 **Status (2026-10-11):** first Windows app slice complete and qualified.
 Djinn owns custody and consent; concurrent main work is retained. Persona
 creation, contacts, credential fill and CXF export remain open. The Windows

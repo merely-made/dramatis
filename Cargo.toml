@@ -19,9 +19,8 @@ members = [
     "crates/dramatis-resident",
     "crates/dramatis-surface",
 ]
-# The application is its own workspace (apps/dramatis/Cargo.toml), so the
-# GUI chain and its git sources never enter this lock.
-exclude = ["apps/dramatis"]
+# There is no application here: Dramatis serves `dramatis-surface` and hosts
+# present it as a pane (cycle-breaks D26), so no GUI chain enters this lock.
 
 [workspace.package]
 rust-version = "1.97.1"

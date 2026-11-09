@@ -342,14 +342,18 @@ fn accepting_and_choosing_queue_exactly_one_request_and_busy_blocks_the_next() {
         IntentResult::Accepted
     );
     assert!(matches!(&host.sent()[..], [Request::Review(r)] if r.action == ReviewAction::Accept));
-    // While Djinn may be at a prompt nothing is advertised, and the status
-    // card says it is waiting.
-    let cards = host.cards();
-    assert!(cards.iter().all(|(_, _, actions)| actions.is_empty()));
+    // While Djinn may be at a prompt the controls keep their place and the
+    // status card says it is waiting; the next intent is refused.
+    let (_, status, _) = host.find("Status");
+    assert!(status.badges.contains(&"busy".to_string()));
+    assert_eq!(value(&status, "Request"), "Waiting for Djinn.");
     assert_eq!(
-        value(&host.find("Status").1, "Request"),
-        "Waiting for Djinn."
+        host.invoke("Work", CHOOSE_PERSONA_INTENT, vec![]),
+        IntentResult::Rejected {
+            reason: "another request is waiting for Djinn".into()
+        }
     );
+    assert_eq!(host.sent().len(), 1);
     // The answer returns, with its notice, and actions come back.
     host.fake.replies.borrow_mut().push((
         Reply {

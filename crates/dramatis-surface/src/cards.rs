@@ -73,25 +73,27 @@ fn card(title: &str, values: Vec<CardValueV1>, badges: &[&str]) -> PortableCardV
 
 /// Every card the surface serves for `state`, in reading order.
 ///
-/// An action is advertised only when it can be carried out now: nothing is
-/// offered while a request is outstanding, and nothing that reaches a secret
-/// is offered while the vault is locked.
+/// An action is advertised only when the vault's lock state allows it:
+/// nothing that reaches a secret is offered while the vault is locked. While a
+/// request is outstanding the actions stay on their cards, so the controls a
+/// person was using keep their place, and the status card carries the `busy`
+/// badge; a host shows them disabled and `invoke` refuses them until Djinn
+/// answers.
 pub(crate) fn model(state: &State) -> Vec<ModelCard> {
-    let busy = state.busy;
     let mut cards = vec![status(state)];
     let Some(snapshot) = &state.snapshot else {
         return cards;
     };
     let locked = snapshot.lock == VaultLockView::Locked;
-    cards.push(vault(locked, busy));
-    cards.push(authentication(locked, busy));
-    cards.extend(personae(snapshot, locked, busy));
+    cards.push(vault(locked));
+    cards.push(authentication(locked));
+    cards.extend(personae(snapshot, locked));
     if !locked {
-        cards.extend(imports(snapshot, busy));
+        cards.extend(imports(snapshot));
     }
     cards.push(summary(snapshot, locked));
     if !locked {
-        cards.extend(quarantine(snapshot, busy));
+        cards.extend(quarantine(snapshot));
     }
     cards
 }
@@ -112,23 +114,27 @@ fn status(state: &State) -> ModelCard {
         key: "dramatis:status".into(),
         // The badge `status` is the live region: it stays the first card and
         // keeps its place whatever the notice says.
-        card: card("Status", values, &["status"]),
-        actions: if state.busy {
-            Vec::new()
-        } else {
-            vec![action(
-                RECONNECT_INTENT,
-                RECONNECT_SCHEMA,
-                "Reconnect",
-                "Ask Djinn for the current roster and vault state.",
-                IntentEffect::Curation,
-            )]
-        },
+        card: card(
+            "Status",
+            values,
+            if state.busy {
+                &["status", "busy"]
+            } else {
+                &["status"]
+            },
+        ),
+        actions: vec![action(
+            RECONNECT_INTENT,
+            RECONNECT_SCHEMA,
+            "Reconnect",
+            "Ask Djinn for the current roster and vault state.",
+            IntentEffect::Curation,
+        )],
         target: Target::Status,
     }
 }
 
-fn vault(locked: bool, busy: bool) -> ModelCard {
+fn vault(locked: bool) -> ModelCard {
     let (state, detail) = if locked {
         (
             "Locked",
@@ -140,9 +146,7 @@ fn vault(locked: bool, busy: bool) -> ModelCard {
             "Vault unlocked. Djinn holds your credentials and asks for consent.",
         )
     };
-    let actions = if busy {
-        Vec::new()
-    } else if locked {
+    let actions = if locked {
         vec![action(
             UNLOCK_INTENT,
             UNLOCK_SCHEMA,
@@ -171,7 +175,7 @@ fn vault(locked: bool, busy: bool) -> ModelCard {
     }
 }
 
-fn authentication(locked: bool, busy: bool) -> ModelCard {
+fn authentication(locked: bool) -> ModelCard {
     ModelCard {
         key: "dramatis:authentication".into(),
         card: card(
@@ -182,7 +186,7 @@ fn authentication(locked: bool, busy: bool) -> ModelCard {
             )],
             &["authentication"],
         ),
-        actions: if busy || locked {
+        actions: if locked {
             Vec::new()
         } else {
             vec![action(
@@ -197,7 +201,7 @@ fn authentication(locked: bool, busy: bool) -> ModelCard {
     }
 }
 
-fn personae(snapshot: &Snapshot, locked: bool, busy: bool) -> Vec<ModelCard> {
+fn personae(snapshot: &Snapshot, locked: bool) -> Vec<ModelCard> {
     snapshot
         .roster
         .entries
@@ -211,7 +215,7 @@ fn personae(snapshot: &Snapshot, locked: bool, busy: bool) -> Vec<ModelCard> {
                 "Available to choose."
             };
             let mut actions = Vec::new();
-            if !busy && !locked && !entry.chosen {
+            if !locked && !entry.chosen {
                 actions.push(action(
                     CHOOSE_PERSONA_INTENT,
                     CHOOSE_PERSONA_SCHEMA,
@@ -238,7 +242,7 @@ fn personae(snapshot: &Snapshot, locked: bool, busy: bool) -> Vec<ModelCard> {
         .collect()
 }
 
-fn imports(snapshot: &Snapshot, busy: bool) -> Vec<ModelCard> {
+fn imports(snapshot: &Snapshot) -> Vec<ModelCard> {
     let chosen = snapshot.roster.chosen_entry();
     snapshot
         .unassigned
@@ -287,7 +291,7 @@ fn imports(snapshot: &Snapshot, busy: bool) -> Vec<ModelCard> {
                     values,
                     &["older import"],
                 ),
-                actions: if busy { Vec::new() } else { vec![assign] },
+                actions: vec![assign],
                 target: Target::Import(index),
             }
         })
@@ -323,7 +327,7 @@ fn summary(snapshot: &Snapshot, locked: bool) -> ModelCard {
     }
 }
 
-fn quarantine(snapshot: &Snapshot, busy: bool) -> Vec<ModelCard> {
+fn quarantine(snapshot: &Snapshot) -> Vec<ModelCard> {
     snapshot
         .cards
         .iter()
@@ -356,7 +360,7 @@ fn quarantine(snapshot: &Snapshot, busy: bool) -> Vec<ModelCard> {
             if entry.accept_blocked.is_some() {
                 badges.push("accept blocked");
             }
-            if !busy {
+            {
                 if entry.accept_blocked.is_none() {
                     actions.push(action(
                         ACCEPT_ITEM_INTENT,

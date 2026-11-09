@@ -67,3 +67,12 @@ impl Drop for Worker {
         self.join.take();
     }
 }
+
+impl crate::Custody for Worker {
+    fn send(&mut self, request: Request) {
+        Worker::send(self, request);
+    }
+    fn drain(&mut self) -> Vec<(Reply, bool)> {
+        Worker::drain(self)
+    }
+}

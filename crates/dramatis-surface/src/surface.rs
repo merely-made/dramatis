@@ -43,6 +43,16 @@ pub trait Custody {
     fn drain(&mut self) -> Vec<(Reply, bool)>;
 }
 
+/// A host that chooses its custody at run time boxes it.
+impl<C: Custody + ?Sized> Custody for Box<C> {
+    fn send(&mut self, request: Request) {
+        (**self).send(request);
+    }
+    fn drain(&mut self) -> Vec<(Reply, bool)> {
+        (**self).drain()
+    }
+}
+
 #[derive(Debug)]
 pub enum SurfaceError {
     WrongSession,

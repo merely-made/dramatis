@@ -59,6 +59,7 @@ fn action(
         payload_schema: schema.into(),
         input_form: None,
         effect,
+        icon: None,
     }
 }
 

@@ -50,8 +50,8 @@ gazette = { version = "0.0.2", path = "crates/gazette" }
 # From crates.io, so the surface adds no git edge to Graphshell. Mere's and
 # Graphshell's own graphs redirect them to their checkouts with
 # `[patch.crates-io]`, which keeps one copy of each type.
-chirograph = "0.0.4"
-graphshell-endpoint = { version = "0.0.3", default-features = false, features = ["projection"] }
+chirograph = "0.0.5"
+graphshell-endpoint = { version = "0.0.4", default-features = false, features = ["projection"] }
 sceno = "0.0.7"
 scenotime = "0.0.5"
 

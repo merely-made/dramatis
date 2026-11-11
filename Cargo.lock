@@ -428,9 +428,9 @@ dependencies = [
 
 [[package]]
 name = "chirograph"
-version = "0.0.4"
+version = "0.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cc9aaf08f8396ce257e950c2a44f9daf9b2e4006ea7121a204bd26eb3f536588"
+checksum = "bf8b6fcf72bf5c1d5fc2844d5d64dddc588f2a12306148000e1ae9e48aaa9033"
 dependencies = [
  "base64 0.22.1",
  "blake3",
@@ -1260,9 +1260,9 @@ dependencies = [
 
 [[package]]
 name = "graphshell-endpoint"
-version = "0.0.3"
+version = "0.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7925c01072192c64938b9497e78e96a90f9333265cda63d130fc5a33c572f14b"
+checksum = "9c7650717d732cce9bb45d200b0d333478b3c7f86a40466df0ab74dced6e5946"
 dependencies = [
  "chirograph",
 ]

@@ -1,11 +1,6 @@
 # Cargo build artifacts. `target/` (not `/target/`) catches nested ones too.
 target/
 
-# The root lock is tracked, and the fixtures' (their checks run --locked).
-Cargo.lock
-!/Cargo.lock
-!/support/fixtures/*/*/Cargo.lock
-
 # Machine-local cargo config: the build directory, and while a sibling is
 # unpushed, path patches. Never committed, so a clean clone resolves from git.
 **/.cargo/*
@@ -50,3 +45,5 @@ __pycache__/
 
 # Claude Code agent worktrees (machine-local)
 .claude/
+# Not tracked: what cargo resolved is a git note on each commit (scripts/record-resolved.sh).
+Cargo.lock

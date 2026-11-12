@@ -13,8 +13,44 @@
 all-features = true
 
 [bans]
-multiple-versions = "allow"
+multiple-versions = "deny"
 wildcards = "allow"
+# Two versions of one crate are a defect: move the older version's holder
+# forward. Each skip is a duplicate that cannot be removed from here yet, with
+# the holder that keeps it and what would remove it.
+skip = [
+  # RustCrypto 0.10 generation, held by ssh-key 0.6.7 (latest release; 0.7 is a
+  # release candidate) with ssh-agent-lib 0.6.0, and in castellan by argon2 0.5,
+  # rsa 0.9, p256/p384 0.13 and ed25519-dalek 2, which move with ssh-key.
+  { crate = "aead@0.5.2", reason = "aes-gcm 0.10.3 requires it, via ssh-cipher 0.2.0 under ssh-key 0.6.7; goes when ssh-key 0.7 releases and castellan moves to it" },
+  { crate = "chacha20@0.9.1", reason = "ssh-cipher 0.2.0 requires it, under ssh-key 0.6.7; goes with ssh-key 0.7" },
+  { crate = "poly1305@0.8.0", reason = "ssh-cipher 0.2.0 requires it, under ssh-key 0.6.7; goes with ssh-key 0.7" },
+  { crate = "universal-hash@0.5.1", reason = "poly1305 0.8.0 and polyval 0.6.2 require it, under ssh-cipher 0.2.0 (ssh-key 0.6.7); goes with ssh-key 0.7" },
+  { crate = "cipher@0.4.4", reason = "aes, aes-gcm, blowfish, cbc, ctr and chacha20 of ssh-cipher 0.2.0 (ssh-key 0.6.7) require it; goes with ssh-key 0.7" },
+  { crate = "inout@0.1.4", reason = "cipher 0.4.4 requires it, under ssh-key 0.6.7; goes with ssh-key 0.7" },
+  { crate = "digest@0.10.7", reason = "sha2 0.10, hmac 0.12, rsa 0.9, ecdsa 0.16, curve25519-dalek 4 and blake2 (argon2 0.5) require it, under ssh-key 0.6.7 and castellan's argon2 0.5; goes with ssh-key 0.7 and argon2 0.6" },
+  { crate = "block-buffer@0.10.4", reason = "digest 0.10.7 requires it, under ssh-key 0.6.7 and argon2 0.5; goes with digest 0.11" },
+  { crate = "crypto-common@0.1.6", reason = "digest 0.10, cipher 0.4, aead 0.5 and universal-hash 0.5 require it, under ssh-key 0.6.7; goes with ssh-key 0.7" },
+  { crate = "const-oid@0.9.6", reason = "der 0.7, digest 0.10 and rsa 0.9 require it, under ssh-key 0.6.7 and castellan's rsa 0.9; goes with ssh-key 0.7 and rsa 0.10" },
+  { crate = "cpufeatures@0.2.17", reason = "sha2 0.10, aes 0.8, chacha20 0.9, poly1305 0.8, polyval 0.6, argon2 0.5 and curve25519-dalek 4 require it, under ssh-key 0.6.7 and argon2 0.5; goes with them" },
+  { crate = "hmac@0.12.1", reason = "hkdf 0.12 and rfc6979 0.4 require it, under elliptic-curve/ecdsa for p256/p384 0.13 (ssh-key 0.6.7, castellan); goes with ssh-key 0.7" },
+  { crate = "sha2@0.10.9", reason = "ssh-key 0.6.7, ssh-encoding, bcrypt-pbkdf, ed25519-dalek 2, rsa 0.9 and p256/p384/p521 0.13 require it; goes with ssh-key 0.7" },
+  { crate = "signature@2.2.0", reason = "ssh-key 0.6.7, ssh-agent-lib 0.6.0 (latest), ed25519 2, ecdsa 0.16 and rsa 0.9 require it, and castellan names it for them; goes with ssh-key 0.7" },
+  { crate = "ed25519@2.2.3", reason = "ed25519-dalek 2.2.0 requires it, held by ssh-key 0.6.7 and castellan; goes with ssh-key 0.7" },
+  { crate = "ed25519-dalek@2.2.0", reason = "ssh-key 0.6.7 requires it, and castellan matches it for ssh-key; goes when castellan moves to ssh-key 0.7 and ed25519-dalek 3" },
+  { crate = "curve25519-dalek@4.1.3", reason = "ed25519-dalek 2.2.0 requires it, held by ssh-key 0.6.7; goes with ssh-key 0.7" },
+  { crate = "fiat-crypto@0.2.9", reason = "curve25519-dalek 4.1.3 requires it, held by ssh-key 0.6.7; goes with ssh-key 0.7" },
+  { crate = "rand_core@0.6.4", reason = "ssh-key 0.6.7's key generation (castellan, personae tests), rsa 0.9, elliptic-curve 0.13 and password-hash 0.5 (argon2 0.5) require it; goes with ssh-key 0.7 and argon2 0.6" },
+  # Elsewhere.
+  { crate = "getrandom@0.2.17", reason = "ring 0.17.14 (latest, castellan and rustls) and rand_core 0.6.4 (ssh-key 0.6.7) require it; goes when ring moves on and ssh-key 0.7 releases" },
+  { crate = "windows-sys@0.52.0", reason = "ring 0.17.14 (latest; castellan, and rustls under gazette's reqwest 0.12) requires it; goes when ring moves to windows-sys 0.61" },
+  { crate = "windows-sys@0.59.0", reason = "peer-facts 0.0.1 (armillary) requires it; goes when armillary moves peer-facts to windows-sys 0.61" },
+  { crate = "base64@0.22.1", reason = "chirograph 0.0.5 (graphshell), ostiary 0.0.1 (armillary) and reqwest 0.12.28 (gazette) require it; goes when both siblings move to 0.23 and gazette takes reqwest 0.13, which swaps rustls-tls for aws-lc-rs and the platform verifier, a TLS backend choice" },
+  { crate = "thiserror@1.0.69", reason = "ostiary 0.0.1 (armillary) requires it; goes when armillary moves ostiary to thiserror 2" },
+  { crate = "thiserror-impl@1.0.69", reason = "thiserror 1.0.69 requires it, held by ostiary (armillary); goes with thiserror 2" },
+  { crate = "hashbrown@0.15.5", reason = "petgraph 0.8.3 (latest) requires it, under chartulary (eidetic); goes when petgraph moves to hashbrown 0.17" },
+  { crate = "syn@2.0.119", reason = "most proc-macros (zeroize_derive, zerocopy-derive, tracing-attributes, enumflags2_derive, curve25519-dalek-derive, windows-implement, munge_macro) still require syn 2; goes as they move to syn 3" },
+]
 
 # The licences the graph uses (Mark, 2026-11-07: "deny.toml allow-list
 # first"). The application that once checked itself against this file with its

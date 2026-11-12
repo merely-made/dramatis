@@ -26,7 +26,7 @@ insigne = { workspace = true, features = ["verify"] }
 blake3 = { workspace = true }
 postcard = { version = "1", features = ["alloc"] }
 serde = { version = "1", features = ["derive"] }
-thiserror = "1"
+thiserror = "2"
 tokio = { version = "1", features = ["io-util"], optional = true }
 
 [dev-dependencies]

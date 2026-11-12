@@ -89,7 +89,7 @@ blake3.workspace = true
 constant_time_eq = "=0.4.2"
 # `zeroize` clears the cipher's copy of the key on drop (ruling 37).
 chacha20poly1305 = { version = "0.11", features = ["zeroize"] }
-getrandom = "0.3"
+getrandom = "0.4"
 serde_json = { workspace = true, features = ["raw_value"] }
 tracing.workspace = true
 # ── agent ─────────────────────────────────────────────────────────────────
@@ -103,13 +103,13 @@ rsa = { version = "0.9", default-features = false, optional = true }
 signature = { version = "2", optional = true }
 ssh-agent-lib = { version = "0.6", optional = true }
 ssh-key = { version = "0.6", features = ["ed25519", "encryption"], optional = true }
-thiserror = { version = "1", optional = true }
+thiserror = { version = "2", optional = true }
 tokio = { version = "1", features = ["macros", "net", "rt", "rt-multi-thread", "sync", "time"], optional = true }
 tracing-subscriber = { version = "0.3", optional = true }
 
 [target.'cfg(windows)'.dependencies]
 # DPAPI, the `AutoOs` root's wrap on Windows.
-windows-sys = { version = "0.59", features = [
+windows-sys = { version = "0.61", features = [
   "Win32_Foundation",
   "Win32_Security_Cryptography",
 ] }

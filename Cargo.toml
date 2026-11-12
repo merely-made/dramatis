@@ -73,7 +73,7 @@ uuid = { version = "1", features = ["serde", "v4"] }
 # one muniment.
 muniment = { version = "0.2.1", default-features = false }
 eidetic = { version = "0.0.3", default-features = false }
-base64 = "0.22"
+base64 = "0.23"
 sha2 = "0.11"
 tracing = "0.1"
 

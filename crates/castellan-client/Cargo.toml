@@ -25,8 +25,8 @@ eidetic = { workspace = true }
 serde.workspace = true
 serde_json.workspace = true
 uuid.workspace = true
-base64 = "0.22"
-thiserror = "1"
+base64 = "0.23"
+thiserror = "2"
 zeroize = "1"
 tokio = { version = "1", features = ["io-util", "rt", "rt-multi-thread", "net", "time", "sync", "macros"], optional = true }
 tracing = { version = "0.1", optional = true }

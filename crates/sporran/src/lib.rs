@@ -25,6 +25,10 @@ pub mod wallet_grant;
 pub mod wallet_sealed_backend;
 /// The wallet's files: paths, manifests, rosters and atomic writes.
 pub mod wallet_store;
+/// Persona-scoped persistence for Notochord owner policy, in a caller-supplied
+/// settings directory (moved from mere's `pandect`, engine split D134).
+#[cfg(not(target_arch = "wasm32"))]
+pub mod notochord_policy_store;
 
 /// Narrow, expiring station grants over the public wallet records.
 #[cfg(not(target_arch = "wasm32"))]
@@ -39,6 +43,10 @@ pub use device_settings_store::{
     load_device_settings, save_device_settings,
 };
 pub use codicil_seal::WalletEpochSealer;
+#[cfg(not(target_arch = "wasm32"))]
+pub use notochord_policy_store::{
+    NOTOCHORD_POLICY_FILENAME, load_notochord_policy, notochord_policy_path, save_notochord_policy,
+};
 pub use wallet_sealed_backend::WalletSealedBackend;
 pub use wallet_grant::{
     BlindedSlotId, DEVICE_GRANT_SCHEMA_VERSION, DeviceGrantError, EnrollmentBundleError,

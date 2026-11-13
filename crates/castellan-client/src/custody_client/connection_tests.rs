@@ -15,7 +15,7 @@ use ostiary::wire::{AppHostMessage, AppMessage, BrowserChallenge};
 async fn admit(server: &mut tokio::io::DuplexStream) {
     let hello: AppHello = read_native_message_async(server).await.unwrap().unwrap();
     let challenge = AppHostMessage::<(), (), ()>::Challenge {
-        challenge: BrowserChallenge::fresh(),
+        challenge: BrowserChallenge::fresh().expect("nonce"),
     };
     write_native_message_async(server, &challenge)
         .await

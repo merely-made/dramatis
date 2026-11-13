@@ -57,8 +57,8 @@ scenotime = "0.0.5"
 
 # ─── The door contract (Armillary) ───────────────────────────────────────────
 # castellan-client speaks over Djinn's door through ostiary, never Djinn
-# (djinn-slimming D2, D3). Ostiary 0.0.1 is published.
-ostiary = "0.0.1"
+# (djinn-slimming D2, D3). A family row: Armillary's main, 0.0.1 as the floor.
+ostiary = { version = "0.0.1", git = "https://github.com/merely-made/armillary.git", branch = "main" }
 peer-facts = "0.0.1"
 custody-wire = { version = "0.0.1", path = "crates/custody-wire" }
 

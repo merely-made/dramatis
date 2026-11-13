@@ -300,3 +300,13 @@ fn ciphertext_bytes_do_not_contain_plaintext_secrets() {
             .any(|w| w == b"test-display-name-not-secret")
     );
 }
+
+/// The KEK every passphrase vault on disk was sealed under. Recorded with argon2 0.5;
+/// a KDF library bump that moved a byte would lock existing vaults out.
+#[test]
+fn derive_kek_known_answer() {
+    let kek = derive_kek(b"correct horse battery staple", &[7u8; 16]).unwrap();
+    assert_eq!(hex::encode(kek.as_ref()), KEK_KNOWN_ANSWER);
+}
+
+const KEK_KNOWN_ANSWER: &str = "799f12b9e17710824482d829835acb69f5a9355bf774c4f07342823b11b90928";

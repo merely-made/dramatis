@@ -46,14 +46,16 @@ castellan = { version = "0.0.4", path = "crates/castellan" }
 sporran = { version = "0.0.1", path = "crates/sporran" }
 gazette = { version = "0.0.2", path = "crates/gazette" }
 
-# ─── The projection contract (Graphshell's published leaves) ─────────────────
-# From crates.io, so the surface adds no git edge to Graphshell. Mere's and
-# Graphshell's own graphs redirect them to their checkouts with
-# `[patch.crates-io]`, which keeps one copy of each type.
-chirograph = "0.0.5"
-graphshell-endpoint = { version = "0.0.4", default-features = false, features = ["projection"] }
-sceno = "0.0.7"
-scenotime = "0.0.5"
+# ─── The projection contract (Graphshell's leaves) ───────────────────────────
+# Family rows: Graphshell's main, the published release as the floor, so the
+# surface takes the contract's current dependencies (one-version P1). All four
+# come from the same source: a registry graphshell-endpoint or sceno beside a
+# git chirograph would put two copies of each type in the graph. Graphshell's
+# host patches graphshell.git to its checkout.
+chirograph = { version = "0.0.5", git = "https://github.com/merely-made/graphshell.git", branch = "main" }
+graphshell-endpoint = { version = "0.0.4", git = "https://github.com/merely-made/graphshell.git", branch = "main", default-features = false, features = ["projection"] }
+sceno = { version = "0.0.7", git = "https://github.com/merely-made/graphshell.git", branch = "main" }
+scenotime = { version = "0.0.5", git = "https://github.com/merely-made/graphshell.git", branch = "main" }
 
 # ─── The door contract (Armillary) ───────────────────────────────────────────
 # castellan-client speaks over Djinn's door through ostiary, never Djinn

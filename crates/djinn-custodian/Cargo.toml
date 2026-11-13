@@ -36,7 +36,7 @@ uuid.workspace = true
 insigne = { workspace = true, features = ["verify"] }
 notochord.workspace = true
 muniment = { workspace = true, features = ["redb"] }
-pollster = "0.4"
+pollster = "1"
 personae.workspace = true
 base64.workspace = true
 blake3.workspace = true

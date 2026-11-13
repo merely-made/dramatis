@@ -42,7 +42,7 @@ insigne = { workspace = true, features = ["verify"] }
 postcard = { version = "1", features = ["alloc"] }
 serde_json = "1"
 muniment = { workspace = true, features = ["json", "postcard"] }
-pollster = "0.4"
+pollster = "1"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 muniment = { workspace = true, features = ["redb"] }

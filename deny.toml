@@ -45,7 +45,7 @@ skip = [
   { crate = "getrandom@0.2.17", reason = "ring 0.17.14 (latest, castellan and rustls) and rand_core 0.6.4 (ssh-key 0.6.7) require it; goes when ring moves on and ssh-key 0.7 releases" },
   { crate = "windows-sys@0.52.0", reason = "ring 0.17.14 (latest; castellan, and rustls under gazette's reqwest 0.12) requires it; goes when ring moves to windows-sys 0.61" },
   { crate = "windows-sys@0.59.0", reason = "peer-facts 0.0.1 (armillary) requires it; goes when armillary moves peer-facts to windows-sys 0.61" },
-  { crate = "base64@0.22.1", reason = "reqwest 0.12.28 (gazette) requires it; goes when gazette takes reqwest 0.13, which swaps rustls-tls for aws-lc-rs and the platform verifier, a TLS backend choice" },
+  { crate = "base64@0.22.1", reason = "chirograph 0.0.5 (the registry release; Graphshell main is on base64 0.23) and reqwest 0.12.28 (gazette) require it; goes when chirograph publishes past 0.0.5 or its row takes Graphshell main, and gazette takes reqwest 0.13, which swaps rustls-tls for aws-lc-rs and the platform verifier, a TLS backend choice" },
   { crate = "hashbrown@0.15.5", reason = "petgraph 0.8.3 (latest) requires it, under chartulary (eidetic); goes when petgraph moves to hashbrown 0.17" },
   { crate = "syn@2.0.119", reason = "most proc-macros (zeroize_derive, zerocopy-derive, tracing-attributes, enumflags2_derive, curve25519-dalek-derive, windows-implement, munge_macro) still require syn 2; goes as they move to syn 3" },
 ]

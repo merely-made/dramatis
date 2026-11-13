@@ -46,7 +46,11 @@ fn lockable(dir: &Path) -> Locked {
 fn lockable_with_timeout(dir: &Path, decision_timeout: Duration) -> Locked {
     let storage = SealedProfileStorage::open_with_key(dir.join("vault"), ROOT);
     storage.enroll_passphrase(PASSPHRASE).unwrap();
-    let mut key = PrivateKey::random(&mut rand_core::OsRng, Algorithm::Ed25519).unwrap();
+    let mut key = PrivateKey::random(
+        &mut rand_core::UnwrapErr(getrandom::SysRng),
+        Algorithm::Ed25519,
+    )
+    .unwrap();
     key.set_comment("lock-receipt");
     let mut research = Profile::new(
         ProfileId("research".into()),

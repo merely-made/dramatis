@@ -23,7 +23,11 @@ fn test_agent() -> VaultAgent<InMemoryStorage> {
 }
 
 fn random_key(comment: &str) -> PrivateKey {
-    let mut key = PrivateKey::random(&mut rand_core::OsRng, Algorithm::Ed25519).unwrap();
+    let mut key = PrivateKey::random(
+        &mut rand_core::UnwrapErr(getrandom::SysRng),
+        Algorithm::Ed25519,
+    )
+    .unwrap();
     key.set_comment(comment);
     key
 }

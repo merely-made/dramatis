@@ -29,8 +29,8 @@ custody-wire.workspace = true
 dramatis.workspace = true
 eidetic.workspace = true
 sporran.workspace = true
-ssh-key = { version = "0.6", features = ["ed25519", "encryption"] }
-ssh-agent-lib = "0.6"
+ssh-key = { version = "0.7.0-rc.12", features = ["ed25519", "encryption"] }
+ssh-agent-lib = { version = "0.6", git = "https://github.com/mark-ik/ssh-agent-lib.git", branch = "main" }
 tokio = { version = "1", features = ["net", "rt"] }
 uuid.workspace = true
 insigne = { workspace = true, features = ["verify"] }

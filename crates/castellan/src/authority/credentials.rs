@@ -14,9 +14,12 @@ impl<S: IdentityStorage + 'static> PersonaeHost<S> {
     ) -> Result<SshKeyMutationReceipt, IdentityIntentError> {
         validate_comment(&request.comment)?;
         let tier = unlock_tier(request.unlock_policy)?;
-        let mut private = PrivateKey::random(&mut rand_core::OsRng, Algorithm::Ed25519)
-            .map_err(|_| IdentityIntentError::KeyGeneration)?;
-        private.set_comment(&request.comment);
+        let mut private = PrivateKey::random(
+            &mut rand_core::UnwrapErr(getrandom::SysRng),
+            Algorithm::Ed25519,
+        )
+        .map_err(|_| IdentityIntentError::KeyGeneration)?;
+        private.set_comment(request.comment.as_str());
         self.store_ssh_private(private, tier, SshKeyMutationKind::Generated)
     }
 
@@ -29,7 +32,12 @@ impl<S: IdentityStorage + 'static> PersonaeHost<S> {
         private: PrivateKey,
         options: ImportSshKeyNativeIntentV1,
     ) -> Result<SshKeyMutationReceipt, IdentityIntentError> {
-        validate_comment(private.comment())?;
+        validate_comment(
+            private
+                .comment()
+                .as_str()
+                .map_err(|_| IdentityIntentError::InvalidComment)?,
+        )?;
         let tier = unlock_tier(options.unlock_policy)?;
         self.store_ssh_private(private, tier, SshKeyMutationKind::Imported)
     }
@@ -43,7 +51,12 @@ impl<S: IdentityStorage + 'static> PersonaeHost<S> {
         private: PrivateKey,
         options: ImportSshKeyNativeIntentV1,
     ) -> Result<SshKeyMutationReceipt, IdentityIntentError> {
-        validate_comment(private.comment())?;
+        validate_comment(
+            private
+                .comment()
+                .as_str()
+                .map_err(|_| IdentityIntentError::InvalidComment)?,
+        )?;
         let tier = unlock_tier(options.unlock_policy)?;
         self.store_ssh_private_in(Some(profile), private, tier, SshKeyMutationKind::Imported)
     }
@@ -85,7 +98,12 @@ impl<S: IdentityStorage + 'static> PersonaeHost<S> {
         private: PrivateKey,
         options: ImportSshKeyNativeIntentV1,
     ) -> Result<SshKeyMutationReceipt, IdentityIntentError> {
-        validate_comment(private.comment())?;
+        validate_comment(
+            private
+                .comment()
+                .as_str()
+                .map_err(|_| IdentityIntentError::InvalidComment)?,
+        )?;
         let tier = unlock_tier(options.unlock_policy)?;
         Self::store_ssh_private_held(
             vault,

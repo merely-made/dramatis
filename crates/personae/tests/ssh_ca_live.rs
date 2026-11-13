@@ -141,7 +141,11 @@ fn a_live_sshd_accepts_a_minted_certificate() {
 
     // The host's own key, plus a CA-signed certificate for it: this is what
     // retires `known_hosts` TOFU.
-    let host_key = PrivateKey::random(&mut rand_core::OsRng, Algorithm::Ed25519).unwrap();
+    let host_key = PrivateKey::random(
+        &mut rand_core::UnwrapErr(getrandom::SysRng),
+        Algorithm::Ed25519,
+    )
+    .unwrap();
     write_private(&dir.join("host_key"), &host_key);
     let host_cert = ca
         .mint_host_cert(
@@ -161,7 +165,11 @@ fn a_live_sshd_accepts_a_minted_certificate() {
 
     // The user's key and its certificate. Note what is *absent*: no
     // authorized_keys file is ever written.
-    let user_key = PrivateKey::random(&mut rand_core::OsRng, Algorithm::Ed25519).unwrap();
+    let user_key = PrivateKey::random(
+        &mut rand_core::UnwrapErr(getrandom::SysRng),
+        Algorithm::Ed25519,
+    )
+    .unwrap();
     let user_key_path = dir.join("id_ed25519");
     write_private(&user_key_path, &user_key);
     let grant = ssh_grant(&provider);
@@ -339,7 +347,11 @@ fn enrollment_teaches_a_host_to_accept_the_authority() {
         "re-enrolling stacked a duplicate line:\n{contents}"
     );
 
-    let host_key = PrivateKey::random(&mut rand_core::OsRng, Algorithm::Ed25519).unwrap();
+    let host_key = PrivateKey::random(
+        &mut rand_core::UnwrapErr(getrandom::SysRng),
+        Algorithm::Ed25519,
+    )
+    .unwrap();
     write_private(&dir.join("host_key"), &host_key);
     let config = dir.join("sshd_config");
     fs::write(
@@ -381,7 +393,11 @@ fn enrollment_teaches_a_host_to_accept_the_authority() {
 
     // A key the host has never seen, carrying a certificate from the
     // authority it now trusts.
-    let user_key = PrivateKey::random(&mut rand_core::OsRng, Algorithm::Ed25519).unwrap();
+    let user_key = PrivateKey::random(
+        &mut rand_core::UnwrapErr(getrandom::SysRng),
+        Algorithm::Ed25519,
+    )
+    .unwrap();
     let user_key_path = dir.join("id_ed25519");
     write_private(&user_key_path, &user_key);
     let grant = ssh_grant(&provider);
@@ -486,7 +502,11 @@ fn a_face_reaches_exactly_as_far_as_its_policy() {
     let line = personae::enroll::user_trust_line(&ca, &[user.clone()]).expect("trust line");
     run_script(&personae::enroll::user_install_script(&line), &dir);
 
-    let host_key = PrivateKey::random(&mut rand_core::OsRng, Algorithm::Ed25519).unwrap();
+    let host_key = PrivateKey::random(
+        &mut rand_core::UnwrapErr(getrandom::SysRng),
+        Algorithm::Ed25519,
+    )
+    .unwrap();
     write_private(&dir.join("host_key"), &host_key);
     let config = dir.join("sshd_config");
     fs::write(
@@ -517,7 +537,11 @@ fn a_face_reaches_exactly_as_far_as_its_policy() {
         std::thread::sleep(Duration::from_millis(50));
     }
 
-    let key = PrivateKey::random(&mut rand_core::OsRng, Algorithm::Ed25519).unwrap();
+    let key = PrivateKey::random(
+        &mut rand_core::UnwrapErr(getrandom::SysRng),
+        Algorithm::Ed25519,
+    )
+    .unwrap();
     let key_path = dir.join("id_ed25519");
     write_private(&key_path, &key);
     let grant = ssh_grant(&provider);
@@ -626,7 +650,11 @@ fn a_deployed_krl_refuses_a_certificate_that_worked() {
 
     let device = DeviceId::from_uuid(uuid::Uuid::from_u128(0x2026_0812));
     let grant = ssh_grant(&provider);
-    let key = PrivateKey::random(&mut rand_core::OsRng, Algorithm::Ed25519).unwrap();
+    let key = PrivateKey::random(
+        &mut rand_core::UnwrapErr(getrandom::SysRng),
+        Algorithm::Ed25519,
+    )
+    .unwrap();
     let key_path = dir.join("id_ed25519");
     write_private(&key_path, &key);
     let cert = ca
@@ -651,7 +679,11 @@ fn a_deployed_krl_refuses_a_certificate_that_worked() {
     let krl_path = dir.join("revoked.krl");
     compile_krl(&RevocationLedger::new(), &ca_path, &krl_path, &dir);
 
-    let host_key = PrivateKey::random(&mut rand_core::OsRng, Algorithm::Ed25519).unwrap();
+    let host_key = PrivateKey::random(
+        &mut rand_core::UnwrapErr(getrandom::SysRng),
+        Algorithm::Ed25519,
+    )
+    .unwrap();
     write_private(&dir.join("host_key"), &host_key);
     let config = dir.join("sshd_config");
     fs::write(

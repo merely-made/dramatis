@@ -345,8 +345,11 @@ fn native_import_never_accepts_private_key_bytes_as_an_intent() {
         None,
         VaultProtectionView::Ephemeral,
     );
-    let mut private =
-        ssh_key::PrivateKey::random(&mut rand_core::OsRng, Algorithm::Ed25519).unwrap();
+    let mut private = ssh_key::PrivateKey::random(
+        &mut rand_core::UnwrapErr(getrandom::SysRng),
+        Algorithm::Ed25519,
+    )
+    .unwrap();
     private.set_comment("native import");
     let private_openssh = private.to_openssh(LineEnding::LF).unwrap().to_string();
     let receipt = host

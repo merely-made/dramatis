@@ -5,7 +5,7 @@
 // SPDX-License-Identifier: MPL-2.0
 
 use super::ImportError;
-use p256::elliptic_curve::sec1::ToEncodedPoint;
+use p256::elliptic_curve::sec1::ToSec1Point;
 use rsa::pkcs8::DecodePrivateKey;
 use ssh_key::private::{EcdsaKeypair, Ed25519Keypair, RsaKeypair};
 
@@ -20,15 +20,13 @@ pub(super) fn decode(
             Ed25519Keypair::from(ed25519_dalek::SigningKey::from_pkcs8_der(der).map_err(|_| bad())?)
                 .into()
         },
-        "ssh-rsa" => {
-            RsaKeypair::try_from(rsa::RsaPrivateKey::from_pkcs8_der(der).map_err(|_| bad())?)
-                .map_err(|_| bad())?
-                .into()
-        },
+        "ssh-rsa" => RsaKeypair::try_from(rsa::PrivateKey::from_pkcs8_der(der).map_err(|_| bad())?)
+            .map_err(|_| bad())?
+            .into(),
         "ecdsa-sha2-nistp256" => {
             let secret = p256::SecretKey::from_pkcs8_der(der).map_err(|_| bad())?;
             EcdsaKeypair::NistP256 {
-                public: secret.public_key().to_encoded_point(false),
+                public: secret.public_key().to_sec1_point(false),
                 private: secret.into(),
             }
             .into()
@@ -36,7 +34,7 @@ pub(super) fn decode(
         "ecdsa-sha2-nistp384" => {
             let secret = p384::SecretKey::from_pkcs8_der(der).map_err(|_| bad())?;
             EcdsaKeypair::NistP384 {
-                public: secret.public_key().to_encoded_point(false),
+                public: secret.public_key().to_sec1_point(false),
                 private: secret.into(),
             }
             .into()

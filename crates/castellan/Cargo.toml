@@ -59,9 +59,9 @@ secret-service = ["dep:thiserror", "dep:tokio", "dep:zbus"]
 
 [dependencies]
 credential-exchange-format = { version = "0.4.0", optional = true }
-ed25519-dalek = { version = "2", features = ["pkcs8"], optional = true }
-p256 = { version = "0.13", features = ["pkcs8"], optional = true }
-p384 = { version = "0.13", features = ["pkcs8"], optional = true }
+ed25519-dalek = { version = "3", features = ["alloc", "pkcs8"], optional = true }
+p256 = { version = "0.14", features = ["pkcs8"], optional = true }
+p384 = { version = "0.14", features = ["pkcs8"], optional = true }
 # The check conclusions and faults, named directly (insigne proofs plan, B).
 insigne = { workspace = true, features = ["verify"] }
 # HMAC + the three hashes RFC 6238 allows. RustCrypto, and sha2 is already a
@@ -89,20 +89,20 @@ blake3.workspace = true
 constant_time_eq = "0.4.2"
 # `zeroize` clears the cipher's copy of the key on drop (ruling 37).
 chacha20poly1305 = { version = "0.11", features = ["zeroize"] }
-getrandom = "0.4"
+getrandom = { version = "0.4", features = ["sys_rng"] }
 serde_json = { workspace = true, features = ["raw_value"] }
 tracing.workspace = true
 # ── agent ─────────────────────────────────────────────────────────────────
 # SSH key generation inside the authority mints with the OS RNG.
-rand_core = { version = "0.6", features = ["getrandom"], optional = true }
+rand_core = { version = "0.10", optional = true }
 # RSA private-key operations, constant-time. Already in the lock (rustls).
 ring = { version = "0.17.14", optional = true }
 # Builds the full RSA key (CRT values included) from OpenSSH's components and
 # exports it as PKCS#8 for ring, once per load (ruling 59).
-rsa = { version = "0.9", default-features = false, optional = true }
-signature = { version = "2", optional = true }
-ssh-agent-lib = { version = "0.6", optional = true }
-ssh-key = { version = "0.6", features = ["ed25519", "encryption"], optional = true }
+rsa = { version = "0.10", default-features = false, features = ["encoding"], optional = true }
+signature = { version = "3", optional = true }
+ssh-agent-lib = { version = "0.6", git = "https://github.com/mark-ik/ssh-agent-lib.git", branch = "main", optional = true }
+ssh-key = { version = "0.7.0-rc.12", features = ["ed25519", "encryption"], optional = true }
 thiserror = { version = "2", optional = true }
 tokio = { version = "1", features = ["macros", "net", "rt", "rt-multi-thread", "sync", "time"], optional = true }
 tracing-subscriber = { version = "0.3", optional = true }
@@ -128,10 +128,10 @@ zbus = { version = "5.19", default-features = false, features = ["tokio"], optio
 eidetic.workspace = true
 # The moved agent and signing tests (DR-B).
 hex = "0.4"
-rand_core = { version = "0.6", features = ["getrandom"] }
+rand_core = "0.10"
 # Tests verify RSA signatures with ssh-key's public-key verification, which
 # is the rsa crate's public operation, independent of the ring signer.
-ssh-key = { version = "0.6", features = ["ed25519", "rsa"] }
+ssh-key = { version = "0.7.0-rc.12", features = ["ed25519", "rsa"] }
 # The Linux Secret Service receipt reads its lock signal as a stream.
 futures-util = "0.3"
 gaz = { workspace = true, features = ["muniment"] }
@@ -145,7 +145,7 @@ tempfile = "3"
 # Windows, the named-pipe wire.
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "net", "process"] }
 # The moved authority tests verify real signatures off the agent wire.
-signature = "2"
+signature = "3"
 
 # Vault lock ruling 6's no-residue instrument over the resident's lock path
 # (L2). The residue tracker installs its own global allocator, so this runs

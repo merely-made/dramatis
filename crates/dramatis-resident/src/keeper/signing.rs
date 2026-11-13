@@ -103,8 +103,11 @@ mod tests {
         }
     }
     fn host() -> (Arc<PersonaeHost<InMemoryStorage>>, ssh_key::PublicKey) {
-        let key = ssh_key::PrivateKey::random(&mut rand_core::OsRng, ssh_key::Algorithm::Ed25519)
-            .unwrap();
+        let key = ssh_key::PrivateKey::random(
+            &mut rand_core::UnwrapErr(getrandom::SysRng),
+            ssh_key::Algorithm::Ed25519,
+        )
+        .unwrap();
         let public = ssh_key::PublicKey::from(&key);
         let mut profile = Profile::new(
             personae::ProfileId("synthetic".into()),

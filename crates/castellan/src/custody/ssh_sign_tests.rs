@@ -272,8 +272,8 @@ fn the_rsa_crate_only_builds_the_key() {
         assert!(
             [
                 "rsa::pkcs8::EncodePrivateKey",
-                "rsa::BigUint::from_bytes_be",
-                "rsa::RsaPrivateKey::from_components",
+                "rsa::BoxedUint::from_be_slice_vartime",
+                "rsa::PrivateKey::from_components",
             ]
             .contains(path),
             "the rsa crate may build the key, never sign: found {path}"

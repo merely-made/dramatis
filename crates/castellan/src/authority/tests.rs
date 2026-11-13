@@ -34,8 +34,11 @@ fn the_users_agent_socket_is_the_standard_endpoint() {
 
 #[test]
 fn snapshot_discloses_public_ssh_material_but_not_the_private_slot() {
-    let mut private =
-        ssh_key::PrivateKey::random(&mut rand_core::OsRng, Algorithm::Ed25519).unwrap();
+    let mut private = ssh_key::PrivateKey::random(
+        &mut rand_core::UnwrapErr(getrandom::SysRng),
+        Algorithm::Ed25519,
+    )
+    .unwrap();
     private.set_comment("workstation");
     let private_openssh = private.to_openssh(LineEnding::LF).unwrap().to_string();
     let mut profile = Profile::new(
@@ -309,8 +312,11 @@ fn a_projected_switch_is_live_and_remembered_for_the_family() {
 
 #[tokio::test]
 async fn projected_decisions_cannot_release_the_real_ssh_adapter_without_native_confirmation() {
-    let mut private =
-        ssh_key::PrivateKey::random(&mut rand_core::OsRng, Algorithm::Ed25519).unwrap();
+    let mut private = ssh_key::PrivateKey::random(
+        &mut rand_core::UnwrapErr(getrandom::SysRng),
+        Algorithm::Ed25519,
+    )
+    .unwrap();
     private.set_comment("approval-key");
     let public = ssh_key::PublicKey::from(&private);
     let mut profile = Profile::new(
@@ -391,8 +397,11 @@ async fn isolated_named_pipe_lists_and_signs_through_the_ssh_wire_protocol() {
     use ssh_agent_lib::client::Client;
     use tokio::net::windows::named_pipe::ClientOptions;
 
-    let mut private =
-        ssh_key::PrivateKey::random(&mut rand_core::OsRng, Algorithm::Ed25519).unwrap();
+    let mut private = ssh_key::PrivateKey::random(
+        &mut rand_core::UnwrapErr(getrandom::SysRng),
+        Algorithm::Ed25519,
+    )
+    .unwrap();
     private.set_comment("wire-receipt");
     let public = ssh_key::PublicKey::from(&private);
     let mut profile = Profile::new(

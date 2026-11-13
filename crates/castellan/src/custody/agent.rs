@@ -368,7 +368,7 @@ impl<S: IdentityStorage + 'static> Session for VaultAgent<S> {
         };
         let mut private = PrivateKey::try_from(privkey).map_err(AgentError::other)?;
         if private.comment().is_empty() && !comment.is_empty() {
-            private.set_comment(&comment);
+            private.set_comment(comment.as_str());
         }
         let key = ssh_slot::protocol_key_for(&private);
         let mut vault = self.vault.lock().unwrap();

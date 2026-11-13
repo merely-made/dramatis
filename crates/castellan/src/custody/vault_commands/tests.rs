@@ -122,7 +122,10 @@ fn generate_ssh_returns_only_the_public_half_and_preserves_the_master() {
     let text = String::from_utf8(out).unwrap();
     assert_eq!(text.trim(), slots[0].public().to_openssh().unwrap());
     assert!(!text.contains("PRIVATE KEY"));
-    assert_eq!(slots[0].private.comment(), "surface-to-windows");
+    assert_eq!(
+        slots[0].private.comment().as_str().unwrap(),
+        "surface-to-windows"
+    );
 }
 
 #[test]

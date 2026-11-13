@@ -19,7 +19,11 @@ fn device() -> DeviceId {
 }
 
 fn subject_key() -> PrivateKey {
-    PrivateKey::random(&mut rand_core::OsRng, Algorithm::Ed25519).unwrap()
+    PrivateKey::random(
+        &mut rand_core::UnwrapErr(getrandom::SysRng),
+        Algorithm::Ed25519,
+    )
+    .unwrap()
 }
 
 fn grant_with(

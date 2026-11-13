@@ -134,7 +134,11 @@ mod tests {
     use ssh_key::Algorithm;
 
     fn random_key(comment: &str) -> PrivateKey {
-        let mut key = PrivateKey::random(&mut rand_core::OsRng, Algorithm::Ed25519).unwrap();
+        let mut key = PrivateKey::random(
+            &mut rand_core::UnwrapErr(getrandom::SysRng),
+            Algorithm::Ed25519,
+        )
+        .unwrap();
         key.set_comment(comment);
         key
     }
@@ -159,7 +163,7 @@ mod tests {
         let key = random_key("laptop");
         let slot = slot_for(&key, UnlockTier::Session).unwrap();
         let decoded = private_key_from_slot(&slot).unwrap();
-        assert_eq!(decoded.comment(), "laptop");
+        assert_eq!(decoded.comment().as_str().unwrap(), "laptop");
         assert_eq!(
             PublicKey::from(&decoded).key_data(),
             PublicKey::from(&key).key_data()
@@ -189,7 +193,7 @@ mod tests {
         );
         let listed = ssh_slots(&profile);
         assert_eq!(listed.len(), 1, "the good slot still lists");
-        assert_eq!(listed[0].private.comment(), "good");
+        assert_eq!(listed[0].private.comment().as_str().unwrap(), "good");
     }
 
     #[test]

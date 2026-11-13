@@ -121,18 +121,18 @@ pub fn ring_keypair(keypair: &RsaKeypair) -> Result<ring::rsa::KeyPair, SshSignE
     let int = |value: &Mpint| {
         value
             .as_positive_bytes()
-            .map(rsa::BigUint::from_bytes_be)
+            .map(rsa::BoxedUint::from_be_slice_vartime)
             .ok_or_else(|| SshSignError::RsaKeyRejected("a component is not positive".into()))
     };
     // Rulings 59, 63: the rsa crate builds the key here, once per signature,
     // when the agent decodes it from the vault. Its standard construction
     // validates it and derives the CRT values OpenSSH does not store; its
     // PKCS#8 export hands ring the full key. Every signature is ring's.
-    let built = rsa::RsaPrivateKey::from_components(
-        int(&keypair.public.n)?,
-        int(&keypair.public.e)?,
-        int(&keypair.private.d)?,
-        vec![int(&keypair.private.p)?, int(&keypair.private.q)?],
+    let built = rsa::PrivateKey::from_components(
+        int(keypair.public().n())?,
+        int(keypair.public().e())?,
+        int(keypair.private().d())?,
+        vec![int(keypair.private().p())?, int(keypair.private().q())?],
     )
     .map_err(|error| SshSignError::RsaKeyRejected(error.to_string()))?;
     let pkcs8 = built

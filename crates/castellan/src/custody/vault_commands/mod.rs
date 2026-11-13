@@ -231,9 +231,12 @@ fn cmd_generate_ssh(
         return Err("key comment must have 1–256 characters and no control characters".into());
     }
     load(storage, id)?;
-    let mut private = PrivateKey::random(&mut rand_core::OsRng, ssh_key::Algorithm::Ed25519)
-        .map_err(|err| format!("generate SSH key: {err}"))?;
-    private.set_comment(comment);
+    let mut private = PrivateKey::random(
+        &mut rand_core::UnwrapErr(getrandom::SysRng),
+        ssh_key::Algorithm::Ed25519,
+    )
+    .map_err(|err| format!("generate SSH key: {err}"))?;
+    private.set_comment(comment.as_str());
     add_ssh_key(storage, id, &private, UnlockTier::Session)?;
     writeln!(
         out,

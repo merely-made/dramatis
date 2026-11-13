@@ -309,10 +309,16 @@ mod tests {
     }
 
     fn scratch_key(tag: &str, passphrase: &str) -> (PathBuf, String) {
-        let mut private = PrivateKey::random(&mut rand_core::OsRng, Algorithm::Ed25519).unwrap();
+        let mut private = PrivateKey::random(
+            &mut rand_core::UnwrapErr(getrandom::SysRng),
+            Algorithm::Ed25519,
+        )
+        .unwrap();
         private.set_comment("native picker receipt");
         let fingerprint = private.fingerprint(ssh_key::HashAlg::Sha256).to_string();
-        let private = private.encrypt(&mut rand_core::OsRng, passphrase).unwrap();
+        let private = private
+            .encrypt(&mut rand_core::UnwrapErr(getrandom::SysRng), passphrase)
+            .unwrap();
         let encoded = private.to_openssh(LineEnding::LF).unwrap();
         let path = std::env::temp_dir().join(format!(
             "graphshell-native-import-{tag}-{}",

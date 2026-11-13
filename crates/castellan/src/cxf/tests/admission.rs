@@ -170,7 +170,7 @@ async fn pkcs8_keys_join_native_slots_preserve_existing_keys_and_reimport_is_a_n
     let ed = ed25519_dalek::SigningKey::from_bytes(&[0x41; 32])
         .to_pkcs8_der()
         .unwrap();
-    let rsa = rsa::RsaPrivateKey::new(&mut rand_core::OsRng, 2048)
+    let rsa = rsa::PrivateKey::new(&mut rand_core::UnwrapErr(getrandom::SysRng), 2048)
         .unwrap()
         .to_pkcs8_der()
         .unwrap();

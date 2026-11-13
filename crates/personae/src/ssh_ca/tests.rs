@@ -256,3 +256,47 @@ fn a_host_certificate_names_its_hostnames() {
             .starts_with("@cert-authority *.local ssh-ed25519 ")
     );
 }
+
+/// Known answers for what the CA puts on the wire: its `TrustedUserCAKeys`
+/// line, its fingerprint, and a user and a host certificate minted from fixed
+/// inputs. Ed25519 signing is deterministic, so the certificates are fixed
+/// bytes. Recorded with ssh-key 0.6.7; an ssh-key move must leave them as is.
+#[test]
+fn ca_line_fingerprint_and_certificates_are_known_answers() {
+    let provider = InMemoryProvider::from_seed([1; 32]);
+    let ca = SshCertAuthority::derive(&provider).unwrap();
+    let grant = grant_with(&provider, &[ACTION_SSH_LOGIN, ACTION_SSH_PTY], None);
+    let subject = PublicKey::from(&PrivateKey::from(SshEd25519Keypair::from_seed(&[3; 32])));
+    let user = ca
+        .mint_user_cert(&request(&grant, &subject, &clean()), NOW_MS)
+        .unwrap();
+    let host = ca
+        .mint_host_cert(
+            &HostCertRequest {
+                subject: &subject,
+                principals: vec!["host.local".into()],
+                valid_for_ms: 86_400_000,
+            },
+            NOW_MS,
+        )
+        .unwrap();
+    let answers = [
+        ca.trusted_user_ca_line().unwrap(),
+        ca.fingerprint().to_string(),
+        user.to_openssh().unwrap(),
+        host.to_openssh().unwrap(),
+    ];
+    if std::env::var_os("PERSONAE_PRINT_ANSWERS").is_some() {
+        for answer in &answers {
+            eprintln!("ANSWER {answer}");
+        }
+    }
+    assert_eq!(answers, CA_KNOWN_ANSWERS);
+}
+
+const CA_KNOWN_ANSWERS: [&str; 4] = [
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGF3znsnuhUTBse4lJI3XEcB0dBJlOz9oIp4WHOU8gND personae ssh certificate authority",
+    "SHA256:VZetLMGxFAJ2nllNmdyLq0GrBtrG9ZcSpQk1VgRNYaA",
+    "ssh-ed25519-cert-v01@openssh.com AAAAIHNzaC1lZDI1NTE5LWNlcnQtdjAxQG9wZW5zc2guY29tAAAAGG2TLqKe4WxaOfMnMm/P6oIAwCzImQEAAAAAACDtSSjGKNHCxurpAziQWZVhKVknOlxj+TY2wUYUrIc30QLqHA7dUlR2AAAAAQAAAEA2ZDkzMmVhMjllZTE2YzVhMzlmMzI3MzI2ZmNmZWE4MjJiNDY5M2IxZDllZDlkYWYzNjdhNzcwMGVkYzA5M2NjAAAACgAAAAZtYXJraWsAAAAAaOd4AAAAAABo6CDAAAAAAAAAABIAAAAKcGVybWl0LXB0eQAAAAAAAAAAAAAAMwAAAAtzc2gtZWQyNTUxOQAAACBhd857J7oVEwbHuJSSN1xHAdHQSZTs/aCKeFhzlPIDQwAAAFMAAAALc3NoLWVkMjU1MTkAAABAJtN2145qn6wC/fQ3AXFmZLFwGpzux4bNZKlLks16+Keftf06Frx5DBrrAz0HIQ6Nu8KTVuE/hi6HroBUOK4ADA== personae",
+    "ssh-ed25519-cert-v01@openssh.com AAAAIHNzaC1lZDI1NTE5LWNlcnQtdjAxQG9wZW5zc2guY29tAAAAEADALMiZAQAAAQAAAAAAAAAAAAAg7UkoxijRwsbq6QM4kFmVYSlZJzpcY/k2NsFGFKyHN9EAAAAAAAAAAAAAAAIAAAAYcGVyc29uYWUtaG9zdC1ob3N0LmxvY2FsAAAADgAAAApob3N0LmxvY2FsAAAAAGjneAAAAAAAaOjJgAAAAAAAAAAAAAAAAAAAADMAAAALc3NoLWVkMjU1MTkAAAAgYXfOeye6FRMGx7iUkjdcRwHR0EmU7P2ginhYc5TyA0MAAABTAAAAC3NzaC1lZDI1NTE5AAAAQL+H3KPua9lqSd5Eok7jM3unMWkcWwbdj8maBi+8oaMfJYuiDN6/+lUuxQiZCqQQCXI44trlbchN0lWdfXk63AU=",
+];

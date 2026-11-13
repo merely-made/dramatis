@@ -149,3 +149,7 @@ pub fn ring_keypair(keypair: &RsaKeypair) -> Result<ring::rsa::KeyPair, SshSignE
 #[cfg(test)]
 #[path = "ssh_sign_tests.rs"]
 pub(crate) mod tests;
+
+#[cfg(test)]
+#[path = "ssh_known_answers.rs"]
+mod known_answers;

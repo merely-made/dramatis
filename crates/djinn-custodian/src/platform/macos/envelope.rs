@@ -165,6 +165,31 @@ pub fn install(config: &Config, config_path: &Path) -> Result<(), String> {
     Ok(())
 }
 
+/// The envelope's native round trip, for the receiving run: under the same
+/// preconditions as service start, store a random throwaway item in the
+/// custodian's group, read it back, compare, delete it and see it gone. Touches
+/// no wallet and no real root.
+pub fn self_test(config: &Config, config_path: &Path) -> Result<String, String> {
+    let envelope = config.envelope.as_ref().ok_or("the configuration names no envelope")?;
+    require_installation(config_path)?;
+    let root = KeychainRoot::new(envelope);
+    root.preflight()?;
+    let mut value = Zeroizing::new([0u8; 32]);
+    let mut id = [0u8; 8];
+    getrandom::fill(&mut *value).and_then(|()| getrandom::fill(&mut id)).map_err(|e| e.to_string())?;
+    let account = format!("selftest-{}", id.iter().map(|b| format!("{b:02x}")).collect::<String>());
+    root.create(&account, &value).map_err(|e| e.to_string())?;
+    let read = root.load(&account);
+    root.discard(&account);
+    let gone = matches!(root.load(&account), Ok(None));
+    match read {
+        Ok(Some(read)) if *read == *value && gone => Ok(format!("stored, read back and removed a throwaway item in {}", envelope.access_group)),
+        Ok(Some(_)) => Err("the item read back differently, or was not removed".into()),
+        Ok(None) => Err("the item just stored was not found".into()),
+        Err(error) => Err(error.to_string()),
+    }
+}
+
 /// The configuration and the running executable are the installer's:
 /// canonical paths under [`INSTALL_ROOT`], whose every ancestor is root's,
 /// a real directory and writable by nobody else. A process of the desktop

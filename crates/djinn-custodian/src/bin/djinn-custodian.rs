@@ -17,6 +17,7 @@
 //!       --from: a passphrase vault (its passphrase on stdin) or an OS-rooted
 //!       Windows vault (the new passphrase twice, run as the owner);
 //!       --data-from: the wallet and credential catalog, no passphrase
+//!   djinn-custodian envelope-check --config PATH   (macOS: the Keychain envelope's round trip)
 //!   djinn-custodian wallet-files --data-root DIR   (the wallet's files, NUL-separated)
 //!   djinn-custodian consent --client PATH   (the logon helper that puts
 //!       petitions to the owner: Windows Hello, or on macOS LocalAuthentication;
@@ -60,7 +61,7 @@ impl Args {
 fn parse() -> Result<Args, String> {
     let mut raw = std::env::args().skip(1).peekable();
     let command = match raw.peek().map(String::as_str) {
-        Some("init") | Some("adopt") | Some("consent") | Some("remote-init") | Some("remote-check") | Some("validate-config") => raw.next().expect("peeked"),
+        Some("init") | Some("adopt") | Some("consent") | Some("remote-init") | Some("remote-check") | Some("validate-config") | Some("envelope-check") => raw.next().expect("peeked"),
         _ => "serve".to_string(),
     };
     let (mut config, mut client, mut socket, mut from, mut data_from) = (None, None, None, None, None);
@@ -113,6 +114,7 @@ fn run() -> Result<(), String> {
     }
     match args.command.as_str() {
         "validate-config" => Ok(()),
+        "envelope-check" => envelope_check(&config, path),
         "remote-check" => djinn_custodian::remote_approval::storage::EnrollmentStore::open(
             &config.vault.directory,
             config.remote_approval.as_ref().ok_or("remote approval is not configured")?,
@@ -125,6 +127,18 @@ fn run() -> Result<(), String> {
         "adopt" => adopt(&config, args.from.as_deref(), args.data_from.as_deref()),
         _ => serve(config, &args),
     }
+}
+
+/// The macOS Keychain envelope's round trip on this host (receiving step).
+#[cfg(target_os = "macos")]
+fn envelope_check(config: &Config, path: &Path) -> Result<(), String> {
+    println!("envelope: {}", platform::macos::envelope::self_test(config, path)?);
+    Ok(())
+}
+
+#[cfg(not(target_os = "macos"))]
+fn envelope_check(_: &Config, _: &Path) -> Result<(), String> {
+    Err("the Keychain envelope exists only on macOS".into())
 }
 
 fn serve(config: Config, args: &Args) -> Result<(), String> {

@@ -61,6 +61,16 @@ fn wallet_startup_unlock_mode(data_root: &Path) -> StartupUnlockMode {
         .unwrap_or_default()
 }
 
+/// Whether this launch's startup policy is Prompt or Locked with no session
+/// unlock active, so no sealed store opens for the wallet's local secrets.
+pub(super) fn wallet_startup_policy_locked(data_root: &Path) -> bool {
+    !runtime_manual_unlock_active(data_root)
+        && matches!(
+            wallet_startup_unlock_mode(data_root),
+            StartupUnlockMode::Prompt | StartupUnlockMode::Locked
+        )
+}
+
 pub(super) fn looks_like_sealed_record(path: &Path) -> bool {
     let Ok(bytes) = fs::read(path) else {
         return false;

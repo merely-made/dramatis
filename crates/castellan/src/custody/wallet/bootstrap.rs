@@ -17,7 +17,10 @@ use personae::carry::CarriagePolicy;
 use super::devices::load_local_device_identity;
 use super::devices::local_device_identity_locked_at_startup;
 use super::epochs::ensure_persona_epoch_bridge;
-use super::secrets::{identity_seed_locked_at_startup, load_identity_seed, save_identity_seed};
+use super::secrets::{
+    identity_seed_locked_at_startup, load_identity_seed, save_identity_seed,
+    wallet_startup_policy_locked,
+};
 use super::{
     DeviceExposure, DeviceId, DeviceMode, DevicePublicKey, DeviceRecord, DeviceRoster, KeyEpochId,
     PersonaWalletManifest, PersonaWalletRef, WALLET_SCHEMA_VERSION, derive_persona_chain_root,
@@ -49,6 +52,11 @@ pub enum WalletBootstrapMode {
 /// device has either minted its local identity or installed a remote-auth
 /// enrollment bundle, startup must preserve that state instead of creating
 /// `identity/master.seed` and a copy-mode roster entry.
+///
+/// A fresh root whose startup policy is Prompt or Locked has no sealed store
+/// this launch, so it reports [`WalletBootstrapMode::Locked`] and writes
+/// nothing. In AutoOs mode a missing store stays the `NoSealedStore` refusal
+/// (custody D5).
 pub fn bootstrap_wallet_state(
     data_root: &Path,
     persona: PersonaId,
@@ -68,6 +76,9 @@ pub fn bootstrap_wallet_state(
         return Ok(WalletBootstrapMode::DelegatedPending);
     }
     if local_device_identity_locked_at_startup(data_root) {
+        return Ok(WalletBootstrapMode::Locked);
+    }
+    if wallet_startup_policy_locked(data_root) {
         return Ok(WalletBootstrapMode::Locked);
     }
     ensure_wallet_state(data_root, persona, device_label)?;
@@ -272,6 +283,84 @@ mod tests {
             }]
         );
 
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    fn files_under(root: &std::path::Path) -> Vec<std::path::PathBuf> {
+        let mut files = Vec::new();
+        let mut pending = vec![root.to_path_buf()];
+        while let Some(dir) = pending.pop() {
+            for entry in fs::read_dir(dir).unwrap() {
+                let path = entry.unwrap().path();
+                if path.is_dir() {
+                    pending.push(path);
+                } else {
+                    files.push(path);
+                }
+            }
+        }
+        files.sort();
+        files
+    }
+
+    fn fresh_root_with_policy(tag: &str, mode: StartupUnlockMode) -> std::path::PathBuf {
+        let root = temp_data_root(tag);
+        save_device_settings(
+            &root,
+            &DeviceSettings {
+                startup_unlock_mode: mode,
+                mesh_lending: None,
+            },
+        )
+        .unwrap();
+        root
+    }
+
+    #[test]
+    fn a_fresh_prompt_install_reports_locked_and_writes_nothing() {
+        let root = fresh_root_with_policy("bootstrap-fresh-prompt", StartupUnlockMode::Prompt);
+        let before = files_under(&root);
+
+        let mode = bootstrap_wallet_state(&root, fixture_persona(), "Studio PC").unwrap();
+
+        assert_eq!(mode, WalletBootstrapMode::Locked);
+        assert_eq!(files_under(&root), before);
+        assert!(!identity_seed_path(&root).exists());
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn a_fresh_locked_install_reports_locked_and_writes_nothing() {
+        let root = fresh_root_with_policy("bootstrap-fresh-locked", StartupUnlockMode::Locked);
+        let before = files_under(&root);
+
+        let mode = bootstrap_wallet_state(&root, fixture_persona(), "Studio PC").unwrap();
+
+        assert_eq!(mode, WalletBootstrapMode::Locked);
+        assert_eq!(files_under(&root), before);
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    // Windows always has DPAPI, so AutoOs there always has a store; the
+    // missing provider is reachable only where the store is the installed
+    // provider (the macOS custodian's Keychain envelope), through the
+    // provider seam's own serialising lock.
+    #[cfg(not(windows))]
+    #[test]
+    fn a_fresh_auto_os_install_without_a_provider_is_still_no_sealed_store() {
+        let _serial = crate::custody::auto_unlock_provider::tests::SERIAL
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        crate::custody::remove_auto_unlock_provider();
+        let root = fresh_root_with_policy("bootstrap-fresh-auto-os", StartupUnlockMode::AutoOs);
+
+        let error = bootstrap_wallet_state(&root, fixture_persona(), "Studio PC").unwrap_err();
+
+        assert!(matches!(
+            WalletSecretRefusal::of(&error),
+            Some(WalletSecretRefusal::NoSealedStore { .. })
+        ));
+        assert!(!identity_seed_path(&root).exists());
         let _ = fs::remove_dir_all(&root);
     }
 

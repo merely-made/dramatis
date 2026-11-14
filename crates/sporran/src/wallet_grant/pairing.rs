@@ -6,6 +6,18 @@
 
 //! Remote-auth pairing: minting and reading tickets, the human-typed code,
 //! and the transcript-bound key material both sides derive independently.
+//!
+//! This is a key derivation from a pre-shared secret, not a PAKE. The ticket
+//! carries a 128-bit random secret whole, in the QR or typed as 32 hex digits,
+//! and both sides derive the wrapping key and the six-digit code from that
+//! secret, the two public keys and the device id with BLAKE3, over a
+//! transcript without length prefixes. Nothing is verified inside the
+//! exchange: a wrong secret shows up only when unwrapping fails. The six-digit
+//! code comes from the same transcript, and castellan's issue path hands it
+//! out only after the grant and wrapping key are saved, so it cannot
+//! authenticate the exchange (a known defect of this code). The pairing
+//! flow, when built, replaces this derivation with a QR plus a compared code
+//! backed by a commitment (dramatis_repo D16).
 
 use std::io;
 
@@ -100,8 +112,9 @@ pub fn derive_pairing_key_from_transcript(context: &str, transcript: &[u8]) -> [
     *hasher.finalize().as_bytes()
 }
 
-/// Derive the remote-auth wrapping key plus a decimal short auth string from
-/// the shared pairing secret and transcript identities.
+/// Derive the remote-auth wrapping key plus a six-digit code from the
+/// pre-shared pairing secret and transcript identities. Both are BLAKE3
+/// outputs of one transcript; the code is not a commitment-backed SAS.
 pub fn derive_remote_auth_pairing_material(
     pairing_secret: &[u8],
     delegator_pubkey: DevicePublicKey,

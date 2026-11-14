@@ -119,7 +119,8 @@ pub struct RemoteAuthPairingResponse {
 pub struct RemoteAuthEnrollmentBundle {
     pub schema_version: u32,
     /// The pairing ticket this bundle completes, when the host wants the
-    /// delegatee to recover the cached PAKE-derived wrapping key path.
+    /// delegatee to recover the cached wrapping key derived from the
+    /// pre-shared pairing secret.
     #[serde(default)]
     pub ticket_id: Option<Uuid>,
     pub grant: DeviceGrantSet,
@@ -135,7 +136,7 @@ pub struct RemoteAuthEnrollmentBundle {
 }
 
 /// A remote-auth issuance request where pairing still holds plaintext epoch
-/// material and the shared PAKE secret.
+/// material and the pre-shared pairing secret (not a PAKE password).
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct PairedRemoteAuthGrantSpec {
     pub device_id: DeviceId,
@@ -152,7 +153,7 @@ pub struct PairedRemoteAuthGrantSpec {
 }
 
 /// Deterministic pairing-derived material both sides compute from the same
-/// shared PAKE secret and transcript identities.
+/// pre-shared pairing secret and transcript identities.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct RemoteAuthPairingMaterial {
     pub wrapping_key: [u8; 32],

@@ -117,6 +117,32 @@ custody stays an explicit test feature, with no fallback.
 
 Links: area custody · draws on dramatis_repo D14 · summary reusable resident identity service moves to dramatis; projections and host wiring stay with their owners
 
+### dramatis_repo D16: pairing is a QR plus a compared code (2026-11-14)
+
+Mark answered the pairing study (`Code/testing/engine-split/study_dramatis_stores_pairing_otp.md`
+Part 2, with `research_unlock_pairing_totp.md` Part 2) with **"QR plus compare a code"**: the design
+assumes the 128-bit secret travels in the QR and both screens show a short code to compare, done
+with a commitment through vodozemac's audited SAS module when the pairing flow is built. **"The
+current derivation is replaced when the pairing flow is built; until then it is only relabelled."**
+Standing rule: **"We should remain strictly consumers, not forking standards."**
+
+The built flow uses `vodozemac`'s SAS module (0.11.2 on 2026-11-14, Apache-2.0, on the family's
+dependency lines per the research; audited by Least Authority, "no significant findings", the audited
+version not stated). Its ZRTP-style hash commitment makes each side commit to its part of the key
+exchange before seeing the other's, so a relay gets one guess at the compared code; the grant is
+issued only after the humans confirm the codes match. That replaces sporran's
+`derive_remote_auth_pairing_material` and castellan's `issue_remote_auth_device_grant_from_pairing`
+and `_from_ticket`.
+
+Known defect of the present code (relabelled 2026-11-14, behaviour unchanged): it is a BLAKE3 key
+derivation from the pre-shared 128-bit secret, not a PAKE. Nothing is verified in the protocol, and
+the six-digit code, derived from the same transcript, reaches the caller only after the grant and the
+wrapping key are saved, so it cannot authenticate the exchange. No production caller exists. Graphshell's
+pairing plan D5 (`repos/graphshell/design_docs/graphshell_docs/implementation_strategy/2026-10-28_device_pairing_plan.md:139`)
+names the same "ticket, typed code and SAS" and is that repository's to update.
+
+Links: area custody · plans O4 · summary Pairing will be a QR-carried 128-bit secret plus a commitment-backed compared code via vodozemac's SAS; the present KDF is relabelled, not a PAKE.
+
 ## Resident identity extraction, 2026-11-03
 
 **Status:** complete, 2026-11-03. The developed service moved as one package, preserving
@@ -181,6 +207,8 @@ Released keys are revoked at lock only cooperatively, when an app watches Djinn'
 ### O4. Wallet-carry gaps
 
 Inherited from the S14 archive pass: PAKE/QR chrome and transport UI; copy-mode export and import; epoch history beyond the current epoch; a migration pass for cleartext private blobs (`repos/mere/design_docs/archive_docs/2026-10-06_completed_plans/2026-06-25_persona_wallet_carry_layer_plan.md`). They touch pandect's wallet, whose secret half moved to castellan under ruling D8; the old plan said they were "assessed with DR-B", and no assessment is recorded.
+
+Note (2026-11-14, dramatis_repo D16): the "PAKE/QR chrome" item is a QR plus a commitment-backed compared code through `vodozemac`'s SAS module, replacing today's pre-shared-secret derivation when the flow is built. Today's code is not a PAKE, and its six-digit code reaches the caller only after the grant is saved (a known defect).
 
 **Done when:** an assessment is recorded here, and each of the four is built with a receipt in mere's custody plan (`repos/dramatis/design_docs/2026-10-28_custody_plan.md`) or dropped by a ruling.
 

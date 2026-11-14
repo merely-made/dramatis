@@ -35,7 +35,8 @@ Not here:
   ceremony, SSH host certificates and the resident's Linux launcher (the rules here must compose with them):
   `repos/mere/design_docs/mere_docs/implementation_strategy/2026-10-28_device_pairing_plan.md`; the Djinn update resident: `repos/mere/design_docs/mere_docs/implementation_strategy/2026-10-28_family_update_resident_plan.md`; the
   publication service a confined worker serves: `repos/mere/design_docs/mere_docs/implementation_strategy/2026-10-28_site_publication_plan.md`;
-- the dramatis repo plan's work (facade, D5, the keeper feature split, PAKE and QR chrome, copy-mode export, sibling repins),
+- the dramatis repo plan's work (facade, D5, the keeper feature split, the pairing QR and compared code of dramatis_repo
+  D16 (2026-11-14; the present derivation is not a PAKE), copy-mode export, sibling repins),
   the chatelaine CXF plan's P4 import and V4 item types, and the pinned threat statement and tier architecture (owning-repo
   follow-up, no competing copy here); the public client `2026-10-11_dramatis_app_plan.md`;
 - ownership-repair lanes L1 to L3, L5 and L6 and the audit routing: `repos/mere/design_docs/mere_docs/implementation_strategy/2026-10-28_graph_semantics_plan.md` (L1) and

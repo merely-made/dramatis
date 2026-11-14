@@ -128,9 +128,10 @@ pub(crate) fn store_wrapped_epochs(
     Ok(())
 }
 
-/// Issue one remote-auth device grant directly from a shared pairing secret and
-/// plaintext private-epoch material. This is the seam pairing calls once its
-/// PAKE/SAS exchange succeeds.
+/// Issue one remote-auth device grant directly from a pre-shared pairing secret
+/// and plaintext private-epoch material. The grant and wrapping key are saved
+/// before the six-digit code is returned, so the code cannot gate issuance
+/// (a known defect; dramatis_repo D16 replaces this derivation).
 pub fn issue_remote_auth_device_grant_from_pairing(
     data_root: &Path,
     spec: &PairedRemoteAuthGrantSpec,

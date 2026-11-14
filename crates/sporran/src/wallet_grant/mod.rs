@@ -70,7 +70,7 @@ pub const DEVICE_GRANT_SCHEMA_VERSION: u32 = 1;
 pub const WRAPPED_PRIVATE_EPOCH_FORMAT_V1: &str = "xchacha20poly1305-v1";
 /// Pairing transcript context for deriving the remote-auth wrapping key.
 pub const REMOTE_AUTH_PAIRING_WRAP_CONTEXT_V1: &str = "mere.wallet.remote-auth.wrap.v1";
-/// Pairing transcript context for deriving the short auth string.
+/// Pairing transcript context for deriving the six-digit pairing code.
 pub const REMOTE_AUTH_PAIRING_SAS_CONTEXT_V1: &str = "mere.wallet.remote-auth.sas.v1";
 /// Schema version for QR / code transported remote-auth pairing tickets.
 pub const REMOTE_AUTH_PAIRING_TICKET_SCHEMA_VERSION: u32 = 1;

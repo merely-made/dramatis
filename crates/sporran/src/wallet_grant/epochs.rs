@@ -94,8 +94,9 @@ pub fn wrapped_epoch_aad(persona_id: PersonaId, epoch_id: KeyEpochId) -> Vec<u8>
 
 /// Wrap one private-epoch secret under a device/pairing-derived wrapping key.
 ///
-/// v1 keeps the wrapping key abstract: pairing can derive it via PAKE later,
-/// while this storage seam already lands the concrete sealed payload shape.
+/// v1 keeps the wrapping key abstract: pairing derives it today from a
+/// pre-shared secret, while this storage seam already lands the concrete
+/// sealed payload shape.
 pub fn wrap_private_epoch_material(
     persona_id: PersonaId,
     epoch_id: KeyEpochId,

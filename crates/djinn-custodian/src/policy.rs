@@ -19,6 +19,9 @@
 use custody_wire::Peer;
 use serde::Deserialize;
 
+mod platform;
+pub use platform::{ConsentMode, EnvelopeConfig, Owner};
+
 /// The whole installed configuration.
 #[derive(Clone, Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -35,6 +38,10 @@ pub struct Config {
     pub principals: Vec<PrincipalRule>,
     /// How petitions reach the owner.
     pub consent: ConsentMode,
+    /// macOS: the wallet's sealing root lives in a data-protection Keychain
+    /// item. Absent elsewhere; a protected macOS custodian needs it.
+    #[serde(default)]
+    pub envelope: Option<EnvelopeConfig>,
     /// The desktop account whose vault this is. Its uid or SID identifies
     /// only "some process of that user".
     pub owner: Owner,
@@ -63,29 +70,6 @@ pub struct VaultConfig {
     /// Where the custodian serves the SSH agent, when it is served.
     #[serde(default)]
     pub agent_endpoint: Option<String>,
-}
-
-/// The vault owner's desktop account.
-#[derive(Clone, Debug, Default, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct Owner {
-    #[serde(default)]
-    pub unix_uid: Option<u32>,
-    #[serde(default)]
-    pub windows_sid: Option<String>,
-}
-
-/// Which channel decides petitions.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-pub enum ConsentMode {
-    /// Nobody: every petition is refused.
-    Deny,
-    /// A session admitted as `consent_channel`.
-    Channel,
-    /// Linux polkit with an interactive authentication of the requester's
-    /// session (`auth_self`), run by the custodian itself.
-    Polkit,
 }
 
 /// One principal, matched on an OS fact.
@@ -426,6 +410,9 @@ impl Config {
         }
         if !self.vault.directory.is_absolute() {
             return Err(PolicyError("the vault directory must be absolute".into()));
+        }
+        if let Some(envelope) = &self.envelope {
+            envelope.check(self.development).map_err(PolicyError)?;
         }
         let mut names = std::collections::BTreeSet::new();
         for rule in &self.principals {

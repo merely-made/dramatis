@@ -18,8 +18,10 @@
 //!       Windows vault (the new passphrase twice, run as the owner);
 //!       --data-from: the wallet and credential catalog, no passphrase
 //!   djinn-custodian wallet-files --data-root DIR   (the wallet's files, NUL-separated)
-//!   djinn-custodian consent --client PATH   (Windows: the logon helper that
-//!       puts petitions to the owner through Windows Hello)
+//!   djinn-custodian consent --client PATH   (the logon helper that puts
+//!       petitions to the owner: Windows Hello, or on macOS LocalAuthentication;
+//!       on macOS PATH may be the installed clients directory, whose file for
+//!       this user's uid is read)
 
 use std::io::BufRead;
 use std::path::{Path, PathBuf};
@@ -99,6 +101,16 @@ fn run() -> Result<(), String> {
     let path = args.config()?;
     let bytes = std::fs::read(path).map_err(|e| format!("read {}: {e}", path.display()))?;
     let config = Config::parse(&bytes).map_err(|e| e.to_string())?;
+    // A macOS custodian keeps the wallet's sealing root in its Keychain
+    // envelope; every command that can open the wallet installs it first.
+    #[cfg(target_os = "macos")]
+    if matches!(args.command.as_str(), "serve" | "init" | "adopt" | "remote-init" | "remote-check") {
+        platform::macos::envelope::install(&config, path)?;
+    }
+    #[cfg(not(target_os = "macos"))]
+    if config.envelope.is_some() {
+        return Err("the Keychain envelope exists only on macOS".into());
+    }
     match args.command.as_str() {
         "validate-config" => Ok(()),
         "remote-check" => djinn_custodian::remote_approval::storage::EnrollmentStore::open(
@@ -127,6 +139,7 @@ fn serve(config: Config, args: &Args) -> Result<(), String> {
         data_root: config.vault.data_root.clone(),
         config: args.config()?.to_path_buf(),
         required: !development,
+        envelope: config.envelope.is_some(),
     };
     let consent = config.consent;
     let core = Core::start(config.clone()).map_err(|r| format!("start: {r}"))?;
@@ -306,6 +319,7 @@ fn adopt_data(config: &Config, data_from: &Path) -> Result<(), String> {
     let data_root = config.vault.data_root.as_deref().ok_or("the configuration names no vault.data_root")?;
     let adopted = djinn_custodian::wallet::adopt_files(data_from, data_root)?;
     println!("adopted {} wallet and credential files from {} into {}", adopted.files.len(), data_from.display(), data_root.display());
+    seal_adopted_seed(config, data_root)?;
     if adopted.left.is_empty() {
         return Ok(());
     }
@@ -313,6 +327,27 @@ fn adopt_data(config: &Config, data_from: &Path) -> Result<(), String> {
         eprintln!("djinn-custodian: could not remove {}: {why}", data_from.join(file).display());
     }
     Err(format!("the wallet is adopted, but {} copies remain in {}; remove them as their owner", adopted.left.len(), data_from.display()))
+}
+
+/// With an envelope, a legacy wallet's identity seed arrives as 32 raw bytes.
+/// Reading it once through Castellan's own loader replaces it with a sealed
+/// record under the envelope's root, so the adopted wallet is at rest under the
+/// Keychain item and not merely moved. Nothing is said about the seed.
+fn seal_adopted_seed(config: &Config, data_root: &Path) -> Result<(), String> {
+    if config.envelope.is_none() {
+        return Ok(());
+    }
+    let seed = sporran::wallet_store::identity_seed_path(data_root);
+    if !seed.is_file() {
+        return Ok(());
+    }
+    castellan::custody::wallet::load_identity_seed(data_root).map_err(|e| format!("seal the adopted seed: {e}"))?;
+    let raw = std::fs::metadata(&seed).map_err(|e| e.to_string())?.len() == 32;
+    if raw {
+        return Err("the adopted identity seed is still 32 raw bytes after the envelope was applied".into());
+    }
+    println!("sealed the adopted identity seed under the envelope");
+    Ok(())
 }
 
 /// The wallet's and catalog's files under a data root, relative and
@@ -454,9 +489,37 @@ fn detach_own_console() {
     }
 }
 
-#[cfg(not(windows))]
+/// The macOS consent helper: the owner's LaunchAgent, signed as
+/// `com.merely.djinn.custodian.consent`. A directory names the installed
+/// clients directory, whose file for this uid is read; a session of another
+/// user, which has none, ends quietly and successfully.
+#[cfg(target_os = "macos")]
+fn consent(client: &Path) -> Result<(), String> {
+    use custody_wire::Client;
+    use custody_wire::transport::UnixSocketConnector;
+    use djinn_custodian::helper::{self, ClientFile, Retry};
+    use djinn_custodian::platform::macos::Presence;
+    let file = if client.is_dir() {
+        // SAFETY: getuid takes nothing and cannot fail.
+        let own = client.join(format!("{}.json", unsafe { libc::getuid() }));
+        if !own.is_file() {
+            eprintln!("djinn-custodian consent: no custodian is installed for this user");
+            return Ok(());
+        }
+        own
+    } else {
+        client.to_path_buf()
+    };
+    let file = ClientFile::read(&file)?;
+    let connector = UnixSocketConnector::new(&file.endpoint);
+    let stop = std::sync::atomic::AtomicBool::new(false);
+    helper::run(&|| Client::open(&connector, &file.server), &Presence::default(), &stop, Retry::default(), &|text| eprintln!("djinn-custodian consent: {text}"));
+    Ok(())
+}
+
+#[cfg(not(any(windows, target_os = "macos")))]
 fn consent(_: &Path) -> Result<(), String> {
-    Err("the consent helper is the Windows logon helper; this platform's consent is polkit or the signed host".into())
+    Err("the consent helper is the Windows and macOS logon helper; this platform's consent is polkit".into())
 }
 
 fn hex(bytes: &[u8]) -> String {

@@ -33,6 +33,8 @@ pub struct Confinement {
     pub config: PathBuf,
     /// Refuse to run unless every mechanism applied.
     pub required: bool,
+    /// The configuration names a data-protection Keychain envelope (macOS).
+    pub envelope: bool,
 }
 
 /// What was actually applied, for the startup log and status.

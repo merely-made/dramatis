@@ -202,7 +202,7 @@ Links: area custody · refines custody D1 · draws on custody D3 · plans VL-U �
 ### H1. Enforced custody boundary and adversarial vertical slice
 The portable custodian and its contract are on main with the H1 negative controls in CI-runnable tests; the macOS synthetic
 fixture passes in a separate non-admin account and fails in the signing account (the H1-F1 control). Open: receiving runs
-on each OS (the custodian README lists the steps); the macOS data-protection Keychain envelope in the portable binary; the
+on each OS (the custodian README lists the steps); the macOS data-protection Keychain envelope (in the portable binary since 2026-11-14 as source; its signed native run is open); the
 Windows CNG wrapping key; the Windows presence channel (a logon helper, built, never run); the shared confined-worker
 launcher and manifest with a hostile-worker fixture, sandboxing active before parsing, and T05, T07 and T10 against
 malicious workers and an unrelated same-user app; retiring the source vault and its copies transactionally after `adopt`;
@@ -225,9 +225,10 @@ claims wait on it); qualification of the trusted authentication helpers and the 
 publishing each raw-key exception with its peer and rotation consequence. Standing gaps: `publish_grant_carriage` has no
 production caller and needs disclosure of roster, grants and wrapped epoch records plus an act in custody first; the
 in-process and receipt hosts still read a wallet directly; on macOS the custodian and Djinn share an account, so the wallet
-move changes holder, not file access; the Windows wallet is DPAPI-sealed; the Linux credential catalog must move into the
-custodian's state directory; consent is polkit once per generation on Linux, absent on macOS (per-use SSH keys refused)
-and a same-user helper on Windows, type-checked only; the custodian now links Castellan's keeper and CXF code, the SSH
+move changes holder, not file access, and the wallet's seed is sealed under the data-protection Keychain envelope (source and
+synthetic, 2026-11-14); the Windows wallet is DPAPI-sealed; the Linux credential catalog must move into the
+custodian's state directory; consent is polkit once per generation on Linux, a code-signed LocalAuthentication helper on macOS
+(source and synthetic, 2026-11-14; the signed run is open, fleet_custody_rollout F2) and a same-user helper on Windows, type-checked only; the custodian now links Castellan's keeper and CXF code, the SSH
 agent, tokio, pandect and graph-kernel (H4's dependency review); hostile CXF parsing runs inside the custodian, so import
 isolation is a custodian-surface item.
 - Done when: one authority holds roots and epochs; golden identity, derivation, stored-content and cold-reopen checks
@@ -598,3 +599,7 @@ SS8 parked the plan.
   Both native unlocks, O-PC's signing guard and shared-root approval trust passed.
   Live network-consent execution and storage-opening integration remain open.
   T-PC also reloaded weekly idle with screen-lock/suspend triggers disabled after finite custody expiry was deployed.
+- 2026-11-14: the macOS consent channel and data-protection Keychain envelope that
+  H1 and H2 listed as outstanding are built as source with synthetic tests (rollout
+  plan D11 and its Findings). Native Keychain and LocalAuthentication behaviour and
+  the signed receiving run remain open.

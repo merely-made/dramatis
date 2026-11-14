@@ -9,14 +9,21 @@
 //! The process refuses debugger attachment and core files before input.
 //! Protected mode also requires the running code to be validly signed with
 //! the hardened runtime and without `get-task-allow`, which is what keeps
-//! another same-user process out of its memory; the signed launch,
-//! data-protection Keychain envelope and native consent dialog remain the
-//! signed host's part (`testing/macos-castellan-custodian-h1`).
+//! another same-user process out of its memory, and with the data-protection
+//! Keychain envelope ([`envelope`]). Consent is the signed helper's
+//! LocalAuthentication prompt ([`consent`]), the same channel contract as
+//! Windows Hello. `testing/macos-castellan-custodian-h1` keeps the synthetic
+//! fixture's earlier evidence.
 
 use std::os::fd::FromRawFd;
 use std::os::unix::net::UnixListener;
 
 use super::{Applied, Confinement};
+
+pub mod consent;
+pub mod envelope;
+
+pub use consent::Presence;
 
 unsafe extern "C" {
     fn ptrace(request: libc::c_int, pid: libc::pid_t, addr: *mut libc::c_char, data: libc::c_int) -> libc::c_int;
@@ -54,6 +61,13 @@ pub fn confine(plan: &Confinement) -> Result<Applied, String> {
         return Err("protected mode requires a valid hardened-runtime signature without get-task-allow".into());
     } else {
         applied.notes.push(format!("not hardened-runtime signed (code-signing flags {flags:#x}); development only"));
+    }
+    if plan.envelope {
+        applied.notes.push("data-protection Keychain envelope installed".into());
+    } else if plan.required {
+        return Err("protected mode requires the data-protection Keychain envelope (the configuration names none)".into());
+    } else {
+        applied.notes.push("no Keychain envelope; development only".into());
     }
     Ok(applied)
 }

@@ -73,6 +73,10 @@ fn config(dir: &std::path::Path) -> Config {
 
 /// A running service whose next accepted connections are `peers`, in order.
 fn serve(dir: &std::path::Path, peers: Vec<Peer>) -> std::path::PathBuf {
+    serve_with(config(dir), dir, peers)
+}
+
+fn serve_with(config: Config, dir: &std::path::Path, peers: Vec<Peer>) -> std::path::PathBuf {
     use std::os::unix::fs::PermissionsExt;
     let sockets = dir.join("sockets");
     std::fs::create_dir(&sockets).unwrap();
@@ -82,7 +86,7 @@ fn serve(dir: &std::path::Path, peers: Vec<Peer>) -> std::path::PathBuf {
         inner: UnixSocketListener::bind(&path).unwrap(),
         peers: Mutex::new(peers.into()),
     };
-    let service = Service::new(Core::start(config(dir)).unwrap(), None);
+    let service = Service::new(Core::start(config).unwrap(), None);
     std::thread::spawn(move || service.serve(&listener));
     path
 }
@@ -232,4 +236,89 @@ fn the_helper_connects_again_until_the_custodian_admits_it_and_reports_once_per_
     });
     assert_eq!(attempts.load(Ordering::Relaxed), 4, "admitted on the fourth try and then served");
     assert_eq!(reports.lock().unwrap().len(), 1, "three failures in a row are one report: {:?}", reports.lock().unwrap());
+}
+
+const TEAM: &str = "HWVZ5S7ACJ";
+
+fn signed(identifier: &str) -> Peer {
+    Peer::Signed {
+        team: TEAM.into(),
+        identifier: identifier.into(),
+    }
+}
+
+/// The configuration `install-macos.sh` writes: Djinn and the consent helper
+/// are matched by code signature, the helper alone is the channel and holds a
+/// status grant only, and the grants are the shared template's.
+fn macos_config(dir: &std::path::Path) -> Config {
+    let grants = include_str!("../../packaging/djinn-grants.json.in")
+        .replace("@CONSENT@", "per-generation")
+        .replace("@SIGN_CONSENT@", "per-operation");
+    let json = format!(
+        r#"{{"vault": {{"directory": {dir:?}}}, "owner": {{"unix_uid": 501}}, "consent": "channel",
+            "principals": [
+              {{"name": "djinn", "match": {{"signed": {{"team": "{TEAM}", "identifier": "com.merely.djinn"}}}}, "grants": {grants}}},
+              {{"name": "consent", "match": {{"signed": {{"team": "{TEAM}", "identifier": "com.merely.djinn.custodian.consent"}}}},
+                "consent_channel": true, "grants": [{{"operation": "status"}}]}}
+            ]}}"#
+    );
+    Config::parse(json.as_bytes()).unwrap()
+}
+
+#[test]
+fn the_macos_helper_is_the_channel_by_signature_and_nothing_else_of_the_users_is() {
+    let (dir, master) = vault();
+    let config = macos_config(dir.path());
+    assert_eq!(config.signed_identities().len(), 2, "the listener identifies both signed principals");
+    let path = serve_with(
+        config,
+        dir.path(),
+        vec![
+            signed("com.merely.djinn.custodian.consent"),
+            signed("com.merely.djinn"),
+            signed("com.merely.djinn.custodian"),
+            Peer::Unix { uid: 501, gid: 20, pid: Some(777) },
+        ],
+    );
+    let helper = Arc::new(open(&path));
+    assert_eq!((helper.session().principal.as_str(), helper.session().consent_channel), ("consent", true));
+    let djinn = Arc::new(open(&path));
+    assert_eq!((djinn.session().principal.as_str(), djinn.session().consent_channel), ("djinn", false));
+    let expect = ServerExpectation { unix_uids: vec![custody_wire::peer::effective_uid()], ..ServerExpectation::default() };
+    for _ in 0..2 {
+        assert!(
+            Client::open(&UnixSocketConnector::new(&path), &expect).is_err(),
+            "the custodian's own identifier and a plain process of the owner are no principal"
+        );
+    }
+
+    let (seen, petitions) = mpsc::channel();
+    let (answer, answers) = mpsc::channel();
+    let stop = Arc::new(AtomicBool::new(false));
+    let serving = {
+        let (helper, stop) = (Arc::clone(&helper), Arc::clone(&stop));
+        let gate = Gate { seen, answers: Mutex::new(answers) };
+        std::thread::spawn(move || serve_session(&helper, &gate, &stop))
+    };
+    unlock(&djinn);
+    let asking = {
+        let djinn = Arc::clone(&djinn);
+        std::thread::spawn(move || djinn.call(release(), WAIT))
+    };
+    let petition = petitions.recv_timeout(WAIT).expect("the signed helper is petitioned, not the requester");
+    assert_eq!((petition.principal.as_str(), petition.operation.as_str()), ("djinn", "release"));
+    assert_eq!(djinn.decide_raw(petition.request, &petition.digest, petition.generation, true).ok(), Some(false), "the requester cannot decide");
+    answer.send(true).unwrap();
+    let released = asking.join().unwrap();
+    assert!(matches!(released, Outcome::Success { answer: Answer::Released { master_public_key, .. } } if master_public_key == master), "{released:?}");
+    stop.store(true, Ordering::Relaxed);
+    helper.close();
+    assert!(serving.join().unwrap());
+}
+
+#[test]
+fn a_macos_policy_that_made_the_users_own_uid_the_channel_is_refused() {
+    let json = r#"{"vault": {"directory": "/tmp/x"}, "owner": {"unix_uid": 501}, "consent": "channel",
+        "principals": [{"name": "consent", "match": {"unix-uid": 501}, "consent_channel": true}]}"#;
+    assert!(Config::parse(json.as_bytes()).is_err());
 }

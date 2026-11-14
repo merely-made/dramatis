@@ -53,6 +53,7 @@ fn agent_and_unlock_run_inside_linux_confinement() {
             },
             config: config_path,
             required: true,
+            envelope: false,
         })
         .unwrap();
         assert!(

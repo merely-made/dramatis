@@ -106,7 +106,7 @@ fn refuse_if_persisted(path: &Path) -> Result<(), IdentityError> {
 
 /// Whether the current build has a real `AutoOs` backend for explicit local unlocks.
 pub fn auto_unlock_backend_available() -> bool {
-    cfg!(windows)
+    cfg!(windows) || super::auto_unlock_provider::installed().is_some()
 }
 
 #[cfg(windows)]
@@ -157,14 +157,16 @@ pub fn load_existing_auto_unlock_root_after_presence(
     load_existing_auto_unlock_root_impl(&path)
 }
 
+// Without Windows' DPAPI, the root lives in the provider the host process
+// installed (the macOS custodian's Keychain item), or nowhere.
 #[cfg(not(windows))]
-fn load_or_create_auto_unlock_root_impl(_path: &Path) -> Result<Option<[u8; 32]>, IdentityError> {
-    Ok(None)
+fn load_or_create_auto_unlock_root_impl(path: &Path) -> Result<Option<[u8; 32]>, IdentityError> {
+    super::auto_unlock_provider::load(path, true)
 }
 
 #[cfg(not(windows))]
-fn load_existing_auto_unlock_root_impl(_path: &Path) -> Result<Option<[u8; 32]>, IdentityError> {
-    Ok(None)
+fn load_existing_auto_unlock_root_impl(path: &Path) -> Result<Option<[u8; 32]>, IdentityError> {
+    super::auto_unlock_provider::load(path, false)
 }
 
 #[cfg(windows)]
@@ -398,6 +400,9 @@ mod tests {
     #[cfg(not(windows))]
     #[test]
     fn auto_unlock_root_is_absent_without_platform_support() {
+        let _serial = super::super::auto_unlock_provider::tests::SERIAL
+            .lock()
+            .unwrap_or_else(|e| e.into_inner());
         let dir = tempdir().unwrap();
         let path = dir.path().join("vault-root.auto.json");
         assert_eq!(load_or_create_auto_unlock_root(&path).unwrap(), None);

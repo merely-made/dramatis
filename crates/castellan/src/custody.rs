@@ -22,6 +22,7 @@
 
 #[cfg(feature = "agent")]
 pub mod agent;
+mod auto_unlock_provider;
 pub mod bootstrap;
 #[cfg(feature = "agent")]
 pub mod broker;
@@ -57,6 +58,9 @@ pub use passphrase_storage::PassphraseEncryptedStorage;
 pub use roster::{OpenedVault, open_shared};
 pub use sealed_profile_storage::{AUTO_UNLOCK_ROOT_FILE, SealedProfileStorage};
 pub use sealed_provider::SealedIdentityProvider;
+pub use auto_unlock_provider::{
+    AutoUnlockRootProvider, install_auto_unlock_provider, remove_auto_unlock_provider,
+};
 pub use startup_unlock::{
     PERSISTED_LOCK_FILE, auto_unlock_backend_available, clear_persisted_lock,
     load_existing_auto_unlock_root, load_existing_auto_unlock_root_after_presence,

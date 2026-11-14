@@ -4,11 +4,13 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 // SPDX-License-Identifier: MPL-2.0
 
-//! The consent channel's client loop, run by the Windows logon helper
+//! The consent channel's client loop, run by the logon helper
 //! (`djinn-custodian consent`, started in the owner's interactive session
 //! from the installed executable). It holds one session admitted as the
-//! policy's `consent_channel` principal, puts each petition to the owner
-//! through a [`Verifier`] (Windows Hello, in [`crate::platform::hello`]) and
+//! policy's `consent_channel` principal (on Windows the pinned image, on macOS
+//! the helper's own code signature), puts each petition to the owner
+//! through a [`Verifier`] (Windows Hello, in [`crate::platform::hello`], or
+//! macOS LocalAuthentication, in `crate::platform::macos::consent`) and
 //! answers with a decision bound to the petition's digest, request and
 //! generation. Anything but a verified owner is a refusal. The custodian
 //! decides whether the helper is the channel: this loop only declines to

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Djinn's consent channel as a launchd agent in the owner's GUI session.
+     It connects to the custodian's socket, is admitted as the consent channel
+     by its own code signature (com.merely.djinn.custodian.consent) and puts
+     each petition to the owner through LocalAuthentication. The clients
+     directory is root-owned; each user's session reads the file for its own
+     uid and a session with none (another account) ends quietly, which
+     KeepAlive does not restart. install-macos.sh installs this root-owned. -->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.merely.djinn.custodian.consent</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Library/Application Support/Merely/djinn-custodian/djinn-custodian-consent</string>
+    <string>consent</string>
+    <string>--client</string>
+    <string>/Library/Application Support/Merely/djinn-custodian/clients</string>
+  </array>
+  <key>LimitLoadToSessionType</key>
+  <string>Aqua</string>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <dict>
+    <key>SuccessfulExit</key>
+    <false/>
+  </dict>
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+  <key>EnvironmentVariables</key>
+  <dict/>
+  <key>ProcessType</key>
+  <string>Interactive</string>
+</dict>
+</plist>

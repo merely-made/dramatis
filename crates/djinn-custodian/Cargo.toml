@@ -67,6 +67,15 @@ windows = { version = "0.62", features = [
 ] }
 windows-future = "0.3"
 
+[target.'cfg(target_os = "macos")'.dependencies]
+# The signed custodian's native pieces: the consent helper's presence check
+# (LocalAuthentication) and the data-protection Keychain envelope.
+block2 = "0.6"
+objc2 = "0.6"
+objc2-foundation = "0.3"
+objc2-local-authentication = { version = "0.3", default-features = false, features = ["std", "block2", "LAContext", "LAPublicDefines"] }
+security-framework = { version = "3", features = ["OSX_10_15"] }
+
 [dev-dependencies]
 tempfile = "3"
 

@@ -494,6 +494,11 @@ Building waits on the pairing plan's D2 launcher. Unowned watch items: Fedora 45
 be replaced was never answered; both host seams (`SecretServiceAccessPolicy`, `SecretServiceVault`) are traits with test
 implementations only; the ThinkPad's `login` collection read unlocked after `loginctl lock-session` and suspend, which is why
 SS8 parked the plan.
+- Removed (2026-11-14): castellan's Secret Service implementation (`secret_service/`, its Linux receipt, the
+  `secret-service` feature and its `zbus` dependency) left the tree. The owner: "Seems to me like there are bespoke
+  solutions for secret service and why would we need to be that if they exist and are easy to work with." and "Eh, it's
+  all in git history. If needed, it'll be there." Kept, because they are stored formats: chatelaine's
+  `CredentialKind::Secret` and secret metadata, and castellan's `Payload::Secret`, which CXF import also writes.
 - Done when: S1: Djinn enables castellan's `secret-service` feature on Linux, a production `SecretServiceAccessPolicy`
   binds callers, a `SecretServiceVault` sits on Djinn's lock coordinator and native prompt with `prompt_unlock` on a
   blocking thread, the service starts after the first unlock and survives lock and unlock, and a receipt on the real session

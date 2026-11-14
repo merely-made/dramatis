@@ -24,7 +24,7 @@
 //! old payload's removal (ruling 48), so a replace never tears. Every record
 //! carries the persona it was filed for, and a load refuses one filed for
 //! another by name (ruling 34, gaz's `verify_scope`). Exercising a credential
-//! is crate-private: the OTP release gate and the Secret Service are its
+//! is crate-private: the OTP release gate and CXF import are its
 //! callers.
 
 use std::fmt;
@@ -37,7 +37,7 @@ pub(crate) mod records;
 mod transaction;
 
 pub(crate) use records::Payload;
-#[cfg(any(test, feature = "secret-service"))]
+#[cfg(test)]
 pub(crate) use records::StoredIndex;
 pub(crate) use transaction::Transaction;
 #[cfg(test)]

@@ -55,17 +55,13 @@ Implemented:
   alphabet and base64 `shared_secret` import. It does not reinterpret an
   `otpauth://` extension as Steam.
 - `resident` — one process-wide owner for Castellan's sealed records. The
-  resident retains an exclusive OS file lock, shares composite Secret Service
-  transactions across independent views, and checks a separately rooted keyed
+  resident retains an exclusive OS file lock, shares one transaction lock per
+  persona across independent views, and checks a separately rooted keyed
   freshness ledger before releasing restored HOTP state.
-- feature `secret-service` — the Freedesktop Secret Service 0.2 object tree on
-  Linux. The adapter requests `org.freedesktop.secrets` without replacement,
-  implements the recommended `plain` transfer session, binds sessions to D-Bus
-  callers, and delegates every operation to a host policy over bus credentials
-  and `/proc` executable identity. A `secret-tool` store/lookup/clear receipt
-  runs under a disposable session bus. Djinn does not enable this feature:
-  apps keep the platform's keyring, and the Secret Service plan is parked
-  (ruling SS8), with its own-bus-name design (SS5) kept for later.
+- The Freedesktop Secret Service adapter was removed on 2026-11-14 (owner:
+  "Seems to me like there are bespoke solutions for secret service and why
+  would we need to be that if they exist and are easy to work with."); it is
+  in git history. Apps keep the platform's keyring.
 - The Reticulum station derivation that began here is `personae::reticulum`
   now, and the station grant policy `pandect::station_grant` (DR-C, D17).
 - feature `keeper` — moved home from graphshell where it first grew: `view`

@@ -300,17 +300,6 @@ impl CastellanResident {
         OtpItemStore::over(self.items(persona))
     }
 
-    /// Open the persona-scoped Freedesktop Secret Service store, a view of
-    /// the persona's items.
-    #[cfg(feature = "secret-service")]
-    pub fn secret_service(
-        &self,
-        persona: PersonaId,
-        limits: crate::secret_service::SecretServiceLimits,
-    ) -> crate::secret_service::SecretServiceStore {
-        crate::secret_service::SecretServiceStore::new(self.items(persona), limits)
-    }
-
     /// The one transaction lock every store for `persona` shares.
     fn transaction(&self, persona: PersonaId) -> Arc<Mutex<()>> {
         self.transactions
@@ -459,51 +448,5 @@ mod tests {
 
         let error = gate.approve(second.id).unwrap_err();
         assert!(error.to_string().contains("rollback detected"));
-    }
-
-    #[cfg(feature = "secret-service")]
-    #[test]
-    fn independent_secret_service_views_share_one_composite_transaction() {
-        use crate::secret_service::{NewSecretItem, SecretServiceLimits};
-
-        let dir = tempdir().unwrap();
-        let resident = claim(dir.path());
-        let persona = PersonaId::new();
-        let left = resident.secret_service(persona, SecretServiceLimits::default());
-        let right = resident.secret_service(persona, SecretServiceLimits::default());
-        let collection = left.ensure_default_collection("Castellan", 1).unwrap();
-        let create = |store: crate::secret_service::SecretServiceStore, prefix: &'static str| {
-            std::thread::spawn(move || {
-                for index in 0..20 {
-                    store
-                        .create_item(NewSecretItem {
-                            collection: collection.id,
-                            label: format!("{prefix} {index}"),
-                            attributes: std::collections::BTreeMap::from([(
-                                "id".to_string(),
-                                format!("{prefix}-{index}"),
-                            )]),
-                            secret: vec![index],
-                            content_type: "application/octet-stream".into(),
-                            replace: false,
-                            unix_secs: index.into(),
-                        })
-                        .unwrap();
-                }
-            })
-        };
-        let left = create(left, "left");
-        let right = create(right, "right");
-        left.join().unwrap();
-        right.join().unwrap();
-
-        assert_eq!(
-            resident
-                .secret_service(persona, SecretServiceLimits::default())
-                .items(collection.id)
-                .unwrap()
-                .len(),
-            40
-        );
     }
 }

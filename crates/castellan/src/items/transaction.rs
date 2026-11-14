@@ -179,47 +179,13 @@ impl<'a> Transaction<'a> {
     }
 
     /// Rewrite an indexed item's metadata. Its payloads are untouched.
-    #[cfg(any(feature = "secret-service", feature = "cxf"))]
+    #[cfg(feature = "cxf")]
     pub(crate) fn save_metadata(&self, item: Item) -> Result<Item, ItemStoreError> {
         let record = StoredItem::new(self.store.persona, item);
         self.store
             .storage
             .save_record(self.store.item_path(record.item.id), &record)?;
         Ok(record.item)
-    }
-
-    /// Replace credential `old`'s payload copy-on-write (ruling 48): the new
-    /// payload under a fresh credential id, then `item` (already carrying any
-    /// metadata change) naming it, which is the one commit point, then the
-    /// old payload's removal. Interrupted before the commit, the old item is
-    /// whole; after it, the new one is; either way the leftover payload is an
-    /// orphan no read reaches.
-    #[cfg(feature = "secret-service")]
-    pub(crate) fn replace_payload(
-        &self,
-        mut item: Item,
-        old: CredentialId,
-        payload: Payload,
-    ) -> Result<Item, ItemStoreError> {
-        let id = item.id;
-        let fresh = CredentialId::from_random(super::random_id_bytes());
-        let slot = item
-            .credentials
-            .iter_mut()
-            .find(|candidate| candidate.id == old)
-            .ok_or(ItemStoreError::CredentialNotFound {
-                item: id,
-                credential: old,
-            })?;
-        slot.id = fresh;
-        self.save_payload(id, fresh, payload)?;
-        self.store.crash_point(WriteStep::Payloads)?;
-        let item = self.save_metadata(item)?;
-        self.store.crash_point(WriteStep::Metadata)?;
-        self.store
-            .storage
-            .delete_record(self.store.payload_path(old))?;
-        Ok(item)
     }
 
     /// Exercise one credential of `stored`, an item this transaction read.

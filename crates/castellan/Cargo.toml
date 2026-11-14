@@ -53,9 +53,6 @@ keeper = [
   "agent",
   "wallet",
 ]
-# Freedesktop Secret Service 0.2 adapter. The portable sealed collection model
-# compiles everywhere; the D-Bus server is Linux-only.
-secret-service = ["dep:thiserror", "dep:tokio", "dep:zbus"]
 
 [dependencies]
 credential-exchange-format = { version = "0.4.0", optional = true }
@@ -120,9 +117,6 @@ windows = { version = "0.62", optional = true, features = [
   "Win32_System_WinRT",
 ] }
 
-[target.'cfg(target_os = "linux")'.dependencies]
-zbus = { version = "5.19", default-features = false, features = ["tokio"], optional = true }
-
 [dev-dependencies]
 # The wallet sealer's moved tests seal through eidetic's trait (DR-B).
 eidetic.workspace = true
@@ -132,8 +126,6 @@ rand_core = "0.10"
 # Tests verify RSA signatures with ssh-key's public-key verification, which
 # is the rsa crate's public operation, independent of the ring signer.
 ssh-key = { version = "0.7.0-rc.12", features = ["ed25519", "rsa"] }
-# The Linux Secret Service receipt reads its lock signal as a stream.
-futures-util = "0.3"
 gaz = { workspace = true, features = ["muniment"] }
 gazette.workspace = true
 muniment = { workspace = true, features = ["postcard", "redb"] }

@@ -197,6 +197,28 @@ own supported bridge; a signed custody approval does not replace them.
 
 Links: area custody · refines custody D1 · draws on custody D3 · plans VL-U · summary Support root-persona custody approval across networks with separate native OS gates.
 
+### custody D5. The wallet seed at rest (2026-11-14)
+
+Mark answered the cut study's F5 and F6 (`Code/testing/engine-split/cut_study_dramatis_custody.md`
+section F) with **"Refuse; never write or read raw"**: saving without a sealed store is an error, a
+sealed-read failure is an error, and an existing raw file is migrated only by an explicit command
+once a sealed store exists. Platforms without a sealed store cannot hold a wallet until one is
+provided.
+
+Implementation status: on branch `seed-at-rest`, not yet on main; see the dated note under H2.
+
+Links: area custody · plans H2 · summary Wallet secrets are never written or read raw; a raw legacy file is migrated only by an explicit command.
+
+### custody D6. Maintained primitives, not our own (2026-11-14)
+
+Mark answered the cut study's own-math finding with **"Replace all five"**: the hand-written
+primitives give way to maintained equivalents, existing vectors passing unchanged, under the
+standing rule **"We should remain strictly consumers, not forking standards."** Two of the five
+are in this repository, the OTP compare and the personae freshness-MAC compare (study F8); both
+now call `constant_time_eq` (2026-11-14). The other three are in other repositories.
+
+Links: area custody · summary Replace hand-written cryptographic compares with constant_time_eq; consume standards, never fork them.
+
 ## Phases
 
 ### H1. Enforced custody boundary and adversarial vertical slice

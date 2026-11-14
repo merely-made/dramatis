@@ -319,7 +319,8 @@ impl Otp {
             let expected = self.code_for_counter(counter)?;
             // No early exit: every candidate window is compared so the time
             // taken does not reveal which step matched.
-            matched |= constant_time_eq(expected.as_bytes(), candidate.as_bytes());
+            matched |=
+                constant_time_eq::constant_time_eq(expected.as_bytes(), candidate.as_bytes());
         }
         Ok(matched)
     }
@@ -375,18 +376,6 @@ fn now_unix_secs() -> Result<u64, OtpError> {
         .duration_since(UNIX_EPOCH)
         .map(|d| d.as_secs())
         .map_err(|_| OtpError::ClockBeforeUnixEpoch)
-}
-
-/// Compare without an early exit, so timing does not reveal a prefix match.
-fn constant_time_eq(a: &[u8], b: &[u8]) -> bool {
-    if a.len() != b.len() {
-        return false;
-    }
-    let mut diff = 0u8;
-    for (x, y) in a.iter().zip(b.iter()) {
-        diff |= x ^ y;
-    }
-    diff == 0
 }
 
 #[cfg(test)]

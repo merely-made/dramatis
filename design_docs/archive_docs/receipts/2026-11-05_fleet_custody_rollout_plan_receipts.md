@@ -726,3 +726,47 @@ equal to run 01's master `d2c7ffb3…08f5`, consent only, 604800-second cap, no
 enrollments, unlocked at generation 2, instance `44e387b8…cf08` equal to the
 receipt; both sockets active and enabled, resident active and enabled; custody
 agent empty; payloads consumed; weekly `lock.toml` `807ba9fb…ba36`; zenity 4.2.1.
+
+## 2026-11-14: macOS consent channel, Keychain envelope and the M4 cohort build
+
+Dramatis commits on main: `6db13d1` (consent helper, Castellan `AutoUnlockRootProvider`,
+Keychain envelope, installer, signing script) and `7028af3` (availability report,
+prebuilt-binary signing, plan notes). Toolchain: rustc 1.100.0 (rustup moved `stable`
+to it when `rust-toolchain.toml` was first read here).
+
+Tests on main (macOS arm64, 26.5.1): `djinn-custodian` 117 lib tests, `process` 6,
+`envelope` 1, plus `custody-wire`; Castellan with `keeper` 302 lib tests including 5
+new root-provider cases (file holds no secret, missing item refuses and mints nothing,
+access failure / foreign backend / changed file refuse, unwritable marker leaves no
+item, persisted lock refuses first). New custodian cases: signature-matched consent
+helper over real sockets (the channel decides; its requester, the custodian's own
+identifier and a plain process of the owner cannot), a policy making the user's uid the
+channel refused, envelope configuration (valid, malformed, development refused), the
+installed-path trust chain (symlink, group/world-writable, foreign owner, outside
+`/Library/Application Support/Merely/djinn-custodian`), and the raw-seed seal test.
+Native facts observed: `canEvaluatePolicy(deviceOwnerAuthentication)` is true here with
+no prompt; an ad hoc bundle with the `keychain-access-groups` entitlement and no
+provisioning profile is killed at launch (exit 137), while the same program without
+the entitlement runs. Not executed: any Keychain item, any consent dialog.
+
+D10 build. Sources: Dramatis `05183e8` with the two commits' `crates/` changes applied
+(patch kept at `Code/testing/dramatis/macos-f2-cohort/dramatis-05183e8-plus-macos.patch`,
+SHA256 `3d57920ef81d8b9c322def2295670f78ddc31bcffb8e2e662faa17b143aaeb04`, including the
+tracked `Cargo.lock` additions for objc2, block2 and security-framework; its
+`src/tests.rs` hunk and `Cargo.toml` block were applied by hand because main moved).
+On that tree 115 custodian lib tests, 311 Castellan tests and the envelope test pass.
+Mere `6f542e515`, built from a `git archive` of that commit under its own
+`Cargo.lock` (which pins Dramatis `798a1a7` for the client side): `djinn`, release,
+9m55s. Unsigned outputs in `Code/testing/dramatis/macos-f2-cohort/`:
+
+| File | SHA256 | Bytes |
+|---|---|---|
+| `djinn-custodian` | `d50125a02c2c34cf63929365bf7e79ce272f4617351d5e9b67b5b745e5a029b9` | 9957312 |
+| `djinn-resident` | `9dce1412888a8763a9e8c2dd31f1f139537363b9bae4c651163867f6d1e057c7` | 91924176 |
+
+Both carry only the linker's ad hoc signature, with no hardened runtime or Team ID.
+`personae-vault` (Graphshell) was not built. Scratch trees and targets (about 6 GB)
+were removed afterwards; no account, Keychain item, launchd job, install path or the
+legacy resident, vault or `~/.ssh/config` was touched. Legacy state at the time: resident
+pid 50314 locked (`vault.json`, `locked` marker dated Nov 11), agent socket empty,
+`ssh o-pc true` and `ssh thinkpad-l14-f true` both `Permission denied (publickey)`.

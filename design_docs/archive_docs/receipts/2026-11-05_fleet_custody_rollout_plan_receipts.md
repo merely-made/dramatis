@@ -730,11 +730,12 @@ agent empty; payloads consumed; weekly `lock.toml` `807ba9fb…ba36`; zenity 4.2
 ## 2026-11-14: macOS consent channel, Keychain envelope and the M4 cohort build
 
 Dramatis commits on main: `6db13d1` (consent helper, Castellan `AutoUnlockRootProvider`,
-Keychain envelope, installer, signing script) and `7028af3` (availability report,
-prebuilt-binary signing, plan notes). Toolchain: rustc 1.100.0 (rustup moved `stable`
+Keychain envelope, installer, signing script), `7028af3` (availability report,
+prebuilt-binary signing, plan notes), `a428521` (this file's first entry) and `6f9c718`
+(`envelope-check`, the Keychain round trip for the receiving run). Toolchain: rustc 1.100.0 (rustup moved `stable`
 to it when `rust-toolchain.toml` was first read here).
 
-Tests on main (macOS arm64, 26.5.1): `djinn-custodian` 117 lib tests, `process` 6,
+Tests on main (macOS arm64, 26.5.1): `djinn-custodian` 118 lib tests, `process` 6,
 `envelope` 1, plus `custody-wire`; Castellan with `keeper` 302 lib tests including 5
 new root-provider cases (file holds no secret, missing item refuses and mints nothing,
 access failure / foreign backend / changed file refuse, unwritable marker leaves no
@@ -751,17 +752,17 @@ the entitlement runs. Not executed: any Keychain item, any consent dialog.
 
 D10 build. Sources: Dramatis `05183e8` with the two commits' `crates/` changes applied
 (patch kept at `Code/testing/dramatis/macos-f2-cohort/dramatis-05183e8-plus-macos.patch`,
-SHA256 `3d57920ef81d8b9c322def2295670f78ddc31bcffb8e2e662faa17b143aaeb04`, including the
+SHA256 `1025ed1aeda77dec7aa3ff81c421d3c6e0e7a41e816ed9b77c1ecfc563602258`, including the
 tracked `Cargo.lock` additions for objc2, block2 and security-framework; its
 `src/tests.rs` hunk and `Cargo.toml` block were applied by hand because main moved).
-On that tree 115 custodian lib tests, 311 Castellan tests and the envelope test pass.
+On that tree 116 custodian lib tests, 311 Castellan tests and the envelope test pass.
 Mere `6f542e515`, built from a `git archive` of that commit under its own
 `Cargo.lock` (which pins Dramatis `798a1a7` for the client side): `djinn`, release,
 9m55s. Unsigned outputs in `Code/testing/dramatis/macos-f2-cohort/`:
 
 | File | SHA256 | Bytes |
 |---|---|---|
-| `djinn-custodian` | `d50125a02c2c34cf63929365bf7e79ce272f4617351d5e9b67b5b745e5a029b9` | 9957312 |
+| `djinn-custodian` | `39f20fdcc27c71d7a3ae7319cbb55d3b9332a645947509914784adb0c13f6ee3` | 9948032 |
 | `djinn-resident` | `9dce1412888a8763a9e8c2dd31f1f139537363b9bae4c651163867f6d1e057c7` | 91924176 |
 
 Both carry only the linker's ad hoc signature, with no hardened runtime or Team ID.

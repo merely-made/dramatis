@@ -411,8 +411,8 @@ not qualify Windows PowerShell 5's quoting path.
   sessions and fails there, as it always did. `sudo -u` is no Keychain context, so the
   installer moves no data and prints the `adopt` command for the owner's own session.
 - 2026-11-14 (D10): the receiving custodian is built from 05183e8 with the new work applied
-  (its tracked `Cargo.lock`), not from main: 115 custodian lib tests, 311 castellan tests
-  and the envelope test pass there. Main passes 117 custodian and 302 castellan tests
+  (its tracked `Cargo.lock`), not from main: 116 custodian lib tests, 311 castellan tests
+  and the envelope test pass there. Main passes 118 custodian and 302 castellan tests
   (the tracked lock was dropped after 05183e8; no resolved-version note exists for it).
 
 ## Progress
@@ -551,7 +551,7 @@ not qualify Windows PowerShell 5's quoting path.
   192.168.4.50) and listed the M4's code-signing identities. Mac receiving
   waits for the macOS consent channel and envelope (D11); the M4 is a loaned
   machine whose footprint is being measured for cleanup (D9).
-- 2026-11-14: built D11's work in Dramatis (`6db13d1`): the macOS consent helper, the
+- 2026-11-14: built D11's work in Dramatis (`6db13d1` to `6f9c718`): the macOS consent helper, the
   data-protection Keychain envelope behind Castellan's new root-provider seam, a
   rewritten `install-macos.sh` and `build-macos.sh`. Source and synthetic tests pass; no
   native Keychain or dialog run yet. F2's signed receiving, adoption and consent runs

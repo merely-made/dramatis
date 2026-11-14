@@ -1,6 +1,6 @@
 # Fleet custody rollout
 
-**Status, 2026-11-05: in progress.** O-PC/T-PC have qualified personal receiving
+**Status, 2026-11-14: in progress.** O-PC/T-PC have qualified personal receiving
 and root-trust setup. S-PC passed local receiving, cold reopen, outbound SSH and
 one live consent from O-PC over SSH. R-PC passed fresh receiving and O-PC consent
 pin readback. Y-PC passed the same on Fedora/GNOME under SELinux
@@ -160,6 +160,9 @@ The historical Q-PC signed synthetic lifecycle receipt does not authorize a
 current personal-root migration or qualify the Apple Silicon host. The generic
 installer's `consent: deny` and absent production data-protection integration
 must be resolved through the signed host design, not hidden by replacing a binary.
+Both are now source (2026-11-14, D11's work; Findings): a signed consent helper and
+a data-protection Keychain envelope behind an installer that writes `consent: channel`.
+The signed native run, which needs the Developer ID provisioning profile, remains F2's.
 
 The checked personal Q-PC resident is unsigned. The M4 resident has an ad hoc
 linker signature, without hardened runtime or a Team ID. Neither is a compatible
@@ -366,6 +369,51 @@ not qualify Windows PowerShell 5's quoting path.
   `authorized_keys`. Default labels: `usr_t` for `/usr/local/libexec`,
   `var_lib_t`, `etc_t` and `var_run_t` for state, config and run paths. The
   R-PC receiver's KDE agent check and terminal do not carry over unchanged.
+- 2026-11-14 (D11 work; choices made where the plans left them open, for Mark to
+  confirm or overturn): **Consent channel.** macOS mirrors the Windows contract, not
+  Linux's resident dialogs: Zenity (D3, D6) is Mere's resident prompt, while the Linux
+  custodian's own consent is polkit `auth_self`. The macOS equivalent of `auth_self` and
+  Windows Hello is LocalAuthentication's `deviceOwnerAuthentication` (Touch ID, else the
+  account password), asked by `djinn-custodian consent`, a launchd agent signed as
+  `com.merely.djinn.custodian.consent` and admitted as the channel by that code
+  signature (`consent: channel`, helper holds a status grant only). No message box is
+  consent (custody plan, constraint on presence). Djinn's grants use the Linux values:
+  once per generation, a guest delegation per signature. Source:
+  `crates/djinn-custodian/src/platform/macos/consent.rs`, `src/helper.rs`; executed:
+  the signature-matched helper over real sockets decides, its requester and a plain
+  process of the owner cannot (`helper::tests`); the query `canEvaluatePolicy` is true
+  on this M4 without showing a prompt. Not executed: a dialog answered by a person.
+- 2026-11-14: **Envelope.** The seam is the one Windows already uses: Castellan's
+  `AutoUnlockRootProvider` (new, `custody/auto_unlock_provider.rs`) replaces DPAPI's
+  wrapped file with a root kept by the host process. The signed custodian installs a
+  data-protection Keychain item under its own access group (`WhenUnlockedThisDeviceOnly`,
+  not synchronized); the root file beside the wallet names the backend and item and
+  holds no secret. The wallet's identity seed, and through it every record sealed under
+  the seed, is sealed under that root: a legacy raw seed becomes a sealed record at
+  `adopt` (test: `tests/envelope.rs`, no raw bytes left, no raw fallback without the
+  provider, a lost item is a refusal and mints nothing). The vault stays passphrase-
+  sealed, as on Linux. Protected macOS mode refuses to start without the envelope, and
+  the envelope opens only from the root-owned installation (configuration, executable and
+  every ancestor root's, unwritable by others), because any process of the user can run the
+  signed binary and a caller-chosen configuration would read the wallet back. A bundle with
+  the restricted `keychain-access-groups` entitlement and no provisioning profile is
+  killed at launch (exit 137, observed here with an ad hoc signature), so the profile is a
+  hard prerequisite, not an option. Not executed: the native Keychain item, which needs
+  that profile.
+- 2026-11-14: the M4's legacy resident (ad hoc, pid 50314) is locked with `vault.json`
+  present and no wallet: its data root `~/.local/share/graphshell/data` holds a credential
+  catalog (one profile `default`) and no `identity/`, so adoption is vault and catalog
+  only, as on S-PC. SSH fails because that locked resident's agent holds no identities.
+- 2026-11-14: macOS launch constraints found while building the installer. A
+  `/Library/LaunchAgents` plist loads in every user's session, so the helper reads the
+  clients file for its own uid and a session with none (Mayola's) exits successfully and is
+  not restarted; the custodian plist still tries to bind markik's socket paths in other
+  sessions and fails there, as it always did. `sudo -u` is no Keychain context, so the
+  installer moves no data and prints the `adopt` command for the owner's own session.
+- 2026-11-14 (D10): the receiving custodian is built from 05183e8 with the new work applied
+  (its tracked `Cargo.lock`), not from main: 115 custodian lib tests, 311 castellan tests
+  and the envelope test pass there. Main passes 117 custodian and 302 castellan tests
+  (the tracked lock was dropped after 05183e8; no resolved-version note exists for it).
 
 ## Progress
 
@@ -503,3 +551,8 @@ not qualify Windows PowerShell 5's quoting path.
   192.168.4.50) and listed the M4's code-signing identities. Mac receiving
   waits for the macOS consent channel and envelope (D11); the M4 is a loaned
   machine whose footprint is being measured for cleanup (D9).
+- 2026-11-14: built D11's work in Dramatis (`6db13d1`): the macOS consent helper, the
+  data-protection Keychain envelope behind Castellan's new root-provider seam, a
+  rewritten `install-macos.sh` and `build-macos.sh`. Source and synthetic tests pass; no
+  native Keychain or dialog run yet. F2's signed receiving, adoption and consent runs
+  follow on the M4 (Q-PC the same way); their steps and receipts are in the receipt file.

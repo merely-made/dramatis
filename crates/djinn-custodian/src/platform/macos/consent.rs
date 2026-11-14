@@ -46,6 +46,13 @@ impl Verifier for Presence {
     }
 }
 
+/// Whether the OS can authenticate this session's owner at all (a logged-in
+/// GUI session with a password or Touch ID). Never shows a prompt.
+pub fn available() -> bool {
+    let context = unsafe { LAContext::new() };
+    unsafe { context.canEvaluatePolicy_error(LAPolicy::DeviceOwnerAuthentication) }.is_ok()
+}
+
 /// Ask the OS to authenticate the owner for `reason`; `true` only on success.
 pub fn authenticate(reason: &str, deadline: Duration) -> bool {
     let policy = LAPolicy::DeviceOwnerAuthentication;
@@ -63,4 +70,15 @@ pub fn authenticate(reason: &str, deadline: Duration) -> bool {
     // A timeout or a decided prompt: either way the context is finished.
     unsafe { context.invalidate() };
     accepted
+}
+
+#[cfg(test)]
+mod tests {
+    /// The one native fact checkable without a person: the policy query runs
+    /// and shows nothing. Whether a dialog appears and is answered is the
+    /// signed receiving run's.
+    #[test]
+    fn the_presence_policy_can_be_queried_without_a_prompt() {
+        eprintln!("deviceOwnerAuthentication evaluable here: {}", super::available());
+    }
 }

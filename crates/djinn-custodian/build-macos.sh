@@ -8,7 +8,12 @@
 # Assemble and sign the macOS custodian cohort. Run in the SIGNING account
 # (H1-F1: never the account that will run the custodian), from a checkout:
 #
-#   build-macos.sh IDENTITY TEAM-ID PROVISIONING-PROFILE OUT-DIR
+#   build-macos.sh IDENTITY TEAM-ID PROVISIONING-PROFILE OUT-DIR [PREBUILT-BINARY]
+#
+# With PREBUILT-BINARY nothing is compiled: the signing account needs no Rust
+# toolchain and signs exactly the binary a reviewed build produced (its SHA-256
+# is printed; compare it with the build's receipt). Without it the release
+# binary is built from the checkout.
 #
 # IDENTITY is the Developer ID Application certificate's name or SHA-1.
 # PROVISIONING-PROFILE is a macOS Developer ID profile for the App ID
@@ -20,8 +25,8 @@
 # and OUT-DIR/revision.txt naming the source it was built from.
 set -eu
 
-[ $# -eq 4 ] || { echo 'usage: build-macos.sh IDENTITY TEAM-ID PROVISIONING-PROFILE OUT-DIR' >&2; exit 2; }
-identity=$1 team=$2 profile=$3 out=$4
+{ [ $# -eq 4 ] || [ $# -eq 5 ]; } || { echo 'usage: build-macos.sh IDENTITY TEAM-ID PROVISIONING-PROFILE OUT-DIR [PREBUILT-BINARY]' >&2; exit 2; }
+identity=$1 team=$2 profile=$3 out=$4 prebuilt=${5:-}
 case "$team" in *[!A-Za-z0-9]*|'') echo 'Refusing unexpected characters in the team.' >&2; exit 2;; esac
 [ -f "$profile" ] || { echo "$profile is not a file." >&2; exit 2; }
 [ ! -e "$out" ] || { echo "$out already exists." >&2; exit 2; }
@@ -35,10 +40,15 @@ decoded=$(security cms -D -i "$profile")
 printf '%s' "$decoded" | grep -q "$group" || { echo "The profile does not authorize $group." >&2; exit 2; }
 printf '%s' "$decoded" | grep -q "$team" || { echo "The profile does not name team $team." >&2; exit 2; }
 
-(cd "$repo" && cargo build --release -p djinn-custodian --bin djinn-custodian)
-target=$(cd "$repo" && cargo metadata --format-version 1 --no-deps | python3 -I -c 'import json,sys;print(json.load(sys.stdin)["target_directory"])')
-binary="$target/release/djinn-custodian"
-[ -x "$binary" ] || { echo "No release binary at $binary." >&2; exit 2; }
+if [ -n "$prebuilt" ]; then
+    [ -x "$prebuilt" ] || { echo "$prebuilt is not an executable." >&2; exit 2; }
+    binary=$prebuilt
+else
+    (cd "$repo" && cargo build --release -p djinn-custodian --bin djinn-custodian)
+    target=$(cd "$repo" && cargo metadata --format-version 1 --no-deps | python3 -I -c 'import json,sys;print(json.load(sys.stdin)["target_directory"])')
+    binary="$target/release/djinn-custodian"
+    [ -x "$binary" ] || { echo "No release binary at $binary." >&2; exit 2; }
+fi
 
 mkdir -p "$out/djinn-custodian.app/Contents/MacOS"
 cp "$binary" "$out/djinn-custodian.app/Contents/MacOS/djinn-custodian"
@@ -75,8 +85,12 @@ rm "$out/custodian.entitlements"
 codesign --verify --strict --deep --verbose=2 "$out/djinn-custodian.app"
 codesign --verify --strict --verbose=2 "$out/djinn-custodian-consent"
 {
-    printf 'dramatis %s\n' "$(cd "$repo" && git rev-parse HEAD)"
-    (cd "$repo" && git status --porcelain --untracked-files=no | grep -q .) && echo 'dramatis tree: dirty' || echo 'dramatis tree: clean'
-    shasum -a 256 "$out/djinn-custodian.app/Contents/MacOS/djinn-custodian" "$out/djinn-custodian-consent"
+    if [ -n "$prebuilt" ]; then
+        echo 'prebuilt binary (source revisions are in the build receipt)'
+    else
+        printf 'dramatis %s\n' "$(cd "$repo" && git rev-parse HEAD)"
+        (cd "$repo" && git status --porcelain --untracked-files=no | grep -q .) && echo 'dramatis tree: dirty' || echo 'dramatis tree: clean'
+    fi
+    shasum -a 256 "$binary" "$out/djinn-custodian.app/Contents/MacOS/djinn-custodian" "$out/djinn-custodian-consent"
 } > "$out/revision.txt"
 cat "$out/revision.txt"

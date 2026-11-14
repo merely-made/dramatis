@@ -511,6 +511,10 @@ fn consent(client: &Path) -> Result<(), String> {
         client.to_path_buf()
     };
     let file = ClientFile::read(&file)?;
+    if !djinn_custodian::platform::macos::consent::available() {
+        // Every petition would be refused; say so once, and keep serving so a later login works.
+        eprintln!("djinn-custodian consent: the OS cannot authenticate this session's owner now; petitions will be refused");
+    }
     let connector = UnixSocketConnector::new(&file.endpoint);
     let stop = std::sync::atomic::AtomicBool::new(false);
     helper::run(&|| Client::open(&connector, &file.server), &Presence::default(), &stop, Retry::default(), &|text| eprintln!("djinn-custodian consent: {text}"));

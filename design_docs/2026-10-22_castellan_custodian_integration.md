@@ -2,6 +2,12 @@
 
 Status (2026-10-26): the portable custodian landed on main. `djinn-custodian` is now a separate process behind one contract (`custody-wire`), with launchers for Linux, macOS and Windows. Its negative controls pass on macOS, and the Linux and Windows builds type-check. Djinn routes the two H1 consumers through it when one is installed. Linux, signed-macOS and Windows receiving runs, and every other consumer (H2), are still gated. The frozen native01 fixture's 49/49 qualifies only that synthetic binary. The residue repair is on main and its residue scenarios pass.
 
+**Update, 2026-11-14:** the portable binary now carries the macOS pieces this document left
+to the signed fixture: a code-signed consent helper that asks the owner through
+LocalAuthentication, and a data-protection Keychain envelope that seals the wallet's identity
+seed (rollout plan D11 and Findings; custody plan H1). Source and synthetic tests only: the
+fixture's 49/49 and the receiving run below still qualify nothing about the new binary.
+
 ## Decision and constraints
 
 Use the independently launched macOS custodian as the owner of the actual Castellan sealed-profile vault. The new `djinn-custodian` component links into that signed native process through a private C ABI. The authenticated XPC protocol is a separate, narrower interface. Only signatures, public keys, public status and bounded opaque grants cross it. No IPC failure falls back to an in-process key provider.

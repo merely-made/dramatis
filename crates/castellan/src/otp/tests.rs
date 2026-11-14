@@ -4,12 +4,13 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 // SPDX-License-Identifier: MPL-2.0
 
-//! The published vectors, which are the whole reason to start here: the
-//! implementation is checked against the RFCs rather than against itself.
+//! The published vectors, run against `totp-rs` through castellan's own
+//! generator (custody plan D7): the crate is checked against the RFC rather
+//! than trusted. RFC 4226's HOTP vectors left with HOTP generation.
 
 use super::*;
 
-/// RFC 4226 Appendix D uses this ASCII string as the shared secret.
+/// RFC 6238 Appendix B's SHA-1 seed, the ASCII digits repeated.
 const RFC4226_SECRET: &[u8] = b"12345678901234567890";
 
 /// RFC 6238 Appendix B's table looks like it shares one seed, but each
@@ -21,22 +22,6 @@ const RFC6238_SHA256_SECRET: &[u8] = b"12345678901234567890123456789012";
 const RFC6238_SHA512_SECRET: &[u8] =
     b"1234567890123456789012345678901234567890123456789012345678901234";
 const RFC4226_SECRET_BASE32: &str = "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ";
-
-#[test]
-fn rfc4226_appendix_d_hotp_values() {
-    let expected = [
-        "755224", "287082", "359152", "969429", "338314", "254676", "287922", "162583", "399871",
-        "520489",
-    ];
-    let otp = Otp::hotp(RFC4226_SECRET.to_vec(), 0).unwrap();
-    for (counter, want) in expected.iter().enumerate() {
-        assert_eq!(
-            &otp.code_for_counter(counter as u64).unwrap(),
-            want,
-            "RFC 4226 counter {counter}"
-        );
-    }
-}
 
 #[test]
 fn rfc6238_appendix_b_totp_values() {
@@ -89,13 +74,6 @@ fn seconds_remaining_counts_down_within_the_step() {
     assert_eq!(otp.seconds_remaining_at(1), Some(29));
     assert_eq!(otp.seconds_remaining_at(29), Some(1));
     assert_eq!(otp.seconds_remaining_at(30), Some(30));
-    // Counter-based codes do not expire, so there is nothing to count down.
-    assert_eq!(
-        Otp::hotp(RFC4226_SECRET.to_vec(), 0)
-            .unwrap()
-            .seconds_remaining_at(0),
-        None
-    );
 }
 
 #[test]
@@ -115,27 +93,24 @@ fn matching_accepts_the_adjacent_step_when_skew_is_allowed() {
 }
 
 #[test]
-fn digit_counts_outside_the_representable_range_are_refused() {
+fn digit_counts_outside_the_generated_range_are_refused() {
     let secret = RFC4226_SECRET.to_vec();
-    assert_eq!(
-        Otp::totp(secret.clone())
-            .unwrap()
-            .with_digits(5)
-            .unwrap_err(),
-        OtpError::UnsupportedDigits(5)
-    );
-    // Dynamic truncation yields 31 bits, so 10 digits is the ceiling.
-    let ten_digits = Otp::totp(secret.clone())
+    for digits in [5, 9, 10, 11] {
+        assert_eq!(
+            Otp::totp(secret.clone())
+                .unwrap()
+                .with_digits(digits)
+                .unwrap_err(),
+            OtpError::UnsupportedDigits(digits)
+        );
+    }
+    let seven = Otp::totp(secret)
         .unwrap()
-        .with_digits(10)
+        .with_digits(7)
         .unwrap()
         .code_at_unix_time(59)
         .unwrap();
-    assert_eq!(ten_digits.len(), 10);
-    assert_eq!(
-        Otp::totp(secret).unwrap().with_digits(11).unwrap_err(),
-        OtpError::UnsupportedDigits(11)
-    );
+    assert_eq!(seven, "4287082");
 }
 
 #[test]
@@ -177,13 +152,19 @@ fn debug_does_not_print_the_secret() {
     let rendered = format!("{otp:?}");
     assert!(!rendered.contains("super-secret-value"), "{rendered}");
     assert!(rendered.contains("redacted"), "{rendered}");
+    let uri =
+        parse_otpauth_uri(&format!("otpauth://totp/a?secret={RFC4226_SECRET_BASE32}")).unwrap();
+    let rendered = format!("{uri:?}");
+    assert!(!rendered.contains("12345678901234567890"), "{rendered}");
+    assert!(!rendered.contains("[49, 50, 51"), "{rendered}");
+    assert!(rendered.contains("redacted"), "{rendered}");
 }
 
 // ── otpauth:// URIs ──────────────────────────────────────────────────────────
 
 #[test]
 fn a_typical_authenticator_uri_parses() {
-    let (otp, meta) = parse_otpauth_uri(
+    let meta = parse_otpauth_uri(
         "otpauth://totp/ACME%20Co:john.doe@email.com\
          ?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=ACME%20Co&algorithm=SHA1\
          &digits=6&period=30",
@@ -191,9 +172,10 @@ fn a_typical_authenticator_uri_parses() {
     .unwrap();
     assert_eq!(meta.account, "john.doe@email.com");
     assert_eq!(meta.issuer.as_deref(), Some("ACME Co"));
-    assert_eq!(otp.digits(), 6);
-    assert_eq!(otp.algorithm(), OtpAlgorithm::Sha1);
-    assert_eq!(otp.kind(), OtpKind::Totp { period: 30, t0: 0 });
+    assert_eq!(meta.digits, 6);
+    assert_eq!(meta.algorithm, OtpAlgorithm::Sha1);
+    assert_eq!(meta.kind, OtpKind::Totp { period: 30, t0: 0 });
+    assert_eq!(meta.totp().unwrap().period(), 30);
 }
 
 #[test]
@@ -212,7 +194,7 @@ fn conflicting_issuer_identities_are_refused() {
 
 #[test]
 fn the_label_prefix_is_used_when_no_issuer_parameter_is_given() {
-    let (_, meta) = parse_otpauth_uri(&format!(
+    let meta = parse_otpauth_uri(&format!(
         "otpauth://totp/GitHub:alice?secret={RFC4226_SECRET_BASE32}"
     ))
     .unwrap();
@@ -222,14 +204,14 @@ fn the_label_prefix_is_used_when_no_issuer_parameter_is_given() {
 
 #[test]
 fn defaults_apply_when_optional_parameters_are_absent() {
-    let (otp, meta) = parse_otpauth_uri(&format!(
+    let meta = parse_otpauth_uri(&format!(
         "otpauth://totp/alice?secret={RFC4226_SECRET_BASE32}"
     ))
     .unwrap();
-    assert_eq!(otp.digits(), DEFAULT_DIGITS);
-    assert_eq!(otp.algorithm(), OtpAlgorithm::Sha1);
+    assert_eq!(meta.digits, DEFAULT_DIGITS);
+    assert_eq!(meta.algorithm, OtpAlgorithm::Sha1);
     assert_eq!(
-        otp.kind(),
+        meta.kind,
         OtpKind::Totp {
             period: DEFAULT_PERIOD_SECS,
             t0: 0
@@ -239,12 +221,13 @@ fn defaults_apply_when_optional_parameters_are_absent() {
 }
 
 #[test]
-fn an_hotp_uri_carries_its_counter() {
-    let (otp, _) = parse_otpauth_uri(&format!(
+fn an_hotp_uri_carries_its_counter_but_configures_no_generator() {
+    let meta = parse_otpauth_uri(&format!(
         "otpauth://hotp/alice?secret={RFC4226_SECRET_BASE32}&counter=7"
     ))
     .unwrap();
-    assert_eq!(otp.kind(), OtpKind::Hotp { counter: 7 });
+    assert_eq!(meta.kind, OtpKind::Hotp { counter: 7 });
+    assert_eq!(meta.totp().unwrap_err(), OtpError::TotpOnly(NotTotp::Hotp));
 }
 
 #[test]
@@ -261,22 +244,22 @@ fn an_hotp_uri_without_a_counter_is_refused() {
 #[test]
 fn unknown_parameters_are_ignored_rather_than_rejected() {
     // Issuers add their own; a credential that is otherwise valid must import.
-    let (otp, _) = parse_otpauth_uri(&format!(
+    let meta = parse_otpauth_uri(&format!(
         "otpauth://totp/alice?secret={RFC4226_SECRET_BASE32}&lock=true&image=https://example.com/i.png"
     ))
     .unwrap();
-    assert_eq!(otp.digits(), DEFAULT_DIGITS);
+    assert_eq!(meta.digits, DEFAULT_DIGITS);
 }
 
 #[test]
 fn an_unpadded_secret_parses_the_way_qr_codes_write_it() {
-    let (padded, _) =
+    let padded =
         parse_otpauth_uri("otpauth://totp/a?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY======").unwrap();
-    let (unpadded, _) =
-        parse_otpauth_uri("otpauth://totp/a?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY").unwrap();
+    let unpadded = parse_otpauth_uri("otpauth://totp/a?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY").unwrap();
+    assert_eq!(padded, unpadded);
     assert_eq!(
-        padded.code_at_unix_time(59).unwrap(),
-        unpadded.code_at_unix_time(59).unwrap()
+        padded.totp().unwrap().code_at_unix_time(59).unwrap(),
+        unpadded.totp().unwrap().code_at_unix_time(59).unwrap()
     );
 }
 
@@ -357,8 +340,10 @@ fn security_relevant_uri_ambiguities_are_refused() {
 #[test]
 fn a_parsed_uri_reproduces_the_rfc_vector() {
     // base32("12345678901234567890") = GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ
-    let (otp, _) =
+    let otp =
         parse_otpauth_uri("otpauth://totp/rfc?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ&digits=8")
+            .unwrap()
+            .totp()
             .unwrap();
     assert_eq!(otp.code_at_unix_time(59).unwrap(), "94287082");
     assert_eq!(otp.code_at_unix_time(1_234_567_890).unwrap(), "89005924");

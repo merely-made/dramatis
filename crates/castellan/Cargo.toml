@@ -61,19 +61,19 @@ p256 = { version = "0.14", features = ["pkcs8"], optional = true }
 p384 = { version = "0.14", features = ["pkcs8"], optional = true }
 # The check conclusions and faults, named directly (insigne proofs plan, B).
 insigne = { workspace = true, features = ["verify"] }
-# HMAC + the three hashes RFC 6238 allows. RustCrypto, and sha2 is already a
-# workspace pin, so this adds one lineage rather than three.
 base64.workspace = true
 # The secret-free item taxonomy; the OTP display enums are defined there.
 chatelaine.workspace = true
 # The identity surface's plain types (dramatis repo plan, DR-A).
 dramatis.workspace = true
-hmac = "0.13"
 notochord.workspace = true
 personae.workspace = true
 serde.workspace = true
-sha1 = "0.11"
 sha2.workspace = true
+# TOTP codes (custody D7: TOTP only, on totp-rs). `alloc` builds its secret
+# from our bytes and `zeroize` clears its copy on drop; otpauth parsing stays
+# ours (uri.rs), and neither `steam`, `qr` nor `gen_secret` is wanted.
+totp-rs = { version = "6.0.0", default-features = false, features = ["alloc", "zeroize"] }
 uuid.workspace = true
 sporran = { workspace = true, optional = true }
 eidetic = { workspace = true, optional = true }

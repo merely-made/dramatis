@@ -219,6 +219,29 @@ now call `constant_time_eq` (2026-11-14). The other three are in other repositor
 
 Links: area custody · summary Replace hand-written cryptographic compares with constant_time_eq; consume standards, never fork them.
 
+### custody D7. TOTP only, on totp-rs (2026-11-14)
+
+Mark answered the OTP study (`Code/testing/engine-split/study_dramatis_stores_pairing_otp.md`
+Part 3, with `research_unlock_pairing_totp.md` Part 3) with **"TOTP only, on totp-rs"**: code
+generation moves to `totp-rs`; HOTP and the Steam variant are removed, while stored items of those
+kinds stay readable and exportable but are not generated; our generator math and Steam HMAC go; the
+RFC 6238 vectors stay as a test against the crate; the release and admission machinery stays as it is
+until a screen exists. His reasoning: **"i'd pick one path, totp, and just do that. isn't that the
+normal way to do it? why would we need steam guard and hotp?"** and **"if that itself is a minefield
+of vulnerabilities, i guess i'd hope to use an existing crate."** It applies D6's standing rule.
+
+Implementation status (2026-11-14, branch `totp-rs`): castellan's `Otp` is a TOTP generator over
+`totp-rs` 6.0.0 (features `alloc`, `zeroize`), and the RFC 6238 Appendix B vectors pass against it for
+all three hashes. HOTP and Steam Guard items still import (otpauth `hotp` URIs, Steam
+`shared_secret`), list, review and keep their sealed bytes, including an HOTP counter; releasing one
+returns `OtpError::TotpOnly`. Our otpauth parser stays: `totp-rs` refuses `hotp` URIs and accepts
+duplicate parameters, 7 digits, an empty label and an empty issuer, which ours refuses. Castellan's
+direct `hmac` and `sha1` dependencies left. Open for the owner: 9- and 10-digit items, which CXF admits
+(ruling 68's 6 to 10), are stored but not generated, because `totp-rs` builds 6 to 8 digits and
+panics at 10.
+
+Links: area custody · draws on custody D6 · plans H4, VL-Q, VL-E · summary Generate TOTP codes only, through totp-rs; HOTP and Steam Guard items stay stored but generate no code.
+
 ## Phases
 
 ### H1. Enforced custody boundary and adversarial vertical slice
@@ -272,6 +295,10 @@ isolation is a custodian-surface item.
 - From: `repos/mere/design_docs/archive_docs/2026-10-28/2026-10-21_custody_isolation_and_security_hardening_plan.md:853-866`
 
 ### H4. Hostile input and independent review
+- Note (2026-11-14, custody D7): OTP release generates TOTP only, through `totp-rs`. An HOTP or Steam Guard item's
+  release is refused with `OtpError::TotpOnly` and changes no record, so no HOTP counter advances; the release and
+  admission machinery is otherwise unchanged. The dependency review gains `totp-rs` and loses castellan's direct
+  `hmac` and `sha1`.
 - Done when: budgets and responsive lock and status are enforced and measured (T08); import, quarantine, authentication,
   replacement, OTP exact-session release and enabled epoch and history behaviours are requalified; dependency, advisory
   and independent protocol and platform review is done on the final bounded custodian, exact features and signed
@@ -328,6 +355,9 @@ the reason it stays.
   the destination namespace to a profile; preflight and failure receipts must include ownership records. Q042: deleting
   one of two collections sharing an OTP item leaves the other dangling; decide shared membership against destructive
   collection ownership first.
+- Note (2026-11-14, custody D7): "the generator" in Q040 is now castellan's TOTP-only `Otp` over `totp-rs`. Its
+  admission is a seed of at least 16 bytes, 6 to 8 digits and a nonzero period; HOTP and Steam Guard items are admitted
+  to storage and review but never to generation. Q040 itself is unrepaired.
 - Q043: the SSH-agent startup helper and the shared app and browser helper unlink a Unix endpoint after NotFound or
   ConnectionRefused without checking socket type, owner or inode; unify cleanup ownership. Q044: `listening` and `ready`
   are emitted before the app and browser doors bind; add bind-ready acknowledgments. Q045: the identity endpoint's
@@ -458,6 +488,8 @@ persistence failure and missing macOS native event hooks. Lock and unlock follow
 backends are owned here, as are V5 sync (no replicated `IdentityStorage` exists), V3's follow-ons (a passphrase prompt,
 `generate`, a ShortTtl relock) and OTP's code presentation, admitted approval surface and credential replication between
 persona devices, all unbuilt.
+- Note (2026-11-14, custody D7): OTP's code presentation shows TOTP codes only; HOTP and Steam Guard items have no code
+  to present.
 - Done when: the source sets none; each is a recorded receipt or a decision.
 - Needs: pairing D2 for the personae binaries and macOS
 - Rulings: vault lock 7, 17, 21, 22, 89
@@ -630,3 +662,5 @@ SS8 parked the plan.
   H1 and H2 listed as outstanding are built as source with synthetic tests (rollout
   plan D11 and its Findings). Native Keychain and LocalAuthentication behaviour and
   the signed receiving run remain open.
+- 2026-11-14: custody D7: castellan's OTP codes are TOTP only, generated by `totp-rs`; HOTP and
+  Steam Guard generation and our HMAC and truncation code are gone, their stored items kept.

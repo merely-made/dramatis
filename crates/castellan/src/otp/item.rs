@@ -11,7 +11,9 @@
 //! with an HOTP item's next counter, is the credential's sealed payload
 //! (ruling 23). [`OtpItemStore`] imports `otpauth://` URIs and Steam Guard
 //! secrets into that shape and reads the secret-free metadata back; no type
-//! here holds or returns a seed.
+//! here holds or returns a seed. Codes are TOTP only (custody plan D7): HOTP
+//! and Steam Guard items import and stay stored, and releasing one is refused
+//! with [`OtpError::TotpOnly`].
 //!
 //! This is the storage seam below [`super::OtpReleaseGate`], which is the only
 //! public path that can turn a sealed payload into a code-bearing tile.
@@ -24,13 +26,13 @@ use chatelaine::{
 };
 use personae::{IdentityError, PersonaId, SealedRecordStorage};
 
-use chatelaine::OtpFields;
 use super::steam_guard::decode_shared_secret;
 use super::{
-    Otp, OtpCodeTile, OtpCredential, OtpError, OtpKind, OtpUriError, SteamGuard, SteamGuardError,
+    NotTotp, Otp, OtpCodeTile, OtpCredential, OtpError, OtpKind, OtpUriError, SteamGuardError,
     parse_otpauth_uri,
 };
 use crate::items::{ItemStore, ItemStoreError, Payload, random_id_bytes};
+use chatelaine::OtpFields;
 
 /// The issuer every Steam Guard item is filed under.
 const STEAM_ISSUER: &str = "Steam";
@@ -57,9 +59,6 @@ pub enum OtpItemError {
     },
     /// The sealed payload does not fit its credential's metadata.
     PayloadMismatch,
-    /// The final HOTP value cannot be released because it could not be
-    /// advanced before the replacement record could be persisted.
-    HotpCounterExhausted,
 }
 
 impl fmt::Display for OtpItemError {
@@ -76,9 +75,6 @@ impl fmt::Display for OtpItemError {
             OtpItemError::PayloadMismatch => {
                 f.write_str("the sealed OTP payload does not match its credential")
             },
-            OtpItemError::HotpCounterExhausted => {
-                f.write_str("the HOTP counter has no next durable value")
-            },
         }
     }
 }
@@ -90,9 +86,7 @@ impl std::error::Error for OtpItemError {
             OtpItemError::Import(error) => Some(error),
             OtpItemError::SteamGuard(error) => Some(error),
             OtpItemError::Generation(error) => Some(error),
-            OtpItemError::NotFound { .. }
-            | OtpItemError::PayloadMismatch
-            | OtpItemError::HotpCounterExhausted => None,
+            OtpItemError::NotFound { .. } | OtpItemError::PayloadMismatch => None,
         }
     }
 }
@@ -149,21 +143,23 @@ impl OtpItemStore {
 
     /// Parse and seal a provisioning URI as a new item.
     pub fn import_otpauth_uri(&self, uri: &str) -> Result<OtpCredential, OtpItemError> {
-        let (otp, imported) = parse_otpauth_uri(uri).map_err(OtpItemError::Import)?;
-        let (mode, counter) = match otp.kind {
+        let imported = parse_otpauth_uri(uri).map_err(OtpItemError::Import)?;
+        let (mode, counter) = match imported.kind {
             OtpKind::Totp { period, t0 } => (OtpMode::Totp { period, t0 }, None),
             OtpKind::Hotp { counter } => (OtpMode::Hotp, Some(counter)),
         };
         let payload = Payload::Otp {
-            secret: otp.secret.to_vec(),
+            secret: imported.secret().to_vec(),
             counter,
         };
         let titles = titles(&imported.account, imported.issuer.as_deref());
         let metadata = CredentialKind::Otp {
             account: imported.account,
             issuer: imported.issuer,
-            algorithm: otp.algorithm,
-            code_style: OtpCodeStyle::Decimal { digits: otp.digits },
+            algorithm: imported.algorithm,
+            code_style: OtpCodeStyle::Decimal {
+                digits: imported.digits,
+            },
             mode,
         };
         self.insert(titles, metadata, payload)
@@ -172,8 +168,8 @@ impl OtpItemStore {
     /// Seal one Valve Steam Guard mobile authenticator `shared_secret`.
     ///
     /// The base64 value comes from a Steam authenticator file. It is not an
-    /// `otpauth://` extension and is always presented as a five-character
-    /// Steam Guard code under the fixed `Steam` issuer.
+    /// `otpauth://` extension and is filed with the Steam Guard code style
+    /// under the fixed `Steam` issuer. It is stored, not generated (D7).
     pub fn import_steam_guard(
         &self,
         account: &str,
@@ -219,8 +215,8 @@ impl OtpItemStore {
 
     /// Exercise one credential after a participant-gated approval.
     ///
-    /// TOTP payloads are unchanged. HOTP advances its sealed counter, in the
-    /// payload record alone, before returning a code.
+    /// TOTP only: the payload is never changed. An HOTP or Steam Guard item
+    /// is refused with [`OtpError::TotpOnly`], its record untouched.
     pub(crate) fn release_tile_at_unix_time(
         &self,
         item: ItemId,
@@ -234,22 +230,10 @@ impl OtpItemStore {
                 let Payload::Otp { secret, counter } = payload else {
                     return Err(OtpItemError::PayloadMismatch);
                 };
-                let code = match (fields.mode, counter.as_mut()) {
-                    (OtpMode::Hotp, Some(counter)) => {
-                        if *counter == u64::MAX {
-                            return Err(OtpItemError::HotpCounterExhausted);
-                        }
-                        let code = code_at(fields, secret, Some(*counter), unix_secs)?;
-                        *counter += 1;
-                        code
-                    },
-                    (OtpMode::Totp { .. }, None) => code_at(fields, secret, None, unix_secs)?,
-                    _ => return Err(OtpItemError::PayloadMismatch),
-                };
-                let changed = fields.mode == OtpMode::Hotp;
+                let code = code_at(fields, secret, counter.is_some(), unix_secs)?;
                 let shown = OtpCredential::from_item(stored.clone(), credential)
                     .expect("the exercised credential is an Otp credential of this item");
-                Ok((OtpCodeTile::new(shown, code, unix_secs), changed))
+                Ok((OtpCodeTile::new(shown, code, unix_secs), false))
             })
     }
 
@@ -323,25 +307,23 @@ fn titles(account: &str, issuer: Option<&str>) -> (String, Option<String>) {
 fn code_at(
     fields: OtpFields<'_>,
     secret: &[u8],
-    counter: Option<u64>,
+    has_counter: bool,
     unix_secs: u64,
 ) -> Result<String, OtpItemError> {
-    if fields.code_style == OtpCodeStyle::SteamGuard {
-        return Ok(SteamGuard::from_secret_bytes(secret)?.code_at_unix_time(unix_secs));
-    }
-    let OtpCodeStyle::Decimal { digits } = fields.code_style else {
-        return Err(OtpItemError::PayloadMismatch);
+    let digits = match fields.code_style {
+        OtpCodeStyle::SteamGuard => return Err(OtpError::TotpOnly(NotTotp::SteamGuard).into()),
+        OtpCodeStyle::Decimal { digits } => digits,
     };
-    let otp = match (fields.mode, counter) {
-        (OtpMode::Totp { period, t0 }, None) => {
-            let mut otp = Otp::totp(secret.to_vec())?.with_period(period)?;
-            otp.kind = OtpKind::Totp { period, t0 };
-            otp
-        },
-        (OtpMode::Hotp, Some(counter)) => Otp::hotp(secret.to_vec(), counter)?,
+    let (period, t0) = match (fields.mode, has_counter) {
+        (OtpMode::Hotp, true) => return Err(OtpError::TotpOnly(NotTotp::Hotp).into()),
+        (OtpMode::Totp { period, t0 }, false) => (period, t0),
         _ => return Err(OtpItemError::PayloadMismatch),
     };
-    let otp = otp.with_digits(digits)?.with_algorithm(fields.algorithm);
+    let otp = Otp::totp(secret.to_vec())?
+        .with_period(period)?
+        .with_t0(t0)
+        .with_digits(digits)?
+        .with_algorithm(fields.algorithm);
     Ok(otp.code_at_unix_time(unix_secs)?)
 }
 

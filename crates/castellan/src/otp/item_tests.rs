@@ -8,7 +8,7 @@ use base64::Engine as _;
 use tempfile::tempdir;
 
 use super::*;
-use crate::otp::{OtpReleaseGate, OtpReleaseParticipantClaim};
+use crate::otp::{OtpReleaseError, OtpReleaseGate, OtpReleaseParticipantClaim};
 
 const RFC6238_SHA1_SECRET: &[u8] = b"12345678901234567890";
 const RFC6238_SHA1_SECRET_BASE32: &str = "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ";
@@ -101,7 +101,7 @@ fn deletion_closes_the_item_without_affecting_the_persona_namespace() {
 }
 
 #[test]
-fn steam_guard_is_an_explicit_stored_style_and_uses_the_release_tile() {
+fn steam_guard_is_an_explicit_stored_style_and_its_release_is_refused() {
     let dir = tempdir().unwrap();
     let items = store(dir.path(), PersonaId::new());
     let item = items
@@ -112,11 +112,49 @@ fn steam_guard_is_an_explicit_stored_style_and_uses_the_release_tile() {
     assert_eq!(item.code_style(), OtpCodeStyle::SteamGuard);
     assert_eq!(item.code_style().character_count(), 5);
     assert_eq!(item.mode(), OtpMode::Totp { period: 30, t0: 0 });
-    let tile = items
-        .release_tile_at_unix_time(item.item_id(), item.credential_id(), 1_616_374_841)
+    assert!(matches!(
+        items.release_tile_at_unix_time(item.item_id(), item.credential_id(), 1_616_374_841),
+        Err(OtpItemError::Generation(OtpError::TotpOnly(
+            NotTotp::SteamGuard
+        )))
+    ));
+}
+
+#[test]
+fn an_hotp_item_imports_and_its_release_is_refused_without_advancing() {
+    let dir = tempdir().unwrap();
+    let items = store(dir.path(), PersonaId::new());
+    let item = items
+        .import_otpauth_uri(&format!(
+            "otpauth://hotp/Merely:mark?secret={RFC6238_SHA1_SECRET_BASE32}&issuer=Merely&counter=41"
+        ))
         .unwrap();
-    assert_eq!(tile.code_at_unix_time(1_616_374_841), Some("2F9J5"));
-    assert_eq!(tile.code_at_unix_time(1_616_374_860), None);
+    let record = dir
+        .path()
+        .join(items.items().payload_path(item.credential_id()));
+    let before = std::fs::read(&record).unwrap();
+
+    assert_eq!(item.mode(), OtpMode::Hotp);
+    assert!(matches!(
+        items.release_tile_at_unix_time(item.item_id(), item.credential_id(), 59),
+        Err(OtpItemError::Generation(OtpError::TotpOnly(NotTotp::Hotp)))
+    ));
+    let gate = OtpReleaseGate::new(items.clone());
+    let participant = OtpReleaseParticipantClaim::unverified("local:test", "hotp:test").unwrap();
+    let petition = gate
+        .petition(item.item_id(), item.credential_id(), participant)
+        .unwrap();
+    let refused = gate.approve(petition.id).unwrap_err();
+    assert!(matches!(
+        refused,
+        OtpReleaseError::Item(OtpItemError::Generation(OtpError::TotpOnly(NotTotp::Hotp)))
+    ));
+    assert!(refused.to_string().contains("TOTP only"), "{refused}");
+    assert_eq!(std::fs::read(&record).unwrap(), before);
+    assert_eq!(
+        load_payload(&items, item.credential_id()),
+        (RFC6238_SHA1_SECRET.to_vec(), Some(41))
+    );
 }
 
 #[test]
@@ -156,6 +194,109 @@ fn an_imported_item_is_titled_by_its_issuer_or_else_its_account() {
     assert_eq!(issued.item().state, ItemState::Vault);
 }
 
+/// The sealed payload behind one credential, read the way review reads it.
+fn load_payload(items: &OtpItemStore, credential: CredentialId) -> (Vec<u8>, Option<u64>) {
+    let record: crate::items::records::StoredPayload = items
+        .items()
+        .storage
+        .load_record(items.items().payload_path(credential))
+        .unwrap()
+        .unwrap();
+    match record.payload {
+        Payload::Otp {
+            ref secret,
+            counter,
+        } => (secret.clone(), counter),
+        _ => panic!("an OTP credential holds an OTP payload"),
+    }
+}
+
+fn files_under(root: &std::path::Path) -> std::collections::BTreeMap<String, Vec<u8>> {
+    let mut files = std::collections::BTreeMap::new();
+    let mut pending = vec![root.to_path_buf()];
+    while let Some(dir) = pending.pop() {
+        for entry in std::fs::read_dir(dir).unwrap() {
+            let path = entry.unwrap().path();
+            if path.is_dir() {
+                pending.push(path);
+            } else {
+                let name = path
+                    .strip_prefix(root)
+                    .unwrap()
+                    .to_string_lossy()
+                    .replace('\\', "/");
+                files.insert(name, std::fs::read(&path).unwrap());
+            }
+        }
+    }
+    files
+}
+
+/// A store written before TOTP-only generation (custody plan D7): a TOTP, an
+/// HOTP (counter 41) and a Steam Guard item, sealed under `[0x71; 32]` by the
+/// pre-change importer. It still lists, reads and passes review's payload
+/// check, its releasable TOTP still releases, the other two are refused, and
+/// no record changes on disk.
+#[test]
+fn a_store_written_before_totp_only_still_loads_byte_identically() {
+    let fixture = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/otp_store");
+    let written = files_under(&fixture);
+    assert_eq!(written.len(), 7);
+    let dir = tempdir().unwrap();
+    for (name, bytes) in &written {
+        let path = dir.path().join(name);
+        std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+        std::fs::write(path, bytes).unwrap();
+    }
+    let persona = PersonaId::from_uuid(uuid::Uuid::from_u128(
+        0x0f7f_0000_0000_4000_8000_0000_0000_0001,
+    ));
+    let items = store(dir.path(), persona);
+
+    let listed = items.items().list().unwrap();
+    assert_eq!(listed.len(), 3);
+    let steam_secret = base64::engine::general_purpose::STANDARD
+        .decode(STEAM_SHARED_SECRET)
+        .unwrap();
+    let mut seen = Vec::new();
+    for item in listed {
+        assert_eq!(crate::review::accept_blocked(&item), None);
+        let credential = item.credentials[0].id;
+        let otp = items.get(item.id, credential).unwrap().unwrap();
+        let payload = load_payload(&items, credential);
+        let released = items.release_tile_at_unix_time(item.id, credential, 59);
+        match (otp.code_style(), otp.mode()) {
+            (OtpCodeStyle::Decimal { digits: 8 }, OtpMode::Totp { period: 30, t0: 0 }) => {
+                assert_eq!(payload, (RFC6238_SHA1_SECRET.to_vec(), None));
+                assert_eq!(released.unwrap().code_at_unix_time(59), Some("94287082"));
+                seen.push("totp");
+            },
+            (OtpCodeStyle::Decimal { digits: 6 }, OtpMode::Hotp) => {
+                assert_eq!(payload, (RFC6238_SHA1_SECRET.to_vec(), Some(41)));
+                assert!(matches!(
+                    released,
+                    Err(OtpItemError::Generation(OtpError::TotpOnly(NotTotp::Hotp)))
+                ));
+                seen.push("hotp");
+            },
+            (OtpCodeStyle::SteamGuard, OtpMode::Totp { period: 30, t0: 0 }) => {
+                assert_eq!(payload, (steam_secret.clone(), None));
+                assert!(matches!(
+                    released,
+                    Err(OtpItemError::Generation(OtpError::TotpOnly(
+                        NotTotp::SteamGuard
+                    )))
+                ));
+                seen.push("steam");
+            },
+            other => panic!("unexpected stored OTP shape {other:?}"),
+        }
+    }
+    seen.sort_unstable();
+    assert_eq!(seen, ["hotp", "steam", "totp"]);
+    assert_eq!(files_under(dir.path()), written);
+}
+
 /// Every chatelaine value castellan hands out (import results, reads, the
 /// index listing, petitions and tiles) is free of the seeds it describes,
 /// in its serialized form and in its debug form, and HOTP counters stay
@@ -176,7 +317,7 @@ fn no_chatelaine_value_in_the_read_model_holds_secret_material() {
     let gate = OtpReleaseGate::new(items.clone());
     let participant = OtpReleaseParticipantClaim::unverified("local:test", "read:test").unwrap();
     let request = gate
-        .petition(hotp.item_id(), hotp.credential_id(), participant)
+        .petition(totp.item_id(), totp.credential_id(), participant)
         .unwrap();
     let released = gate.approve(request.id).unwrap();
 

@@ -17,15 +17,64 @@
 
 use std::fmt;
 
-use super::{DEFAULT_DIGITS, DEFAULT_PERIOD_SECS, Otp, OtpAlgorithm, OtpError, base32};
+use zeroize::Zeroizing;
 
-/// What a parsed `otpauth://` URI carried, alongside the generator itself.
-#[derive(Clone, Debug, PartialEq, Eq)]
+use super::{
+    DEFAULT_DIGITS, DEFAULT_PERIOD_SECS, MIN_SECRET_BYTES, NotTotp, Otp, OtpAlgorithm, OtpError,
+    OtpKind, base32,
+};
+
+/// What a parsed `otpauth://` URI carried: its labels, its parameters and,
+/// sealed from `Debug`, its secret. An HOTP URI parses (its item is stored)
+/// but [`OtpUri::totp`] gives no generator for it (custody plan D7).
+#[derive(Clone, PartialEq, Eq)]
 pub struct OtpUri {
     /// The account this credential is for, with any issuer prefix stripped.
     pub account: String,
     /// The issuing service, if the URI stated one.
     pub issuer: Option<String>,
+    /// The HMAC hash named by `algorithm=`, SHA-1 by default.
+    pub algorithm: OtpAlgorithm,
+    /// The code length, 6 or 8.
+    pub digits: u32,
+    /// Time-based with its step, or counter-based with its counter.
+    pub kind: OtpKind,
+    secret: Zeroizing<Vec<u8>>,
+}
+
+impl fmt::Debug for OtpUri {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("OtpUri")
+            .field("account", &self.account)
+            .field("issuer", &self.issuer)
+            .field("algorithm", &self.algorithm)
+            .field("digits", &self.digits)
+            .field("kind", &self.kind)
+            .field(
+                "secret",
+                &format_args!("<{} bytes redacted>", self.secret.len()),
+            )
+            .finish()
+    }
+}
+
+impl OtpUri {
+    /// The TOTP generator this URI configures, or [`OtpError::TotpOnly`] for
+    /// an HOTP URI.
+    pub fn totp(&self) -> Result<Otp, OtpError> {
+        let OtpKind::Totp { period, t0 } = self.kind else {
+            return Err(OtpError::TotpOnly(NotTotp::Hotp));
+        };
+        Ok(Otp::totp(self.secret.to_vec())?
+            .with_algorithm(self.algorithm)
+            .with_digits(self.digits)?
+            .with_period(period)?
+            .with_t0(t0))
+    }
+
+    pub(super) fn secret(&self) -> &[u8] {
+        &self.secret
+    }
 }
 
 /// Why an `otpauth://` URI could not be read.
@@ -112,7 +161,7 @@ impl std::error::Error for OtpUriError {
 ///
 /// Unknown query parameters are ignored rather than rejected, because issuers
 /// add their own and a credential that is otherwise valid should still import.
-pub fn parse_otpauth_uri(uri: &str) -> Result<(Otp, OtpUri), OtpUriError> {
+pub fn parse_otpauth_uri(uri: &str) -> Result<OtpUri, OtpUriError> {
     let rest = strip_scheme(uri).ok_or(OtpUriError::NotOtpauth)?;
 
     let (kind_and_label, query) = match rest.split_once('?') {
@@ -185,7 +234,14 @@ pub fn parse_otpauth_uri(uri: &str) -> Result<(Otp, OtpUri), OtpUriError> {
         return Err(OtpUriError::UnsupportedDigits(digits));
     }
 
-    let otp = if is_totp {
+    let secret = Zeroizing::new(secret);
+    if secret.len() < MIN_SECRET_BYTES {
+        return Err(OtpUriError::Configuration(OtpError::SecretTooShort {
+            bytes: secret.len(),
+        }));
+    }
+
+    let kind = if is_totp {
         let period = match get("period")? {
             None => DEFAULT_PERIOD_SECS,
             Some(p) => p.parse().map_err(|_| OtpUriError::InvalidNumber {
@@ -193,13 +249,10 @@ pub fn parse_otpauth_uri(uri: &str) -> Result<(Otp, OtpUri), OtpUriError> {
                 value: p.to_string(),
             })?,
         };
-        Otp::totp(secret)
-            .map_err(OtpUriError::Configuration)?
-            .with_algorithm(algorithm)
-            .with_digits(digits)
-            .map_err(OtpUriError::Configuration)?
-            .with_period(period)
-            .map_err(OtpUriError::Configuration)?
+        if period == 0 {
+            return Err(OtpUriError::Configuration(OtpError::ZeroPeriod));
+        }
+        OtpKind::Totp { period, t0: 0 }
     } else {
         let counter_text = get("counter")?.ok_or(OtpUriError::MissingCounter)?;
         let counter = counter_text
@@ -208,14 +261,17 @@ pub fn parse_otpauth_uri(uri: &str) -> Result<(Otp, OtpUri), OtpUriError> {
                 parameter: "counter",
                 value: counter_text.to_string(),
             })?;
-        Otp::hotp(secret, counter)
-            .map_err(OtpUriError::Configuration)?
-            .with_algorithm(algorithm)
-            .with_digits(digits)
-            .map_err(OtpUriError::Configuration)?
+        OtpKind::Hotp { counter }
     };
 
-    Ok((otp, OtpUri { account, issuer }))
+    Ok(OtpUri {
+        account,
+        issuer,
+        algorithm,
+        digits,
+        kind,
+        secret,
+    })
 }
 
 fn strip_scheme(uri: &str) -> Option<&str> {

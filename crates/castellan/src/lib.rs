@@ -36,9 +36,9 @@
 //! - **Not gaz or gazette.** Those keep and find the other players; castellan
 //!   guards and presents you.
 //!
-//! [`otp`] is the algorithm half of the chatelaine's 2FA codes: given a secret
-//! and a clock, the digits; given an `otpauth://` URI, the configured
-//! generator. The Reticulum station derivation that began here moved to
+//! [`otp`] is the code half of the chatelaine's 2FA items: given a TOTP
+//! secret and a clock, the digits, computed by `totp-rs`; given an
+//! `otpauth://` URI, its parameters. The Reticulum station derivation that began here moved to
 //! `personae::reticulum` and the station grant policy to
 //! `sporran::station_grant` in DR-C (D17); djinn signs the grant.
 //!
@@ -68,7 +68,8 @@
 //! exact credential and the Notochord transcript that admitted their carrier.
 //! [`resident::CastellanResident`] retains the process-wide sealed-record
 //! authority, and [`lock`] is how the vault's lock reaches it. 
-//! [`otp::SteamGuard`] is an explicitly nonstandard Valve compatibility shape.
+//! Codes are TOTP only, on `totp-rs` (custody plan D7); HOTP and Steam Guard
+//! items stay stored and reviewable but generate no code.
 //! Feature `cxf` adds two-step credential import: a memory-only preview, then
 //! an explicit destination per account, with native SSH keys kept in vault slots.
 

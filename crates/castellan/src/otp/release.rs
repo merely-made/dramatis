@@ -227,9 +227,9 @@ impl From<OtpItemError> for OtpReleaseError {
 
 /// Resident approval authority for one persona's sealed OTP item store.
 ///
-/// The gate owns the only code-bearing operation for sealed OTP items. HOTP
-/// serialization lives below it in the sealed-store update transaction, so
-/// independent gates over clones of one opened store cannot issue one counter.
+/// The gate owns the only code-bearing operation for sealed OTP items. Codes
+/// are TOTP only (custody plan D7): approving a petition for an HOTP or Steam
+/// Guard item returns [`super::OtpError::TotpOnly`] and changes no record.
 #[derive(Clone)]
 pub struct OtpReleaseGate {
     store: OtpItemStore,
@@ -383,10 +383,6 @@ fn system_unix_secs() -> Result<u64, OtpReleaseError> {
 }
 
 #[cfg(test)]
-#[path = "release_concurrency_tests.rs"]
-mod concurrency_tests;
-
-#[cfg(test)]
 mod tests {
     use std::sync::atomic::{AtomicU64, Ordering};
 
@@ -462,71 +458,6 @@ mod tests {
         let debug = format!("{released:?}");
         assert!(!debug.contains("94287082"));
         assert!(!debug.contains("session:carrier-proof"));
-    }
-
-    #[test]
-    fn denial_removes_the_petition_without_consuming_hotp() {
-        let dir = tempdir().unwrap();
-        let items = store(dir.path(), PersonaId::new());
-        let item = items
-            .import_otpauth_uri(&format!(
-                "otpauth://hotp/Merely:mark?secret={RFC4226_SECRET_BASE32}&issuer=Merely&counter=0"
-            ))
-            .unwrap();
-        let clock = ManualClock::new(1);
-        let gate = test_gate(items, &clock);
-        let denied = gate
-            .petition(item.item_id(), item.credential_id(), participant())
-            .unwrap();
-
-        assert_eq!(gate.deny(denied.id).unwrap().request, denied);
-        clock.set(2);
-        let approved = gate
-            .petition(item.item_id(), item.credential_id(), participant())
-            .unwrap();
-        assert_eq!(
-            gate.approve(approved.id)
-                .unwrap()
-                .tile()
-                .code_at_unix_time(2),
-            Some("755224")
-        );
-    }
-
-    #[test]
-    fn approved_hotp_counter_survives_gate_reopen() {
-        let dir = tempdir().unwrap();
-        let persona = PersonaId::new();
-        let items = store(dir.path(), persona);
-        let item = items
-            .import_otpauth_uri(&format!(
-                "otpauth://hotp/Merely:mark?secret={RFC4226_SECRET_BASE32}&issuer=Merely&counter=0"
-            ))
-            .unwrap();
-        let clock = ManualClock::new(1);
-        let gate = test_gate(items, &clock);
-
-        let first = gate
-            .petition(item.item_id(), item.credential_id(), participant())
-            .unwrap();
-        assert_eq!(
-            gate.approve(first.id).unwrap().tile().code_at_unix_time(1),
-            Some("755224")
-        );
-
-        clock.set(2);
-        let reopened = test_gate(store(dir.path(), persona), &clock);
-        let second = reopened
-            .petition(item.item_id(), item.credential_id(), participant())
-            .unwrap();
-        assert_eq!(
-            reopened
-                .approve(second.id)
-                .unwrap()
-                .tile()
-                .code_at_unix_time(2),
-            Some("287082")
-        );
     }
 
     #[test]

@@ -383,70 +383,38 @@ mod tests {
     }
 
     #[test]
-    fn independent_gates_under_one_resident_cannot_repeat_an_hotp_counter() {
+    fn a_resident_gate_refuses_an_hotp_item_and_leaves_its_counter_record_alone() {
         let dir = tempdir().unwrap();
         let resident = claim(dir.path());
         let persona = PersonaId::new();
         let items = resident.otp_items(persona);
         let item = items
             .import_otpauth_uri(&format!(
-                "otpauth://hotp/Steam:mark?secret={RFC4226_SECRET_BASE32}&issuer=Steam&counter=0"
+                "otpauth://hotp/Merely:mark?secret={RFC4226_SECRET_BASE32}&issuer=Merely&counter=0"
             ))
             .unwrap();
-        let left = OtpReleaseGate::new(resident.otp_items(persona));
-        let right = OtpReleaseGate::new(resident.otp_items(persona));
-        let participant =
-            || OtpReleaseParticipantClaim::unverified("local:test", "resident:test").unwrap();
-
-        let first = left
-            .petition(item.item_id(), item.credential_id(), participant())
-            .unwrap();
-        let first = left.approve(first.id).unwrap();
-        let second = right
-            .petition(item.item_id(), item.credential_id(), participant())
-            .unwrap();
-        let second = right.approve(second.id).unwrap();
-
-        assert_eq!(first.tile().code_at_unix_time(0), Some("755224"));
-        assert_eq!(second.tile().code_at_unix_time(0), Some("287082"));
-    }
-
-    #[test]
-    fn resident_rejects_restored_hotp_state_before_releasing_it_again() {
-        let dir = tempdir().unwrap();
-        let records = dir.path().join("records");
-        let resident = claim(dir.path());
-        let persona = PersonaId::new();
-        let items = resident.otp_items(persona);
-        let item = items
-            .import_otpauth_uri(&format!(
-                "otpauth://hotp/Steam:mark?secret={RFC4226_SECRET_BASE32}&issuer=Steam&counter=0"
-            ))
-            .unwrap();
-        // The HOTP counter lives in the credential's payload record alone.
-        let record = records
-            .join("castellan/items/v1")
+        let record = dir
+            .path()
+            .join("records/castellan/items/v1")
             .join(persona.as_uuid().to_string())
             .join("payloads")
             .join(format!("{}.json", item.credential_id()));
-        let counter_zero = std::fs::read(&record).unwrap();
+        let before = std::fs::read(&record).unwrap();
         let gate = OtpReleaseGate::new(items);
         let participant =
-            || OtpReleaseParticipantClaim::unverified("local:test", "rollback:test").unwrap();
-
-        let first = gate
-            .petition(item.item_id(), item.credential_id(), participant())
+            OtpReleaseParticipantClaim::unverified("local:test", "hotp:test").unwrap();
+        let petition = gate
+            .petition(item.item_id(), item.credential_id(), participant)
             .unwrap();
-        assert_eq!(
-            gate.approve(first.id).unwrap().tile().code_at_unix_time(0),
-            Some("755224")
-        );
-        let second = gate
-            .petition(item.item_id(), item.credential_id(), participant())
-            .unwrap();
-        std::fs::write(&record, counter_zero).unwrap();
 
-        let error = gate.approve(second.id).unwrap_err();
-        assert!(error.to_string().contains("rollback detected"));
+        assert!(matches!(
+            gate.approve(petition.id),
+            Err(crate::otp::OtpReleaseError::Item(
+                crate::otp::OtpItemError::Generation(crate::otp::OtpError::TotpOnly(
+                    crate::otp::NotTotp::Hotp
+                ))
+            ))
+        ));
+        assert_eq!(std::fs::read(&record).unwrap(), before);
     }
 }

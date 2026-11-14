@@ -4,20 +4,19 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 // SPDX-License-Identifier: MPL-2.0
 
-//! The transitional per-persona private-epoch bridge: plaintext epoch
-//! material staged for pairing-time wrapping, sealed at rest once a secret
-//! store is available.
+//! The transitional per-persona private-epoch bridge: epoch material staged
+//! for pairing-time wrapping, only ever at rest as a sealed record.
 
 use std::io;
 use std::path::Path;
 
 use personae::{InMemoryProvider, PersonaId};
 
-use super::secrets::{io_backend_error, looks_like_sealed_record, wallet_persona_secret_store};
+use super::at_rest::{no_sealed_store, refuse_raw};
+use super::secrets::{io_backend_error, wallet_persona_secret_store};
 use super::{KeyEpochId, PersonaEpochBridge, PrivateEpochRecord};
 use sporran::wallet_store::load_persona_wallet;
 use sporran::wallet_store::persona_epoch_bridge_path;
-use sporran::wallet_store::{load_json_optional, save_json_atomic};
 
 /// Load one persona epoch bridge, or `None` when absent.
 pub fn load_persona_epoch_bridge(
@@ -31,36 +30,27 @@ pub fn load_persona_epoch_bridge(
     let relative = path
         .strip_prefix(data_root)
         .expect("wallet path under data root");
-    let secret_store = wallet_persona_secret_store(data_root)?;
-    if let Some(store) = &secret_store {
-        match store.load_record::<PersonaEpochBridge>(relative) {
-            Ok(bridge) => return Ok(bridge),
-            Err(_) => {},
-        }
-    }
-    if secret_store.is_none() && looks_like_sealed_record(&path) {
+    // Custody D5: a raw legacy bridge is refused, a sealed-read failure returned.
+    refuse_raw(&path)?;
+    let Some(store) = wallet_persona_secret_store(data_root)? else {
         return Ok(None);
-    }
-    let legacy = load_json_optional(&path)?;
-    if let (Some(bridge), Some(_)) = (&legacy, &secret_store) {
-        save_persona_epoch_bridge(data_root, bridge)?;
-    }
-    Ok(legacy)
+    };
+    store.load_record(relative).map_err(io_backend_error)
 }
 
-/// Save one persona epoch bridge atomically.
+/// Save one persona epoch bridge as a sealed record; with no sealed store
+/// this is refused and nothing is written.
 pub fn save_persona_epoch_bridge(data_root: &Path, bridge: &PersonaEpochBridge) -> io::Result<()> {
     let path = persona_epoch_bridge_path(data_root, bridge.persona_id);
-    if let Some(store) = wallet_persona_secret_store(data_root)? {
-        return store
-            .save_record(
-                path.strip_prefix(data_root)
-                    .expect("wallet path under data root"),
-                bridge,
-            )
-            .map_err(io_backend_error);
-    }
-    save_json_atomic(&path, bridge)
+    let store = wallet_persona_secret_store(data_root)?
+        .ok_or_else(|| no_sealed_store("private-epoch bridge"))?;
+    store
+        .save_record(
+            path.strip_prefix(data_root)
+                .expect("wallet path under data root"),
+            bridge,
+        )
+        .map_err(io_backend_error)
 }
 
 /// Ensure the temporary plaintext epoch bridge contains `epoch_id`.
@@ -148,6 +138,8 @@ mod tests {
     #[test]
     fn persona_epoch_bridge_round_trips() {
         let root = temp_data_root("epoch-bridge");
+        // A bridge is sealed under the seed's store (custody D5).
+        save_identity_seed(&root, [0x45; 32]).unwrap();
         let bridge = PersonaEpochBridge {
             schema_version: WALLET_SCHEMA_VERSION,
             persona_id: fixture_persona(),
@@ -220,7 +212,7 @@ mod tests {
 
     #[cfg(windows)]
     #[test]
-    fn loading_a_legacy_plaintext_persona_epoch_bridge_migrates_it_to_a_sealed_record() {
+    fn a_legacy_plaintext_persona_epoch_bridge_is_refused_until_the_explicit_migration() {
         let root = temp_data_root("epoch-bridge-migrate");
         save_identity_seed(&root, [0x51; 32]).unwrap();
         let bridge = PersonaEpochBridge {
@@ -237,6 +229,13 @@ mod tests {
         )
         .unwrap();
 
+        let error = load_persona_epoch_bridge(&root, fixture_persona()).unwrap_err();
+        assert!(matches!(
+            WalletSecretRefusal::of(&error),
+            Some(WalletSecretRefusal::LegacyRaw { .. })
+        ));
+        migrate_legacy_wallet_secrets(&root).unwrap();
+
         let restored = load_persona_epoch_bridge(&root, fixture_persona())
             .unwrap()
             .unwrap();
@@ -252,6 +251,8 @@ mod tests {
     #[test]
     fn ensure_persona_epoch_bridge_is_idempotent_for_the_same_epoch() {
         let root = temp_data_root("ensure-epoch-bridge");
+        // A bridge is sealed under the seed's store (custody D5).
+        save_identity_seed(&root, [0x45; 32]).unwrap();
         let first = ensure_persona_epoch_bridge(&root, fixture_persona(), fixture_epoch()).unwrap();
         let second =
             ensure_persona_epoch_bridge(&root, fixture_persona(), fixture_epoch()).unwrap();
@@ -263,6 +264,8 @@ mod tests {
     #[test]
     fn stage_persona_private_epoch_replaces_existing_secret() {
         let root = temp_data_root("stage-epoch-bridge");
+        // A bridge is sealed under the seed's store (custody D5).
+        save_identity_seed(&root, [0x45; 32]).unwrap();
         ensure_persona_epoch_bridge(&root, fixture_persona(), fixture_epoch()).unwrap();
 
         stage_persona_private_epoch(

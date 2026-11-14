@@ -355,33 +355,48 @@ mod interruptions {
         assert_ne!(current.epoch_secret, old_epoch.epoch_secret);
     }
 
+    fn is_legacy_raw(error: &std::io::Error) -> bool {
+        matches!(
+            WalletSecretRefusal::of(error),
+            Some(WalletSecretRefusal::LegacyRaw { .. })
+        )
+    }
+
     #[test]
-    fn legacy_read_only_seed_load_preserves_raw_bytes_with_an_existing_auto_unlock_root() {
+    fn a_legacy_raw_seed_is_refused_by_both_loaders_and_left_recoverable() {
         let root = tempfile::tempdir().unwrap();
         let legacy = [0x6a; 32];
         let path = identity_seed_path(root.path());
         save_bytes_atomic(&path, &legacy).unwrap();
-        assert_eq!(
-            load_identity_seed_read_only(root.path()).unwrap(),
-            Some(legacy),
-            "same fresh-root control as the existing unit test"
-        );
+        assert!(is_legacy_raw(
+            &load_identity_seed_read_only(root.path()).unwrap_err()
+        ));
+        assert!(is_legacy_raw(&load_identity_seed(root.path()).unwrap_err()));
+        assert_eq!(std::fs::read(&path).unwrap(), legacy);
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn a_legacy_raw_seed_beside_an_existing_auto_unlock_root_waits_for_the_migration() {
+        let root = tempfile::tempdir().unwrap();
+        let legacy = [0x6a; 32];
+        let path = identity_seed_path(root.path());
         save_identity_seed(root.path(), [0x5b; 32]).unwrap();
         assert!(identity_auto_unlock_root_path(root.path()).is_file());
         std::fs::write(&path, legacy).unwrap();
-        assert_eq!(
-            load_identity_seed_read_only(root.path()).unwrap(),
-            Some(legacy)
-        );
+        assert!(is_legacy_raw(
+            &load_identity_seed_read_only(root.path()).unwrap_err()
+        ));
+        assert!(is_legacy_raw(&load_identity_seed(root.path()).unwrap_err()));
         assert_eq!(
             std::fs::read(&path).unwrap(),
             legacy,
-            "failed read leaves original raw bytes recoverable"
+            "a refused read leaves the raw bytes recoverable"
         );
+        assert_eq!(migrate_legacy_wallet_secrets(root.path()).unwrap(), vec![path]);
         assert_eq!(
-            load_identity_seed(root.path()).unwrap(),
-            Some(legacy),
-            "ordinary loader supports and migrates the same bytes"
+            load_identity_seed_read_only(root.path()).unwrap(),
+            Some(legacy)
         );
     }
 }

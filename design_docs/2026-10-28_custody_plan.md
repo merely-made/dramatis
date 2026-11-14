@@ -206,7 +206,8 @@ sealed-read failure is an error, and an existing raw file is migrated only by an
 once a sealed store exists. Platforms without a sealed store cannot hold a wallet until one is
 provided.
 
-Implementation status: on branch `seed-at-rest`, not yet on main; see the dated note under H2.
+Implementation status: built 2026-11-14 (`castellan::custody::wallet::at_rest`); whether it is
+on main is in the dated note under H2.
 
 Links: area custody · plans H2 · summary Wallet secrets are never written or read raw; a raw legacy file is migrated only by an explicit command.
 
@@ -310,6 +311,13 @@ custodian's state directory; consent is polkit once per generation on Linux, a c
 (source and synthetic, 2026-11-14; the signed run is open, fleet_custody_rollout F2) and a same-user helper on Windows, type-checked only; the custodian now links Castellan's keeper and CXF code, the SSH
 agent, tokio, pandect and graph-kernel (H4's dependency review); hostile CXF parsing runs inside the custodian, so import
 isolation is a custodian-surface item.
+- Note (2026-11-14, custody D5): wallet secrets are never written or read raw. The seed, the delegated-device identity,
+  the private-epoch bridges and the remote-auth wrapping keys save only into a sealed store (none: `NoSealedStore`,
+  nothing written) and load only from one (a sealed-read failure is returned; a raw file is `LegacyRaw`). The implicit
+  re-seal on load is gone; `migrate_legacy_wallet_secrets` is the only migration, and `djinn-custodian adopt-data` with
+  an envelope calls it. On Linux, on macOS without the envelope, and in Prompt or Locked mode no store exists, so no
+  wallet can be created there until one is provided. Committed on branch `seed-at-rest`; held off main until the
+  consumers on those platforms (graphshell mere-resident, knot-editor tests) are ready.
 - Done when: one authority holds roots and epochs; golden identity, derivation, stored-content and cold-reopen checks
   preserve data and public keys; no broad implicit grant replaces the old global allowlist. Production enablement waits
   on the Linux receiving run (README steps 1 to 8), the signed macOS receiving run, the wallet's at-rest step on Linux

@@ -13,14 +13,12 @@ use std::path::Path;
 
 use personae::InMemoryProvider;
 
+use super::at_rest::{no_sealed_store, refuse_raw};
 use super::secrets::{
     io_backend_error, looks_like_sealed_record, wallet_local_secret_store, wallet_secret_store,
 };
 use super::{DeviceId, LocalDeviceIdentity, RemoteAuthWrappingKeyBridge};
-use sporran::wallet_store::{
-    load_json_optional, local_device_identity_path, remote_auth_wrapping_keys_path,
-    save_json_atomic,
-};
+use sporran::wallet_store::{local_device_identity_path, remote_auth_wrapping_keys_path};
 
 /// Load the local delegated-device identity, or `None` when absent.
 pub fn load_local_device_identity(data_root: &Path) -> io::Result<Option<LocalDeviceIdentity>> {
@@ -31,21 +29,12 @@ pub fn load_local_device_identity(data_root: &Path) -> io::Result<Option<LocalDe
     let relative = path
         .strip_prefix(data_root)
         .expect("wallet path under data root");
-    let local_store = wallet_local_secret_store(data_root)?;
-    if let Some(store) = &local_store {
-        match store.load_record::<LocalDeviceIdentity>(relative) {
-            Ok(identity) => return Ok(identity),
-            Err(_) => {},
-        }
-    }
-    if local_store.is_none() && looks_like_sealed_record(&path) {
+    // Custody D5: a raw legacy identity is refused, a sealed-read failure returned.
+    refuse_raw(&path)?;
+    let Some(store) = wallet_local_secret_store(data_root)? else {
         return Ok(None);
-    }
-    let legacy = load_json_optional(&path)?;
-    if let (Some(identity), Some(_)) = (&legacy, &local_store) {
-        save_local_device_identity(data_root, identity)?;
-    }
-    Ok(legacy)
+    };
+    store.load_record(relative).map_err(io_backend_error)
 }
 
 pub(super) fn local_device_identity_locked_at_startup(data_root: &Path) -> bool {
@@ -58,22 +47,22 @@ pub(super) fn local_device_identity_locked_at_startup(data_root: &Path) -> bool 
             .is_none()
 }
 
-/// Save the local delegated-device identity atomically.
+/// Save the local delegated-device identity as a sealed record; with no
+/// sealed store this is refused and nothing is written.
 pub fn save_local_device_identity(
     data_root: &Path,
     identity: &LocalDeviceIdentity,
 ) -> io::Result<()> {
     let path = local_device_identity_path(data_root);
-    if let Some(store) = wallet_local_secret_store(data_root)? {
-        return store
-            .save_record(
-                path.strip_prefix(data_root)
-                    .expect("wallet path under data root"),
-                identity,
-            )
-            .map_err(io_backend_error);
-    }
-    save_json_atomic(&path, identity)
+    let store = wallet_local_secret_store(data_root)?
+        .ok_or_else(|| no_sealed_store("delegated-device identity"))?;
+    store
+        .save_record(
+            path.strip_prefix(data_root)
+                .expect("wallet path under data root"),
+            identity,
+        )
+        .map_err(io_backend_error)
 }
 
 /// Load the retained remote-auth wrapping-key bridge, or `None` when absent.
@@ -84,25 +73,17 @@ pub fn load_remote_auth_wrapping_key_bridge(
     if !path.is_file() {
         return Ok(None);
     }
-    if let Some(store) = wallet_secret_store(data_root)? {
-        match store.load_record(
+    // Custody D5: a raw legacy bridge is refused, a sealed-read failure returned.
+    refuse_raw(&path)?;
+    let Some(store) = wallet_secret_store(data_root)? else {
+        return Ok(None);
+    };
+    store
+        .load_record(
             path.strip_prefix(data_root)
                 .expect("wallet path under data root"),
-        ) {
-            Ok(bridge) => return Ok(bridge),
-            Err(err) => {
-                if let Some(bridge) = load_json_optional(&path)? {
-                    save_remote_auth_wrapping_key_bridge(data_root, &bridge)?;
-                    return Ok(Some(bridge));
-                }
-                return Err(io_backend_error(err));
-            },
-        }
-    }
-    if looks_like_sealed_record(&path) {
-        return Ok(None);
-    }
-    load_json_optional(&path)
+        )
+        .map_err(io_backend_error)
 }
 
 /// Save the retained remote-auth wrapping-key bridge atomically.
@@ -166,10 +147,17 @@ mod tests {
 
     #[cfg(windows)]
     #[test]
-    fn loading_a_legacy_local_device_identity_migrates_it_to_a_sealed_record() {
+    fn a_legacy_local_device_identity_is_refused_until_the_explicit_migration() {
         let root = temp_data_root("local-device-migrate");
         let identity = LocalDeviceIdentity::new(fixture_device(), [0x33; 32], "Tablet".into());
         save_json_atomic(&local_device_identity_path(&root), &identity).unwrap();
+
+        let error = load_local_device_identity(&root).unwrap_err();
+        assert!(matches!(
+            WalletSecretRefusal::of(&error),
+            Some(WalletSecretRefusal::LegacyRaw { .. })
+        ));
+        migrate_legacy_wallet_secrets(&root).unwrap();
 
         let restored = load_local_device_identity(&root).unwrap().unwrap();
         assert_eq!(restored, identity);

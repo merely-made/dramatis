@@ -12,6 +12,7 @@
 //! re-issue). pandect keeps the public manifests, the roster, the grant
 //! vocabulary and the file layout these write into.
 
+mod at_rest;
 mod bootstrap;
 mod devices;
 mod enroll;
@@ -40,6 +41,7 @@ use sporran::wallet_grant::*;
 use sporran::wallet_store::*;
 use personae::carry::{DeviceId, RemoteAuthRevocationOutcome};
 
+pub use at_rest::{WalletSecretRefusal, migrate_legacy_wallet_secrets};
 pub use bootstrap::{WalletBootstrapMode, bootstrap_wallet_state, ensure_wallet_state};
 pub use devices::{
     ensure_local_device_identity, load_local_device_identity, load_remote_auth_wrapping_key_bridge,

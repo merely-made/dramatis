@@ -22,8 +22,8 @@ use crate::custody::{load_existing_auto_unlock_root, load_or_create_auto_unlock_
 
 use sporran::device_settings_store;
 
+use super::at_rest::{no_sealed_store, refuse_raw};
 use super::devices::{load_local_device_identity, local_device_identity_locked_at_startup};
-use sporran::wallet_store::save_bytes_atomic;
 use sporran::wallet_store::{identity_auto_unlock_root_path, identity_seed_path};
 
 pub(super) fn io_backend_error(err: IdentityError) -> io::Error {
@@ -142,72 +142,48 @@ pub(super) fn wallet_persona_secret_store(
     Ok(None)
 }
 
-/// Load the shared master seed, or `None` when the bridge file is absent.
+/// Load the shared master seed, or `None` when the file is absent or its
+/// sealed record is locked under the current startup policy.
+///
+/// A sealed-read failure is returned. A raw legacy seed is refused with
+/// `WalletSecretRefusal::LegacyRaw`, never read (custody D5).
 pub fn load_identity_seed(data_root: &Path) -> io::Result<Option<[u8; 32]>> {
     let path = identity_seed_path(data_root);
     if !path.is_file() {
         return Ok(None);
     }
-    let relative = path
-        .strip_prefix(data_root)
-        .expect("wallet path under data root");
-    let local_store = wallet_local_secret_store(data_root)?;
-    if let Some(store) = &local_store {
-        match store.load_record::<[u8; 32]>(relative) {
-            Ok(Some(seed)) => return Ok(Some(seed)),
-            Ok(None) => return Ok(None),
-            Err(_) => {},
-        }
-    }
-    if local_store.is_none() && looks_like_sealed_record(&path) {
+    refuse_raw(&path)?;
+    let Some(store) = wallet_local_secret_store(data_root)? else {
         return Ok(None);
-    }
-    let bytes = fs::read(&path)?;
-    let seed = <[u8; 32]>::try_from(bytes.as_slice()).map_err(|_| {
-        io::Error::new(
-            io::ErrorKind::InvalidData,
-            format!("identity seed at {path:?} is neither a sealed record nor 32 raw bytes"),
-        )
-    })?;
-    if local_store.is_some() {
-        save_identity_seed(data_root, seed)?;
-    }
-    Ok(Some(seed))
+    };
+    store
+        .load_record::<[u8; 32]>(relative_to(data_root, &path))
+        .map_err(io_backend_error)
 }
 
-/// Read the shared master seed without creating a local unlock root or migrating a record.
+/// Read the shared master seed without creating a local unlock root.
 ///
-/// An accessible sealed record is decrypted in place. A legacy raw 32-byte seed is read as-is;
-/// unlike [`load_identity_seed`], this loader never upgrades it to a sealed record. A sealed
-/// record that is unavailable under the current startup lock policy returns `None` so callers
-/// can refuse the operation before creating any other state.
+/// An accessible sealed record is decrypted in place; one unavailable under
+/// the current startup lock policy returns `None` so callers can refuse the
+/// operation before creating any other state. A raw legacy seed is refused
+/// as in [`load_identity_seed`].
 pub fn load_identity_seed_read_only(data_root: &Path) -> io::Result<Option<[u8; 32]>> {
     let path = identity_seed_path(data_root);
     if !path.is_file() {
         return Ok(None);
     }
-    let relative = path
-        .strip_prefix(data_root)
-        .expect("wallet path under data root");
-    if let Some(store) = wallet_local_secret_store_read_only(data_root)?
-        && looks_like_sealed_record(&path)
-    {
-        return store
-            .load_record::<[u8; 32]>(relative)
-            .map_err(io_backend_error);
-    }
-    if looks_like_sealed_record(&path) {
+    refuse_raw(&path)?;
+    let Some(store) = wallet_local_secret_store_read_only(data_root)? else {
         return Ok(None);
-    }
-    let bytes = fs::read(&path)?;
-    <[u8; 32]>::try_from(bytes.as_slice())
-        .map(Some)
-        .map_err(|_| {
-            io::Error::new(
-                io::ErrorKind::InvalidData,
-                format!("identity seed at {path:?} is neither a sealed record nor 32 raw bytes"),
-            )
-        })
+    };
+    store
+        .load_record::<[u8; 32]>(relative_to(data_root, &path))
+        .map_err(io_backend_error)
+}
+
+fn relative_to<'a>(data_root: &Path, path: &'a Path) -> &'a Path {
+    path.strip_prefix(data_root)
+        .expect("wallet path under data root")
 }
 
 /// Whether the startup seed record exists but is currently inaccessible because
@@ -247,19 +223,15 @@ pub fn relock_wallet_after_manual_unlock(data_root: &Path) {
     set_runtime_manual_unlock(data_root, false);
 }
 
-/// Save the shared master seed atomically.
+/// Save the shared master seed as a sealed record. With no sealed store this
+/// is `WalletSecretRefusal::NoSealedStore` and nothing is written.
 pub fn save_identity_seed(data_root: &Path, seed: [u8; 32]) -> io::Result<()> {
     let path = identity_seed_path(data_root);
-    if let Some(store) = wallet_local_secret_store(data_root)? {
-        return store
-            .save_record(
-                path.strip_prefix(data_root)
-                    .expect("wallet path under data root"),
-                &seed,
-            )
-            .map_err(io_backend_error);
-    }
-    save_bytes_atomic(&path, &seed)
+    let store =
+        wallet_local_secret_store(data_root)?.ok_or_else(|| no_sealed_store("identity seed"))?;
+    store
+        .save_record(relative_to(data_root, &path), &seed)
+        .map_err(io_backend_error)
 }
 
 #[cfg(test)]
@@ -268,6 +240,7 @@ mod tests {
     use super::super::*;
     use super::*;
     use sporran::device_settings_store::{DeviceSettings, save_device_settings};
+    use sporran::wallet_store::save_bytes_atomic;
 
     #[test]
     fn identity_seed_round_trips() {
@@ -279,14 +252,18 @@ mod tests {
     }
 
     #[test]
-    fn read_only_seed_load_preserves_a_legacy_raw_seed_byte_for_byte() {
+    fn read_only_seed_load_refuses_a_legacy_raw_seed_and_leaves_it_byte_for_byte() {
         let root = temp_data_root("seed-read-only-legacy");
         let seed = [0x6a; 32];
         let path = identity_seed_path(&root);
         save_bytes_atomic(&path, &seed).unwrap();
         let before = fs::read(&path).unwrap();
 
-        assert_eq!(load_identity_seed_read_only(&root).unwrap(), Some(seed));
+        let error = load_identity_seed_read_only(&root).unwrap_err();
+        assert!(matches!(
+            WalletSecretRefusal::of(&error),
+            Some(WalletSecretRefusal::LegacyRaw { .. })
+        ));
         assert_eq!(fs::read(&path).unwrap(), before);
         assert!(!identity_auto_unlock_root_path(&root).exists());
 
@@ -295,17 +272,23 @@ mod tests {
 
     #[cfg(windows)]
     #[test]
-    fn loading_a_legacy_raw_seed_migrates_it_to_a_sealed_record() {
+    fn a_legacy_raw_seed_is_refused_until_the_explicit_migration_seals_it() {
         let root = temp_data_root("seed-migrate");
         let seed = [0x7a; 32];
         save_bytes_atomic(&identity_seed_path(&root), &seed).unwrap();
 
-        let restored = load_identity_seed(&root).unwrap().unwrap();
-        assert_eq!(restored, seed);
-        assert!(identity_auto_unlock_root_path(&root).is_file());
+        let error = load_identity_seed(&root).unwrap_err();
+        assert!(matches!(
+            WalletSecretRefusal::of(&error),
+            Some(WalletSecretRefusal::LegacyRaw { .. })
+        ));
+        assert_eq!(fs::read(identity_seed_path(&root)).unwrap(), seed);
 
+        migrate_legacy_wallet_secrets(&root).unwrap();
+        assert!(identity_auto_unlock_root_path(&root).is_file());
         let text = fs::read_to_string(identity_seed_path(&root)).unwrap();
         assert!(text.contains("ciphertext"));
+        assert_eq!(load_identity_seed(&root).unwrap(), Some(seed));
 
         let _ = fs::remove_dir_all(&root);
     }

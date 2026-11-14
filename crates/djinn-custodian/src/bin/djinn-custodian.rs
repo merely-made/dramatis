@@ -343,24 +343,19 @@ fn adopt_data(config: &Config, data_from: &Path) -> Result<(), String> {
     Err(format!("the wallet is adopted, but {} copies remain in {}; remove them as their owner", adopted.left.len(), data_from.display()))
 }
 
-/// With an envelope, a legacy wallet's identity seed arrives as 32 raw bytes.
-/// Reading it once through Castellan's own loader replaces it with a sealed
-/// record under the envelope's root, so the adopted wallet is at rest under the
-/// Keychain item and not merely moved. Nothing is said about the seed.
+/// With an envelope, a legacy wallet's identity seed arrives as 32 raw bytes
+/// and its epoch bridges as plain JSON. Castellan reads no raw secret (custody
+/// D5), so adoption is the explicit command that seals them under the
+/// envelope's root: each is sealed in place and read back before its raw
+/// bytes are gone. Nothing is said about the secrets.
 fn seal_adopted_seed(config: &Config, data_root: &Path) -> Result<(), String> {
     if config.envelope.is_none() {
         return Ok(());
     }
-    let seed = sporran::wallet_store::identity_seed_path(data_root);
-    if !seed.is_file() {
-        return Ok(());
+    let sealed = castellan::custody::wallet::migrate_legacy_wallet_secrets(data_root).map_err(|e| format!("seal the adopted wallet secrets: {e}"))?;
+    for path in sealed {
+        println!("sealed the adopted {} under the envelope", path.strip_prefix(data_root).unwrap_or(&path).display());
     }
-    castellan::custody::wallet::load_identity_seed(data_root).map_err(|e| format!("seal the adopted seed: {e}"))?;
-    let raw = std::fs::metadata(&seed).map_err(|e| e.to_string())?.len() == 32;
-    if raw {
-        return Err("the adopted identity seed is still 32 raw bytes after the envelope was applied".into());
-    }
-    println!("sealed the adopted identity seed under the envelope");
     Ok(())
 }
 

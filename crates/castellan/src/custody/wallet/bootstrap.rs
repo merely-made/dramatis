@@ -77,8 +77,8 @@ pub fn bootstrap_wallet_state(
 /// Ensure the shared identity root and one persona wallet exist, seeding the
 /// minimal carry-layer files on first launch.
 ///
-/// The bridge seed is currently a raw 32-byte file under `identity/`; the
-/// encrypted persona vault remains the follow-up that supersedes it.
+/// The seed is a sealed record under `identity/`; with no sealed store this
+/// is refused and nothing is written (custody D5).
 pub fn ensure_wallet_state(
     data_root: &Path,
     persona: PersonaId,

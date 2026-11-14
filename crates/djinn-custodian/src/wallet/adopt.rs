@@ -109,8 +109,8 @@ pub fn adopt_files(source: &Path, dest: &Path) -> Result<Adopted, String> {
 ///
 /// Refused, with nothing changed, when `source` holds neither wallet nor
 /// catalog, when `dest` already holds either, or when the two overlap. If
-/// the copy differs from the source in any byte, or opens to another seed,
-/// persona index, roster or manifest, it is removed again. The source is
+/// the copy differs from the source in any byte, holds another seed file, or
+/// opens to another persona index, roster or manifest, it is removed again. The source is
 /// only read.
 pub fn carry_files(source: &Path, dest: &Path) -> Result<Vec<PathBuf>, String> {
     let described = |error: io::Error| error.to_string();
@@ -198,14 +198,16 @@ fn copy_all(files: &[PathBuf], source: &Path, dest: &Path, written: &mut Vec<Pat
 /// The wallet the two roots hold is the same one: the seed, the persona
 /// index and each persona's manifest, the identity manifest and the roster.
 fn same_wallet(source: &Path, dest: &Path) -> Result<(), String> {
-    use castellan::custody::wallet::load_identity_seed_read_only;
-    use sporran::wallet_store::{list_personas, load_device_roster, load_identity_wallet, load_persona_wallet};
+    use sporran::wallet_store::{identity_seed_path, list_personas, load_device_roster, load_identity_wallet, load_persona_wallet};
     let described = |error: io::Error| error.to_string();
     let (kept, copy) = (list_personas(source).map_err(described)?, list_personas(dest).map_err(described)?);
     if kept != copy {
         return Err("the persona index differs".into());
     }
-    if load_identity_seed_read_only(source).map_err(described)? != load_identity_seed_read_only(dest).map_err(described)? {
+    // The seed file's bytes, sealed or legacy raw: a raw seed is never read
+    // as a seed (custody D5), so the copy is compared, not opened.
+    let seed = |root: &Path| fs::read(identity_seed_path(root)).ok().map(zeroize::Zeroizing::new);
+    if seed(source) != seed(dest) {
         return Err("the identity seed differs".into());
     }
     if json(&load_identity_wallet(source).map_err(described)?) != json(&load_identity_wallet(dest).map_err(described)?) {

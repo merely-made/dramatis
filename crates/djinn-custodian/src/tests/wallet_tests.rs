@@ -53,6 +53,7 @@ fn golden(root: &Path, persona: PersonaId) -> Golden {
 fn djinn_root() -> (tempfile::TempDir, PersonaId, PersonaId) {
     let dir = tempfile::tempdir().unwrap();
     let root = dir.path();
+    castellan::custody::os_kek::install_memory_os_kek(root);
     let (first, second) = (PersonaId::new(), PersonaId::new());
     castellan::custody::wallet::ensure_wallet_state(root, first, "fixture").unwrap();
     castellan::custody::wallet::ensure_wallet_state(root, second, "fixture").unwrap();
@@ -70,6 +71,15 @@ fn djinn_root() -> (tempfile::TempDir, PersonaId, PersonaId) {
     (dir, first, second)
 }
 
+/// A custodian root that shares `source`'s wallet store, as one user's OS
+/// store is shared by both roots: the adopted padlock opens there.
+fn custodian_for(source: &Path) -> tempfile::TempDir {
+    use castellan::custody::os_kek::{install_os_kek_store, os_kek_store};
+    let dir = tempfile::tempdir().unwrap();
+    install_os_kek_store(dir.path(), os_kek_store(source).expect("the source root has a store"));
+    dir
+}
+
 fn relative(root: &Path) -> Vec<String> {
     wallet_files(root).unwrap().iter().map(|p| p.to_string_lossy().replace('\\', "/")).collect()
 }
@@ -83,7 +93,7 @@ fn an_existing_wallet_moves_unchanged_and_nothing_secret_stays_in_djinns_root() 
     assert_eq!(before.personas.len(), 2);
     assert!(before.roster.is_some());
 
-    let custodian = tempfile::tempdir().unwrap();
+    let custodian = custodian_for(source.path());
     let adopted = adopt_files(source.path(), custodian.path()).unwrap();
     assert!(adopted.left.is_empty(), "{:?}", adopted.left);
     assert_eq!(adopted.files.len(), files.len());
@@ -109,7 +119,7 @@ fn an_existing_wallet_moves_unchanged_and_nothing_secret_stays_in_djinns_root() 
 fn the_files_in_the_custodians_root_are_private_to_it() {
     use std::os::unix::fs::PermissionsExt;
     let (source, _, _) = djinn_root();
-    let custodian = tempfile::tempdir().unwrap();
+    let custodian = custodian_for(source.path());
     adopt_files(source.path(), custodian.path()).unwrap();
     let mode = |path: &str| std::fs::metadata(custodian.path().join(path)).unwrap().permissions().mode() & 0o777;
     assert_eq!(mode("identity/master.seed"), 0o600);
@@ -129,6 +139,7 @@ fn an_adoption_that_cannot_proceed_changes_nothing() {
 
     // A custodian root that already holds a wallet is never merged into.
     let occupied = tempfile::tempdir().unwrap();
+    castellan::custody::os_kek::install_memory_os_kek(occupied.path());
     castellan::custody::wallet::ensure_wallet_state(occupied.path(), PersonaId::new(), "other").unwrap();
     let held = relative(occupied.path());
     assert!(adopt_files(source.path(), occupied.path()).unwrap_err().contains("already holds"));
@@ -156,7 +167,7 @@ fn a_symlink_among_the_wallet_files_is_refused() {
     let outside = tempfile::tempdir().unwrap();
     std::fs::write(outside.path().join("target"), b"elsewhere").unwrap();
     std::os::unix::fs::symlink(outside.path().join("target"), source.path().join("identity/grants/link")).unwrap();
-    let custodian = tempfile::tempdir().unwrap();
+    let custodian = custodian_for(source.path());
     assert!(adopt_files(source.path(), custodian.path()).unwrap_err().contains("not a regular file"));
     assert!(wallet_files(custodian.path()).unwrap().is_empty());
     golden(source.path(), first);
@@ -165,7 +176,7 @@ fn a_symlink_among_the_wallet_files_is_refused() {
 #[test]
 fn a_source_copy_that_changed_after_it_was_carried_is_not_removed() {
     let (source, first, _) = djinn_root();
-    let custodian = tempfile::tempdir().unwrap();
+    let custodian = custodian_for(source.path());
     let files = carry_files(source.path(), custodian.path()).unwrap();
     assert_eq!(files, wallet_files(source.path()).unwrap(), "carrying only reads the source");
     let seed = source.path().join("identity/master.seed");

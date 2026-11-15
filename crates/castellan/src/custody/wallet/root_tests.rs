@@ -18,6 +18,9 @@ use super::super::store_test_support::*;
 use super::super::*;
 use super::*;
 use crate::custody::os_kek::{MemoryOsKek, Provider, install_os_kek_store, remove_os_kek_store};
+#[cfg(windows)]
+use crate::custody::os_kek::Dpapi;
+#[cfg(windows)]
 use crate::custody::padlock::MAX_OS_BLOB_BYTES;
 
 fn mode(root: &Path, startup_unlock_mode: StartupUnlockMode) {
@@ -98,6 +101,7 @@ fn whole_flow(root: &Path, method: &str) {
 #[test]
 fn dpapi_slot_whole_flow() {
     let root = temp_data_root("padlock-dpapi-flow");
+    install_os_kek_store(&root, Arc::new(Dpapi));
     whole_flow(&root, "dpapi");
     let _ = fs::remove_dir_all(&root);
 }
@@ -106,6 +110,7 @@ fn dpapi_slot_whole_flow() {
 #[test]
 fn a_real_dpapi_blob_fits_the_bound() {
     let root = temp_data_root("padlock-dpapi-blob");
+    install_os_kek_store(&root, Arc::new(Dpapi));
     ensure_wallet_state(&root, fixture_persona(), "Studio PC").unwrap();
     let slot = &wallet_padlock_slots(&root).unwrap()[0];
     let blob = slot.os_blob.as_ref().expect("a DPAPI slot keeps its blob");
@@ -221,6 +226,7 @@ fn an_interrupted_replacement_leaves_an_openable_padlock() {
 #[cfg(windows)]
 fn legacy_wallet(tag: &str) -> std::path::PathBuf {
     let root = temp_data_root(tag);
+    install_os_kek_store(&root, Arc::new(Dpapi));
     // A wallet made before the padlock: a DPAPI auto-unlock root file.
     crate::custody::load_or_create_auto_unlock_root(identity_auto_unlock_root_path(&root))
         .unwrap()
@@ -262,7 +268,7 @@ fn migration_from_a_legacy_dpapi_root() {
 
 #[cfg(windows)]
 #[test]
-fn a_refused_migration_changes_nothing() {
+fn a_refused_migration_from_a_legacy_dpapi_root_changes_nothing() {
     let root = legacy_wallet("padlock-migrate-refused");
     let legacy = fs::read(identity_auto_unlock_root_path(&root)).unwrap();
     // The seed record is replaced by one sealed under another root.

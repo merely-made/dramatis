@@ -219,6 +219,8 @@ pub(crate) mod tests {
         (memory, guard)
     }
 
+    // Windows loads a legacy root through DPAPI and never asks a provider.
+    #[cfg(not(windows))]
     #[test]
     fn the_root_lives_in_the_provider_and_the_file_holds_no_secret() {
         let (memory, _guard) = installed_memory();
@@ -253,6 +255,8 @@ pub(crate) mod tests {
         remove_auto_unlock_provider();
     }
 
+    // Windows loads a legacy root through DPAPI and never asks a provider.
+    #[cfg(not(windows))]
     #[test]
     fn a_missing_item_is_a_refusal_and_never_a_new_root() {
         let (memory, _guard) = installed_memory();
@@ -271,6 +275,8 @@ pub(crate) mod tests {
         remove_auto_unlock_provider();
     }
 
+    // Windows loads a legacy root through DPAPI and never asks a provider.
+    #[cfg(not(windows))]
     #[test]
     fn an_access_failure_a_foreign_backend_and_a_changed_file_all_refuse() {
         let (memory, _guard) = installed_memory();

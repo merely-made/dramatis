@@ -233,7 +233,6 @@ mod tests {
         let _ = fs::remove_dir_all(&root);
     }
 
-    #[cfg(windows)]
     #[test]
     fn a_legacy_raw_seed_is_refused_until_the_explicit_migration_seals_it() {
         let root = temp_data_root("seed-migrate");
@@ -256,7 +255,6 @@ mod tests {
         let _ = fs::remove_dir_all(&root);
     }
 
-    #[cfg(windows)]
     #[test]
     fn read_only_seed_load_reads_an_accessible_sealed_record_without_rewriting_it() {
         let root = temp_data_root("seed-read-only-sealed");
@@ -271,7 +269,6 @@ mod tests {
         let _ = fs::remove_dir_all(&root);
     }
 
-    #[cfg(windows)]
     #[test]
     fn read_only_seed_load_refuses_a_locked_sealed_record_without_rewriting_it() {
         let root = temp_data_root("seed-read-only-locked");
@@ -294,7 +291,6 @@ mod tests {
         let _ = fs::remove_dir_all(&root);
     }
 
-    #[cfg(windows)]
     #[test]
     fn explicit_auto_os_unlock_opens_a_locked_seed_without_changing_startup_mode() {
         let root = temp_data_root("explicit-auto-os-unlock");
@@ -326,7 +322,6 @@ mod tests {
         let _ = fs::remove_dir_all(&root);
     }
 
-    #[cfg(windows)]
     #[test]
     fn relock_after_manual_unlock_hides_the_seed_again_under_locked_startup() {
         let root = temp_data_root("manual-relock");
@@ -352,10 +347,9 @@ mod tests {
         let _ = fs::remove_dir_all(&root);
     }
 
-    #[cfg(not(windows))]
     #[test]
-    fn explicit_auto_os_unlock_reports_unavailable_without_platform_support() {
-        let root = temp_data_root("explicit-auto-os-unlock-unsupported");
+    fn explicit_auto_os_unlock_reports_unavailable_without_a_store() {
+        let root = temp_data_root_without_store("explicit-auto-os-unlock-unsupported");
         assert!(!unlock_wallet_with_auto_os(&root).unwrap());
         let _ = fs::remove_dir_all(&root);
     }

@@ -11,9 +11,11 @@ use uuid::Uuid;
 
 use super::*;
 
+/// A fresh data root with its own in-memory OS-KEK store installed.
 pub(super) fn temp_data_root(tag: &str) -> std::path::PathBuf {
     let dir = std::env::temp_dir().join(format!("mere-wallet-grant-{tag}-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
+    crate::custody::os_kek::install_memory_os_kek(&dir);
     dir
 }
 

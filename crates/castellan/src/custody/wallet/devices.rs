@@ -145,7 +145,6 @@ mod tests {
         let _ = fs::remove_dir_all(&root);
     }
 
-    #[cfg(windows)]
     #[test]
     fn a_legacy_local_device_identity_is_refused_until_the_explicit_migration() {
         let root = temp_data_root("local-device-migrate");

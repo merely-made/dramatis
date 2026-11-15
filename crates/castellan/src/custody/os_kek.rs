@@ -148,12 +148,25 @@ pub fn os_kek_store(data_root: &Path) -> Option<Arc<dyn OsKekStore>> {
 }
 
 // Windows returns DPAPI; the provider line after it is type-checked here too,
-// so the code other platforms run is compiled on every platform.
-#[cfg_attr(windows, allow(unreachable_code))]
+// so the code other platforms run is compiled on every platform. Test builds
+// get no implicit DPAPI: a test installs its store (or a provider), so a
+// forgotten store fails the same way on every platform.
+#[cfg_attr(
+    all(windows, not(any(test, feature = "test-support"))),
+    allow(unreachable_code)
+)]
 fn platform_default() -> Option<Arc<dyn OsKekStore>> {
-    #[cfg(windows)]
+    #[cfg(all(windows, not(any(test, feature = "test-support"))))]
     return Some(Arc::new(Dpapi));
     auto_unlock_provider::installed().map(|p| Arc::new(Provider(p)) as Arc<dyn OsKekStore>)
+}
+
+/// Install a fresh [`MemoryOsKek`] for `data_root`: the one call a test makes
+/// before it creates or opens a wallet there. Each data root gets its own
+/// store, so parallel tests never share keys.
+#[cfg(any(test, feature = "test-support"))]
+pub fn install_memory_os_kek(data_root: &Path) {
+    install_os_kek_store(data_root, Arc::new(MemoryOsKek::default()));
 }
 
 /// An in-memory store, for tests and examples that need no OS store. A test

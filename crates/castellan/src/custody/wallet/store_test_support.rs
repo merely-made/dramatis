@@ -14,7 +14,16 @@ use uuid::Uuid;
 
 use super::{DeviceId, KeyEpochId};
 
+/// A fresh data root with its own in-memory OS-KEK store installed, so a
+/// wallet created there opens the same way on every platform.
 pub(super) fn temp_data_root(tag: &str) -> PathBuf {
+    let dir = temp_data_root_without_store(tag);
+    crate::custody::os_kek::install_memory_os_kek(&dir);
+    dir
+}
+
+/// A fresh data root with no store: for tests of what happens without one.
+pub(super) fn temp_data_root_without_store(tag: &str) -> PathBuf {
     let dir = std::env::temp_dir().join(format!("mere-wallet-store-{tag}-{}", std::process::id()));
     let _ = fs::remove_dir_all(&dir);
     dir

@@ -115,6 +115,7 @@ mod tests {
             std::process::id()
         ));
         let _ = std::fs::remove_dir_all(&dir);
+        crate::custody::os_kek::install_memory_os_kek(&dir);
         let persona = PersonaId::new();
         ensure_wallet_state(&dir, persona, "Test PC").unwrap();
         let head = load_persona_wallet(&dir, persona)

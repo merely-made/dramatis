@@ -341,18 +341,16 @@ mod tests {
         let _ = fs::remove_dir_all(&root);
     }
 
-    // Windows always has DPAPI, so AutoOs there always has a store; the
-    // missing provider is reachable only where the store is the installed
-    // provider (the macOS custodian's Keychain envelope), through the
-    // provider seam's own serialising lock.
-    #[cfg(not(windows))]
+    // Test builds pick no implicit OS store, so a root with none installed is
+    // the same on every platform. The lock keeps another test's process-wide
+    // provider (the seam the macOS envelope uses) from standing in.
     #[test]
-    fn a_fresh_auto_os_install_without_a_provider_is_still_no_sealed_store() {
+    fn a_fresh_auto_os_install_without_a_store_is_still_no_sealed_store() {
         let _serial = crate::custody::auto_unlock_provider::tests::SERIAL
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
         crate::custody::remove_auto_unlock_provider();
-        let root = fresh_root_with_policy("bootstrap-fresh-auto-os", StartupUnlockMode::AutoOs);
+        let root = temp_data_root_without_store("bootstrap-fresh-auto-os");
 
         let error = bootstrap_wallet_state(&root, fixture_persona(), "Studio PC").unwrap_err();
 
@@ -364,7 +362,6 @@ mod tests {
         let _ = fs::remove_dir_all(&root);
     }
 
-    #[cfg(windows)]
     #[test]
     fn bootstrap_wallet_state_reports_locked_when_copy_seed_is_sealed_but_startup_stays_locked() {
         let root = temp_data_root("bootstrap-locked-copy");
@@ -387,7 +384,6 @@ mod tests {
         let _ = fs::remove_dir_all(&root);
     }
 
-    #[cfg(windows)]
     #[test]
     fn bootstrap_wallet_state_reports_locked_when_delegated_identity_is_sealed_but_startup_stays_locked()
      {

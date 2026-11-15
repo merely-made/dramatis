@@ -1,7 +1,15 @@
 // Copyright 2026 Mark Alan Boykin
 // SPDX-License-Identifier: MPL-2.0
 
-#![cfg(feature = "wallet")]
+//! Needs features `wallet` (or `keeper`) and `test-support` (Cargo.toml).
+
+/// A temp wallet root with its own in-memory OS-KEK store, so every test here
+/// runs the same on every platform; a forgotten store fails everywhere alike.
+fn store_dir() -> tempfile::TempDir {
+    let dir = tempfile::tempdir().unwrap();
+    castellan::custody::os_kek::install_memory_os_kek(dir.path());
+    dir
+}
 
 mod enrollment {
     //! Regression coverage of public custody flows. All keys are temp fixtures.
@@ -27,7 +35,7 @@ mod enrollment {
 
     #[test]
     fn successful_narrower_issuance_round_trips_the_stored_set_and_refs() {
-        let root = tempfile::tempdir().unwrap();
+        let root = super::store_dir();
         let persona = PersonaId::from_uuid(uuid::Uuid::from_u128(0xad31));
         ensure_wallet_state(root.path(), persona, "audit fixture").unwrap();
         let local = LocalDeviceIdentity::new(
@@ -83,8 +91,8 @@ mod enrollment {
 
     #[test]
     fn invalid_wrapping_keys_refuse_before_persisting_the_enrollment_payload() {
-        let issuer = tempfile::tempdir().unwrap();
-        let recipient = tempfile::tempdir().unwrap();
+        let issuer = super::store_dir();
+        let recipient = super::store_dir();
         let persona = PersonaId::from_uuid(uuid::Uuid::from_u128(0xad41));
         ensure_wallet_state(issuer.path(), persona, "audit fixture").unwrap();
         let local = ensure_local_device_identity(recipient.path(), "audit fixture").unwrap();
@@ -167,7 +175,7 @@ mod revocation {
 
     #[test]
     fn rotating_another_device_withholds_private_keys_for_a_revoked_persona_certificate() {
-        let root = tempfile::tempdir().unwrap();
+        let root = super::store_dir();
         let persona = PersonaId::from_uuid(uuid::Uuid::from_u128(0xad51));
         let master_seed = ensure_wallet_state(root.path(), persona, "audit fixture").unwrap();
         let old_epoch = load_current_private_epoch(root.path(), persona)
@@ -265,17 +273,19 @@ mod revocation {
     }
 }
 mod interruptions {
-    //! Windows fixture-only diagnostics of interrupted custody and legacy reading.
-    #![cfg(windows)]
+    //! Interrupted custody and legacy reading. The interrupted write is forced
+    //! with a Windows share mode, so that one test is Windows-only.
     use castellan::custody::wallet::*;
-    use sporran::{wallet_grant::*, wallet_store::*};
-    use personae::carry::DeviceId;
-    use personae::PersonaId;
+    use sporran::wallet_store::*;
 
+    #[cfg(windows)]
     #[test]
     fn retry_after_refused_persona_write_rotates_the_exposed_epoch() {
+        use personae::PersonaId;
+        use personae::carry::DeviceId;
+        use sporran::wallet_grant::*;
         use std::os::windows::fs::OpenOptionsExt;
-        let root = tempfile::tempdir().unwrap();
+        let root = super::store_dir();
         let persona = PersonaId::from_uuid(uuid::Uuid::from_u128(0xad71));
         ensure_wallet_state(root.path(), persona, "audit fixture").unwrap();
         let old_epoch = load_current_private_epoch(root.path(), persona)
@@ -364,7 +374,7 @@ mod interruptions {
 
     #[test]
     fn a_legacy_raw_seed_is_refused_by_both_loaders_and_left_recoverable() {
-        let root = tempfile::tempdir().unwrap();
+        let root = super::store_dir();
         let legacy = [0x6a; 32];
         let path = identity_seed_path(root.path());
         save_bytes_atomic(&path, &legacy).unwrap();
@@ -375,10 +385,9 @@ mod interruptions {
         assert_eq!(std::fs::read(&path).unwrap(), legacy);
     }
 
-    #[cfg(windows)]
     #[test]
     fn a_legacy_raw_seed_beside_an_existing_auto_unlock_root_waits_for_the_migration() {
-        let root = tempfile::tempdir().unwrap();
+        let root = super::store_dir();
         let legacy = [0x6a; 32];
         let path = identity_seed_path(root.path());
         save_identity_seed(root.path(), [0x5b; 32]).unwrap();

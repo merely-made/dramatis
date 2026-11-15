@@ -151,6 +151,13 @@ signature = "3"
 # Vault lock ruling 6's no-residue instrument over the resident's lock path
 # (L2). The residue tracker installs its own global allocator, so this runs
 # outside libtest's harness, on one thread.
+# Its wallets get their store through the test seam (custody D9), in one
+# helper, so it runs the same on every platform.
+[[test]]
+name = "wallet_authority"
+path = "tests/wallet_authority.rs"
+required-features = ["wallet", "test-support"]
+
 [[test]]
 name = "snapshot_golden"
 path = "tests/snapshot_golden.rs"

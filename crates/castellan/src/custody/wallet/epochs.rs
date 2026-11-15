@@ -156,7 +156,6 @@ mod tests {
         let _ = fs::remove_dir_all(&root);
     }
 
-    #[cfg(windows)]
     #[test]
     fn copy_seeded_persona_epoch_bridge_round_trips_as_a_sealed_record() {
         let root = temp_data_root("epoch-bridge-sealed-copy");
@@ -183,7 +182,6 @@ mod tests {
         let _ = fs::remove_dir_all(&root);
     }
 
-    #[cfg(windows)]
     #[test]
     fn delegated_persona_epoch_bridge_round_trips_as_a_sealed_record() {
         let root = temp_data_root("epoch-bridge-sealed-delegated");
@@ -210,7 +208,6 @@ mod tests {
         let _ = fs::remove_dir_all(&root);
     }
 
-    #[cfg(windows)]
     #[test]
     fn a_legacy_plaintext_persona_epoch_bridge_is_refused_until_the_explicit_migration() {
         let root = temp_data_root("epoch-bridge-migrate");

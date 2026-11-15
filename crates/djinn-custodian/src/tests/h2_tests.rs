@@ -35,6 +35,8 @@ pub(super) fn vault() -> tempfile::TempDir {
         opened.storage.save_profile(&Profile::new(ProfileId(id.into()), id, Ed25519Keypair::from_seed(seed))).unwrap();
     }
     std::fs::create_dir(dir.path().join("data")).unwrap();
+    // The data root's wallet store, through the test seam (custody D9).
+    castellan::custody::os_kek::install_memory_os_kek(&dir.path().join("data"));
     dir
 }
 

@@ -156,7 +156,6 @@ fn migration_refuses_a_raw_file_that_is_not_a_seed_and_leaves_it() {
 
 /// A raw seed, a raw epoch bridge and a raw device identity: migrate, then
 /// read everything back from the sealed records.
-#[cfg(windows)]
 #[test]
 fn migration_seals_every_raw_secret_and_reads_back_equal() {
     let root = temp_data_root("at-rest-migrate");
@@ -198,7 +197,6 @@ fn corrupt_ciphertext(path: &Path) {
     fs::write(path, serde_json::to_vec(&record).unwrap()).unwrap();
 }
 
-#[cfg(windows)]
 #[test]
 fn a_sealed_read_failure_is_returned_never_swallowed() {
     let root = temp_data_root("at-rest-sealed-failure");

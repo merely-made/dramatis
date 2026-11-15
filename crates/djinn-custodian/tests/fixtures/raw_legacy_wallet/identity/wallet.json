@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "device_roster_ref": "blake3:be866a140f6badec1c32f1c26fa9dff03cb985b543297a8284651bbf3583ba09",
+  "recovery_policy": "SeedAndDeviceHandover",
+  "personas": [
+    {
+      "persona_id": "00000000-0000-0000-0000-00000d5a0001"
+    }
+  ],
+  "grant_index": []
+}

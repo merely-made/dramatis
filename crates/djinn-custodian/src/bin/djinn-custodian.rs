@@ -13,15 +13,18 @@
 //!
 //!   djinn-custodian --config PATH [--socket PATH]
 //!   djinn-custodian init  --config PATH      (passphrase twice on stdin)
-//!   djinn-custodian adopt --config PATH [--from VAULT-DIR] [--data-from DATA-ROOT]
+//!   djinn-custodian adopt --config PATH [--from VAULT-DIR] [--data-from DATA-ROOT] [--passphrase stdin]
 //!       --from: a passphrase vault (its passphrase on stdin) or an OS-rooted
 //!       Windows vault (the new passphrase twice, run as the owner);
-//!       --data-from: the wallet and credential catalog, no passphrase
+//!       --data-from: the wallet and credential catalog; raw legacy secrets
+//!       need an OS store or `--passphrase stdin` (a new padlock passphrase,
+//!       twice, after any vault passphrase)
 //!   djinn-custodian envelope-check --config PATH   (macOS: the Keychain envelope's round trip)
 //!   djinn-custodian wallet-files --data-root DIR   (the wallet's files, NUL-separated)
 //!   djinn-custodian wallet-root --config PATH --action ACTION [--kid KID]
 //!       [--with os|passphrase] [--passphrase stdin]   (the wallet's padlock:
-//!       slots, create, migrate, add-passphrase, add-os, change-passphrase, remove;
+//!       slots, create, migrate, seal-legacy, add-passphrase, add-os,
+//!       change-passphrase, remove;
 //!       passphrases on stdin; the padlock's passphrase is not the vault's)
 //!   djinn-custodian consent --client PATH   (the logon helper that puts
 //!       petitions to the owner: Windows Hello, or on macOS LocalAuthentication;
@@ -141,7 +144,7 @@ fn run() -> Result<(), String> {
             config.remote_approval.as_ref().ok_or("remote approval is not configured")?,
         ).map_err(|e| e.to_string()),
         "init" => init(&config),
-        "adopt" => adopt(&config, args.from.as_deref(), args.data_from.as_deref()),
+        "adopt" => adopt(&config, args.from.as_deref(), args.data_from.as_deref(), args.passphrase.as_deref()),
         "wallet-root" => wallet_root(&config, &args),
         _ => serve(config, &args),
     }
@@ -331,7 +334,7 @@ fn init(config: &Config) -> Result<(), String> {
 
 /// Adopt Djinn's existing vault, its wallet and credential catalog, or both.
 /// The vault goes first: with `--from` it must open before any wallet moves.
-fn adopt(config: &Config, from: Option<&Path>, data_from: Option<&Path>) -> Result<(), String> {
+fn adopt(config: &Config, from: Option<&Path>, data_from: Option<&Path>, passphrase: Option<&str>) -> Result<(), String> {
     if from.is_none() && data_from.is_none() {
         return Err("adopt needs --from, --data-from or both".into());
     }
@@ -339,19 +342,26 @@ fn adopt(config: &Config, from: Option<&Path>, data_from: Option<&Path>) -> Resu
         adopt_vault(config, from)?;
     }
     match data_from {
-        Some(data_from) => adopt_data(config, data_from),
+        Some(data_from) => adopt_data(config, data_from, passphrase),
         None => Ok(()),
     }
 }
 
 /// Carry Djinn's wallet and credential catalog into the custodian's data
-/// root, prove the copy is the same wallet, then remove the copies in
-/// `data_from`: the seed no longer sits where Djinn can read it.
-fn adopt_data(config: &Config, data_from: &Path) -> Result<(), String> {
+/// root and remove the copies in `data_from`. Raw legacy secrets are sealed
+/// on the way, under the OS store or envelope, or with `--passphrase stdin`
+/// under a new passphrase padlock; with neither the adoption is refused and
+/// nothing changes ("The wallet is never left adopted but unusable").
+fn adopt_data(config: &Config, data_from: &Path, passphrase: Option<&str>) -> Result<(), String> {
+    use djinn_custodian::wallet::root_admin::new_passphrase;
     let data_root = config.vault.data_root.as_deref().ok_or("the configuration names no vault.data_root")?;
-    let adopted = djinn_custodian::wallet::adopt_files(data_from, data_root)?;
+    let phrase = match passphrase {
+        None => None,
+        Some("stdin") => Some(new_passphrase(&mut std::io::stdin().lock())?),
+        Some(other) => return Err(format!("--passphrase takes only stdin, not {other}")),
+    };
+    let adopted = djinn_custodian::wallet::adopt_wallet(data_from, data_root, phrase.as_deref().map(String::as_str))?;
     println!("adopted {} wallet and credential files from {} into {}", adopted.files.len(), data_from.display(), data_root.display());
-    seal_adopted_seed(config, data_root)?;
     if adopted.left.is_empty() {
         return Ok(());
     }
@@ -359,22 +369,6 @@ fn adopt_data(config: &Config, data_from: &Path) -> Result<(), String> {
         eprintln!("djinn-custodian: could not remove {}: {why}", data_from.join(file).display());
     }
     Err(format!("the wallet is adopted, but {} copies remain in {}; remove them as their owner", adopted.left.len(), data_from.display()))
-}
-
-/// With an envelope, a legacy wallet's identity seed arrives as 32 raw bytes
-/// and its epoch bridges as plain JSON. Castellan reads no raw secret (custody
-/// D5), so adoption is the explicit command that seals them under the
-/// envelope's root: each is sealed in place and read back before its raw
-/// bytes are gone. Nothing is said about the secrets.
-fn seal_adopted_seed(config: &Config, data_root: &Path) -> Result<(), String> {
-    if config.envelope.is_none() {
-        return Ok(());
-    }
-    let sealed = castellan::custody::wallet::migrate_legacy_wallet_secrets(data_root).map_err(|e| format!("seal the adopted wallet secrets: {e}"))?;
-    for path in sealed {
-        println!("sealed the adopted {} under the envelope", path.strip_prefix(data_root).unwrap_or(&path).display());
-    }
-    Ok(())
 }
 
 /// The owner's acts on the wallet's padlock, over the configured data root.

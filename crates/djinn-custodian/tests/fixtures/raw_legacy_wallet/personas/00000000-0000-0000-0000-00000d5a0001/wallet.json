@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "persona_id": "00000000-0000-0000-0000-00000d5a0001",
+  "chain_root": [
+    142,
+    123,
+    214,
+    49,
+    207,
+    140,
+    171,
+    51,
+    123,
+    211,
+    74,
+    154,
+    144,
+    79,
+    126,
+    179,
+    86,
+    47,
+    48,
+    144,
+    223,
+    142,
+    182,
+    77,
+    0,
+    254,
+    226,
+    218,
+    184,
+    31,
+    85,
+    56
+  ],
+  "private_epoch_head": "ca442acd-a801-4d8d-b1db-8d1c9a1daa81",
+  "epoch_history_ref": null,
+  "private_roots": {
+    "primary_root": null,
+    "typed_roots": {},
+    "restore_cursor": null
+  },
+  "public_roots": {
+    "primary_root": null,
+    "typed_roots": {}
+  },
+  "capability_slots": []
+}

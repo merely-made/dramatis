@@ -17,7 +17,8 @@ use zeroize::Zeroizing;
 
 /// What `wallet-root` was asked to do.
 pub struct Request<'a> {
-    /// `slots`, `create`, `migrate`, `add-passphrase`, `add-os`, `change-passphrase` or `remove`.
+    /// `slots`, `create`, `migrate`, `seal-legacy`, `add-passphrase`, `add-os`,
+    /// `change-passphrase` or `remove`.
     pub action: &'a str,
     /// The slot to remove.
     pub kid: Option<&'a str>,
@@ -38,8 +39,11 @@ fn line(input: &mut impl BufRead, what: &str) -> Result<Zeroizing<String>, Strin
     Ok(text)
 }
 
-/// A new passphrase, typed twice.
-fn new_passphrase(input: &mut impl BufRead) -> Result<Zeroizing<String>, String> {
+/// A new padlock passphrase from stdin, typed twice.
+///
+/// # Errors
+/// Empty, unreadable, or the two lines differ.
+pub fn new_passphrase(input: &mut impl BufRead) -> Result<Zeroizing<String>, String> {
     let first = line(input, "padlock passphrase")?;
     if *first != *line(input, "padlock passphrase")? {
         return Err("the two padlock passphrases did not match".into());
@@ -60,7 +64,7 @@ pub fn run(
     let fail = |e: std::io::Error| e.to_string();
     // How add-passphrase and add-os open the padlock first.
     let current = match (request.action, request.with.unwrap_or("os")) {
-        ("add-passphrase" | "add-os", "passphrase") => {
+        ("add-passphrase" | "add-os" | "seal-legacy", "passphrase") => {
             Some(line(input, "current padlock passphrase")?)
         },
         (_, "os" | "passphrase") => None,
@@ -97,6 +101,16 @@ pub fn run(
             say(
                 out,
                 "the wallet's root is under its padlock; the legacy root file is retired".into(),
+            )
+        },
+        "seal-legacy" => {
+            let sealed = wallet::seal_legacy_wallet_secrets(data_root, &with).map_err(fail)?;
+            say(
+                out,
+                format!(
+                    "sealed {} raw legacy wallet secrets under the padlock",
+                    sealed.len()
+                ),
             )
         },
         "add-passphrase" => {

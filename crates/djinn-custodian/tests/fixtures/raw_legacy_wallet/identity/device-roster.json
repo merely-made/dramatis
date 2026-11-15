@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "devices": [
+    {
+      "device_id": "082d5d95-a1bb-4ebf-8ee3-e06bc7691f18",
+      "device_pubkey": [
+        85,
+        167,
+        84,
+        199,
+        186,
+        172,
+        53,
+        254,
+        202,
+        73,
+        87,
+        231,
+        67,
+        143,
+        209,
+        206,
+        160,
+        232,
+        23,
+        2,
+        10,
+        205,
+        72,
+        69,
+        172,
+        65,
+        149,
+        188,
+        50,
+        245,
+        129,
+        20
+      ],
+      "label": "raw legacy fixture",
+      "mode": "Copy",
+      "exposure": "HiddenClient",
+      "carriage": "None",
+      "grant_ref": null
+    }
+  ],
+  "revoked": []
+}

@@ -230,7 +230,7 @@ fn json<T: serde::Serialize>(record: &Option<T>) -> serde_json::Value {
 
 /// Remove directories the carried `files` leave empty, innermost first.
 /// A directory that still holds anything else stays.
-fn prune(root: &Path, files: &[PathBuf]) {
+pub(super) fn prune(root: &Path, files: &[PathBuf]) {
     let mut dirs: Vec<PathBuf> = files.iter().flat_map(|file| file.ancestors().skip(1).map(Path::to_path_buf)).filter(|dir| !dir.as_os_str().is_empty()).collect();
     dirs.sort_by_key(|dir| std::cmp::Reverse(dir.components().count()));
     dirs.dedup();

@@ -210,15 +210,31 @@ fn wallet_config(fixture: &Fixture) -> PathBuf {
     data_root
 }
 
-/// Djinn's data root with a wallet, and a file of Djinn's own beside it.
-fn djinn_data(fixture: &Fixture) -> (PathBuf, personae::PersonaId) {
+/// Djinn's data root holding the raw legacy wallet main's `ensure_wallet_state`
+/// wrote with no sealed store (`tests/fixtures/raw_legacy_wallet`, generated
+/// once from origin/main's code): a raw 32-byte seed, and a file of Djinn's own.
+fn djinn_raw_data(fixture: &Fixture) -> PathBuf {
     let source = fixture.root.join("djinn-data");
-    let persona = personae::PersonaId::new();
-    castellan::custody::wallet::ensure_wallet_state(&source, persona, "fixture").unwrap();
+    copy_tree(&Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/raw_legacy_wallet"), &source);
     std::fs::create_dir_all(source.join("settings")).unwrap();
     std::fs::write(source.join("settings/owner.json"), b"{}").unwrap();
-    (source, persona)
+    source
 }
+
+fn copy_tree(from: &Path, to: &Path) {
+    std::fs::create_dir_all(to).unwrap();
+    for entry in std::fs::read_dir(from).unwrap().flatten() {
+        let target = to.join(entry.file_name());
+        if entry.file_type().unwrap().is_dir() {
+            copy_tree(&entry.path(), &target);
+        } else if entry.file_name() != ".gitattributes" {
+            std::fs::copy(entry.path(), target).unwrap();
+        }
+    }
+}
+
+/// The fixture's one persona.
+const RAW_PERSONA: &str = "00000000-0000-0000-0000-00000d5a0001";
 
 /// Djinn's data root with a wallet sealed under a passphrase padlock (custody
 /// D9): a store that crosses processes, for tests that need a wallet but not a
@@ -244,17 +260,25 @@ fn wallet_files(root: &Path) -> Vec<String> {
 fn adopt_moves_the_wallet_and_leaves_nothing_of_it_where_djinn_reads() {
     let fixture = fixture(true);
     let data_root = wallet_config(&fixture);
-    let (source, persona) = djinn_data(&fixture);
+    let source = djinn_raw_data(&fixture);
     let listed = wallet_files(&source);
     assert!(listed.contains(&"identity/master.seed".to_string()), "{listed:?}");
     assert!(!listed.iter().any(|name| name.starts_with("settings")), "Djinn's own files are not the wallet's");
     let seed = std::fs::read(source.join("identity/master.seed")).unwrap();
+    assert_eq!(seed.len(), 32, "the fixture's seed is raw");
 
+    // No OS store here: the adopted seed is sealed under a new passphrase padlock.
     let config = fixture.config.to_str().unwrap();
-    let output = run_with_stdin(&["adopt", "--config", config, "--data-from", source.to_str().unwrap()], "");
+    let args = ["adopt", "--config", config, "--data-from", source.to_str().unwrap(), "--passphrase", "stdin"];
+    let output = run_with_stdin(&args, "padlock phrase\npadlock phrase\n");
     assert!(output.status.success(), "adopt: {}", String::from_utf8_lossy(&output.stderr));
-    assert_eq!(std::fs::read(data_root.join("identity/master.seed")).unwrap(), seed, "the seed arrives byte for byte");
-    assert!(data_root.join(format!("personas/{}/private-epoch-bridge.json", persona.as_uuid())).is_file());
+    let sealed = std::fs::read(data_root.join("identity/master.seed")).unwrap();
+    assert!(String::from_utf8_lossy(&sealed).contains("ciphertext"), "the custodian's seed is a sealed record");
+    assert!(!sealed.windows(32).any(|window| window == seed), "and the seed's bytes are not in it");
+    assert!(data_root.join(format!("personas/{RAW_PERSONA}/private-epoch-bridge.json")).is_file());
+    let slots = run_with_stdin(&["wallet-root", "--config", config, "--action", "slots"], "");
+    assert!(slots.status.success(), "slots: {}", String::from_utf8_lossy(&slots.stderr));
+    assert!(String::from_utf8_lossy(&slots.stdout).contains("pass/1"), "the padlock has its passphrase slot");
     assert!(wallet_files(&source).is_empty(), "the owner-side listing finds no wallet file left");
     assert!(!source.join("identity").exists());
     assert!(source.join("settings/owner.json").is_file());
@@ -263,6 +287,42 @@ fn adopt_moves_the_wallet_and_leaves_nothing_of_it_where_djinn_reads() {
     assert!(!again.status.success() && String::from_utf8_lossy(&again.stderr).contains("no wallet"), "nothing is adopted twice");
     let neither = run_with_stdin(&["adopt", "--config", config], "");
     assert!(String::from_utf8_lossy(&neither.stderr).contains("--data-from"));
+}
+
+/// Every file under `root`, with its bytes, for byte-for-byte comparison.
+fn tree(root: &Path) -> Vec<(String, Vec<u8>)> {
+    let mut files: Vec<_> = wallet_files(root).into_iter().map(|name| (name.clone(), std::fs::read(root.join(&name)).unwrap())).collect();
+    files.sort();
+    files
+}
+
+#[test]
+fn adopting_a_raw_wallet_without_a_store_or_passphrase_is_refused_and_changes_nothing() {
+    let fixture = fixture(true);
+    let data_root = wallet_config(&fixture);
+    let source = djinn_raw_data(&fixture);
+    let before = tree(&source);
+    let config = fixture.config.to_str().unwrap();
+    let output = run_with_stdin(&["adopt", "--config", config, "--data-from", source.to_str().unwrap()], "");
+    assert!(!output.status.success());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("--passphrase stdin"), "{}", String::from_utf8_lossy(&output.stderr));
+    assert_eq!(tree(&source), before, "the source is untouched byte for byte");
+    assert!(!data_root.exists() || wallet_files(&data_root).is_empty(), "the custodian holds no wallet file");
+}
+
+#[test]
+fn a_mismatched_passphrase_confirmation_refuses_before_anything_moves() {
+    let fixture = fixture(true);
+    let data_root = wallet_config(&fixture);
+    let source = djinn_raw_data(&fixture);
+    let before = tree(&source);
+    let config = fixture.config.to_str().unwrap();
+    let args = ["adopt", "--config", config, "--data-from", source.to_str().unwrap(), "--passphrase", "stdin"];
+    let output = run_with_stdin(&args, "one phrase\nanother phrase\n");
+    assert!(!output.status.success());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("did not match"));
+    assert_eq!(tree(&source), before);
+    assert!(!data_root.exists() || wallet_files(&data_root).is_empty());
 }
 
 #[test]

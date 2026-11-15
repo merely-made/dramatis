@@ -517,6 +517,7 @@ fn an_absent_vault_is_never_created_and_a_dpapi_vault_needs_migration() {
 }
 
 mod driver_tests;
+mod adopt_sealed_tests;
 mod h2_tests;
 mod wallet_tests;
 mod lifetime_tests;

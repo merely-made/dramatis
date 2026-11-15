@@ -13,8 +13,10 @@
 use std::path::Path;
 
 mod adopt;
+mod adopt_sealed;
 pub mod root_admin;
 pub use adopt::{Adopted, adopt_files, carry_files, retire_files, wallet_files};
+pub use adopt_sealed::{PASSPHRASE_FLAG, adopt_wallet};
 
 use custody_wire::contract::{EpochKeyRequest, PayloadOperation, ReleasedEpochKey};
 use custody_wire::secret::Secret;

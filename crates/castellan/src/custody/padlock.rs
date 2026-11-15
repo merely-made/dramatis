@@ -18,6 +18,10 @@
 
 mod reader;
 mod slot;
+#[cfg(test)]
+mod tests_profile;
+#[cfg(test)]
+mod tests_published;
 
 use chacha20poly1305::aead::{Aead, KeyInit, Payload};
 use chacha20poly1305::{ChaCha20Poly1305, Nonce};

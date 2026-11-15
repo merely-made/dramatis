@@ -353,18 +353,33 @@ impl Padlock {
     }
 
     fn cek(&self, input: &SlotInput<'_>) -> Result<Zeroizing<[u8; 32]>, PadlockError> {
+        self.cek_at(input).map(|(_, cek)| cek)
+    }
+
+    /// The `kid` of the slot `input` opens; the body is not decrypted.
+    ///
+    /// # Errors
+    /// As [`Padlock::unlock`] before the body: no matching slot, a wrong secret.
+    pub fn opening_kid(&self, input: &SlotInput<'_>) -> Result<String, PadlockError> {
+        self.cek_at(input).map(|(at, _)| self.slots[at].kid.clone())
+    }
+
+    fn cek_at(&self, input: &SlotInput<'_>) -> Result<(usize, Key32), PadlockError> {
         let wrapped = |s: &Slot| s.recipient.ciphertext.clone().unwrap_or_default();
         match input {
             SlotInput::Passphrase(passphrase) => {
                 let mut tried = false;
-                for s in self.slots.iter().filter(|s| s.kind == SlotKind::Passphrase) {
+                for (at, s) in self.slots.iter().enumerate() {
+                    if s.kind != SlotKind::Passphrase {
+                        continue;
+                    }
                     tried = true;
                     let Some((salt, params)) = s.kdf else {
                         continue;
                     };
                     let kek = slot::passphrase_kek(passphrase, &salt, params)?;
                     if let Some(cek) = slot::unwrap(&kek, &wrapped(s)) {
-                        return Ok(cek);
+                        return Ok((at, cek));
                     }
                 }
                 Err(if tried {
@@ -374,12 +389,14 @@ impl Padlock {
                 })
             },
             SlotInput::Kek { kid, kek } => {
-                let s = self
+                let at = self
                     .slots
                     .iter()
-                    .find(|s| s.kind == SlotKind::Kek && s.kid == *kid)
+                    .position(|s| s.kind == SlotKind::Kek && s.kid == *kid)
                     .ok_or(PadlockError::NoMatchingSlot)?;
-                slot::unwrap(kek, &wrapped(s)).ok_or(PadlockError::WrongSecret)
+                slot::unwrap(kek, &wrapped(&self.slots[at]))
+                    .map(|cek| (at, cek))
+                    .ok_or(PadlockError::WrongSecret)
             },
         }
     }

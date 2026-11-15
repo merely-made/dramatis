@@ -11,49 +11,23 @@
 //! read here rather than modelled in `personae::carry`: the carry model
 //! travels, this policy is about one machine.
 
-use std::collections::HashSet;
-use std::path::{Path, PathBuf};
-use std::sync::{Mutex, OnceLock};
+use std::path::Path;
 use std::{fs, io};
 
 use personae::{IdentityError, SealedRecordStorage, StartupUnlockMode};
-
-use crate::custody::{load_existing_auto_unlock_root, load_or_create_auto_unlock_root};
 
 use sporran::device_settings_store;
 
 use super::at_rest::{no_sealed_store, refuse_raw};
 use super::devices::{load_local_device_identity, local_device_identity_locked_at_startup};
-use sporran::wallet_store::{identity_auto_unlock_root_path, identity_seed_path};
+use super::root::{self, Access};
+use sporran::wallet_store::identity_seed_path;
 
 pub(super) fn io_backend_error(err: IdentityError) -> io::Error {
     io::Error::other(err.to_string())
 }
 
-fn runtime_manual_unlocks() -> &'static Mutex<HashSet<PathBuf>> {
-    static MANUAL_UNLOCKS: OnceLock<Mutex<HashSet<PathBuf>>> = OnceLock::new();
-    MANUAL_UNLOCKS.get_or_init(|| Mutex::new(HashSet::new()))
-}
-
-fn runtime_manual_unlock_active(data_root: &Path) -> bool {
-    runtime_manual_unlocks()
-        .lock()
-        .map(|roots| roots.contains(data_root))
-        .unwrap_or(false)
-}
-
-fn set_runtime_manual_unlock(data_root: &Path, active: bool) {
-    let Ok(mut roots) = runtime_manual_unlocks().lock() else {
-        return;
-    };
-    if active {
-        roots.insert(data_root.to_path_buf());
-    } else {
-        roots.remove(data_root);
-    }
-}
-
-fn wallet_startup_unlock_mode(data_root: &Path) -> StartupUnlockMode {
+pub(super) fn wallet_startup_unlock_mode(data_root: &Path) -> StartupUnlockMode {
     device_settings_store::load_device_settings(data_root)
         .ok()
         .flatten()
@@ -64,7 +38,7 @@ fn wallet_startup_unlock_mode(data_root: &Path) -> StartupUnlockMode {
 /// Whether this launch's startup policy is Prompt or Locked with no session
 /// unlock active, so no sealed store opens for the wallet's local secrets.
 pub(super) fn wallet_startup_policy_locked(data_root: &Path) -> bool {
-    !runtime_manual_unlock_active(data_root)
+    !root::session_active(data_root)
         && matches!(
             wallet_startup_unlock_mode(data_root),
             StartupUnlockMode::Prompt | StartupUnlockMode::Locked
@@ -86,40 +60,20 @@ pub(super) fn looks_like_sealed_record(path: &Path) -> bool {
         && object.contains_key("ciphertext")
 }
 
+/// The wallet's local sealed store: keyed by the padlock's root (or a legacy
+/// auto-unlock root not yet migrated) when one is open this launch.
 pub(super) fn wallet_local_secret_store(
     data_root: &Path,
 ) -> io::Result<Option<SealedRecordStorage>> {
-    if runtime_manual_unlock_active(data_root) {
-        return load_or_create_auto_unlock_root(identity_auto_unlock_root_path(data_root))
-            .map(|root| root.map(|key| SealedRecordStorage::open_with_key(data_root, key)))
-            .map_err(io_backend_error);
-    }
-    match wallet_startup_unlock_mode(data_root) {
-        StartupUnlockMode::AutoOs => {
-            load_or_create_auto_unlock_root(identity_auto_unlock_root_path(data_root))
-                .map(|root| root.map(|key| SealedRecordStorage::open_with_key(data_root, key)))
-                .map_err(io_backend_error)
-        },
-        StartupUnlockMode::Prompt | StartupUnlockMode::Locked => Ok(None),
-    }
+    Ok(root::local_root(data_root, Access::Create)?
+        .map(|key| SealedRecordStorage::open_with_key(data_root, *key)))
 }
 
 fn wallet_local_secret_store_read_only(
     data_root: &Path,
 ) -> io::Result<Option<SealedRecordStorage>> {
-    if runtime_manual_unlock_active(data_root) {
-        return load_existing_auto_unlock_root(identity_auto_unlock_root_path(data_root))
-            .map(|root| root.map(|key| SealedRecordStorage::open_with_key(data_root, key)))
-            .map_err(io_backend_error);
-    }
-    match wallet_startup_unlock_mode(data_root) {
-        StartupUnlockMode::AutoOs => {
-            load_existing_auto_unlock_root(identity_auto_unlock_root_path(data_root))
-                .map(|root| root.map(|key| SealedRecordStorage::open_with_key(data_root, key)))
-                .map_err(io_backend_error)
-        },
-        StartupUnlockMode::Prompt | StartupUnlockMode::Locked => Ok(None),
-    }
+    Ok(root::local_root(data_root, Access::Existing)?
+        .map(|key| SealedRecordStorage::open_with_key(data_root, *key)))
 }
 
 fn wallet_secret_record_root_key(seed: [u8; 32]) -> [u8; 32] {
@@ -213,16 +167,14 @@ pub fn wallet_local_secrets_locked(data_root: &Path) -> bool {
 /// Explicitly unlock device-local sealed wallet secrets with the local OS store for this
 /// session only, without changing the persisted startup policy.
 pub fn unlock_wallet_with_auto_os(data_root: &Path) -> io::Result<bool> {
-    let Some(_) = load_or_create_auto_unlock_root(identity_auto_unlock_root_path(data_root))
-        .map_err(io_backend_error)?
-    else {
+    let Some(key) = root::auto_root(data_root, Access::Create)? else {
         return Ok(false);
     };
-    set_runtime_manual_unlock(data_root, true);
+    root::set_session(data_root, key);
     let unlocked = load_identity_seed(data_root)?.is_some()
         || load_local_device_identity(data_root)?.is_some();
     if !unlocked {
-        set_runtime_manual_unlock(data_root, false);
+        root::clear_session(data_root);
     }
     Ok(unlocked)
 }
@@ -230,7 +182,7 @@ pub fn unlock_wallet_with_auto_os(data_root: &Path) -> io::Result<bool> {
 /// Clear the session-scoped explicit unlock override so later secret loads respect the
 /// persisted startup policy again.
 pub fn relock_wallet_after_manual_unlock(data_root: &Path) {
-    set_runtime_manual_unlock(data_root, false);
+    root::clear_session(data_root);
 }
 
 /// Save the shared master seed as a sealed record. With no sealed store this
@@ -276,6 +228,7 @@ mod tests {
         ));
         assert_eq!(fs::read(&path).unwrap(), before);
         assert!(!identity_auto_unlock_root_path(&root).exists());
+        assert!(!wallet_padlock_path(&root).exists());
 
         let _ = fs::remove_dir_all(&root);
     }
@@ -295,7 +248,7 @@ mod tests {
         assert_eq!(fs::read(identity_seed_path(&root)).unwrap(), seed);
 
         migrate_legacy_wallet_secrets(&root).unwrap();
-        assert!(identity_auto_unlock_root_path(&root).is_file());
+        assert!(wallet_padlock_path(&root).is_file());
         let text = fs::read_to_string(identity_seed_path(&root)).unwrap();
         assert!(text.contains("ciphertext"));
         assert_eq!(load_identity_seed(&root).unwrap(), Some(seed));

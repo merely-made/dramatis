@@ -161,7 +161,7 @@ mod tests {
 
         let restored = load_local_device_identity(&root).unwrap().unwrap();
         assert_eq!(restored, identity);
-        assert!(identity_auto_unlock_root_path(&root).is_file());
+        assert!(wallet_padlock_path(&root).is_file());
 
         let text = fs::read_to_string(local_device_identity_path(&root)).unwrap();
         assert!(!text.contains("\"label\": \"Tablet\""));

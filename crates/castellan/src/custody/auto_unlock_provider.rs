@@ -41,6 +41,10 @@ pub trait AutoUnlockRootProvider: Send + Sync {
     fn load(&self, account: &str) -> Result<Option<Zeroizing<[u8; 32]>>, IdentityError>;
     /// Remove an item this process just created and could not record.
     fn discard(&self, account: &str);
+    /// The padlock `kid` method of a KEK slot kept here (profile §3.4).
+    fn slot_method(&self) -> &'static str {
+        "keychain"
+    }
 }
 
 static PROVIDER: RwLock<Option<Arc<dyn AutoUnlockRootProvider>>> = RwLock::new(None);

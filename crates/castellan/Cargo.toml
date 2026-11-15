@@ -53,6 +53,9 @@ keeper = [
   "agent",
   "wallet",
 ]
+# An in-memory OS-KEK store (`custody::os_kek::MemoryOsKek`) for tests and
+# examples that need no OS store; never for a production build.
+test-support = []
 
 [dependencies]
 credential-exchange-format = { version = "0.4.0", optional = true }

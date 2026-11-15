@@ -102,6 +102,7 @@ fn a_raw_legacy_seed_is_refused_with_the_migration_error_and_left_as_it_was() {
     }
     assert_eq!(fs::read(&path).unwrap(), [0x22; 32]);
     assert!(!identity_auto_unlock_root_path(&root).exists());
+    assert!(!wallet_padlock_path(&root).exists());
 
     let _ = fs::remove_dir_all(&root);
 }

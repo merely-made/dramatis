@@ -382,7 +382,7 @@ mod interruptions {
         let legacy = [0x6a; 32];
         let path = identity_seed_path(root.path());
         save_identity_seed(root.path(), [0x5b; 32]).unwrap();
-        assert!(identity_auto_unlock_root_path(root.path()).is_file());
+        assert!(castellan::custody::wallet::wallet_padlock_path(root.path()).is_file());
         std::fs::write(&path, legacy).unwrap();
         assert!(is_legacy_raw(
             &load_identity_seed_read_only(root.path()).unwrap_err()

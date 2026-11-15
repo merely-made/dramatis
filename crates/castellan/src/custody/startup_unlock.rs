@@ -97,7 +97,7 @@ pub fn clear_persisted_lock(vault_dir: &Path) -> Result<(), IdentityError> {
 }
 
 /// `Locked` while the root's own directory carries the persisted lock.
-fn refuse_if_persisted(path: &Path) -> Result<(), IdentityError> {
+pub(crate) fn refuse_if_persisted(path: &Path) -> Result<(), IdentityError> {
     match path.parent() {
         Some(dir) if lock_persisted(dir) => Err(IdentityError::Locked),
         _ => Ok(()),
@@ -254,7 +254,7 @@ fn tempfile_in_dir(dir: &Path) -> Result<PathBuf, IdentityError> {
 }
 
 #[cfg(windows)]
-fn dpapi_protect(plaintext: &[u8]) -> Result<Vec<u8>, IdentityError> {
+pub(super) fn dpapi_protect(plaintext: &[u8]) -> Result<Vec<u8>, IdentityError> {
     use std::ptr::{null, null_mut};
     use windows_sys::Win32::Foundation::LocalFree;
     use windows_sys::Win32::Security::Cryptography::{
@@ -293,7 +293,7 @@ fn dpapi_protect(plaintext: &[u8]) -> Result<Vec<u8>, IdentityError> {
 }
 
 #[cfg(windows)]
-fn dpapi_unprotect(ciphertext: &[u8]) -> Result<zeroize::Zeroizing<Vec<u8>>, IdentityError> {
+pub(super) fn dpapi_unprotect(ciphertext: &[u8]) -> Result<zeroize::Zeroizing<Vec<u8>>, IdentityError> {
     use std::ptr::null_mut;
     use windows_sys::Win32::Foundation::LocalFree;
     use windows_sys::Win32::Security::Cryptography::{CRYPT_INTEGER_BLOB, CryptUnprotectData};

@@ -10,12 +10,12 @@
 use personae::carry::DeviceGrantSet;
 
 use super::{BlindedEpochIndex, WrappedEpochRecord};
-use personae::{Ed25519Signature, PersonaId};
+use personae::PersonaId;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use super::{
-    DEVICE_GRANT_SCHEMA_VERSION, DeviceExposure, DeviceGrantError, DeviceId, DevicePublicKey,
+    DeviceExposure, DeviceId, DevicePublicKey,
     KeyEpochId, PersonaWalletManifest, REMOTE_AUTH_PAIRING_SECRET_LEN,
 };
 

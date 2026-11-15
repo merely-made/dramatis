@@ -7,11 +7,6 @@
 //! Upserts into the roster, the identity wallet's grant index, and the local
 //! device record.
 
-use std::io;
-use std::path::Path;
-
-use personae::{Ed25519Keypair, IdentityProvider, InMemoryProvider, PersonaId};
-
 use crate::wallet_store::*;
 
 use super::*;

@@ -168,7 +168,6 @@ pub fn unwrap_private_epoch_material(
 #[cfg(test)]
 mod tests {
     use super::super::test_support::*;
-    use super::super::*;
     use super::*;
 
     #[test]

@@ -19,8 +19,6 @@
 //! flow, when built, replaces this derivation with a QR plus a compared code
 //! backed by a commitment (dramatis_repo D16).
 
-use std::io;
-
 use super::*;
 
 /// Mint a new QR / typed-code pairing ticket for a remote-auth enrollment.
@@ -142,7 +140,6 @@ pub fn derive_remote_auth_pairing_material(
 #[cfg(test)]
 mod tests {
     use super::super::test_support::*;
-    use super::super::*;
     use super::*;
 
     #[test]

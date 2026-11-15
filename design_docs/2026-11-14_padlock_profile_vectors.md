@@ -51,6 +51,7 @@ Keys are entries of `vectors.json` (`steps.*`, `containers.*`); tests are in
 | V8 | an A256KW slot with nested recipients is foreign | V4 + nested | `containers.nested_foreign` | `v8_nested_recipients_make_a_slot_foreign` |
 | V9 | NFC: written with the composed form, opened with the decomposed | NFC_*, SALT_NFC | `steps.kek_nfc`, `wrap_nfc`, `containers.nfc_slot` | `nfc_composed_and_decomposed_give_one_kek`, `v9_nfc_slot_opens_with_either_form` |
 | V10 | KEK slot carrying an opaque OS blob | OS_KEK2, OS_BLOB | `containers.blob_slot` | `v10_kek_slot_with_os_blob` |
+| V11 | one-lane passphrase slot at the floor (m 64 MiB, t 3, p 1; OP 5 as amended) | PASSPHRASE, SALT, kid `pass/p1` | `steps.kek_p1`, `wrap_p1`, `containers.p1_slot` | `v11_one_lane_slot_at_the_floor` |
 
 Short values, for reading without the fixtures file:
 
@@ -109,7 +110,7 @@ behind V7 rather than a separate refusal.
 | R10 | `version_2`, `version_absent` (`Version`); `wrong_alg`: alg 1 (`WrongAlg`); `body_extra_label`: `kid` on the body (`BodyHeader`) |
 | R11 | `iv_11` (`IvLength`); `ciphertext_47` (`CiphertextLength`) |
 | R12 | `slot_protected`: `h'A10124'` (`SlotProtected`); `slot_label`: a salt on a KEK slot (`SlotLabel`); `wrapped_39` (`WrappedKeyLength`) |
-| R13 | `kdf_label_missing` (`KdfLabels`); `kdf_m_4gib`, `kdf_m_floor` (32 MiB), `kdf_t_2`, `kdf_p_17`, `kdf_v_16`, `kdf_argon2i` (`KdfBounds`); `salt_15` (`SaltLength`) |
+| R13 | `kdf_label_missing` (`KdfLabels`); `kdf_m_4gib`, `kdf_m_floor` (32 MiB), `kdf_t_2`, `kdf_p_17`, `kdf_p_0`, `kdf_v_16`, `kdf_argon2i` (`KdfBounds`); `salt_15` (`SaltLength`) |
 | R14 | `kid_grammar`, `kid_absent` (`Kid`); `duplicate_kid` (`DuplicateKid`) |
 | R15 | `os_blob_2049` (`OsBlob`) |
 | R16 | `invalid_utf8`: content type `mere.padlock/` + `FF` (`Malformed`) |
@@ -144,10 +145,10 @@ own outputs count only after its instrument is proved. Then it builds every vect
 positive entry from the fixed inputs through `castellan::custody::padlock` and match it byte
 for byte, and the Rust reader refuses every negative entry with the error the script recorded.
 
-**A deviation to note.** No CBOR library is installed on this machine (`cbor2` is absent), so
-the script's encoder is its own rather than a library's. The brief asked for a CBOR library;
-the hand encoder is if anything more independent, and it is proved by reproducing the two
-cose-wg messages byte for byte. To run a library-based variant instead, install `cbor2`.
+**The CBOR encoder.** No CBOR library is installed on this machine (`cbor2` is absent), so the
+script's encoder is its own rather than a library's. The driver accepted this on 2026-11-14:
+it shares no code with ours, and it reproduces both cose-wg messages byte for byte. A
+library-based variant would need `cbor2` installed.
 
 ## 5. Conformance table
 

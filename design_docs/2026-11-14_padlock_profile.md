@@ -222,12 +222,12 @@ does not have and can only fail.
 | -65538 | pl-kdf-salt | MUST be 16 bytes, fresh from the OS RNG per slot write [profile]; RFC 9106 §4: "A length of 128 bits is sufficient for all applications" |
 | -65539 | pl-kdf-m | KiB; MUST be within 65,536 to 1,048,576 (OP 5, OP 6), and ≥ 8·p [std: RFC 9106 §3.1] |
 | -65540 | pl-kdf-t | MUST be within 3 to 16 (OP 5, OP 6) |
-| -65541 | pl-kdf-p | MUST be within 4 to 16 (OP 5, OP 6; see the note in § 6 under OP 5) |
+| -65541 | pl-kdf-p | MUST be within 1 to 16 (OP 5 as amended, OP 6): the floor is on memory and passes only |
 | -65542 | pl-kdf-v | MUST be 19 [std: RFC 9106 §3.1, "Version number v MUST be one byte 0x13"] |
 
 All six MUST be present on a `pass` slot and no other label beyond `alg` and `kid`; none of
-them may appear on a KEK slot [profile]. A writer's default is the floor, RFC 9106 §4's
-second recommended option: "Argon2id with t=3 iterations, p=4 lanes, m=2^(16) (64 MiB of
+them may appear on a KEK slot [profile]. A writer's default is RFC 9106 §4's second
+recommended option, whose memory and passes are also the reader's floor: "Argon2id with t=3 iterations, p=4 lanes, m=2^(16) (64 MiB of
 RAM), 128-bit salt, and 256-bit tag size" (OP 5).
 
 **Normalisation** [profile, OP 8]. The passphrase MUST be normalised to Unicode NFC before
@@ -332,8 +332,10 @@ on drop, and clears Argon2's working memory (vault lock ruling 33) [profile]. Th
 
 ### 4.4 Remove a method (`Padlock::remove_slot`)
 
-Needs no key. Delete the slot named by `kid`. Refuse when no profile slot would remain: a
-container left with only foreign slots cannot be opened by this reader [profile]. In phase 2,
+Needs no key. Delete the slot named by `kid`. The writer MUST refuse when no profile slot
+would remain, that is when the last slot this reader can open would go, even if foreign slots
+stay: a container left with only foreign slots cannot be opened by this reader [profile;
+the stricter of the two readings, accepted by the driver 2026-11-14]. In phase 2,
 an OS item is deleted only after the write that removed its slot succeeds. **This is not
 revocation** (§ 1.3): an older copy of the file still opens with the removed method.
 
@@ -427,7 +429,7 @@ vectors:
 | `pl-os-blob` | 2048 bytes | OP 7 (driver default) |
 | Argon2 m | 65,536 to 1,048,576 KiB (64 MiB to 1 GiB) | OP 5 floor, OP 6 ceiling |
 | Argon2 t | 3 to 16 | OP 5, OP 6 |
-| Argon2 p | 4 to 16 | OP 5, OP 6 |
+| Argon2 p | 1 to 16 | OP 5 as amended, OP 6 |
 
 The file bound is checked on the byte length before decoding, so no length field inside the
 file can drive an allocation beyond 16 KiB (a header claiming 2^64-1 bytes is `Malformed`,
@@ -465,7 +467,7 @@ by" (the vectors document states the metric and meets it); "Pure rust".
 | 2 | version header | "Protected content-type label": `"mere.padlock/1"`, label 3, protected | § 3.2 |
 | 3 | tagged | tag 96 required. **Driver default**, told to the owner, not changed | § 3.2, R3 |
 | 4 | passphrase slot | "AES key wrap + private Argon2 labels": A256KW (-5), Argon2id parameters in private labels in the unprotected bucket | § 3.5 |
-| 5 | Argon2 cost | "RFC 9106's second set: 64 MiB, 3 passes, 4 lanes", the writer's default and the reader's floor | § 3.5, R13 |
+| 5 | Argon2 cost | "RFC 9106's second set: 64 MiB, 3 passes, 4 lanes", the writer's default; amended for the reader: "Floor on memory and passes only" (at least 64 MiB and 3 passes, 1 to 16 lanes) | § 3.5, R13 |
 | 6 | Argon2 ceiling | "1 GiB" memory; passes and lanes capped at 16 each | § 5.3 |
 | 7 | size bounds | file 16 KiB, 16 recipients, OS blob 2048 bytes. **Driver default**; phase 2 measures a real DPAPI blob | § 5.3 |
 | 8 | normalisation | "NFC, for vault and padlock together" | § 3.5 |
@@ -478,11 +480,11 @@ by" (the vectors document states the metric and meets it); "Pure rust".
 | 15 | migration; location | "An explicit command"; `<data_root>/identity/wallet-root.padlock` (location: **driver default**) | § 4.7, § 4.8 |
 | 16 | recovery KDF | decided when that slot is built; reserved now. **Driver default** | § 3.7 |
 
-**Note on OP 5's lane floor (open for the owner).** The ruling makes the whole second set the
-reader's floor, so the reader refuses p < 4, and the code does. The draft's bounds table had p
-from 1. Lanes set parallelism, not the attacker's cost (m and t do), so a lane floor buys no
-strength; it only refuses a file a future writer might produce for a single-core device. The
-choice between "p ≥ 4 as ruled" and "p ≥ 1" is the owner's.
+**OP 5's lane floor (answered 2026-11-14).** Phase 1 read the ruling as making the whole
+second set the reader's floor and refused p < 4. Lanes set parallelism, not the attacker's cost
+(m and t do), so the question went back to the owner, who answered **"Floor on memory and
+passes only"**: the reader requires at least 64 MiB and 3 passes and accepts 1 to 16 lanes; the
+writer still defaults to 4. Vector V11 is a one-lane slot at the floor.
 
 ---
 

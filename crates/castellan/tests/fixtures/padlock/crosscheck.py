@@ -167,12 +167,13 @@ NFC_DECOMPOSED = unicodedata.normalize("NFD", NFC_COMPOSED)
 M, T, P = 65536, 3, 4
 KID_PASS, KID_OS = b"pass/1", b"keychain/test"
 KID_NFC, KID_BLOB = b"pass/nfc", b"dpapi/0011223344556677"
+KID_P1 = b"pass/p1"
 FOREIGN = [b"", Map([(1, -65600), (4, b"foo/1")]), bytes(40)]
 
 
-def argon(passphrase, salt):
+def argon(passphrase, salt, p=P):
     nfc = unicodedata.normalize("NFC", passphrase).encode("utf-8")
-    return Argon2id(salt=salt, length=32, iterations=T, lanes=P,
+    return Argon2id(salt=salt, length=32, iterations=T, lanes=p,
                     memory_cost=M).derive(nfc)
 
 
@@ -196,6 +197,9 @@ CIPHERTEXT = ChaCha20Poly1305(CEK).encrypt(IV, ROOT, AAD)
 
 def vectors():
     kek_pass, kek_nfc = argon(PASSPHRASE, SALT), argon(NFC_DECOMPOSED, SALT_NFC)
+    kek_p1 = argon(PASSPHRASE, SALT, p=1)
+    wrap_p1 = aes_key_wrap(kek_p1, CEK)
+    p1_slot = [b"", pass_unprot(KID_P1, SALT, p=1), wrap_p1]
     wrap_pass, wrap_os = aes_key_wrap(kek_pass, CEK), aes_key_wrap(OS_KEK, CEK)
     wrap_nfc, wrap_blob = aes_key_wrap(kek_nfc, CEK), aes_key_wrap(OS_KEK2, CEK)
     pass_slot = [b"", pass_unprot(KID_PASS, SALT), wrap_pass]
@@ -207,6 +211,7 @@ def vectors():
     steps = {
         "kek_pass": kek_pass, "kek_nfc": kek_nfc, "wrap_pass": wrap_pass,
         "wrap_os": wrap_os, "wrap_nfc": wrap_nfc, "wrap_blob": wrap_blob,
+        "kek_p1": kek_p1, "wrap_p1": wrap_p1,
         "body_protected": BODY_PROT, "aad": AAD, "ciphertext": CIPHERTEXT,
     }
     containers = {
@@ -219,6 +224,7 @@ def vectors():
         "nested_foreign": body([pass_slot, nested]),
         "nfc_slot": body([nfc_slot]),
         "blob_slot": body([blob_slot]),
+        "p1_slot": body([p1_slot]),
     }
     return steps, containers, negatives(pass_slot, os_slot, wrap_os)
 
@@ -281,6 +287,7 @@ def negatives(pass_slot, os_slot, wrap_os):
         "kdf_m_floor": ("R13", "KdfBounds", pass_with(m=32768)),
         "kdf_t_2": ("R13", "KdfBounds", pass_with(t=2)),
         "kdf_p_17": ("R13", "KdfBounds", pass_with(p=17)),
+        "kdf_p_0": ("R13", "KdfBounds", pass_with(p=0)),
         "kdf_v_16": ("R13", "KdfBounds", pass_with(v=16)),
         "kdf_argon2i": ("R13", "KdfBounds", pass_with(kdf=1)),
         "salt_15": ("R13", "SaltLength", pass_with(salt=SALT[:15])),

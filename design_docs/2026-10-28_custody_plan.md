@@ -270,8 +270,9 @@ create, unlock with a caller-supplied verifier, add and remove slot, passphrase 
 slots, foreign slots kept byte for byte), the published-vector tests, and the profile's vectors
 produced by an independent Python implementation and matched byte for byte. Phase 2 is open: the
 wallet wiring and binding check, the OS slots, the file writer, migration, and the vault's
-passphrase moving to NFC. Open for the owner: whether the reader's lane floor is 4 as ruled or 1
-(profile § 6, note on OP 5).
+passphrase moving to NFC. The lane floor came back to the owner, who answered **"Floor on memory
+and passes only"** (2026-11-14): at least 64 MiB and 3 passes, 1 to 16 lanes; the writer still
+defaults to 4.
 
 Links: area custody · draws on custody D5, custody D6 · plans H2, VL-91 · summary The wallet root is the content of a COSE_Encrypt profile whose slots unlock it: passphrase (NFC, Argon2id, A256KW) and OS-held KEKs.
 

@@ -74,12 +74,18 @@ pub struct Argon2Params {
 }
 
 impl Argon2Params {
-    /// RFC 9106 §4's second recommended set: the writer's default and the
-    /// reader's floor (OP 5).
+    /// RFC 9106 §4's second recommended set: the writer's default (OP 5).
     pub const DEFAULT: Self = Self {
         m_kib: 64 * 1024,
         t: 3,
         p: 4,
+    };
+    /// The reader's floor (OP 5, amended): memory and passes of the default,
+    /// any lane count from 1.
+    pub const FLOOR: Self = Self {
+        m_kib: 64 * 1024,
+        t: 3,
+        p: 1,
     };
     /// The reader's ceiling (OP 6): 1 GiB, 16 passes, 16 lanes.
     pub const CEILING: Self = Self {
@@ -89,7 +95,7 @@ impl Argon2Params {
     };
 
     fn check(self) -> Result<(), PadlockError> {
-        let (lo, hi) = (Self::DEFAULT, Self::CEILING);
+        let (lo, hi) = (Self::FLOOR, Self::CEILING);
         let within = (lo.m_kib..=hi.m_kib).contains(&self.m_kib)
             && (lo.t..=hi.t).contains(&self.t)
             && (lo.p..=hi.p).contains(&self.p)
@@ -145,7 +151,7 @@ pub enum NewSlot<'a> {
         kid: &'a str,
         /// Normalised to NFC before Argon2id.
         passphrase: &'a str,
-        /// Within [`Argon2Params::DEFAULT`] and [`Argon2Params::CEILING`].
+        /// Within [`Argon2Params::FLOOR`] and [`Argon2Params::CEILING`].
         params: Argon2Params,
     },
     /// A KEK slot; `kid` method `dpapi`, `keychain` or `secsvc`.

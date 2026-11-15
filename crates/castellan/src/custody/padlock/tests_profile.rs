@@ -381,3 +381,33 @@ fn the_writer_refuses_what_the_reader_would() {
     };
     assert_eq!(*again.unlock(&open, |_| true).unwrap(), root);
 }
+
+#[test]
+fn v11_one_lane_slot_at_the_floor() {
+    // OP 5 as amended: the floor is on memory and passes; one lane opens.
+    let params = Argon2Params {
+        p: 1,
+        ..Argon2Params::FLOOR
+    };
+    let kek = slot::passphrase_kek(PASSPHRASE, &input("salt"), params).unwrap();
+    assert_eq!(kek.to_vec(), get("steps", "kek_p1"));
+    let first = NewSlot::Passphrase {
+        kid: "pass/p1",
+        passphrase: PASSPHRASE,
+        params,
+    };
+    let lock = Padlock::create_with(
+        &input("root"),
+        &input("cek"),
+        input("iv"),
+        &first,
+        input("salt"),
+    )
+    .unwrap();
+    assert_eq!(lock.to_bytes().unwrap(), container("p1_slot"));
+    let parsed = Padlock::parse(&container("p1_slot")).unwrap();
+    let root = parsed
+        .unlock(&SlotInput::Passphrase(PASSPHRASE), |_| true)
+        .unwrap();
+    assert_eq!(*root, input::<32>("root"));
+}

@@ -392,7 +392,18 @@ gives one), unlocks through the new OS slot as a reader will, and only then reti
 file and its store item. A failure leaves the old file in place and no padlock file, and
 discards any OS item it minted. Until it runs, a legacy root keeps working exactly as before. A
 raw legacy seed (custody D5) is sealed by the existing `migrate_legacy_wallet_secrets`, which
-now seals under the padlock's root.
+now seals under the padlock's root; `wallet-root --action seal-legacy` runs it under a padlock
+opened by passphrase or OS slot, so raw secrets always have a command route out.
+
+**Adoption** (owner, 2026-11-14: "Adopt with a passphrase, or refuse"). `djinn-custodian adopt
+--data-from` decides before touching either side how the adopted wallet will open: nothing raw,
+the files move as they are; raw legacy secrets and an OS store or envelope, they are sealed
+under it; raw secrets and no store, `--passphrase stdin` makes the custodian's padlock with a
+passphrase slot and they are sealed under it; neither, it is refused and nothing changes. Each
+sealed record is compared with the raw bytes it came from before any source file is removed, and
+a source file is removed only while it still equals what the custodian verifiably holds. A rerun
+after a kill finishes (the source was being retired) or clears the custodian's copies and starts
+again (the source is whole); a custodian root holding anything that is not this wallet is refused.
 
 ### 4.9 Startup modes, sessions and the vault's passphrase (custody D9)
 

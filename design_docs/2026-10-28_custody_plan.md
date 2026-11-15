@@ -324,6 +324,14 @@ command (slots, migrate, add-passphrase, add-os, change-passphrase, remove). D5'
 (`37a0e63`, `8ef26b0`) land with it. Rotate root is specified, not built: re-sealing several
 records under a new root with crash consistency needs machinery the tree lacks.
 
+Adoption (2026-11-14): the owner answered **"Adopt with a passphrase, or refuse"**:
+`adopt --data-from DIR --passphrase stdin` creates the custodian's padlock with a passphrase
+slot, seals the adopted raw seed under it with read-back, and only then retires the source;
+without a passphrase on a store-less custodian adopt is refused naming the flag, and nothing
+changes on either side; **"The wallet is never left adopted but unusable."** Built as
+`djinn_custodian::wallet::adopt_wallet`, with `wallet-root --action seal-legacy` as the route
+out for raw secrets already adopted.
+
 Links: area custody · refines custody D8 · draws on custody D5 · plans H2, VL-91 · summary The wallet's local root is the padlock's root now; both vaults derive their keys from it in a second, separately designed step.
 
 ## Phases

@@ -77,6 +77,8 @@ objc2-local-authentication = { version = "0.3", default-features = false, featur
 security-framework = { version = "3", features = ["OSX_10_15"] }
 
 [dev-dependencies]
+# The in-memory OS-KEK store for the wallet-root admin tests.
+castellan = { workspace = true, features = ["keeper", "cxf", "test-support"] }
 tempfile = "3"
 
 [lints]

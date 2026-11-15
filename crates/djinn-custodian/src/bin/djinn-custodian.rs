@@ -19,6 +19,10 @@
 //!       --data-from: the wallet and credential catalog, no passphrase
 //!   djinn-custodian envelope-check --config PATH   (macOS: the Keychain envelope's round trip)
 //!   djinn-custodian wallet-files --data-root DIR   (the wallet's files, NUL-separated)
+//!   djinn-custodian wallet-root --config PATH --action ACTION [--kid KID]
+//!       [--with os|passphrase] [--passphrase stdin]   (the wallet's padlock:
+//!       slots, create, migrate, add-passphrase, add-os, change-passphrase, remove;
+//!       passphrases on stdin; the padlock's passphrase is not the vault's)
 //!   djinn-custodian consent --client PATH   (the logon helper that puts
 //!       petitions to the owner: Windows Hello, or on macOS LocalAuthentication;
 //!       on macOS PATH may be the installed clients directory, whose file for
@@ -50,6 +54,10 @@ struct Args {
     socket: Option<PathBuf>,
     from: Option<PathBuf>,
     data_from: Option<PathBuf>,
+    action: Option<String>,
+    kid: Option<String>,
+    with: Option<String>,
+    passphrase: Option<String>,
 }
 
 impl Args {
@@ -61,10 +69,11 @@ impl Args {
 fn parse() -> Result<Args, String> {
     let mut raw = std::env::args().skip(1).peekable();
     let command = match raw.peek().map(String::as_str) {
-        Some("init") | Some("adopt") | Some("consent") | Some("remote-init") | Some("remote-check") | Some("validate-config") | Some("envelope-check") => raw.next().expect("peeked"),
+        Some("init") | Some("adopt") | Some("consent") | Some("remote-init") | Some("remote-check") | Some("validate-config") | Some("envelope-check") | Some("wallet-root") => raw.next().expect("peeked"),
         _ => "serve".to_string(),
     };
     let (mut config, mut client, mut socket, mut from, mut data_from) = (None, None, None, None, None);
+    let (mut action, mut kid, mut with, mut passphrase) = (None, None, None, None);
     while let Some(flag) = raw.next() {
         let value = raw.next().ok_or_else(|| format!("{flag} needs a value"))?;
         match flag.as_str() {
@@ -73,6 +82,10 @@ fn parse() -> Result<Args, String> {
             "--socket" => socket = Some(PathBuf::from(value)),
             "--from" => from = Some(PathBuf::from(value)),
             "--data-from" => data_from = Some(PathBuf::from(value)),
+            "--action" => action = Some(value),
+            "--kid" => kid = Some(value),
+            "--with" => with = Some(value),
+            "--passphrase" => passphrase = Some(value),
             other => return Err(format!("unknown argument {other}")),
         }
     }
@@ -88,6 +101,10 @@ fn parse() -> Result<Args, String> {
         socket,
         from,
         data_from,
+        action,
+        kid,
+        with,
+        passphrase,
     })
 }
 
@@ -105,7 +122,7 @@ fn run() -> Result<(), String> {
     // A macOS custodian keeps the wallet's sealing root in its Keychain
     // envelope; every command that can open the wallet installs it first.
     #[cfg(target_os = "macos")]
-    if matches!(args.command.as_str(), "serve" | "init" | "adopt" | "remote-init" | "remote-check") {
+    if matches!(args.command.as_str(), "serve" | "init" | "adopt" | "remote-init" | "remote-check" | "wallet-root") {
         platform::macos::envelope::install(&config, path)?;
     }
     #[cfg(not(target_os = "macos"))]
@@ -125,6 +142,7 @@ fn run() -> Result<(), String> {
         ).map_err(|e| e.to_string()),
         "init" => init(&config),
         "adopt" => adopt(&config, args.from.as_deref(), args.data_from.as_deref()),
+        "wallet-root" => wallet_root(&config, &args),
         _ => serve(config, &args),
     }
 }
@@ -357,6 +375,19 @@ fn seal_adopted_seed(config: &Config, data_root: &Path) -> Result<(), String> {
         println!("sealed the adopted {} under the envelope", path.strip_prefix(data_root).unwrap_or(&path).display());
     }
     Ok(())
+}
+
+/// The owner's acts on the wallet's padlock, over the configured data root.
+fn wallet_root(config: &Config, args: &Args) -> Result<(), String> {
+    use djinn_custodian::wallet::root_admin::{Request, run};
+    let data_root = config.vault.data_root.as_deref().ok_or("the configuration names no vault.data_root")?;
+    let request = Request {
+        action: args.action.as_deref().ok_or("wallet-root needs --action")?,
+        kid: args.kid.as_deref(),
+        with: args.with.as_deref(),
+        passphrase: args.passphrase.as_deref(),
+    };
+    run(data_root, &request, &mut std::io::stdin().lock(), &mut std::io::stdout().lock())
 }
 
 /// The wallet's and catalog's files under a data root, relative and

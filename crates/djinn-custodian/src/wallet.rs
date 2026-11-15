@@ -13,6 +13,7 @@
 use std::path::Path;
 
 mod adopt;
+pub mod root_admin;
 pub use adopt::{Adopted, adopt_files, carry_files, retire_files, wallet_files};
 
 use custody_wire::contract::{EpochKeyRequest, PayloadOperation, ReleasedEpochKey};

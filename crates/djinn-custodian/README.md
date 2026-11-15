@@ -60,7 +60,28 @@ djinn-custodian adopt --config PATH --data-from DJINN-DATA-ROOT     # carry the 
 djinn-custodian wallet-files --data-root DIR                        # the wallet's and catalog's files, NUL-separated
 djinn-custodian envelope-check --config PATH                        # macOS: the Keychain envelope's round trip
 djinn-custodian consent --client PATH                               # Windows and macOS: the consent helper
+djinn-custodian wallet-root --config PATH --action ACTION           # the wallet's padlock (below)
 ```
+
+### The wallet's padlock
+
+The wallet's local root lives in `<data_root>/identity/wallet-root.padlock` (the [padlock profile](../../design_docs/2026-11-14_padlock_profile.md), custody D8 and D9). Its slots are the ways to open it: an OS slot (DPAPI on Windows, the Keychain envelope on macOS) and passphrase slots. Passphrases are read from stdin, never the command line.
+
+```sh
+djinn-custodian wallet-root --config PATH --action slots                              # kid and kind of each slot
+djinn-custodian wallet-root --config PATH --action create                             # first run, no OS slot: passphrase twice
+djinn-custodian wallet-root --config PATH --action migrate [--passphrase stdin]       # legacy root -> padlock, once
+djinn-custodian wallet-root --config PATH --action add-passphrase [--with passphrase] # new passphrase twice
+djinn-custodian wallet-root --config PATH --action add-os [--with passphrase]
+djinn-custodian wallet-root --config PATH --action change-passphrase                  # old, then new twice
+djinn-custodian wallet-root --config PATH --action remove --kid KID
+```
+
+- **Windows.** A new wallet gets a padlock with a user-scope DPAPI slot. An existing wallet keeps its `vault-root.auto.json` until `--action migrate`, run as the owner; it moves the same root under a padlock, proves the wallet's records open under it, and only then removes the old file. Add a passphrase slot so the wallet can also open in `Prompt` mode.
+- **macOS.** The same, with the KEK of the OS slot held as an item of the custodian's Keychain envelope; run in the owner's login session from the installed bundle, as for `envelope-check`.
+- **Linux.** No OS slot is wired: the custodian runs as a system service with no session bus. `--action create` makes a passphrase-only padlock, which `wallet-root` actions open. The serving custodian has no wire operation yet to unlock the wallet with a passphrase (a custody-wire change, not built), so on Linux the served wallet stays locked, as it did before the padlock.
+- The padlock's passphrase is the padlock's, not the vault's: `init` and `adopt` set the vault's, and nothing tries one against the other. Step two of custody D9 joins them.
+- Removing a slot is not revocation: a copy of the padlock file taken before still opens with it.
 
 `adopt` takes either kind of Djinn vault. A passphrase vault (`vault.json`) is copied as it is and keeps its passphrase on stdin. A Windows OS-rooted vault (`auto-unlock-root.json`, no `vault.json`) can be opened only by its owner's own logon, so `adopt` runs as the owner from an elevated prompt with the service stopped, refuses when the current user's SID is not `owner.windows_sid`, reads a new passphrase twice from stdin and writes every profile into a new passphrase vault, with the roster choice. It then proves the copy opens to the same profile and master public key. If Djinn left its persisted lock, unlock Djinn once first.
 

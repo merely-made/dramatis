@@ -36,6 +36,10 @@ fn host(root: Option<&Path>) -> Host {
 }
 
 fn stage(root: &Path, persona: PersonaId) {
+    // One store per data root: a wallet's secrets are never kept raw.
+    if castellan::custody::os_kek::os_kek_store(root).is_none() {
+        castellan::custody::os_kek::install_memory_os_kek(root);
+    }
     ensure_wallet_state(root, persona, "Receipt host").unwrap();
     let epoch = load_persona_wallet(root, persona)
         .unwrap()

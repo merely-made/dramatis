@@ -159,6 +159,16 @@ path = "tests/wallet_authority.rs"
 required-features = ["wallet", "test-support"]
 
 [[test]]
+name = "sealed_contacts"
+path = "tests/sealed_contacts.rs"
+required-features = ["keeper", "test-support"]
+
+[[test]]
+name = "sealed_webfinger_intake"
+path = "tests/sealed_webfinger_intake.rs"
+required-features = ["keeper", "test-support"]
+
+[[test]]
 name = "snapshot_golden"
 path = "tests/snapshot_golden.rs"
 required-features = ["keeper"]

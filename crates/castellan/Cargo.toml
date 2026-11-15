@@ -87,6 +87,12 @@ constant_time_eq = "0.4.2"
 # `zeroize` clears the cipher's copy of the key on drop (ruling 37).
 chacha20poly1305 = { version = "0.11", features = ["zeroize"] }
 getrandom = { version = "0.4", features = ["sys_rng"] }
+# The padlock (design_docs/2026-11-14_padlock_profile.md): a COSE_Encrypt
+# profile. coset reads and writes the structures, aes-kw is A256KW (RFC 3394),
+# icu_normalizer is the passphrase's NFC step (already in the graph via idna).
+aes-kw = "0.3"
+coset = "0.4.2"
+icu_normalizer = { version = "2", default-features = false, features = ["compiled_data"] }
 serde_json = { workspace = true, features = ["raw_value"] }
 tracing.workspace = true
 # ── agent ─────────────────────────────────────────────────────────────────

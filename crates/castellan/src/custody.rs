@@ -24,6 +24,7 @@
 pub mod agent;
 mod auto_unlock_provider;
 pub mod bootstrap;
+pub mod padlock;
 #[cfg(feature = "agent")]
 pub mod broker;
 pub mod passphrase_root;

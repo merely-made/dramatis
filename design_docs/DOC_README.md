@@ -61,6 +61,11 @@ is tracked in the repository plan and Mere's workspace hygiene plan.
   receiving gates and the parked Secret Service design; moved with
   the custodian under D14. [Current receipts](archive_docs/receipts/2026-10-28_custody_plan_receipts.md);
   historical sources and receipts retain Mere paths.
+- [padlock_profile](2026-11-14_padlock_profile.md): the wallet root as a COSE_Encrypt
+  profile (custody D8): passphrase and OS-KEK slots, strict decoding, the decision record.
+  Phase 1 (the container in `castellan::custody::padlock`) landed; phase 2 (wiring, OS slots,
+  migration) open. Its [vectors and conformance](2026-11-14_padlock_profile_vectors.md):
+  published vectors per step, the profile's own vectors, the independent cross-check.
 - [dramatis_app_plan](2026-10-11_dramatis_app_plan.md): **the window retired (2026-11-08,
   cycle-breaks D26)**: persona selection, local authentication and quarantine review through Djinn
   are now `crates/dramatis-surface`, presented as a pane by hosts; `apps/dramatis` and its receipt

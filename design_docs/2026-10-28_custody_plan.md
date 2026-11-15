@@ -243,6 +243,38 @@ panics at 10.
 
 Links: area custody · draws on custody D6 · plans H4, VL-Q, VL-E · summary Generate TOTP codes only, through totp-rs; HOTP and Steam Guard items stay stored but generate no code.
 
+### custody D8. The padlock: the wallet root as a COSE_Encrypt profile (2026-11-14)
+
+Mark set the design with **"use dpapi, keychain, secret service; wrap root with passphrase across
+all, so you unlock (OS) a padlock (us). then we can do stuff like 2factor, pins, biometrics,
+passphrases for that padlock"**, asked for a published standard rather than a format of our own
+(**"If one of these fits, the slot file stops being 'our own format that needs our own spec and
+vectors' and becomes a profile of a published standard with existing test vectors."**) and chose
+the container, **"COSE_Encrypt"**. He then answered the draft profile's open points
+(`Code/testing/engine-split/padlock_cose_profile_draft.md`): content **"ChaCha20-Poly1305"**;
+version in a **"Protected content-type label"**, `mere.padlock/1`; passphrase slot **"AES key wrap
++ private Argon2 labels"**; Argon2 **"RFC 9106's second set: 64 MiB, 3 passes, 4 lanes"** as default
+and floor, ceiling **"1 GiB"** with passes and lanes at most 16; **"NFC, for vault and padlock
+together"**; binding **"Existing sealed records must open"**; Windows **"User-scope DPAPI now,
+service-account key later"**; slot list **"No: standard COSE only"**; rotation **"Explicit 'rotate
+root', offered with removal"**; unknown slots **"Skip it and keep it"**; migration **"An explicit
+command"**. Tag 96, the size bounds (16 KiB, 16 slots, 2048-byte OS blob), an empty
+external_aad, the file location and the deferred recovery KDF are driver defaults he was told of
+and did not change. It applies D6's standing rule.
+
+The specification is [the padlock profile](2026-11-14_padlock_profile.md), with its
+[vectors and conformance](2026-11-14_padlock_profile_vectors.md); its § 6 is the full record.
+
+Implementation status (2026-11-14): phase 1 on main: `castellan::custody::padlock` (strict reader,
+create, unlock with a caller-supplied verifier, add and remove slot, passphrase and generic KEK
+slots, foreign slots kept byte for byte), the published-vector tests, and the profile's vectors
+produced by an independent Python implementation and matched byte for byte. Phase 2 is open: the
+wallet wiring and binding check, the OS slots, the file writer, migration, and the vault's
+passphrase moving to NFC. Open for the owner: whether the reader's lane floor is 4 as ruled or 1
+(profile § 6, note on OP 5).
+
+Links: area custody · draws on custody D5, custody D6 · plans H2, VL-91 · summary The wallet root is the content of a COSE_Encrypt profile whose slots unlock it: passphrase (NFC, Argon2id, A256KW) and OS-held KEKs.
+
 ## Phases
 
 ### H1. Enforced custody boundary and adversarial vertical slice
@@ -281,6 +313,11 @@ isolation is a custodian-surface item.
   preserve data and public keys; no broad implicit grant replaces the old global allowlist. Production enablement waits
   on the Linux receiving run (README steps 1 to 8), the signed macOS receiving run, the wallet's at-rest step on Linux
   and the Windows o-pc run (consent helper, DPAPI-to-passphrase adoption, agent pipe).
+- Note (2026-11-14, custody D8): the sealed-store providers become slots of one padlock
+  ([profile](2026-11-14_padlock_profile.md)): DPAPI, the Keychain envelope and a Secret Service
+  item each hold a random KEK that unwraps the wallet root's CEK, beside a passphrase slot. Phase 1
+  (the platform-independent container) is on main; the providers keep their current roles until
+  phase 2 wires the padlock and migrates by an explicit command.
 - Needs: H1 launch identity per OS
 - Rulings: -
 - From: `repos/mere/design_docs/archive_docs/2026-10-28/2026-10-21_custody_isolation_and_security_hardening_plan.md:771-851,897-898,1037-1041`; `repos/mere/design_docs/archive_docs/2026-10-28/2026-08-20_device_resident_consolidation_plan.md:87-96`
@@ -554,6 +591,8 @@ SS8 parked the plan.
   custodian's Linux design (a dedicated service UID with root-owned configuration and state outside the desktop home,
   passphrase AEAD inside it, polkit consent per generation)? Ruling 91 predates that design and its assessment is unmade.
   From: `repos/mere/design_docs/archive_docs/2026-10-28/2026-10-05_vault_lock_plan.md:1080-1093`; `repos/mere/design_docs/archive_docs/2026-10-28/2026-10-21_custody_isolation_and_security_hardening_plan.md:373,822-825`
+  Note (2026-11-14, custody D8): the padlock fixes only the shape of a Linux slot (a
+  `secsvc/…` KEK slot beside a passphrase slot); whether Linux gets one is still this question.
 - Is ruling 44 landed? The vault lock status says the hard switch landed on 2026-10-09, while the build entry lists the
   Fedora gate, the push and the sibling repins as still to do. From: `repos/mere/design_docs/archive_docs/2026-10-28/2026-10-05_vault_lock_plan.md:4-8,2145-2149`
 - Does H2's move of the wallet and credential catalog into the custodian's data root close the gap ruling 81 left for D8, or

@@ -52,15 +52,15 @@ gazette = { version = "0.0.2", path = "crates/gazette" }
 # come from the same source: a registry graphshell-endpoint or sceno beside a
 # git chirograph would put two copies of each type in the graph. Graphshell's
 # host patches graphshell.git to its checkout.
-chirograph = { version = "0.0.5", git = "https://github.com/merely-made/graphshell.git", branch = "main" }
-graphshell-endpoint = { version = "0.0.4", git = "https://github.com/merely-made/graphshell.git", branch = "main", default-features = false, features = ["projection"] }
-sceno = { version = "0.0.7", git = "https://github.com/merely-made/graphshell.git", branch = "main" }
-scenotime = { version = "0.0.5", git = "https://github.com/merely-made/graphshell.git", branch = "main" }
+chirograph = { version = ">=0.0.5", git = "https://github.com/merely-made/graphshell.git", branch = "main" }
+graphshell-endpoint = { version = ">=0.0.4", git = "https://github.com/merely-made/graphshell.git", branch = "main", default-features = false, features = ["projection"] }
+sceno = { version = ">=0.0.7", git = "https://github.com/merely-made/graphshell.git", branch = "main" }
+scenotime = { version = ">=0.0.5", git = "https://github.com/merely-made/graphshell.git", branch = "main" }
 
 # ─── The door contract (Armillary) ───────────────────────────────────────────
 # castellan-client speaks over Djinn's door through ostiary, never Djinn
 # (djinn-slimming D2, D3). A family row: Armillary's main, 0.0.1 as the floor.
-ostiary = { version = "0.0.1", git = "https://github.com/merely-made/armillary.git", branch = "main" }
+ostiary = { version = ">=0.0.1", git = "https://github.com/merely-made/armillary.git", branch = "main" }
 peer-facts = "0.0.1"
 custody-wire = { version = "0.0.1", path = "crates/custody-wire" }
 

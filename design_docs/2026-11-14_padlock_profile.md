@@ -3,10 +3,13 @@
 **Date:** 2026-11-14
 **Status:** specification. Phase 1 is implemented: the platform-independent container in
 `crates/castellan/src/custody/padlock.rs` and `padlock/`, its published-vector tests, the
-profile's own vectors and their independent cross-check. Phase 2 is not built: the wallet
-wiring and the binding check, the OS slots (DPAPI, Keychain, Secret Service glue), the file
-writer, migration, and the vault's own move to NFC. Decision: **custody D8** in the
-[custody plan](2026-10-28_custody_plan.md). Vectors, conformance table and sources:
+profile's own vectors and their independent cross-check. Phase 2 is custody D9's step one
+(§ 4.9): the wallet's local root is the padlock's root, written by a verified file layer, with
+the binding check, a Windows DPAPI slot, the macOS envelope holding a KEK, the explicit
+migration and slot management (`castellan::custody::wallet`, `castellan::custody::os_kek`,
+`djinn-custodian wallet-root`). Not built: rotate root (§ 4.5) and the Linux Secret Service
+slot until it is checked on Linux. The vaults join in step two. Decisions: **custody D8, D9** in
+the [custody plan](2026-10-28_custody_plan.md). Vectors, conformance table and sources:
 [padlock_profile_vectors](2026-11-14_padlock_profile_vectors.md).
 **Drawn from:** the draft `Code/testing/engine-split/padlock_cose_profile_draft.md`
 (2026-11-14) with every open point replaced by its ruling (§ 6), and the research behind it
@@ -234,9 +237,10 @@ RAM), 128-bit salt, and 256-bit tag size" (OP 5).
 Argon2id. This is the normalisation rule of RFC 8265's OpaqueString profile (§4.2.2, "Unicode
 Normalization Form C (NFC) MUST be applied to all strings"), not the full profile: no width
 mapping, no space mapping, no code-point refusal. A passphrase typed composed and decomposed
-opens the same slot (vector V9). The vault's own passphrase file (`passphrase_root.rs`,
-`passphrase_storage.rs`) MUST move to NFC in the same change that wires the padlock (phase
-2), so the two never disagree on the same typed text; until then only the padlock normalises.
+opens the same slot (vector V9). The OP 8 ruling covers the vault too ("NFC, for vault and
+padlock together"); the vault's move is part of custody D9's step two, when the vaults take
+their keys from the padlock's root. Until then only the padlock normalises, and the padlock's
+passphrase is its own, not the vault's (§ 4.9).
 
 **The salt is not RFC 9053's `salt` (-20).** That label is an HKDF input (RFC 9053 §5.1) for
 the algorithms in its Table 9; A256KW is not among them and Argon2 is not HKDF. Putting an
@@ -259,15 +263,21 @@ COSE. Phase 1 implements the generic slot: the caller supplies the KEK.
 | store | holds | `kid` | the KEK |
 |---|---|---|---|
 | Windows DPAPI (user scope, OP 11) | nothing: DPAPI is a function | `dpapi/<16 hex, random per slot>` | `CryptProtectData(KEK)` kept in the slot as `pl-os-blob` (-65543) |
-| macOS Keychain | a data-protection generic-password item, the custodian's access group, `AccessibleWhenUnlockedThisDeviceOnly` | `keychain/<item account>` | the item's data |
-| Linux Secret Service | an item naming the slot | `secsvc/<attribute value>` | the item's secret |
+| macOS Keychain | the custodian's existing envelope: a data-protection generic-password item, its access group, `AccessibleWhenUnlockedThisDeviceOnly`, one item per slot | `keychain/<16 hex, the item account>` | the item's data |
+| Linux Secret Service (desktop session only) | an item in the default collection with attributes naming the slot | `secsvc/<16 hex>` | the item's secret |
+
+The store is chosen per data root: one a host installed for it, else DPAPI on Windows, else the
+host-installed provider (the macOS custodian's envelope). A process with neither has no OS slot
+and opens only by passphrase. The Linux slot is for a desktop session: a custodian running as a
+system service has no session bus.
 
 Rules [profile]:
 - The OS store MUST hold a random 32-byte KEK, never the root and never the CEK, so the slot
   stays a standard A256KW recipient and removing the item never touches the root.
 - A slot's KEK MUST NOT be reused for another slot or another container.
-- `pl-os-blob` is opaque to the container, at most 2048 bytes (R15; phase 2 measures a real
-  DPAPI blob and reports if that bound is too small). It is ciphertext under the OS's key; a
+- `pl-os-blob` is opaque to the container, at most 2048 bytes (R15). A real user-scope DPAPI
+  blob of a 32-byte KEK measured 262 bytes on Windows 11 (2026-11-14, test
+  `a_real_dpapi_blob_fits_the_bound`). It is ciphertext under the OS's key; a
   tampered blob yields a different KEK, which fails the AES-KW check. It lives inside the
   slot so one file holds the whole padlock and removing the slot removes the blob.
 - A missing item, a locked store or a DPAPI failure is "this slot cannot open", never a
@@ -339,7 +349,7 @@ the stricter of the two readings, accepted by the driver 2026-11-14]. In phase 2
 an OS item is deleted only after the write that removed its slot succeeds. **This is not
 revocation** (§ 1.3): an older copy of the file still opens with the removed method.
 
-### 4.5 Rotate root (phase 2)
+### 4.5 Rotate root (specified, not built)
 
 Rotation means **a new root**, offered as an explicit action beside removal (OP 13): a new
 root, CEK and IV, every kept slot re-wrapped (every kept method present at once), and every
@@ -348,26 +358,60 @@ the sealed reopen, then retire unsealed copies"). Only that changes what an old 
 it then opens an obsolete root that opens only equally old records. A new CEK under the same
 root buys nothing against old copies and is not offered.
 
+For the wallet the records to re-seal are the identity seed, the delegated-device identity and,
+for a wallet with no seed, the persona secret records (custody D9). It is not built: the tree
+re-seals one record at a time with in-process rollback (`at_rest.rs`), and a rotation needs
+several records and the padlock to move as one, including across a crash. That needs a staged
+new padlock beside the old one and a reader that finishes or abandons a half-done rotation
+*(estimate: 150 to 250 lines and their tests)*.
+
 ### 4.6 Change passphrase
 
 Add the new `pass` slot (fresh salt) and remove the old one before the single write [profile].
 The old passphrase still opens older copies (§ 1.3).
 
-### 4.7 File replacement and location (phase 2)
+### 4.7 File replacement and location
 
-The file is `<data_root>/identity/wallet-root.padlock` (OP 15) [profile]. The writer:
-verifies before writing (strict decode of the new bytes, the body decrypts to the root in
-hand, an added slot unwraps to the CEK); writes through a same-directory temp file, fsync and
-rename, on Windows too; reads back and repeats the checks, restoring the previous bytes on any
-mismatch; and leaves no `.prev` or backup file on disk, which would be retained authority.
+The file is `<data_root>/identity/wallet-root.padlock` (OP 15) [profile]. The writer
+(`wallet/padlock_file.rs`): verifies before writing (strict decode of the new bytes; the new
+slot, or the slot in hand, opens to the root in hand); writes through the house's atomic replace
+(`muniment::atomic_file`, a synced same-directory temp file renamed over the target); reads
+back and repeats the checks, restoring the previous bytes, held in memory, on any mismatch; and
+leaves no `.prev` copy. The reader reads at most 16 KiB before parsing (R1). If a replacement is
+interrupted after the house's replace moved the old file aside (`wallet-root.padlock.previous`)
+and before the new one landed, the reader opens the moved-aside copy, so some padlock always
+opens; the next write removes it.
 
-### 4.8 Migration (phase 2)
+### 4.8 Migration
 
-An explicit command (OP 15), in custody D5's style: load the existing root through its
-current provider, create a padlock with **that** root and one OS slot of the platform (and a
-passphrase slot if the user gives one), unlock through the new slot and reopen an existing
-sealed record, and only then retire the old root file and store item. A failure leaves the
-old file in place and no padlock file.
+An explicit command (OP 15), in custody D5's style: `migrate_wallet_root_to_padlock`, or
+`djinn-custodian wallet-root --action migrate [--passphrase stdin]`. It loads the existing root
+through its current provider, refuses unless that root opens the wallet's records, creates a
+padlock with **that** root and one OS slot of the platform (and a passphrase slot if the user
+gives one), unlocks through the new OS slot as a reader will, and only then retires the old root
+file and its store item. A failure leaves the old file in place and no padlock file, and
+discards any OS item it minted. Until it runs, a legacy root keeps working exactly as before. A
+raw legacy seed (custody D5) is sealed by the existing `migrate_legacy_wallet_secrets`, which
+now seals under the padlock's root.
+
+### 4.9 Startup modes, sessions and the vault's passphrase (custody D9)
+
+With both kinds of slot in one padlock, the startup mode says which slot is tried at start, not
+which store exists:
+- **AutoOs**: the OS slot is tried with no user input (honouring the persisted lock, as the
+  legacy root did). A new wallet gets a padlock with one OS slot; a passphrase slot can be added
+  later (`add_wallet_passphrase_slot`).
+- **Prompt** and **Locked**: nothing opens at start. The user unlocks with a passphrase slot
+  (`unlock_wallet_with_passphrase`) or, explicitly, the OS slot (`unlock_wallet_with_auto_os`);
+  the root is then held for the session until `relock_wallet_after_manual_unlock`. A first run
+  creates a passphrase-only padlock with `create_wallet_padlock_with_passphrase`, which needs the
+  passphrase at creation.
+
+Every unlock passes the binding check before the root is used: the identity seed's sealed
+record, or else the delegated-device identity's, must open under it; a wallet with neither has
+nothing to check. The padlock's passphrase is the padlock's own. The custodian's vault and the
+resident's vault keep their own passphrases and roots until step two, and nothing tries one typed
+text against both.
 
 ---
 

@@ -269,13 +269,62 @@ The specification is [the padlock profile](2026-11-14_padlock_profile.md), with 
 Implementation status (2026-11-14): phase 1 on main: `castellan::custody::padlock` (strict reader,
 create, unlock with a caller-supplied verifier, add and remove slot, passphrase and generic KEK
 slots, foreign slots kept byte for byte), the published-vector tests, and the profile's vectors
-produced by an independent Python implementation and matched byte for byte. Phase 2 is open: the
-wallet wiring and binding check, the OS slots, the file writer, migration, and the vault's
-passphrase moving to NFC. The lane floor came back to the owner, who answered **"Floor on memory
+produced by an independent Python implementation and matched byte for byte. Phase 2 is custody
+D9's step one (below): the wallet's root under the padlock, with its file writer, binding check,
+Windows DPAPI slot, migration command and slot management; the macOS slot is the existing
+Keychain envelope holding a KEK; the Linux Secret Service slot waits for a Linux check. The vault's
+move to NFC is withdrawn from phase 2: it is step two's. In Prompt mode the padlock's passphrase
+is, for now, its own, beside the vault's; step two unifies them. The lane floor came back to the owner, who answered **"Floor on memory
 and passes only"** (2026-11-14): at least 64 MiB and 3 passes, 1 to 16 lanes; the writer still
 defaults to 4.
 
 Links: area custody · draws on custody D5, custody D6 · plans H2, VL-91 · summary The wallet root is the content of a COSE_Encrypt profile whose slots unlock it: passphrase (NFC, Argon2id, A256KW) and OS-held KEKs.
+
+### custody D9. One padlock for all, in two steps (2026-11-14)
+
+Step 0 of the padlock's phase 2 found three key hierarchies, not one:
+- **The wallet's local root**: one random 32-byte key that keys the wallet's local sealed store
+  (`crates/castellan/src/custody/wallet/secrets.rs:79-112` on `ac7d31d`), held by DPAPI on
+  Windows or the macOS envelope (`<data_root>/identity/vault-root.auto.json`). Under it: the
+  identity seed (`secrets.rs:146-176`, `:251-263`), the delegated-device identity
+  (`devices.rs:26-81`) and, for a wallet without a seed, the persona secret records
+  (`secrets.rs:133-143`). The other persona secrets are under a key derived from the seed
+  (`secrets.rs:115-127`) and do not depend on the local root.
+- **The custodian's vault**, `vault.json` (`PassphraseEncryptedStorage`): its records sealed
+  under an Argon2id key of the passphrase and the file's salt, with no random root
+  (`passphrase_storage.rs:86-104`), opened beside a separate wallet data root
+  (`djinn-custodian/src/bin/djinn-custodian.rs:153`, `:333-358`).
+- **The resident's OS-rooted vault** (`SealedProfileStorage`): its own DPAPI root
+  `<vault>/auto-unlock-root.json` (`sealed_profile_storage.rs:57`, `:100-126`) with an optional
+  passphrase wrap (`passphrase_root.rs:19-28`); custodian adoption copies it into `vault.json`
+  (`djinn-custodian/src/adoption.rs:49-101`).
+
+Mark answered **"One padlock for all, in two steps"**: **"Step one now: the wallet's root goes
+under the padlock and the held seed fix lands. Step two after: both vaults take their key from
+the same padlock root (a derived key each, the way the wallet already derives its persona keys
+from the seed), moved by an explicit migration that re-seals the vault's records. One
+passphrase, one set of unlock methods, three hierarchies become one. Step two changes the
+vault's stored format, so I bring it to you as its own design with its migration and tests before
+any code."**
+
+Step one: the padlock's root is the wallet's local root, a straight substitution in every
+startup mode. `AutoOs` tries the padlock's OS slot at start; `Prompt` and `Locked` open nothing
+until the user unlocks with a passphrase slot (or explicitly with the OS slot), and the root is
+then held for the session. The vaults are not changed, coupled or migrated: in `Prompt` mode the
+padlock's passphrase is its own, beside the vault's, and no prompt tries one typed text against
+both. Step two is a separate design: a derived key per vault from the padlock root, and an
+explicit migration that re-seals each vault's records.
+
+Implementation status (2026-11-14, step one): `castellan::custody::wallet` resolves the local
+root through the padlock (`root.rs`), writes it through a verified file layer
+(`padlock_file.rs`), and keeps a legacy root working until `migrate_wallet_root_to_padlock`;
+`castellan::custody::os_kek` is the OS-KEK seam (DPAPI on Windows, the host's provider
+elsewhere, a per-data-root override for tests); `djinn-custodian wallet-root` is the owner's
+command (slots, migrate, add-passphrase, add-os, change-passphrase, remove). D5's held commits
+(`37a0e63`, `8ef26b0`) land with it. Rotate root is specified, not built: re-sealing several
+records under a new root with crash consistency needs machinery the tree lacks.
+
+Links: area custody · refines custody D8 · draws on custody D5 · plans H2, VL-91 · summary The wallet's local root is the padlock's root now; both vaults derive their keys from it in a second, separately designed step.
 
 ## Phases
 
@@ -602,6 +651,9 @@ SS8 parked the plan.
   From: `repos/mere/design_docs/archive_docs/2026-10-28/2026-10-05_vault_lock_plan.md:1080-1093`; `repos/mere/design_docs/archive_docs/2026-10-28/2026-10-21_custody_isolation_and_security_hardening_plan.md:373,822-825`
   Note (2026-11-14, custody D8): the padlock fixes only the shape of a Linux slot (a
   `secsvc/…` KEK slot beside a passphrase slot); whether Linux gets one is still this question.
+  Note (2026-11-14, custody D9): the Secret Service slot written for the padlock serves a desktop
+  session only. A custodian running as a system service under its own UID has no session bus, so
+  it cannot reach it; there the passphrase slot is the way in. This question stays open.
 - Is ruling 44 landed? The vault lock status says the hard switch landed on 2026-10-09, while the build entry lists the
   Fedora gate, the push and the sibling repins as still to do. From: `repos/mere/design_docs/archive_docs/2026-10-28/2026-10-05_vault_lock_plan.md:4-8,2145-2149`
 - Does H2's move of the wallet and credential catalog into the custodian's data root close the gap ruling 81 left for D8, or

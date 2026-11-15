@@ -150,6 +150,56 @@ pub fn migrate_legacy_wallet_secrets(data_root: &Path) -> io::Result<Vec<PathBuf
     Ok(sealed)
 }
 
+/// Every raw legacy wallet secret under `data_root`: each file of a kind
+/// [`migrate_legacy_wallet_secrets`] handles that is not a sealed record.
+///
+/// # Errors
+/// The persona directory cannot be read.
+pub fn raw_legacy_wallet_secrets(data_root: &Path) -> io::Result<Vec<PathBuf>> {
+    let mut paths = vec![identity_seed_path(data_root), local_device_identity_path(data_root)];
+    for persona in persona_dirs(data_root)? {
+        paths.push(persona_epoch_bridge_path(data_root, persona));
+    }
+    paths.push(remote_auth_wrapping_keys_path(data_root));
+    Ok(paths.into_iter().filter(|path| is_raw(path)).collect())
+}
+
+/// Whether `path` holds a sealed record (not a raw legacy secret).
+#[must_use]
+pub fn is_sealed_wallet_record(path: &Path) -> bool {
+    looks_like_sealed_record(path)
+}
+
+/// Whether the sealed secret at `path` under `data_root` holds what the raw
+/// legacy bytes `raw` held. Its store must be open (for example inside
+/// `with_wallet_unlocked`).
+///
+/// # Errors
+/// The sealed record cannot be read, or `raw` does not parse as its kind.
+pub fn sealed_secret_matches_raw(data_root: &Path, path: &Path, raw: &[u8]) -> io::Result<bool> {
+    fn parse<T: DeserializeOwned>(raw: &[u8]) -> io::Result<T> {
+        serde_json::from_slice(raw).map_err(|err| io::Error::new(io::ErrorKind::InvalidData, err))
+    }
+    if path == identity_seed_path(data_root) {
+        return Ok(super::secrets::load_identity_seed(data_root)?.is_some_and(|seed| seed.as_slice() == raw));
+    }
+    if path == local_device_identity_path(data_root) {
+        let sealed = super::devices::load_local_device_identity(data_root)?;
+        return Ok(sealed == Some(parse::<LocalDeviceIdentity>(raw)?));
+    }
+    if path == remote_auth_wrapping_keys_path(data_root) {
+        let sealed = super::devices::load_remote_auth_wrapping_key_bridge(data_root)?;
+        return Ok(sealed == Some(parse::<RemoteAuthWrappingKeyBridge>(raw)?));
+    }
+    for persona in persona_dirs(data_root)? {
+        if path == persona_epoch_bridge_path(data_root, persona) {
+            let sealed = super::epochs::load_persona_epoch_bridge(data_root, persona)?;
+            return Ok(sealed == Some(parse::<PersonaEpochBridge>(raw)?));
+        }
+    }
+    Err(io::Error::new(io::ErrorKind::InvalidInput, format!("{path:?} is not a wallet secret")))
+}
+
 /// Every persona directory, with or without a manifest: a bridge can
 /// outlive or precede its persona's `wallet.json`.
 fn persona_dirs(data_root: &Path) -> io::Result<Vec<PersonaId>> {

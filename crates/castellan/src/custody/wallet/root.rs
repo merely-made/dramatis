@@ -39,7 +39,7 @@ use crate::custody::{auto_unlock_provider, load_existing_auto_unlock_root};
 /// The padlock file's name in the wallet's identity directory (OP 15).
 pub const WALLET_PADLOCK_FILENAME: &str = "wallet-root.padlock";
 
-type Root = Zeroizing<[u8; 32]>;
+pub(super) type Root = Zeroizing<[u8; 32]>;
 
 /// `<data_root>/identity/wallet-root.padlock`.
 #[must_use]
@@ -98,11 +98,11 @@ pub(super) fn records_open(data_root: &Path, root: &[u8; 32]) -> bool {
     true
 }
 
-fn split_kid(kid: &str) -> (&str, &str) {
+pub(super) fn split_kid(kid: &str) -> (&str, &str) {
     kid.split_once('/').unwrap_or((kid, ""))
 }
 
-fn os_slots<'a>(
+pub(super) fn os_slots<'a>(
     padlock: &'a Padlock,
     store: &'a dyn OsKekStore,
 ) -> impl Iterator<Item = SlotInfo> + 'a {
@@ -113,7 +113,7 @@ fn os_slots<'a>(
 }
 
 /// Open `padlock` with `how`; `None` when it has no slot of that kind.
-fn open(data_root: &Path, padlock: &Padlock, how: &WalletUnlock<'_>) -> io::Result<Option<Root>> {
+pub(super) fn open(data_root: &Path, padlock: &Padlock, how: &WalletUnlock<'_>) -> io::Result<Option<Root>> {
     let verify = |root: &[u8; 32]| records_open(data_root, root);
     match how {
         WalletUnlock::Passphrase(phrase) => {
@@ -199,7 +199,7 @@ fn random_root() -> io::Result<Root> {
     Ok(root)
 }
 
-fn next_pass_kid(padlock: Option<&Padlock>) -> String {
+pub(super) fn next_pass_kid(padlock: Option<&Padlock>) -> String {
     let taken: Vec<String> = padlock
         .map(|p| p.slots().into_iter().map(|s| s.kid).collect())
         .unwrap_or_default();
@@ -316,178 +316,48 @@ pub fn unlock_wallet_with_passphrase(data_root: &Path, passphrase: &str) -> io::
     Ok(true)
 }
 
-fn existing_padlock(data_root: &Path) -> io::Result<Padlock> {
+pub(super) fn existing_padlock(data_root: &Path) -> io::Result<Padlock> {
     read_padlock(&wallet_padlock_path(data_root))?
         .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "the wallet has no padlock"))
 }
 
-/// The padlock's slots: `kid` and kind, no secrets.
+/// Run `f` with the wallet under `data_root` unlocked through `with` for this
+/// process, then put the session back as it was. `WalletUnlock::Os` may make
+/// a padlock with an OS slot where none exists, as the first AutoOs use does.
 ///
 /// # Errors
-/// No padlock, or a padlock the strict reader refuses.
-pub fn wallet_padlock_slots(data_root: &Path) -> io::Result<Vec<SlotInfo>> {
-    Ok(existing_padlock(data_root)?.slots())
-}
-
-/// The input that opened the padlock, re-derived for the slot it named.
-fn opened(
-    data_root: &Path,
-    padlock: &Padlock,
-    how: &WalletUnlock<'_>,
-) -> io::Result<(Root, String, Option<Root>)> {
-    let root = open(data_root, padlock, how)?
-        .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "no slot of that kind"))?;
-    match how {
-        WalletUnlock::Passphrase(phrase) => {
-            let kid = padlock
-                .opening_kid(&SlotInput::Passphrase(phrase))
-                .map_err(padlock_error)?;
-            Ok((root, kid, None))
-        },
-        WalletUnlock::Os => {
-            let store = os_kek_store(data_root).ok_or_else(|| io::Error::other("no OS store"))?;
-            for slot in os_slots(padlock, &*store) {
-                let kek = store
-                    .open(split_kid(&slot.kid).1, slot.os_blob.as_deref())
-                    .map_err(io_backend_error)?;
-                if padlock
-                    .opening_kid(&SlotInput::Kek {
-                        kid: &slot.kid,
-                        kek: &kek,
-                    })
-                    .is_ok()
-                {
-                    return Ok((root, slot.kid, Some(kek)));
-                }
-            }
-            Err(io::Error::other("the OS slot did not reopen"))
-        },
-    }
-}
-
-fn input<'a>(
-    how: &'a WalletUnlock<'_>,
-    kid: &'a str,
-    kek: Option<&'a Root>,
-) -> io::Result<SlotInput<'a>> {
-    match (how, kek) {
-        (WalletUnlock::Passphrase(phrase), _) => Ok(SlotInput::Passphrase(phrase)),
-        (WalletUnlock::Os, Some(kek)) => Ok(SlotInput::Kek { kid, kek }),
-        (WalletUnlock::Os, None) => Err(io::Error::other("the OS slot's key is not in hand")),
-    }
-}
-
-/// Add a passphrase slot, opening the padlock with `with`. Returns its `kid`.
-///
-/// # Errors
-/// The padlock does not open with `with`, or the write fails.
-pub fn add_wallet_passphrase_slot(
+/// The padlock does not open that way, or `f` fails.
+pub fn with_wallet_unlocked<T>(
     data_root: &Path,
     with: &WalletUnlock<'_>,
-    passphrase: &str,
-) -> io::Result<String> {
-    let mut padlock = existing_padlock(data_root)?;
-    let (root, kid, kek) = opened(data_root, &padlock, with)?;
-    let new_kid = next_pass_kid(Some(&padlock));
-    let new = NewSlot::Passphrase {
-        kid: &new_kid,
-        passphrase,
-        params: Argon2Params::DEFAULT,
-    };
-    padlock
-        .add_slot(&input(with, &kid, kek.as_ref())?, |r| r == &*root, &new)
-        .map_err(padlock_error)?;
-    write_padlock(&wallet_padlock_path(data_root), &padlock, |staged| {
-        staged
-            .unlock(&SlotInput::Passphrase(passphrase), |r| r == &*root)
-            .map(drop)
-            .map_err(padlock_error)
-    })?;
-    Ok(new_kid)
-}
-
-/// Add an OS slot for this platform's store. Returns its `kid`.
-///
-/// # Errors
-/// No OS store, the padlock does not open with `with`, or the write fails.
-pub fn add_wallet_os_slot(data_root: &Path, with: &WalletUnlock<'_>) -> io::Result<String> {
-    let store = os_kek_store(data_root)
-        .ok_or_else(|| io::Error::new(io::ErrorKind::Unsupported, "no OS store here"))?;
-    let mut padlock = existing_padlock(data_root)?;
-    let (root, kid, kek) = opened(data_root, &padlock, with)?;
-    let id = new_slot_id().map_err(io_backend_error)?;
-    let new_kid = format!("{}/{id}", store.method());
-    let (new_kek, blob) = store.create(&id).map_err(io_backend_error)?;
-    let result = (|| {
-        let new = NewSlot::Kek {
-            kid: &new_kid,
-            kek: &new_kek,
-            os_blob: blob.as_deref(),
-        };
-        padlock
-            .add_slot(&input(with, &kid, kek.as_ref())?, |r| r == &*root, &new)
-            .map_err(padlock_error)?;
-        write_padlock(&wallet_padlock_path(data_root), &padlock, |staged| {
-            let open = SlotInput::Kek {
-                kid: &new_kid,
-                kek: &new_kek,
-            };
-            staged
-                .unlock(&open, |r| r == &*root)
-                .map(drop)
-                .map_err(padlock_error)
-        })
-    })();
-    if let Err(error) = result {
-        store.discard(&id);
-        return Err(error);
+    f: impl FnOnce() -> io::Result<T>,
+) -> io::Result<T> {
+    let root = match with {
+        WalletUnlock::Os => auto_root(data_root, Access::Create)?,
+        WalletUnlock::Passphrase(_) => open(data_root, &existing_padlock(data_root)?, with)?,
     }
-    Ok(new_kid)
-}
-
-/// Replace the passphrase slot `old` opens with one for `new`, in one write.
-///
-/// # Errors
-/// `old` opens no slot, or the write fails.
-pub fn change_wallet_passphrase(data_root: &Path, old: &str, new: &str) -> io::Result<()> {
-    let mut padlock = existing_padlock(data_root)?;
-    let with = WalletUnlock::Passphrase(old);
-    let (root, old_kid, _) = opened(data_root, &padlock, &with)?;
-    let new_kid = next_pass_kid(Some(&padlock));
-    let slot = NewSlot::Passphrase {
-        kid: &new_kid,
-        passphrase: new,
-        params: Argon2Params::DEFAULT,
-    };
-    padlock
-        .add_slot(&SlotInput::Passphrase(old), |r| r == &*root, &slot)
-        .map_err(padlock_error)?;
-    padlock.remove_slot(&old_kid).map_err(padlock_error)?;
-    write_padlock(&wallet_padlock_path(data_root), &padlock, |staged| {
-        staged
-            .unlock(&SlotInput::Passphrase(new), |r| r == &*root)
-            .map(drop)
-            .map_err(padlock_error)
-    })
-}
-
-/// Remove the slot `kid`, then its OS item. This is not revocation: a copy of
-/// the padlock file taken before still opens with the removed method.
-///
-/// # Errors
-/// No such slot, it is the last one this reader can open, or the write fails.
-pub fn remove_wallet_padlock_slot(data_root: &Path, kid: &str) -> io::Result<()> {
-    let mut padlock = existing_padlock(data_root)?;
-    let removed = padlock.slots().into_iter().find(|s| s.kid == kid);
-    padlock.remove_slot(kid).map_err(padlock_error)?;
-    write_padlock(&wallet_padlock_path(data_root), &padlock, |_| Ok(()))?;
-    if let (Some(slot), Some(store)) = (removed, os_kek_store(data_root))
-        && slot.kind == SlotKind::Kek
-        && split_kid(&slot.kid).0 == store.method()
-    {
-        store.discard(split_kid(&slot.kid).1);
+    .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "the wallet does not open that way"))?;
+    let previous = sessions()
+        .lock()
+        .ok()
+        .and_then(|mut s| s.insert(data_root.to_path_buf(), root));
+    let outcome = f();
+    match previous {
+        Some(previous) => set_session(data_root, previous),
+        None => clear_session(data_root),
     }
-    Ok(())
+    outcome
+}
+
+/// The explicit migration of raw legacy wallet secrets (custody D5) under
+/// the padlock opened with `with`: the command route out for a wallet that
+/// holds raw secrets and has a padlock (or an OS store) now. Returns the
+/// files sealed.
+///
+/// # Errors
+/// As [`with_wallet_unlocked`] and `migrate_legacy_wallet_secrets`.
+pub fn seal_legacy_wallet_secrets(data_root: &Path, with: &WalletUnlock<'_>) -> io::Result<Vec<PathBuf>> {
+    with_wallet_unlocked(data_root, with, || super::at_rest::migrate_legacy_wallet_secrets(data_root))
 }
 
 /// The explicit migration (OP 15): the legacy auto-unlock root goes under a
@@ -576,6 +446,13 @@ fn retire_legacy_root(legacy: &Path) -> io::Result<()> {
     }
     Ok(())
 }
+
+#[path = "root_slots.rs"]
+mod slots;
+pub use slots::{
+    add_wallet_os_slot, add_wallet_passphrase_slot, change_wallet_passphrase,
+    remove_wallet_padlock_slot, wallet_padlock_slots,
+};
 
 #[cfg(test)]
 #[path = "root_tests.rs"]

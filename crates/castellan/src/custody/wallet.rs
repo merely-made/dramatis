@@ -43,12 +43,15 @@ use sporran::wallet_grant::*;
 use sporran::wallet_store::*;
 use personae::carry::{DeviceId, RemoteAuthRevocationOutcome};
 
-pub use at_rest::{WalletSecretRefusal, migrate_legacy_wallet_secrets};
+pub use at_rest::{
+    WalletSecretRefusal, is_sealed_wallet_record, migrate_legacy_wallet_secrets,
+    raw_legacy_wallet_secrets, sealed_secret_matches_raw,
+};
 pub use root::{
     WALLET_PADLOCK_FILENAME, WalletUnlock, add_wallet_os_slot, add_wallet_passphrase_slot,
     change_wallet_passphrase, create_wallet_padlock_with_passphrase, migrate_wallet_root_to_padlock,
-    remove_wallet_padlock_slot, unlock_wallet_with_passphrase, wallet_padlock_path,
-    wallet_padlock_slots,
+    remove_wallet_padlock_slot, seal_legacy_wallet_secrets, unlock_wallet_with_passphrase,
+    wallet_padlock_path, wallet_padlock_slots, with_wallet_unlocked,
 };
 pub use bootstrap::{WalletBootstrapMode, bootstrap_wallet_state, ensure_wallet_state};
 pub use devices::{

@@ -220,6 +220,20 @@ fn djinn_data(fixture: &Fixture) -> (PathBuf, personae::PersonaId) {
     (source, persona)
 }
 
+/// Djinn's data root with a wallet sealed under a passphrase padlock (custody
+/// D9): a store that crosses processes, for tests that need a wallet but not a
+/// raw legacy one. The custodian child reads only its public records.
+fn djinn_sealed_data(fixture: &Fixture) -> (PathBuf, personae::PersonaId) {
+    let source = fixture.root.join("djinn-data");
+    let persona = personae::PersonaId::new();
+    castellan::custody::wallet::create_wallet_padlock_with_passphrase(&source, "fixture passphrase").unwrap();
+    castellan::custody::wallet::ensure_wallet_state(&source, persona, "fixture").unwrap();
+    castellan::custody::wallet::relock_wallet_after_manual_unlock(&source);
+    std::fs::create_dir_all(source.join("settings")).unwrap();
+    std::fs::write(source.join("settings/owner.json"), b"{}").unwrap();
+    (source, persona)
+}
+
 fn wallet_files(root: &Path) -> Vec<String> {
     let output = Command::new(binary()).args(["wallet-files", "--data-root", root.to_str().unwrap()]).output().unwrap();
     assert!(output.status.success(), "wallet-files: {}", String::from_utf8_lossy(&output.stderr));
@@ -256,7 +270,7 @@ fn an_adopted_wallet_is_disclosed_over_the_wire_while_the_custodian_is_locked() 
     let fixture = fixture(true);
     let data_root = wallet_config(&fixture);
     init(&fixture);
-    let (source, persona) = djinn_data(&fixture);
+    let (source, persona) = djinn_sealed_data(&fixture);
     let output = run_with_stdin(&["adopt", "--config", fixture.config.to_str().unwrap(), "--data-from", source.to_str().unwrap()], "");
     assert!(output.status.success(), "adopt: {}", String::from_utf8_lossy(&output.stderr));
 

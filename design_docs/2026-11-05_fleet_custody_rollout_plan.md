@@ -631,6 +631,19 @@ not qualify Windows PowerShell 5's quoting path.
   update path. Pending native gates and retained delivery ownership are in
   `testing/dramatis/fleet-policy/mac-receiving/certificate-pinning/progress-01.json`.
 
+- 2026-11-17 (D11): The M4 at `192.168.4.57` accepted the pinned `0.0.3`
+  cohort. The live custodian admitted the release-signed client and rejected
+  both development-signed principals. A pinned client sent zero bytes to a
+  local test server signed with the M4 development key under the custodian's
+  identifier. O-PC published and installed `0.0.4` through the protected
+  Luggage feed. The owner unlocked it, the installed app matched the signed
+  archive, the original SSH identity returned, and a replay was refused.
+  The Apple Development key remains available for Xcode on the M4. Q-PC
+  installed its `0.0.3` cohort and passed the release-client handshake. Its
+  native unlock and acceptance are separate from the M4's completed checks.
+  Receipts: `testing/dramatis/fleet-policy/mac-receiving/certificate-pinning/m4-native-certificate-controls-02.json`
+  and `testing/dramatis/fleet-policy/mac-receiving/certificate-pinning/m4-live-0.0.4.json`.
+
 - 2026-11-16 (D10): Y-PC and R-PC enrolled with empty protected feeds. O-PC
   published the same signed release and installed custodian `0.0.2) on both.
   Both hosts refused the ordinary SSH key and an install replay. O-PC

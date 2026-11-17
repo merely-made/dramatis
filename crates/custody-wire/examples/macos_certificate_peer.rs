@@ -46,9 +46,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     } else {
         return Err("unknown fixture mode".into());
     };
-    let observed = peer::signed_peer(stream.as_raw_fd(), &[SignedIdentity {
+    let unpinned = SignedIdentity {
         certificate_sha1: None, ..identity.clone()
-    }]).unwrap_or(peer::unix_peer(stream.as_raw_fd())?);
+    };
+    let mut observed = peer::signed_peer(stream.as_raw_fd(), std::slice::from_ref(&unpinned))
+        .unwrap_or(peer::unix_peer(stream.as_raw_fd())?);
+    if matches!(observed, Peer::Unix { uid: 0, .. }) {
+        // The manager hands its socket to the live service. Observe that
+        // service before comparing two signature requirements on it.
+        let deadline = std::time::Instant::now() + Duration::from_secs(5);
+        while std::time::Instant::now() < deadline {
+            if let Some(signed) = peer::signed_peer(stream.as_raw_fd(), std::slice::from_ref(&unpinned)) {
+                observed = signed;
+                break;
+            }
+            std::thread::sleep(Duration::from_millis(5));
+        }
+    }
     let pinned = peer::signed_peer(stream.as_raw_fd(), &[identity]);
     let accepted = expectation.admits(&observed);
     assert_eq!(accepted, pinned.is_some(), "OS certificate requirement and peer fact must agree");

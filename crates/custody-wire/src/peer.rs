@@ -44,10 +44,12 @@ impl ServerExpectation {
         match peer {
             Peer::Unix { uid, .. } => self.unix_uids.contains(uid),
             Peer::Windows { sid, .. } => self.windows_sids.iter().any(|s| s == sid),
-            Peer::Signed { team, identifier } => self
+            Peer::Signed { team, identifier, certificate_sha1 } => self
                 .signed
                 .iter()
-                .any(|s| &s.team == team && &s.identifier == identifier),
+                .any(|s| &s.team == team && &s.identifier == identifier
+                    && s.certificate_sha1.as_ref().is_none_or(|expected|
+                        certificate_sha1.as_ref().is_some_and(|actual| expected.eq_ignore_ascii_case(actual)))),
         }
     }
 }

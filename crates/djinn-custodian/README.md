@@ -90,6 +90,95 @@ djinn-custodian wallet-root --config PATH --action remove --kid KID
 
 `--socket PATH` binds the custody socket directly, plus `vault.agent_endpoint` when configured. It is refused outside development mode. Installers: [Linux](install-linux.sh), [macOS](install-macos.sh), [Windows](install-windows.ps1). Djinn finds an installed custodian through a client file the desktop user cannot write (`djinn::custodian::installed_path`); the file also names the agent socket for Djinn's status. A Djinn harness build (`passphrase-fd`) never reads the installed file. It reaches only a custodian named with `--custodian FILE`.
 
+### Upgrade an installed Linux custodian
+
+On O-PC, run [the fleet signing command](../../support/sign-djinn-fleet-release.ps1)
+against the package, generate `luggage.json` with `luggage-manifest`, then run
+the same signing command against the manifest. The Windows user profile on O-PC
+holds the dedicated publisher's private key and its DPAPI-protected passphrase.
+Enroll only the publisher's public key in the target's Luggage policy.
+
+The pilot uses a separate SSH update key held by the O-PC Djinn agent. If
+the resident key-creation command is unavailable, run
+[the local OpenSSH import helper](../../support/new-djinn-fleet-operator.ps1)
+in an O-PC terminal. Give the target administrator the resulting
+`operator.pub` along with the receiver, upgrade adapter, local policies,
+and checked SHA-256 list.
+[The enrollment script](packaging/linux/enroll-fleet-updater.sh) takes the
+staging directory and the SHA-256 of that list. It installs the dedicated
+`djinn-updates` account and checks the effective OpenSSH configuration
+before reloading sshd. Run it once as the target administrator to create the
+empty protected feed.
+
+For an enrolled host with the original digest-only receiver, run
+[the receiver replacement command](packaging/linux/replace-fleet-receiver.sh)
+as administrator with the verified replacement and the old and new SHA-256
+digests. It takes the updater lock, swaps the executable atomically, and
+retains the previous executable for recovery.
+
+On O-PC, install the Windows `luggage-ssh-publish.exe` in
+`%LOCALAPPDATA%\Djinn\bin`. The [send command](../../support/send-djinn-fleet-release.ps1)
+publishes the signed bundle and triggers installation from PowerShell 7.4 or later.
+
+```powershell
+./support/send-djinn-fleet-release.ps1 -Device S-PC -ReleaseDirectory $releaseDirectory -OperatorPublicKey $operatorPublicKey
+```
+
+Pass each enrolled SSH host alias in `-Device` to run the same signed
+release across multiple machines.
+
+Install [the upgrade adapter](upgrade-linux.py) as
+`/usr/local/libexec/djinn-custodian-upgrade`, owned by root and executable.
+Point the target's Luggage policy at that path. The administrator writes
+`/etc/djinn-custodian/upgrade.json` with the owner, baseline release version
+and SHA-256 of the exact installed binary.
+
+```json
+{
+  "owner": "markik",
+  "baseline_version": "0.0.1",
+  "baseline_sha256": "<SHA-256 of /usr/local/libexec/djinn-custodian>"
+}
+```
+
+Luggage verifies the signed manifest and artifact for
+`djinn-custodian-linux-x86_64` before handing the raw ELF on stdin to
+`install VERSION`. The adapter accepts a single configured custodian instance
+with an active service and socket. It preserves the existing executable's
+SELinux label and uses the existing unit to start the replacement as the
+custodian service account. Success requires the new executable inode in the
+running process and the original relay authority and identity from
+`djinn-approval relay`. A failed or interrupted swap restores the previous
+binary. The adapter retains one previous binary in
+`/usr/local/libexec/.djinn-custodian-upgrade/`.
+
+This route is for binary upgrades compatible with the installed unit,
+client, helper, and on-disk format. The separate [custody plan](../../design_docs/2026-10-28_custody_plan.md)
+covers vault and wallet migrations. A service restart can leave the vault
+locked. The owner can unlock through Djinn after the service is healthy.
+
+### Upgrade an installed macOS custodian
+
+Build the bundle from the signing login with `DJINN_CUSTODIAN_ONLY=1` and set
+`DJINN_BUNDLE_VERSION` to the release version. Package `djinn-custodian.app`
+at the root of a gzip tar archive. Sign the archive and its Luggage manifest
+on O-PC using the fleet signing command above. The Intel target is
+`djinn-custodian-macos-x86_64`, with the `external` format.
+
+The [macOS enrollment script](packaging/macos/enroll-fleet-updater.sh) uses the
+same staged files and SHA-256 list as Linux, with the
+[macOS adapter](upgrade-macos.py) as `djinn-custodian-upgrade`. Its `upgrade.json`
+names the GUI owner, Developer ID team, architecture and certificate SHA-1
+in `owner`, `team`, `arch` and `certificate_sha1`. The script installs the
+hidden `_djinnupdates` service account with the restricted public-key command.
+Select it with `-User _djinnupdates` and pass the archive name with
+`-ArtifactName` to the O-PC send command.
+
+The adapter verifies the Developer ID signature, signed bundle version and
+Keychain entitlement, exchanges the bundle atomically and restarts the
+launchd jobs in the owner's GUI domain. A failed start restores the previous
+bundle. The owner can unlock in Djinn once launchd is healthy.
+
 The installers point `vault.data_root` at the custodian's own state directory, so a wallet and catalog created there are the custodian's alone, and Djinn gets the wallet's public records (the persona index and the device roster) through the `WalletPublic` operation rather than from a file.
 
 `adopt --data-from DIR` moves an existing wallet and catalog out of Djinn's data root (the directory holding `identity/` and `castellan/`). `--from` and `--data-from` may be given together or alone. `--data-from` carries every file of the wallet, secret and public, and the catalog, byte for byte at the same relative paths. It checks that the copy holds the same seed, persona index, roster and manifests, then removes the copies in `DIR`. It refuses a root that already holds a wallet or catalog, an overlap, and any symlink. If a copy cannot be removed, or changed after it was carried, it stays, adopt names it and exits non-zero. Pass the owner's data root as the last installer argument: `install-linux.sh USER BINARY [DJINN-VAULT-DIR|-] [DJINN-DATA-ROOT]`. The macOS installer moves no data; run `adopt --data-from` in the owner's own login session afterwards (macOS steps below).
@@ -134,7 +223,38 @@ The installers point `vault.data_root` at the custodian's own state directory, s
 
 **macOS** (needs the user's signing step, from an account the receiving account cannot use, H1-F1):
 1. In the signing account, `build-macos.sh IDENTITY TEAM PROFILE OUT-DIR` builds the release binary and assembles `djinn-custodian.app` (identifier `com.merely.djinn.custodian`, hardened runtime, the `keychain-access-groups` entitlement for `TEAM.com.merely.djinn.custodian`, the embedded Developer ID provisioning profile for that App ID) and `djinn-custodian-consent` (the same program, identifier `com.merely.djinn.custodian.consent`, no entitlements). Sign Djinn as `com.merely.djinn`.
-2. Run `sudo ./install-macos.sh USER SIGNED-APP SIGNED-HELPER TEAM DJINN_TEAM` and log in as USER. It verifies both signatures, the hardened runtime, the absence of `get-task-allow` and the entitlement, installs root-owned, writes `consent: channel` with the signed helper as the channel and Djinn's grants at the Linux consent values (once per generation, a guest delegation per signature), and installs the two launchd agents. It moves no data.
+2. Run `sudo ./install-macos.sh USER SIGNED-APP SIGNED-HELPER TEAM DJINN_TEAM SERVER_CERT_SHA1 DJINN_CERT_SHA1` and log in as USER. The two fingerprints select the exact signing certificates for the custodian/helper and Djinn. It verifies the signatures, the hardened runtime, the absence of `get-task-allow` and the entitlement, installs root-owned, writes `consent: channel` with the signed helper as the channel and Djinn's grants at the Linux consent values (once per generation, a guest delegation per signature), and installs the two launchd agents. It moves no data.
+
+The custodian's signed principals and the client file's server expectation carry
+`certificate_sha1` alongside the team and identifier. The native transport observes
+the peer's leaf certificate through its audit token, and both admission checks
+require the configured certificate. A different Apple signing key from the same
+team cannot substitute for the release key on the custody connection. Protected Keychain configurations
+refuse signed principals without a certificate pin. Development signing keys can
+remain with Xcode; the accepted custody release key stays in separate custody.
+
+This pins custody connections. The data-protection Keychain separately admits
+applications through provisioned access groups. A developer team's ability to
+issue another profile for that group is not removed by a socket certificate
+pin. Treat profile issuance as a separate signing authority when assessing H1.
+
+When migrating an existing installation, replace the custodian, consent helper,
+resident, client file and custodian policy together. Older clients reject the
+new field, and the new protected custodian rejects an unpinned policy. Preserve
+the vault and credential data, and retain a rollback of the prior cohort and
+policies until native consent and SSH identity continuity pass.
+
+`packaging/macos/replace-fleet-cohort.py STAGE CHECKSUM_SHA256` performs that
+administrator migration. STAGE contains `cohort.tar.gz` (the app, helper and
+resident), the new `djinn-custodian-upgrade` adapter and `SHA256SUMS` naming
+those two files. Pin the checksum list's digest in the administrator launcher.
+The script verifies the release certificate, architecture, profile and advancing
+bundle version, saves a compressed rollback, and preserves existing grants and
+vault data. It restores the prior cohort if configuration validation or restart
+fails. After native consent and identity checks, `replace-fleet-cohort.py accept`
+records acceptance and clears that generated rollback. Normal app updates then
+continue through the protected Luggage feed.
+
 3. In USER's own login session first run `djinn-custodian envelope-check --config ...` from the installed bundle: it stores, reads back and removes a throwaway Keychain item under the custodian's group, so a missing provisioning profile or entitlement shows here and not at the first wallet. Then run the printed `init` or `adopt --from VAULT-DIR --data-from DJINN-DATA-ROOT`. The custodian opens the Keychain only from the root-owned installation, so the binary run from anywhere else, or with another configuration, never touches the item. Adopting a legacy wallet seals its raw identity seed under the envelope before Djinn's copy is removed.
 4. Repeat Linux steps 3, 4, 6 and 7 there. An unsigned or differently signed peer must be refused at both ends. Also check, as USER: the unsigned or ad hoc copy of the binary gets no Keychain item (`OSStatus -34018` or `-25300`), `security find-generic-password` finds no item under the custodian's group, and the identity seed file is no longer 32 raw bytes.
 5. Consent: after an unlock, use a grant. The system's own authentication dialog (Touch ID or the account password) must name the principal and the operation. Approving once per generation must succeed; cancel and a timeout must refuse; with `djinn-custodian-consent` stopped, a petition must wait and then refuse, and the agent must come back after logout and login. A copy of the helper signed with another identifier must not be admitted as the channel.

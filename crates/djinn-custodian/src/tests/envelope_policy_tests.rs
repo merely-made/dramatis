@@ -11,8 +11,9 @@
 use crate::policy::Config;
 
 fn with(envelope: &str, development: bool) -> Result<Config, crate::policy::PolicyError> {
+    let directory = serde_json::to_string(&std::env::temp_dir().join("djinn-envelope-vault")).unwrap();
     let json = format!(
-        r#"{{"vault": {{"directory": "/Library/x/vault"}}, "owner": {{"unix_uid": 501}}, "consent": "deny",
+        r#"{{"vault": {{"directory": {directory}}}, "owner": {{"unix_uid": 501}}, "consent": "deny",
             "development": {development}, "envelope": {envelope}, "principals": []}}"#
     );
     Config::parse(json.as_bytes())

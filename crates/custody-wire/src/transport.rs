@@ -254,6 +254,26 @@ mod unix {
         fn connect(&self) -> std::io::Result<Connection> {
             let stream = UnixStream::connect(&self.path)?;
             let peer = identify(stream.as_raw_fd(), &self.signed)?;
+            #[cfg(target_os = "macos")]
+            let peer = {
+                use std::time::{Duration, Instant};
+
+                // A socket inherited from launchd can still report launchd's
+                // identity until the service accepts this connection. Wait for
+                // the expected signature before the client sends its hello.
+                let mut peer = peer;
+                if !self.signed.is_empty() && matches!(peer, crate::peer::Peer::Unix { uid: 0, .. }) {
+                    let deadline = Instant::now() + crate::limits::HANDSHAKE;
+                    while Instant::now() < deadline {
+                        std::thread::sleep(Duration::from_millis(5));
+                        if let Some(signed) = crate::peer::signed_peer(stream.as_raw_fd(), &self.signed) {
+                            peer = signed;
+                            break;
+                        }
+                    }
+                }
+                peer
+            };
             Ok(Connection {
                 stream: Box::new(stream),
                 peer,

@@ -10,7 +10,7 @@
 # never in the account whose vault the custodian will hold, and sign in an
 # account that account cannot use (H1-F1):
 #
-#   sudo install-macos.sh USER SIGNED-APP SIGNED-CONSENT-HELPER TEAM-ID DJINN-TEAM-ID
+#   sudo install-macos.sh USER SIGNED-APP SIGNED-CONSENT-HELPER TEAM-ID DJINN-TEAM-ID SERVER-CERT-SHA1 DJINN-CERT-SHA1
 #
 # SIGNED-APP is djinn-custodian.app, built and signed by build-macos.sh: the
 # bundle carries the hardened runtime, identifier com.merely.djinn.custodian,
@@ -28,8 +28,11 @@
 set -eu
 
 [ "$(id -u)" = 0 ] || { echo 'Run with sudo from an administrator account.' >&2; exit 2; }
-[ $# -eq 5 ] || { echo 'usage: install-macos.sh USER SIGNED-APP SIGNED-CONSENT-HELPER TEAM-ID DJINN-TEAM-ID' >&2; exit 2; }
-user=$1 app=$2 helper=$3 team=$4 djinn_team=$5
+[ $# -eq 7 ] || { echo 'usage: install-macos.sh USER SIGNED-APP SIGNED-CONSENT-HELPER TEAM-ID DJINN-TEAM-ID SERVER-CERT-SHA1 DJINN-CERT-SHA1' >&2; exit 2; }
+user=$1 app=$2 helper=$3 team=$4 djinn_team=$5 server_cert=$6 djinn_cert=$7
+for certificate in "$server_cert" "$djinn_cert"; do
+    printf '%s\n' "$certificate" | grep -Eq '^[A-Fa-f0-9]{40}$' || { echo 'Expected an exact signing certificate fingerprint.' >&2; exit 2; }
+done
 case "$user$team$djinn_team" in *[!A-Za-z0-9_.-]*|'') echo 'Refusing unexpected characters.' >&2; exit 2;; esac
 uid=$(id -u "$user")
 home=$(dscl . -read "/Users/$user" NFSHomeDirectory | sed 's/^NFSHomeDirectory: //')
@@ -48,11 +51,11 @@ hardened() {
         echo "$1 carries get-task-allow." >&2; exit 2
     fi
 }
-requirement="anchor apple generic and identifier \"com.merely.djinn.custodian\" and certificate leaf[subject.OU] = \"$team\""
+requirement="anchor apple generic and identifier \"com.merely.djinn.custodian\" and certificate leaf[subject.OU] = \"$team\" and certificate leaf = H\"$server_cert\""
 codesign --verify --strict --deep --verbose=2 -R="$requirement" "$app"
 hardened "$app"
 codesign -d --entitlements - "$app" 2>/dev/null | grep -q "$group" || { echo "The bundle's entitlements do not name the Keychain group $group." >&2; exit 2; }
-helper_requirement="anchor apple generic and identifier \"com.merely.djinn.custodian.consent\" and certificate leaf[subject.OU] = \"$team\""
+helper_requirement="anchor apple generic and identifier \"com.merely.djinn.custodian.consent\" and certificate leaf[subject.OU] = \"$team\" and certificate leaf = H\"$server_cert\""
 codesign --verify --strict --verbose=2 -R="$helper_requirement" "$helper"
 hardened "$helper"
 
@@ -61,11 +64,18 @@ install -d -o root -g wheel -m 0755 "/Library/Application Support/Merely" "$root
 rm -rf "$root/djinn-custodian.app"
 ditto "$app" "$root/djinn-custodian.app"
 chown -R root:wheel "$root/djinn-custodian.app"
-chmod -R go-w "$root/djinn-custodian.app"
+# Signing may stage the bundle with umask 077. The owner of the GUI
+# session must be able to traverse the bundle and run its executable.
+chmod -R a+rX,go-w "$root/djinn-custodian.app"
 install -o root -g wheel -m 0755 "$helper" "$root/djinn-custodian-consent"
 
-state="$home/Library/Application Support/Merely/djinn-custodian"
-install -d -o "$user" -g staff -m 0700 "$home/Library/Application Support/Merely" "$state" "$state/vault" "$state/data"
+user_root="$home/Library/Application Support/Merely"
+state="$user_root/djinn-custodian"
+if [ ! -d "$user_root" ]; then
+    install -d -o "$user" -g staff -m 0700 "$user_root"
+fi
+[ ! -L "$user_root" ] && [ "$(stat -f '%u' "$user_root")" = "$uid" ] || { echo 'The Merely data directory must belong to the vault owner.' >&2; exit 2; }
+install -d -o "$user" -g staff -m 0700 "$state" "$state/vault" "$state/data"
 # Djinn's grants (custody isolation plan, H2 inventory): the Linux values.
 # Djinn is matched by its code signature and each release or act waits for
 # the owner once per unlock, a guest delegation once per signature. The
@@ -79,14 +89,14 @@ cat > "$root/$user.json" <<EOT
   "consent": "channel",
   "envelope": {"access_group": "$group"},
   "principals": [
-    {"name": "consent", "match": {"signed": {"team": "$team", "identifier": "com.merely.djinn.custodian.consent"}}, "consent_channel": true, "grants": [{"operation": "status"}]},
-    {"name": "djinn", "match": {"signed": {"team": "$djinn_team", "identifier": "com.merely.djinn"}}, "grants": $grants}
+    {"name": "consent", "match": {"signed": {"team": "$team", "identifier": "com.merely.djinn.custodian.consent", "certificate_sha1": "$server_cert"}}, "consent_channel": true, "grants": [{"operation": "status"}]},
+    {"name": "djinn", "match": {"signed": {"team": "$djinn_team", "identifier": "com.merely.djinn", "certificate_sha1": "$djinn_cert"}}, "grants": $grants}
   ]
 }
 EOT
 cat > "$root/clients/$uid.json" <<EOT
 {"endpoint": "$state/custody.sock",
- "server": {"signed": [{"team": "$team", "identifier": "com.merely.djinn.custodian"}]},
+ "server": {"signed": [{"team": "$team", "identifier": "com.merely.djinn.custodian", "certificate_sha1": "$server_cert"}]},
  "agent": "$state/agent.sock"}
 EOT
 chown root:wheel "$root/$user.json" "$root/clients/$uid.json"

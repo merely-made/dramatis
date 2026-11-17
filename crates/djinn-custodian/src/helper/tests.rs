@@ -244,6 +244,7 @@ fn signed(identifier: &str) -> Peer {
     Peer::Signed {
         team: TEAM.into(),
         identifier: identifier.into(),
+        certificate_sha1: None,
     }
 }
 

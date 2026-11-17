@@ -58,14 +58,26 @@ fn the_server_expectation_admits_only_the_installed_identity() {
     let expect = ServerExpectation {
         unix_uids: vec![0, 990],
         windows_sids: vec!["S-1-5-80-1".into()],
-        signed: vec![SignedIdentity { team: "T".into(), identifier: "c".into() }],
+        signed: vec![SignedIdentity { team: "T".into(), identifier: "c".into(), certificate_sha1: None }],
     };
     assert!(expect.admits(&Peer::Unix { uid: 990, gid: 990, pid: None }));
     assert!(!expect.admits(&Peer::Unix { uid: 1000, gid: 1000, pid: None }));
     assert!(expect.admits(&Peer::Windows { sid: "S-1-5-80-1".into(), pid: 4, image: None }));
     assert!(!expect.admits(&Peer::Windows { sid: "S-1-5-21-9".into(), pid: 4, image: None }));
-    assert!(!expect.admits(&Peer::Signed { team: "T".into(), identifier: "i".into() }));
-    assert!(expect.admits(&Peer::Signed { team: "T".into(), identifier: "c".into() }));
+    assert!(!expect.admits(&Peer::Signed { team: "T".into(), identifier: "i".into(), certificate_sha1: None }));
+    assert!(expect.admits(&Peer::Signed { team: "T".into(), identifier: "c".into(), certificate_sha1: None }));
+}
+
+#[test]
+fn a_server_certificate_pin_refuses_a_sibling_signing_key() {
+    let expect = ServerExpectation {
+        signed: vec![SignedIdentity { team: "T".into(), identifier: "c".into(), certificate_sha1: Some("ab".repeat(20)) }],
+        ..ServerExpectation::default()
+    };
+    let peer = |pin| Peer::Signed { team: "T".into(), identifier: "c".into(), certificate_sha1: pin };
+    assert!(expect.admits(&peer(Some("AB".repeat(20)))));
+    assert!(!expect.admits(&peer(Some("CD".repeat(20)))));
+    assert!(!expect.admits(&peer(None)));
 }
 
 #[cfg(unix)]
@@ -92,9 +104,9 @@ mod unix {
     #[test]
     fn an_unsigned_peer_never_passes_as_a_signed_identity() {
         let (a, _b) = UnixStream::pair().unwrap();
-        let candidates = [SignedIdentity { team: "ABCDE12345".into(), identifier: "com.merely.djinn.custodian".into() }];
+        let candidates = [SignedIdentity { team: "ABCDE12345".into(), identifier: "com.merely.djinn.custodian".into(), certificate_sha1: None }];
         assert!(peer::signed_peer(a.as_raw_fd(), &candidates).is_none());
-        let injected = [SignedIdentity { team: "X\" or anchor apple".into(), identifier: "y".into() }];
+        let injected = [SignedIdentity { team: "X\" or anchor apple".into(), identifier: "y".into(), certificate_sha1: None }];
         assert!(peer::signed_peer(a.as_raw_fd(), &injected).is_none(), "requirement text cannot be injected");
     }
 

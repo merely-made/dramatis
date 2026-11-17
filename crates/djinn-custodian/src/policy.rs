@@ -20,6 +20,7 @@ use custody_wire::Peer;
 use serde::Deserialize;
 
 mod platform;
+mod signed;
 pub use platform::{ConsentMode, EnvelopeConfig, Owner};
 
 /// The whole installed configuration.
@@ -102,7 +103,12 @@ pub enum Matcher {
     /// hold a status grant only, and it must be listed before the account's
     /// own rule, since the first matching rule wins.
     WindowsImage { sid: String, image: String },
-    Signed { team: String, identifier: String },
+    Signed {
+        team: String,
+        identifier: String,
+        #[serde(default)]
+        certificate_sha1: Option<String>,
+    },
 }
 
 impl Matcher {
@@ -112,12 +118,15 @@ impl Matcher {
             (Self::WindowsSid(want), Peer::Windows { sid, .. }) => want == sid,
             (Self::WindowsImage { sid: want, image: pinned }, Peer::Windows { sid, image: Some(image), .. }) => want == sid && same_image(pinned, image),
             (
-                Self::Signed { team, identifier },
+                Self::Signed { team, identifier, certificate_sha1 },
                 Peer::Signed {
                     team: t,
                     identifier: i,
+                    certificate_sha1: observed,
                 },
-            ) => team == t && identifier == i,
+            ) => team == t && identifier == i
+                && certificate_sha1.as_ref().is_none_or(|expected|
+                    observed.as_ref().is_some_and(|actual| expected.eq_ignore_ascii_case(actual))),
             _ => false,
         }
     }
@@ -419,6 +428,7 @@ impl Config {
             if rule.name.is_empty() || rule.name.len() > 64 || !names.insert(&rule.name) {
                 return Err(PolicyError(format!("principal name {:?} is empty, too long or repeated", rule.name)));
             }
+            signed::validate(rule, self.envelope.is_some() && !self.development)?;
             let same_user = self.same_user(&rule.matcher);
             let pinned = match &rule.matcher {
                 Matcher::WindowsImage { image, .. } => {
@@ -493,9 +503,10 @@ impl Config {
         self.principals
             .iter()
             .filter_map(|rule| match &rule.matcher {
-                Matcher::Signed { team, identifier } => Some(custody_wire::SignedIdentity {
+                Matcher::Signed { team, identifier, certificate_sha1 } => Some(custody_wire::SignedIdentity {
                     team: team.clone(),
                     identifier: identifier.clone(),
+                    certificate_sha1: certificate_sha1.clone(),
                 }),
                 _ => None,
             })

@@ -36,11 +36,34 @@ fn consent_helper() -> Peer {
     Peer::Signed {
         team: "TEAM".into(),
         identifier: "com.merely.djinn.consent".into(),
+        certificate_sha1: None,
     }
 }
 
 fn admin() -> Peer {
     Peer::Unix { uid: 0, gid: 0, pid: Some(1) }
+}
+
+#[test]
+fn signed_principals_refuse_a_different_certificate_from_the_same_team() {
+    let directory = protected_directory();
+    let mut value = serde_json::json!({
+        "vault": {"directory": directory.path()}, "owner": {"unix_uid": DJINN_UID},
+        "consent": "channel", "envelope": {"access_group": "TEAM.com.merely.djinn.custodian"},
+        "principals": [{"name": "consent", "match": {"signed": {
+            "team": "TEAM", "identifier": "com.merely.djinn.consent", "certificate_sha1": "ab".repeat(20)
+        }}, "consent_channel": true, "grants": [{"operation": "status"}]}]
+    });
+    let config = Config::parse(&serde_json::to_vec(&value).unwrap()).unwrap();
+    let peer = |certificate_sha1| Peer::Signed { team: "TEAM".into(), identifier: "com.merely.djinn.consent".into(), certificate_sha1 };
+    assert!(config.principal(&peer(Some("AB".repeat(20)))).unwrap().consent_channel);
+    assert!(config.principal(&peer(Some("cd".repeat(20)))).is_none());
+    assert!(config.principal(&peer(None)).is_none());
+    assert_eq!(config.signed_identities()[0].certificate_sha1, Some("ab".repeat(20)));
+    value["principals"][0]["match"]["signed"].as_object_mut().unwrap().remove("certificate_sha1");
+    assert!(Config::parse(&serde_json::to_vec(&value).unwrap()).unwrap_err().0.contains("exact signing certificate"));
+    value["principals"][0]["match"]["signed"]["certificate_sha1"] = "invalid".into();
+    assert!(Config::parse(&serde_json::to_vec(&value).unwrap()).unwrap_err().0.contains("40-digit"));
 }
 
 /// A real passphrase vault with one profile, `work`.

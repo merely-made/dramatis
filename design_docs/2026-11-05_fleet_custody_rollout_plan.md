@@ -49,7 +49,8 @@ Additional approval directions must be explicit in the reviewed setup.
 | R-PC | New protected vault, native first unlock, weekly settings and O-PC consent pin verified | Preserve fresh baseline and empty SSH agent until credentials are needed |
 | Y-PC | New protected vault, native first unlock through Zenity, weekly settings, `bin_t` custody labels and O-PC consent pin verified | Preserve fresh baseline and empty SSH agent until credentials are needed |
 | X-PC | New protected vault, native unlock through Ubuntu's zenity 4.2.1 on Xfce/X11, weekly settings and O-PC consent pin verified | Preserve fresh baseline and empty SSH agent until credentials are needed |
-| Q-PC, iMac-M4 | Running legacy macOS residents; standard vault/data present | Exact signed host/consumer integration and personal receiving |
+| Q-PC | Signed Intel resident and custodian running; native Keychain, consent, identity continuity and live O-PC Luggage upgrade to `0.0.2` verified | Preserve this baseline; complete temporary-account cleanup after relocating the signing key |
+| iMac-M4 | Signed ARM custody and live O-PC Luggage upgrade to `0.0.2` verified; original SSH identity preserved | Finish signing separation: the retained Apple Development key shares the accepted signing team |
 
 Saved idle settings alone do not prove a running service, absolute expiry,
 custody isolation, native approval, enrollment or remote-consent execution.
@@ -150,8 +151,9 @@ Track service readiness, personal unlock and root enrollment as distinct results
 
 ## F2. Signed macOS personal receiving
 
-Q-PC and iMac-M4 need their actual OS/architecture receiving cohorts. Protected
-mode requires the correct hardened-runtime signatures without get-task-allow,
+Q-PC's Intel cohort is installed and its live Luggage upgrade is verified.
+iMac-M4 still needs its Apple Silicon receiving cohort. Protected mode
+requires the correct hardened-runtime signatures without get-task-allow,
 signed/audit-token peer checks, root-owned installation and the owner's GUI
 launchd session. Signing-account separation and native Keychain/presence handling
 remain the existing macOS host's responsibilities.
@@ -162,12 +164,12 @@ installer's `consent: deny` and absent production data-protection integration
 must be resolved through the signed host design, not hidden by replacing a binary.
 Both are now source (2026-11-14, D11's work; Findings): a signed consent helper and
 a data-protection Keychain envelope behind an installer that writes `consent: channel`.
-The signed native run, which needs the Developer ID provisioning profile, remains F2's.
+Q-PC's signed native run and live upgrade receipts are recorded below.
+The Apple Silicon native receiving run remains open.
 
-The checked personal Q-PC resident is unsigned. The M4 resident has an ad hoc
-linker signature, without hardened runtime or a Team ID. Neither is a compatible
-production signed consumer. Prepare the signed host/consumer cohort before
-requesting native receiving; a valid ad hoc integrity check is insufficient.
+The last inspected M4 resident had an ad hoc linker signature without hardened
+runtime or a Team ID. Refresh its installation and prepare the signed
+host/consumer cohort before requesting native receiving.
 
 **Done when:** an exact signed host/resident cohort passes the required native
 boundaries on that machine; identity-preserving adoption and cold reopen work;
@@ -416,6 +418,235 @@ not qualify Windows PowerShell 5's quoting path.
   (the tracked lock was dropped after 05183e8; no resolved-version note exists for it).
 
 ## Progress
+
+- 2026-11-16 (D11): Q-PC built the Intel custodian candidate from
+  `6f9c718` and passed 118 library tests, six process tests and the Keychain
+  envelope fixture. A native Luggage test published and installed a signed
+  fixture by its manifest digest. Q-PC has a Developer ID identity. The
+  locally available provisioning profile names the earlier synthetic App ID,
+  and the signing script rejected it before assembling a production bundle.
+  Receipt: `testing/dramatis/fleet-policy/mac-receiving/q-pc-preflight-01.json`.
+
+- 2026-11-16 (D11): Apple issued the Developer ID profile for
+  `com.merely.djinn.custodian`. Q-PC decoded it and matched the profile's
+  certificate to the signing identity in the intended receiving account's
+  login Keychain. Q-PC also built and staged the Intel Djinn consumer from
+  `6f542e515`. Production signing and personal adoption are pending a signing
+  location outside the receiving account. The live Mac installer and SSH
+  enrollment have yet to be qualified.
+  Receipt: `testing/dramatis/fleet-policy/mac-receiving/q-pc-signing-preflight-01.json`.
+
+- 2026-11-16 (D11): Moved Q-PC's matching Developer ID signing key to a
+  separate standard local login. A test binary signed there satisfied the
+  Apple anchor and exact certificate requirement. The receiving login retained
+  the public certificate and reported zero valid code-signing identities after
+  the source private key was removed. Both temporary transfer copies were
+  cleaned up. Production signing and live receiving are pending.
+  Receipt: `testing/dramatis/fleet-policy/mac-receiving/q-pc-signing-key-move-01.json`.
+
+- 2026-11-16 (D11): Signed and verified Q-PC's Intel custody bundle, consent
+  helper and Djinn resident in `djinn-signing`. The package includes the
+  production provisioning profile. Q-PC's protected installation and live
+  receiving are pending. After the rollout, remove the `djinnh1` test login
+  and the temporary `djinn-signing` login from Q-PC. Before removing the
+  signing login, verify that its Developer ID key works from its long-term
+  signing location outside the receiving login.
+  Receipt: `testing/dramatis/fleet-policy/mac-receiving/q-pc-signed-cohort-01.json`.
+
+- 2026-11-16 (D11): Installed Q-PC's signed Intel cohort under `/Library`.
+  Rechecked the installed signatures and hashes as `markik`. The installed
+  custodian stored, read back and removed a throwaway Keychain item in the
+  owner's GUI session. Signing's restrictive file modes had been preserved by
+  the installer. Repaired the live bundle modes and fixed the installer to
+  make signed bundles readable and executable while retaining root ownership.
+  The legacy Djinn process stayed up. The new LaunchAgents are installed and
+  disabled until personal vault adoption and service cutover.
+  Receipt: `testing/dramatis/fleet-policy/mac-receiving/q-pc-installed-cohort-01.json`.
+
+- 2026-11-16 (D11): Adopted Q-PC's passphrase vault and verified that it
+  reopens to the original identity. Copied the two credential catalog files
+  and verified their bytes. The signed Djinn trial unlocked the adopted
+  vault, and the protected SSH agent advertised the same fingerprint as the
+  legacy agent. The consent helper's Unix connector omitted the configured
+  server signing identity, so the first-party status check failed before
+  cutover. Fixed the connector, rebuilt the Intel helper, and passed six
+  helper tests. Re-signing and an attended, rerunnable consent check remain
+  before switching the running resident. The legacy launch file is backed up.
+
+- 2026-11-17 (D11): Signed and installed Q-PC's repaired consent helper.
+  Subsequent signed Djinn trials failed before consent because a launchd
+  socket could still identify its peer as PID 1 at connect time. Six native
+  observations found three connections that first reported PID 1 and then
+  the expected custodian on the same connection. Added a bounded wait for the
+  expected signature before the custody hello. Ten native `custody-wire`
+  tests passed, including the unexpected-server refusal. Cutover is waiting
+  for rebuilt signed clients and the attended live consent check. The legacy
+  resident is still running.
+
+- 2026-11-17 (D11): Rebuilt Q-PC's Intel consent helper and Djinn resident
+  with the launchd peer handoff repair. The resident's lockfile changed
+  only the custody-wire source to the patched copy of its existing revision.
+  Both unsigned binaries were checked and staged for the same signing
+  session. Live consent and the cutover are pending.
+  Receipt: `testing/dramatis/fleet-policy/mac-receiving/q-pc-handoff-build-01.json`.
+
+- 2026-11-17 (D11): Signed and installed Q-PC's rebuilt consent helper and
+  Djinn resident. The attended live check passed and Q-PC switched to the
+  signed resident. A later readback found the same resident PID ready and
+  unlocked, both installed hashes matched, and the existing SSH agent
+  socket path served the same identity through the custodian. The original
+  vault, catalog and launch file are retained for rollback.
+  Receipt: `testing/dramatis/fleet-policy/mac-receiving/q-pc-cutover-01.json`.
+
+- 2026-11-17 (D11): Built the macOS Luggage adapter and restricted SSH
+  enrollment. Q-PC verified the installed `0.0.1` bundle and its running
+  launchd peer. Four native fixture tests passed, including atomic exchange,
+  rollback on failed restart, and refusal of replays and invalid packages.
+  Q-PC's effective SSH configuration passed in a temporary copy. The live
+  enrollment and Developer ID signing of `0.0.2` await the owner.
+  Receipt: `testing/dramatis/fleet-policy/mac-receiving/q-pc-luggage-preflight-01.json`.
+
+- 2026-11-17 (D11): Enrolled Q-PC's restricted `_djinnupdates` service and
+  published the signed Intel `0.0.2` bundle from O-PC. Luggage installed it
+  and the new custodian, helper and resident launchd jobs stayed up. After
+  the owner's unlock, Djinn reported ready and the preexisting SSH socket
+  advertised the original fingerprint. The ordinary SSH key, an altered
+  manifest and an install replay were refused. Fixed the adapter's root
+  profile check to verify CMS using public system trust roots, and corrected
+  the macOS service account setup. Five native adapter tests passed and a
+  modified provisioning-profile payload failed signature verification.
+  Receipt: `testing/dramatis/fleet-policy/luggage-q-pc/live-publish-upgrade-01.json`.
+
+- 2026-11-17 (D11): Reached iMac-M4 at its newly supplied mesh address
+  `192.168.4.28` with the existing host key. Its legacy resident is running
+  and locked under `markik`, UID 502. Built the repaired arm64 custodian and
+  Luggage receiver on Q-PC and launched both on the M4. Five native updater
+  tests passed on the M4. The arm64 resident also built on Q-PC and returned
+  its normal help output on the M4. Its receiving
+  login holds a different Developer ID identity, so signing separation
+  needs the owner's chosen key-transfer route before personal receiving.
+  Receipt: `testing/dramatis/fleet-policy/mac-receiving/m4-preflight-02.json`.
+
+- 2026-11-17 (D11): The owner authorized moving the M4's specific Developer
+  ID key to Q-PC's existing `djinn-signing` login. The attended M4 export
+  Terminal is open at its Return gate. Import, exact-certificate signing
+  proof and source-key removal are prepared with retries. Source removal
+  remains conditional on a verified signature in the destination login.
+  Receipt: `testing/dramatis/fleet-policy/mac-receiving/m4-signing-key-transfer-01.json`.
+
+- 2026-11-17 (D11): The first M4 export returned a Keychain authorization
+  error before showing the transfer-password dialog. No encrypted transfer
+  file was created. Opened a retry command that explicitly unlocks the named
+  `markik` login Keychain using hidden Terminal input before the exact-identity
+  export. The native unlock command is waiting for the owner; the repaired
+  export, destination signature and source-key removal remain unverified.
+  Receipt: `testing/dramatis/fleet-policy/mac-receiving/m4-signing-export-repair-01.json`.
+
+- 2026-11-17 (D11): The explicit M4 Keychain unlock and exact-identity
+  export succeeded. Copied the encrypted 3264-byte transfer directly to
+  Q-PC through O-PC, verified matching digests and mode 0600, and opened
+  Q-PC's native administrator Terminal. The destination signing proof
+  and M4 source-key removal remain pending.
+  Receipt: `testing/dramatis/fleet-policy/mac-receiving/m4-signing-export-accepted-01.json`.
+
+- 2026-11-17 (D11): Verified the imported M4 Developer ID with an exact-
+  certificate signature in Q-PC's existing signing login, then removed the
+  M4 private-key copy. The unrelated Apple Development identity and public
+  Developer ID certificate remain on the M4. Both encrypted transfer files
+  and root handoff staging were removed. Q-PC's signing login still has
+  neither administrator nor SSH membership.
+  Receipt: `testing/dramatis/fleet-policy/mac-receiving/m4-signing-key-move-01.json`.
+
+- 2026-11-17 (D11): Q-PC signed the ARM installation cohort and `0.0.2`
+  update with the production profile's existing Developer ID. Streamed the
+  installation directly to M4, verified its complete digest, bounded exact
+  archive entries, native architecture, signatures, timestamps and Keychain
+  claims. Removed 111454843 bytes of verified duplicate unsigned delivery
+  inputs after signing. Opened M4's native administrator installation step;
+  the legacy service, vault adoption and Luggage cutover remain separate.
+  Receipt: `testing/dramatis/fleet-policy/mac-receiving/m4-signed-cohort-01.json`.
+
+- 2026-11-17 (D11): M4's signed root installation and native Keychain
+  envelope round trip passed. Adopted its existing vault to the same master
+  and copied both credential catalog files, retaining the originals. The
+  attended protected trial and service cutover passed with the original SSH
+  fingerprint and old socket path preserved. The signed resident now runs
+  as PID 63064. Removed the verified installation delivery copies from both
+  hosts after installed-binary readback. Restricted Luggage enrollment is
+  prepared and its native administrator Terminal is open.
+  Receipt: `testing/dramatis/fleet-policy/mac-receiving/m4-cutover-01.json`.
+
+- 2026-11-17 (D10/D11): M4's restricted update service enrolled as hidden
+  UID 450. O-PC published the signed ARM release and installed `0.0.2`.
+  The ordinary SSH key, an altered manifest and an install replay were
+  refused; the invalid publication left the feed empty. The restarted
+  resident is ready and unlocked, and the original SSH identity matches.
+  Removed duplicate receiver/archive delivery copies after acceptance.
+  Receipt: `testing/dramatis/fleet-policy/luggage-m4/live-publish-upgrade-01.json`.
+
+- 2026-11-17 (D11): Corrected a signing-separation oversight. The retained
+  Apple Development certificate is a different identity but its subject OU
+  is also `HWVZ5S7ACJ`. The installed custody principals match that team and
+  app identifiers, so this remaining authority is not excluded. Functional
+  receiving and the signed update passed; full H1 signing separation is
+  still open. Asked the owner to move this second key into Q-PC's existing
+  signing login, or retain it and add certificate-specific peer checks.
+  Receipt: `testing/dramatis/fleet-policy/mac-receiving/m4-remaining-signing-authority-01.json`.
+
+- 2026-11-17 (D11): The owner asked what the second key is for before
+  authorizing a move. Inspection confirmed that it signed Xcode's existing
+  `PersonalHopspot.app` build and is referenced by the Retinue pocket NFC
+  probe and wildcard iOS provisioning profiles. Moving it would relocate
+  future development signing. Revised the recommendation to retain this
+  development key and narrow Djinn's accepted signing certificates. The
+  second key remains untouched; full signing separation is still open.
+  Receipt: `testing/dramatis/fleet-policy/mac-receiving/m4-development-key-usage-01.json`.
+
+- 2026-11-17 (D11): The owner chose to retain the M4 development key for
+  Xcode work, including Woodshed and Redshank, and pin Djinn to the specific
+  release certificate. Implemented observed leaf-certificate facts in
+  Armillary `peer-facts` 0.0.3, both custody admission checks, protected-policy
+  pin validation and the coordinated app/helper/resident/policy/adapter
+  migration with rollback. Windows tests passed (9 wire, 112 custodian),
+  native Intel tests passed (11 wire, 119 custodian), and the native peer
+  tests passed on Intel and ARM (5 each). The native adapter and cohort
+  transaction suites passed (6 each). Both architecture release builds are
+  ready for attended signing; installation and same-team development-key
+  negative controls remain pending. Existing 0.0.2 runtimes remain installed.
+  This qualifies connection identity only: provisioned Keychain access groups
+  are a separate authority, so full H1 isolation is not claimed from these pins.
+  Lane: `testing/dramatis/fleet-policy/mac-receiving/certificate-pin-lane-01.json`.
+
+- 2026-11-16 (D10): Y-PC and R-PC enrolled with empty protected feeds. O-PC
+  published the same signed release and installed custodian `0.0.2) on both.
+  Both hosts refused the ordinary SSH key and an install replay. O-PC
+  verified the replacement binaries and each host's existing relay authority
+  and identity. Both vaults reported locked after restart. X-PC remained
+  unreachable during the rollout.
+  Receipts: `testing/dramatis/fleet-policy/luggage-linux-fleet/y-pc-live-publish-upgrade-01.json`
+  and `testing/dramatis/fleet-policy/luggage-linux-fleet/r-pc-live-publish-upgrade-01.json`.
+
+- 2026-11-16 (D10): T-PC migrated its digest-only SSH receiver to the
+  publish-and-install receiver qualified on S-PC. O-PC verified the signed
+  upload reaches the current-version check and the ordinary SSH key is
+  refused. The same custodian process continued running `0.0.2`.
+  Receipt: `testing/dramatis/fleet-policy/luggage-linux-fleet/t-pc-receiver-migration-01.json`.
+
+- 2026-11-16 (D10): S-PC enrolled with an empty protected feed. O-PC used
+  the dedicated SSH update key to publish the signed bundle and then install
+  custodian `0.0.2` by its manifest digest. S-PC rejected the ordinary SSH
+  key, an invalid manifest signature, and an install replay. The invalid
+  upload left the feed empty. O-PC read back the new binary and the existing
+  relay authority and identity. The vault was locked after restart.
+  Receipt: `testing/dramatis/fleet-policy/luggage-s-pc/live-publish-upgrade-01.json`.
+
+- 2026-11-16 (D10): T-PC accepted a live O-PC request through the dedicated
+  Djinn SSH update key and the restricted `djinn-updates` account. Luggage
+  verified the fleet publisher's signed release and the Linux adapter
+  started custodian `0.0.2`. O-PC read back the new binary and the existing
+  relay authority and identity. The ordinary SSH key, a different manifest
+  digest and a replay were refused. The vault was locked after restart.
+  Receipt: `testing/dramatis/fleet-policy/luggage-t-pc/live-upgrade-01.json`.
 
 - 2026-11-05: completed remaining-fleet inventory and F0 Linux native qualification;
   retained compact results and removed only owned generated delivery executables.

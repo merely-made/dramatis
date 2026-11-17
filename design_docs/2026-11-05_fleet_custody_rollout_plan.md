@@ -617,6 +617,20 @@ not qualify Windows PowerShell 5's quoting path.
   are a separate authority, so full H1 isolation is not claimed from these pins.
   Lane: `testing/dramatis/fleet-policy/mac-receiving/certificate-pin-lane-01.json`.
 
+- 2026-11-17 (D11): Both architecture cohorts are signed as `0.0.3` with
+  `BF9216740E1A5CCB99CB26B0D632D37344BF8608`. O-PC also holds the signed
+  app-only `0.0.4` artifacts and Luggage manifests for the subsequent live
+  update check. The M4 has signed the harmless client/consent/server probes
+  with its retained development key. Its administrator installer is open;
+  the existing `0.0.2` runtime is still installed. Q-PC's administrator
+  coordinator waits for M4 acceptance before applying its cohort. Source
+  and fixture changes are pushed (`ec706ac`, `f011e97`); all source hooks
+  passed. Native observing probes accept the installed release certificate
+  and refuse the development pin on both hosts without sending data. This
+  does not yet qualify the replacement runtime's live admission, consent or
+  update path. Pending native gates and retained delivery ownership are in
+  `testing/dramatis/fleet-policy/mac-receiving/certificate-pinning/progress-01.json`.
+
 - 2026-11-16 (D10): Y-PC and R-PC enrolled with empty protected feeds. O-PC
   published the same signed release and installed custodian `0.0.2) on both.
   Both hosts refused the ordinary SSH key and an install replay. O-PC

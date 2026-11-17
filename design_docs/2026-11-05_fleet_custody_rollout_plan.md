@@ -644,6 +644,17 @@ not qualify Windows PowerShell 5's quoting path.
   Receipts: `testing/dramatis/fleet-policy/mac-receiving/certificate-pinning/m4-native-certificate-controls-02.json`
   and `testing/dramatis/fleet-policy/mac-receiving/certificate-pinning/m4-live-0.0.4.json`.
 
+- 2026-11-17 (D11): Q-PC completed native unlock on its pinned cohort,
+  preserving the original SSH identity. O-PC published and installed
+  `0.0.4` through Q-PC's protected Luggage feed. Q-PC unlocked after the
+  restart, the installed executable matched the signed archive, the
+  original SSH identity returned, and a replay was refused. Both Mac
+  installations have accepted the coordinated migration and cleared
+  the generated rollback. These results qualify the custody socket pins
+  and signed update path. Keychain provisioning authority remains a
+  separate part of H1. Receipt:
+  `testing/dramatis/fleet-policy/mac-receiving/certificate-pinning/q-pc-live-0.0.4.json`.
+
 - 2026-11-16 (D10): Y-PC and R-PC enrolled with empty protected feeds. O-PC
   published the same signed release and installed custodian `0.0.2) on both.
   Both hosts refused the ordinary SSH key and an install replay. O-PC

@@ -4,6 +4,8 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 // SPDX-License-Identifier: MPL-2.0
 
+use std::sync::atomic::{AtomicBool, Ordering};
+
 use muniment::MemoryBackend;
 
 use super::*;
@@ -16,6 +18,75 @@ fn sealer(persona: PersonaId, epoch: u8, secret: &[u8]) -> WalletEpochSealer {
         KeyEpochId(uuid::Uuid::from_bytes([epoch; 16])),
         secret,
     )
+}
+
+struct RevocableSealer {
+    wallet: WalletEpochSealer,
+    available: AtomicBool,
+}
+
+impl RevocableSealer {
+    fn authorize(&self) -> eidetic::Result<()> {
+        self.available
+            .load(Ordering::SeqCst)
+            .then_some(())
+            .ok_or_else(|| eidetic::Error::new("test custody retired"))
+    }
+}
+
+impl PayloadSealer for RevocableSealer {
+    fn seal(&self, hash: &Hash, bytes: &[u8]) -> eidetic::Result<(Vec<u8>, SealedBlobRef)> {
+        self.authorize()?;
+        self.wallet.seal(hash, bytes)
+    }
+
+    fn unseal(
+        &self,
+        hash: &Hash,
+        marker: &SealedBlobRef,
+        bytes: &[u8],
+    ) -> eidetic::Result<Vec<u8>> {
+        self.authorize()?;
+        self.wallet.unseal(hash, marker, bytes)
+    }
+}
+
+#[test]
+fn host_sealer_uses_wallet_slots_and_refuses_after_retirement() {
+    pollster::block_on(async {
+        let raw = MemoryBackend::new();
+        let persona = PersonaId::new();
+        let original = WalletSealedBackend::new(raw.clone(), sealer(persona, 1, b"secret"));
+        original.put("existing", b"held").await.unwrap();
+
+        let custody = Arc::new(RevocableSealer {
+            wallet: sealer(persona, 1, b"secret"),
+            available: AtomicBool::new(true),
+        });
+        let host = WalletSealedBackend::with_sealer(raw.clone(), custody.clone());
+        host.transact(Box::new(|reader| {
+            assert_eq!(
+                reader.get("existing").unwrap().as_deref(),
+                Some(&b"held"[..])
+            );
+            vec![WriteOp::Put {
+                key: "journal".into(),
+                value: b"entry".to_vec(),
+            }]
+        }))
+        .await
+        .unwrap();
+        assert_eq!(
+            original.get("journal").await.unwrap().as_deref(),
+            Some(&b"entry"[..])
+        );
+
+        let before = raw.get("journal").await.unwrap();
+        custody.available.store(false, Ordering::SeqCst);
+        assert!(host.get("journal").await.is_err());
+        assert!(host.put("journal", b"stale write").await.is_err());
+        assert_eq!(raw.get("journal").await.unwrap(), before);
+    });
 }
 
 #[test]
@@ -213,7 +284,7 @@ fn transaction_seal_failure_discards_the_whole_batch_with_valid_control() {
                     if fail_second && key == "second" {
                         return Err(failure("injected sealing failure"));
                     }
-                    seal_value(&writer, key, bytes)
+                    seal_value(writer.as_ref(), key, bytes)
                 }),
             );
             raw.transact(transaction).await.unwrap();

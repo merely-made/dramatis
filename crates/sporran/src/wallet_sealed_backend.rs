@@ -23,6 +23,8 @@ use crate::WalletEpochSealer;
 
 const FORMAT: &str = "pandect-wallet-slot-v1";
 
+type SharedSealer = Arc<dyn PayloadSealer + Send + Sync>;
+
 #[derive(Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Envelope {
@@ -50,7 +52,7 @@ struct Value {
 /// adapter makes reads fail; unsealed bytes are never accepted as an empty slot.
 pub struct WalletSealedBackend<B> {
     backend: B,
-    sealer: Arc<WalletEpochSealer>,
+    sealer: SharedSealer,
 }
 
 impl<B: Clone> Clone for WalletSealedBackend<B> {
@@ -65,22 +67,27 @@ impl<B: Clone> Clone for WalletSealedBackend<B> {
 impl<B> WalletSealedBackend<B> {
     /// Wrap a backend with a required, already-loaded persona wallet sealer.
     pub fn new(backend: B, sealer: WalletEpochSealer) -> Self {
-        Self {
-            backend,
-            sealer: Arc::new(sealer),
-        }
+        Self::with_sealer(backend, Arc::new(sealer))
+    }
+
+    /// Wrap a backend with the host's active persona payload sealer.
+    ///
+    /// The sealer enforces its own custody and epoch policy on every value
+    /// access. A refusal from that sealer fails the store operation.
+    pub fn with_sealer(backend: B, sealer: Arc<dyn PayloadSealer + Send + Sync>) -> Self {
+        Self { backend, sealer }
     }
 
     fn seal(&self, key: &str, bytes: &[u8]) -> Result<Vec<u8>, StoreError> {
-        seal_value(&self.sealer, key, bytes)
+        seal_value(self.sealer.as_ref(), key, bytes)
     }
 
     fn unseal(&self, key: &str, bytes: &[u8]) -> Result<Vec<u8>, StoreError> {
-        unseal_value(&self.sealer, key, bytes)
+        unseal_value(self.sealer.as_ref(), key, bytes)
     }
 }
 
-fn seal_value(sealer: &WalletEpochSealer, key: &str, bytes: &[u8]) -> Result<Vec<u8>, StoreError> {
+fn seal_value(sealer: &dyn PayloadSealer, key: &str, bytes: &[u8]) -> Result<Vec<u8>, StoreError> {
     let mut salt = [0; 16];
     getrandom::fill(&mut salt).map_err(|_| failure("wallet slot entropy unavailable"))?;
     let cleartext = serde_json::to_vec(&Value {
@@ -103,7 +110,7 @@ fn seal_value(sealer: &WalletEpochSealer, key: &str, bytes: &[u8]) -> Result<Vec
 }
 
 fn unseal_value(
-    sealer: &WalletEpochSealer,
+    sealer: &dyn PayloadSealer,
     key: &str,
     bytes: &[u8],
 ) -> Result<Vec<u8>, StoreError> {
@@ -133,7 +140,7 @@ type SealFn = Box<dyn FnMut(&str, &[u8]) -> Result<Vec<u8>, StoreError>>;
 
 struct SealedReader<'a> {
     raw: &'a dyn TransactionReader,
-    sealer: &'a WalletEpochSealer,
+    sealer: &'a dyn PayloadSealer,
     error: &'a Mutex<Option<StoreError>>,
 }
 
@@ -164,7 +171,7 @@ impl TransactionReader for SealedReader<'_> {
 }
 
 fn prepare_transaction(
-    sealer: Arc<WalletEpochSealer>,
+    sealer: SharedSealer,
     caller: TransactFn,
     mut seal: SealFn,
 ) -> (TransactFn, Arc<Mutex<Option<StoreError>>>) {
@@ -173,7 +180,7 @@ fn prepare_transaction(
     let transaction = Box::new(move |raw: &dyn TransactionReader| {
         let reader = SealedReader {
             raw,
-            sealer: &sealer,
+            sealer: sealer.as_ref(),
             error: &rejected,
         };
         let ops = caller(&reader);
@@ -257,7 +264,9 @@ macro_rules! implement_backend {
                 let sealer = Arc::clone(&self.sealer);
                 let writer = Arc::clone(&sealer);
                 let (transaction, rejected) = prepare_transaction(
-                    sealer, caller, Box::new(move |key, bytes| seal_value(&writer, key, bytes)),
+                    sealer,
+                    caller,
+                    Box::new(move |key, bytes| seal_value(writer.as_ref(), key, bytes)),
                 );
                 self.backend.transact(transaction).await?;
                 let error = rejected.lock().expect("wallet transaction error").take();

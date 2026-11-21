@@ -1,7 +1,7 @@
 [package]
 rust-version = "1.97.1"
 name = "notochord"
-version = "0.1.1"
+version = "0.2.0"
 edition.workspace = true
 license.workspace = true
 repository.workspace = true

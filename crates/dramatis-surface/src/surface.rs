@@ -359,10 +359,10 @@ impl<C: Custody> IntentSink for DramatisSurface<C> {
         if intent.observed_epoch != SceneEpoch(self.epoch)
             || intent.observed_revision != Revision(self.revision)
         {
-            return Ok(IntentResult::Stale {
-                current_epoch: SceneEpoch(self.epoch),
-                current_revision: Revision(self.revision),
-            });
+            return Ok(IntentResult::stale(
+                SceneEpoch(self.epoch),
+                Revision(self.revision),
+            ));
         }
         let Some(card) = cards.get(intent.target.0 as usize) else {
             return Ok(IntentResult::Rejected {

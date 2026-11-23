@@ -130,6 +130,9 @@ pub trait ResidentCustody: IdentityProvider + Send + Sync + 'static {
     fn sign(&self, source: KeySource, profile: Option<&ProfileId>, salt: &[u8], message: &[u8]) -> Result<([u8; 32], Vec<u8>), CustodyRefusal>;
     /// Sign one delegation statement in `audience`, checked where signed.
     fn sign_delegation(&self, audience: &str, salt: &[u8], message: &[u8]) -> Result<([u8; 32], Vec<u8>), CustodyRefusal>;
+    /// Checked delegation for one explicit profile. Hosts without this operation refuse it.
+    fn sign_named_delegation(&self, _profile: &ProfileId, _audience: &str, _salt: &[u8], _message: &[u8])
+        -> Result<([u8; 32], Vec<u8>), CustodyRefusal> { Err(CustodyRefusal::NotReleasable) }
     /// The public key of `source`'s root.
     fn root_public_key(&self, source: KeySource, profile: Option<&ProfileId>) -> Result<[u8; 32], CustodyRefusal>;
     fn vault_command(&self, profile: &ProfileId, command: &str, args: &[String]) -> Result<VaultOutput, CustodyRefusal>;

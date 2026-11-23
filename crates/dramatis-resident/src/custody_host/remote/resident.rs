@@ -231,8 +231,18 @@ impl ResidentCustody for RemoteHost {
         salt: &[u8],
         message: &[u8],
     ) -> Result<([u8; 32], Vec<u8>), CustodyRefusal> {
+        self.sign_named_delegation(&self.current_profile_id(), audience, salt, message)
+    }
+
+    fn sign_named_delegation(
+        &self,
+        profile: &ProfileId,
+        audience: &str,
+        salt: &[u8],
+        message: &[u8],
+    ) -> Result<([u8; 32], Vec<u8>), CustodyRefusal> {
         let operation = Operation::Sign {
-            profile: self.current_profile_id().0,
+            profile: profile.0.clone(),
             purpose: Purpose::Delegation {
                 audience: audience.into(),
             },

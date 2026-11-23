@@ -2,6 +2,7 @@
   {"operation": "status"}, {"operation": "lock"}, {"operation": "unlock"}, {"operation": "snapshot"},
   {"operation": "release", "profile": "current", "consent": "@CONSENT@", "salts": [
     {"named": "djinn-door"},
+    {"exact": "isocosm/table/v1"}, {"exact": "isocosm/table/records/v1"},
     {"exact": "mesh-author"}, {"exact": "distillery-personal-mesh"},
     {"exact": "mere.djinn/inference/data/v1"},
     {"prefix": "mere.djinn/personal-inference/writer/v1/"},

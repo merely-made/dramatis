@@ -176,8 +176,16 @@ impl<S: IdentityStorage + 'static> ResidentCustody for PersonaeHost<S> {
         Ok((key.public_key().to_bytes(), key.sign(message).to_bytes().to_vec()))
     }
 
-    fn sign_delegation(&self, _audience: &str, salt: &[u8], message: &[u8]) -> Result<([u8; 32], Vec<u8>), CustodyRefusal> {
-        self.sign(KeySource::Persona, None, salt, message)
+    fn sign_delegation(&self, audience: &str, salt: &[u8], message: &[u8]) -> Result<([u8; 32], Vec<u8>), CustodyRefusal> {
+        self.sign_named_delegation(&self.current_profile_id(), audience, salt, message)
+    }
+
+    fn sign_named_delegation(&self, profile: &ProfileId, audience: &str, salt: &[u8], message: &[u8]) -> Result<([u8; 32], Vec<u8>), CustodyRefusal> {
+        let provider = provider(self, KeySource::Persona, Some(profile), self.data_root())?;
+        djinn_custodian::delegation::check(audience, &provider.master_public_key().to_bytes(), salt, message)
+            .map_err(|e| super::refusal(e.0))?;
+        let key = provider.derive_keypair(salt).map_err(identity)?;
+        Ok((key.public_key().to_bytes(), key.sign(message).to_bytes().to_vec()))
     }
 
     fn root_public_key(&self, source: KeySource, profile: Option<&ProfileId>) -> Result<[u8; 32], CustodyRefusal> {

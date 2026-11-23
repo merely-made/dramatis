@@ -99,12 +99,16 @@ pub(super) async fn sign(
         return Err(CustodyRefusal::NotReleasable);
     }
     let host = Arc::clone(keeper.host());
-    let delegation = source == KeySource::Persona
-        && profile.is_none()
-        && crate::custodian::is_graphshell_delegation(&salt);
-    let (public_key, signature) = tokio::task::spawn_blocking(move || match delegation {
-        true => host.sign_delegation(crate::custodian::GRAPHSHELL_AUDIENCE, &salt, &message),
-        false => host.sign(source, profile.as_ref(), &salt, &message),
+    let (public_key, signature) = tokio::task::spawn_blocking(move || {
+        if source == KeySource::Persona && crate::custodian::is_graphshell_delegation(&salt) {
+            let audience = crate::custodian::GRAPHSHELL_AUDIENCE;
+            match profile.as_ref() {
+                Some(named) => host.sign_named_delegation(named, audience, &salt, &message),
+                None => host.sign_delegation(audience, &salt, &message),
+            }
+        } else {
+            host.sign(source, profile.as_ref(), &salt, &message)
+        }
     })
     .await
     .map_err(failed)??;

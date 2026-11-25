@@ -227,3 +227,23 @@ fn the_set_ref_tracks_every_member() {
         device_grant_set_ref(&station.clone())
     );
 }
+
+/// D239: a record ciborium wrote, fields in declaration order, is refused.
+#[test]
+fn a_record_in_ciborium_field_order_is_refused() {
+    let mut record = WrappedEpochRecord::new(grant(&[ACTION_PRIVATE_READ]).certificate.id());
+    record.epochs.push(material());
+    let canonical = encode_epoch_record(&record).unwrap();
+    assert_eq!(decode_epoch_record(&canonical).unwrap(), record, "control");
+    let Ok(cbor_core::Value::Map(entries)) = cbor_core::Value::decode(&canonical) else {
+        panic!("a record is a map");
+    };
+    let mut legacy = vec![0xa3];
+    for key in ["schema_version", "certificate", "epochs"] {
+        let (k, v) = entries.get_key_value(&cbor_core::Value::from(key)).unwrap();
+        legacy.extend(k.encode());
+        legacy.extend(v.encode());
+    }
+    assert_ne!(legacy, canonical, "the keys moved");
+    assert!(matches!(decode_epoch_record(&legacy), Err(DeviceGrantError::Decode)));
+}

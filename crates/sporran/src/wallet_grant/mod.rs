@@ -36,19 +36,41 @@ use crate::wallet_store::{
     CarryRef, DeviceExposure, DeviceMode, DevicePublicKey, KeyEpochId, PersonaWalletManifest,
 };
 
-/// Canonical CBOR, byte for byte what p2panda-core's helpers wrote.
-pub fn encode_cbor<T: Serialize>(value: &T) -> Result<Vec<u8>, ciborium::ser::Error<io::Error>> {
-    let mut bytes = Vec::new();
-    ciborium::ser::into_writer(value, &mut bytes)?;
-    Ok(bytes)
+/// Canonical CBOR::Core through cbor-core (Mere engine split D209). Records
+/// ciborium wrote, fields in declaration order, are refused (D239).
+pub fn encode_cbor<T: Serialize>(value: &T) -> Result<Vec<u8>, cbor_core::SerdeError> {
+    cbor_core::Value::serialized(value).map(|value| value.encode())
 }
 
-/// Decode canonical CBOR.
-pub fn decode_cbor<T: serde::de::DeserializeOwned>(
-    reader: impl io::Read,
-) -> Result<T, ciborium::de::Error<io::Error>> {
-    ciborium::from_reader(reader)
+/// Decode one canonical CBOR item strictly: non-canonical or trailing bytes
+/// are refused.
+pub fn decode_cbor<T: serde::de::DeserializeOwned>(bytes: &[u8]) -> Result<T, CborError> {
+    cbor_core::DecodeOptions::new()
+        .decode(bytes)
+        .map_err(CborError::Malformed)?
+        .deserialized()
+        .map_err(CborError::Value)
 }
+
+/// Why bytes did not decode as a grant record.
+#[derive(Debug)]
+pub enum CborError {
+    /// Not exactly one canonical CBOR::Core item.
+    Malformed(cbor_core::Error),
+    /// A canonical item that is not the expected type.
+    Value(cbor_core::SerdeError),
+}
+
+impl std::fmt::Display for CborError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Malformed(e) => write!(f, "malformed CBOR: {e}"),
+            Self::Value(e) => write!(f, "unexpected CBOR value: {e}"),
+        }
+    }
+}
+
+impl std::error::Error for CborError {}
 
 mod certificate;
 mod enroll;

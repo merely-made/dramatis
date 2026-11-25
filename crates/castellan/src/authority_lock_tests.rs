@@ -372,11 +372,20 @@ fn the_snapshot_reports_locked_with_the_view_kept_at_lock_time() {
 fn the_lock_intent_works_from_any_surface_and_unlock_is_native_only() {
     let dir = tempdir().unwrap();
     let fixture = lockable(dir.path());
-    let outcome = fixture.host.apply_intent(VAULT_LOCK_INTENT, b"{}").unwrap();
+    // The payload is canonical CBOR only (Mere engine split D231): JSON and a
+    // non-canonical empty map are refused, and nothing locks.
+    for refused in [&b"{}"[..], &[0xb8, 0x00][..]] {
+        assert!(matches!(
+            fixture.host.apply_intent(VAULT_LOCK_INTENT, refused),
+            Err(IdentityIntentError::InvalidPayload(_))
+        ));
+    }
+    assert!(!fixture.host.is_locked());
+    let outcome = fixture.host.apply_intent(VAULT_LOCK_INTENT, &dramatis::intents::encode_payload(&dramatis::intents::LockVaultIntentV1 {}).unwrap()).unwrap();
     assert_eq!(outcome, IdentityIntentOutcome::VaultLocked);
     assert!(fixture.host.is_locked());
     // Locking a locked vault through the intent is harmless.
-    fixture.host.apply_intent(VAULT_LOCK_INTENT, b"{}").unwrap();
+    fixture.host.apply_intent(VAULT_LOCK_INTENT, &dramatis::intents::encode_payload(&dramatis::intents::LockVaultIntentV1 {}).unwrap()).unwrap();
 
     let passphrase =
         serde_json::to_vec(&serde_json::json!({ "passphrase": "castellan lock" })).unwrap();
@@ -403,7 +412,7 @@ fn a_switch_is_refused_while_locked() {
     let dir = tempdir().unwrap();
     let fixture = lockable(dir.path());
     fixture.host.lock_vault().unwrap();
-    let payload = serde_json::to_vec(&SwitchProfileIntentV1 {
+    let payload = dramatis::intents::encode_payload(&SwitchProfileIntentV1 {
         profile: "personal".into(),
     })
     .unwrap();
@@ -429,7 +438,7 @@ fn key_mutations_and_creation_are_refused_while_locked() {
     let dir = tempdir().unwrap();
     let fixture = lockable(dir.path());
     fixture.host.lock_vault().unwrap();
-    let generate = serde_json::to_vec(&GenerateSshKeyIntentV1 {
+    let generate = dramatis::intents::encode_payload(&GenerateSshKeyIntentV1 {
         comment: "while locked".into(),
         unlock_policy: SshUnlockPolicyIntentV1::Session,
     })
@@ -438,7 +447,7 @@ fn key_mutations_and_creation_are_refused_while_locked() {
         fixture.host.apply_intent(SSH_GENERATE_INTENT, &generate),
         Err(IdentityIntentError::Locked)
     ));
-    let create = serde_json::to_vec(&CreateProfileIntentV1 {
+    let create = dramatis::intents::encode_payload(&CreateProfileIntentV1 {
         id: "late".into(),
         display_name: "Late".into(),
     })
@@ -447,7 +456,7 @@ fn key_mutations_and_creation_are_refused_while_locked() {
         fixture.host.apply_intent(PROFILE_CREATE_INTENT, &create),
         Err(IdentityIntentError::Locked)
     ));
-    let remove = serde_json::to_vec(&RemoveSshKeyIntentV1 {
+    let remove = dramatis::intents::encode_payload(&RemoveSshKeyIntentV1 {
         fingerprint: PublicKey::from(&fixture.key)
             .fingerprint(ssh_key::HashAlg::Sha256)
             .to_string(),

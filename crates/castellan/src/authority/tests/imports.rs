@@ -292,7 +292,7 @@ fn typed_generation_and_confirmed_removal_mutate_the_shared_vault() {
         None,
         VaultProtectionView::Ephemeral,
     );
-    let generate = serde_json::to_vec(&GenerateSshKeyIntentV1 {
+    let generate = dramatis::intents::encode_payload(&GenerateSshKeyIntentV1 {
         comment: "generated in Graphshell".to_string(),
         unlock_policy: SshUnlockPolicyIntentV1::ShortTtl { idle_seconds: 45 },
     })
@@ -306,7 +306,7 @@ fn typed_generation_and_confirmed_removal_mutate_the_shared_vault() {
     assert!(generated.public_openssh.starts_with("ssh-ed25519 "));
     assert_eq!(host.snapshot().unwrap().ssh_keys.len(), 1);
 
-    let unconfirmed = serde_json::to_vec(&RemoveSshKeyIntentV1 {
+    let unconfirmed = dramatis::intents::encode_payload(&RemoveSshKeyIntentV1 {
         fingerprint: generated.fingerprint.clone(),
         confirmed: false,
     })
@@ -317,7 +317,7 @@ fn typed_generation_and_confirmed_removal_mutate_the_shared_vault() {
     ));
     assert_eq!(host.snapshot().unwrap().ssh_keys.len(), 1);
 
-    let confirmed = serde_json::to_vec(&RemoveSshKeyIntentV1 {
+    let confirmed = dramatis::intents::encode_payload(&RemoveSshKeyIntentV1 {
         fingerprint: generated.fingerprint,
         confirmed: true,
     })
@@ -365,7 +365,7 @@ fn native_import_never_accepts_private_key_bytes_as_an_intent() {
     assert!(!public_json.contains(&private_openssh));
     assert!(!public_json.contains("BEGIN OPENSSH PRIVATE KEY"));
 
-    let options = serde_json::to_vec(&ImportSshKeyNativeIntentV1 {
+    let options = dramatis::intents::encode_payload(&ImportSshKeyNativeIntentV1 {
         unlock_policy: SshUnlockPolicyIntentV1::Session,
     })
     .unwrap();

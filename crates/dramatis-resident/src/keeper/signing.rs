@@ -44,7 +44,7 @@ pub(crate) fn confirm<S: IdentityStorage + 'static>(
         _ => return Err("unknown signing decision".into()),
     };
     let request: SigningDecisionIntentV1 =
-        serde_json::from_slice(payload).map_err(|_| "invalid signing request id")?;
+        dramatis::intents::decode_payload(payload).map_err(|_| "invalid signing request id")?;
     let context = host
         .begin_native_signing(request.request_id)
         .map_err(|e| e.to_string())?;
@@ -139,7 +139,7 @@ mod tests {
     async fn pending(host: &PersonaeHost<InMemoryStorage>) -> Vec<u8> {
         loop {
             if let Some(p) = host.snapshot().unwrap().pending_signing.first() {
-                return serde_json::to_vec(&SigningDecisionIntentV1 {
+                return dramatis::intents::encode_payload(&SigningDecisionIntentV1 {
                     request_id: p.request.request_id,
                 })
                 .unwrap();

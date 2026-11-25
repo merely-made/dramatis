@@ -12,8 +12,46 @@
 //! vocabulary change with its own blast radius. See the keeper founding
 //! plan.
 
+use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+
+/// An intent payload as one canonical CBOR item (Mere engine split D231).
+///
+/// # Errors
+///
+/// When the value does not serialize.
+pub fn encode_payload<T: Serialize>(value: &T) -> Result<Vec<u8>, PayloadError> {
+    cbor_core::Value::serialized(value)
+        .map(|value| value.encode())
+        .map_err(|error| PayloadError(error.to_string()))
+}
+
+/// Read a payload back. Non-canonical CBOR, trailing bytes and any other
+/// encoding are refused.
+///
+/// # Errors
+///
+/// When the bytes are not exactly one canonical item holding a `T`.
+pub fn decode_payload<T: DeserializeOwned>(bytes: &[u8]) -> Result<T, PayloadError> {
+    cbor_core::DecodeOptions::new()
+        .decode(bytes)
+        .map_err(|error| PayloadError(error.to_string()))?
+        .deserialized()
+        .map_err(|error| PayloadError(error.to_string()))
+}
+
+/// Why an intent payload was not written or not read.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct PayloadError(pub String);
+
+impl std::fmt::Display for PayloadError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
+impl std::error::Error for PayloadError {}
 
 pub const SIGNING_APPROVE_ONCE_INTENT: &str = "castellan.signing.approve-once";
 pub const SIGNING_APPROVE_IDLE_INTENT: &str = "castellan.signing.approve-until-idle";

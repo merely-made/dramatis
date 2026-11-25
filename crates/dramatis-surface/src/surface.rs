@@ -284,7 +284,7 @@ trait ComposedPayload {
 
 impl ComposedPayload for AdvertisedAction {
     fn compose_payload_from(&self, bytes: &[u8]) -> Result<BTreeMap<String, String>, String> {
-        let mut values: BTreeMap<String, String> = serde_json::from_slice(bytes)
+        let mut values: BTreeMap<String, String> = chirograph::wire::decode(bytes)
             .map_err(|e| format!("payload was not understood: {e}"))?;
         if values.remove("schema").as_deref() != Some(self.payload_schema.as_str()) {
             return Err(format!(

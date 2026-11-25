@@ -101,7 +101,7 @@ pub enum IdentityIntentError {
     #[error("unknown identity intent")]
     UnknownIntent,
     #[error("invalid signing decision payload: {0}")]
-    InvalidPayload(#[from] serde_json::Error),
+    InvalidPayload(#[from] dramatis::intents::PayloadError),
     #[error("signing decision rejected: {0}")]
     Decision(#[from] DecisionError),
     #[error("identity vault operation failed: {0}")]

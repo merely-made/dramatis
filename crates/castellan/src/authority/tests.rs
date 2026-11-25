@@ -96,7 +96,7 @@ fn a_created_persona_joins_the_vault_and_the_host_stays_where_it_was() {
     let outcome = host
         .apply_intent(
             PROFILE_CREATE_INTENT,
-            &serde_json::to_vec(&CreateProfileIntentV1 {
+            &dramatis::intents::encode_payload(&CreateProfileIntentV1 {
                 id: "alt".into(),
                 display_name: "Late Night Alt".into(),
             })
@@ -254,7 +254,7 @@ fn a_projected_switch_is_live_and_remembered_for_the_family() {
     let outcome = host
         .apply_intent(
             PROFILE_SWITCH_INTENT,
-            &serde_json::to_vec(&SwitchProfileIntentV1 {
+            &dramatis::intents::encode_payload(&SwitchProfileIntentV1 {
                 profile: "personal".into(),
             })
             .unwrap(),
@@ -351,7 +351,7 @@ async fn projected_decisions_cannot_release_the_real_ssh_adapter_without_native_
         }
         tokio::task::yield_now().await;
     };
-    let payload = serde_json::to_vec(&SigningDecisionIntentV1 {
+    let payload = dramatis::intents::encode_payload(&SigningDecisionIntentV1 {
         request_id: pending.request.request_id,
     })
     .unwrap();

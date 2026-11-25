@@ -68,6 +68,8 @@ custody-wire = { version = "0.0.1", path = "crates/custody-wire" }
 blake3 = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+# The family's one CBOR codec (Mere engine split D209): intent payloads (D231).
+cbor-core = { version = "0.10", features = ["serde"] }
 uuid = { version = "1", features = ["serde", "v4"] }
 # The persistence floor gaz's `muniment` feature stores through. From
 # crates.io rather than mere.git, so this repository never pins mere back;

@@ -77,7 +77,7 @@ pub(super) fn answer(outcome: Outcome) -> Answer {
 fn intent(name: &str, payload: Value) -> Operation {
     Operation::Intent {
         intent: name.into(),
-        payload: Bytes(serde_json::to_vec(&payload).unwrap()),
+        payload: Bytes(dramatis::intents::encode_payload(&payload).unwrap()),
     }
 }
 

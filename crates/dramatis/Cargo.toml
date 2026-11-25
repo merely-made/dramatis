@@ -17,6 +17,7 @@ personae.workspace = true
 gaz.workspace = true
 serde.workspace = true
 serde_json.workspace = true
+cbor-core.workspace = true
 uuid = { version = "1", default-features = false, features = ["serde"] }
 
 [dev-dependencies]

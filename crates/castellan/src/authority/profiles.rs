@@ -286,36 +286,36 @@ impl<S: IdentityStorage + 'static> PersonaeHost<S> {
                 Err(IdentityIntentError::SigningDecisionNativeOnly)
             },
             SSH_GENERATE_INTENT => {
-                let payload: GenerateSshKeyIntentV1 = serde_json::from_slice(payload)?;
+                let payload: GenerateSshKeyIntentV1 = dramatis::intents::decode_payload(payload)?;
                 self.generate_ssh_key(payload)
                     .map(IdentityIntentOutcome::SshKeyMutation)
             },
             SSH_REMOVE_INTENT => {
-                let payload: RemoveSshKeyIntentV1 = serde_json::from_slice(payload)?;
+                let payload: RemoveSshKeyIntentV1 = dramatis::intents::decode_payload(payload)?;
                 self.remove_ssh_key(payload)
                     .map(IdentityIntentOutcome::SshKeyMutation)
             },
             SSH_IMPORT_NATIVE_INTENT => {
-                let _: ImportSshKeyNativeIntentV1 = serde_json::from_slice(payload)?;
+                let _: ImportSshKeyNativeIntentV1 = dramatis::intents::decode_payload(payload)?;
                 Err(IdentityIntentError::NativeHandoffRequired)
             },
             DEVICE_REVOKE_INTENT => {
-                let payload: RevokeDeviceIntentV1 = serde_json::from_slice(payload)?;
+                let payload: RevokeDeviceIntentV1 = dramatis::intents::decode_payload(payload)?;
                 self.revoke_device(payload)
                     .map(IdentityIntentOutcome::DeviceRevocation)
             },
             PROFILE_SWITCH_INTENT => {
-                let payload: SwitchProfileIntentV1 = serde_json::from_slice(payload)?;
+                let payload: SwitchProfileIntentV1 = dramatis::intents::decode_payload(payload)?;
                 self.switch_profile(payload)
                     .map(IdentityIntentOutcome::ProfileSwitch)
             },
             PROFILE_CREATE_INTENT => {
-                let payload: CreateProfileIntentV1 = serde_json::from_slice(payload)?;
+                let payload: CreateProfileIntentV1 = dramatis::intents::decode_payload(payload)?;
                 self.create_profile(payload)
                     .map(IdentityIntentOutcome::ProfileCreated)
             },
             VAULT_LOCK_INTENT => {
-                let _: LockVaultIntentV1 = serde_json::from_slice(payload)?;
+                let _: LockVaultIntentV1 = dramatis::intents::decode_payload(payload)?;
                 self.lock_vault()?;
                 Ok(IdentityIntentOutcome::VaultLocked)
             },

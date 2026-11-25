@@ -139,12 +139,13 @@ mod tests {
         };
         request.validate().unwrap();
         let mut framed = Vec::new();
-        ostiary::frame::write_native_message(
+        // Custody crosses the application door's CBOR frame (engine split D225).
+        ostiary::frame::write_cbor_message(
             &mut framed,
             &crate::custody::CustodyCall::Payload(request.clone()),
         )
         .unwrap();
-        assert!(framed.len() < ostiary::frame::MAX_NATIVE_MESSAGE_BYTES as usize);
+        assert!(framed.len() < ostiary::frame::MAX_APP_MESSAGE_BYTES as usize);
         let marker = SealedBlobRef {
             epoch: eidetic::SealEpochId([0; 16]),
             format: eidetic::seal::SEAL_FORMAT_V1.into(),

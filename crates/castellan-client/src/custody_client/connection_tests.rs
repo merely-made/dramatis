@@ -8,24 +8,24 @@
 // release in an unexpected or mismatched answer leaks nothing.
 use ostiary::app_admission::{AppHello, AppId};
 use ostiary::app_client::{AppClientError, AppConnection};
-use ostiary::frame::{read_native_message_async, write_native_message_async};
+use ostiary::frame::{read_cbor_message_async, write_cbor_message_async};
 use ostiary::wire::{AppHostMessage, AppMessage, BrowserChallenge};
 
 /// The host's side of the handshake, run before a test host's exchange.
 async fn admit(server: &mut tokio::io::DuplexStream) {
-    let hello: AppHello = read_native_message_async(server).await.unwrap().unwrap();
+    let hello: AppHello = read_cbor_message_async(server).await.unwrap().unwrap();
     let challenge = AppHostMessage::<(), (), ()>::Challenge {
         challenge: BrowserChallenge::fresh().expect("nonce"),
     };
-    write_native_message_async(server, &challenge)
+    write_cbor_message_async(server, &challenge)
         .await
         .unwrap();
-    let _: AppMessage<(), ()> = read_native_message_async(server).await.unwrap().unwrap();
+    let _: AppMessage<(), ()> = read_cbor_message_async(server).await.unwrap().unwrap();
     let connected = AppHostMessage::<(), (), ()>::Connected {
         app: hello.app,
         session: "fixture".into(),
     };
-    write_native_message_async(server, &connected)
+    write_cbor_message_async(server, &connected)
         .await
         .unwrap();
 }
@@ -78,12 +78,12 @@ async fn unexpected_real_custody_release_does_not_leak_in_error_chain() {
     let host = tokio::spawn(async move {
         admit(&mut server).await;
         let _: Option<AppMessage<String, ()>> =
-            read_native_message_async(&mut server).await.unwrap();
+            read_cbor_message_async(&mut server).await.unwrap();
         let answer = AppHostMessage::<(), (), _>::Answer {
             id: 1,
             answer: Ok::<_, CustodyRefusal>(released_answer()),
         };
-        write_native_message_async(&mut server, &answer)
+        write_cbor_message_async(&mut server, &answer)
             .await
             .unwrap();
     });
@@ -103,7 +103,7 @@ async fn mismatched_custody_release_does_not_leak_key_material() {
     let (client, mut server) = tokio::io::duplex(4096);
     let host = tokio::spawn(async move {
         admit(&mut server).await;
-        let call: AppMessage<(), String> = read_native_message_async(&mut server)
+        let call: AppMessage<(), String> = read_cbor_message_async(&mut server)
             .await
             .unwrap()
             .unwrap();
@@ -112,7 +112,7 @@ async fn mismatched_custody_release_does_not_leak_key_material() {
             id: 99,
             answer: Ok::<_, CustodyRefusal>(released_answer()),
         };
-        write_native_message_async(&mut server, &answer)
+        write_cbor_message_async(&mut server, &answer)
             .await
             .unwrap();
     });

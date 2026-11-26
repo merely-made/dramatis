@@ -86,7 +86,7 @@ zeroize = "1"
 # the working memory we hand it (vault lock ruling 33).
 argon2 = { version = "0.6", features = ["zeroize"] }
 blake3.workspace = true
-constant_time_eq = "0.4.2"
+constant_time_eq = ">=0.6"
 # `zeroize` clears the cipher's copy of the key on drop (ruling 37).
 chacha20poly1305 = { version = "0.11", features = ["zeroize"] }
 getrandom = { version = "0.4", features = ["sys_rng"] }

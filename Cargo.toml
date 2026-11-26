@@ -87,3 +87,8 @@ missing_panics_doc = "warn"
 missing_safety_doc = "warn"
 undocumented_unsafe_blocks = "warn"
 too_many_lines = "warn"
+
+# totp-rs master takes constant_time_eq 0.6 (PR #92, unreleased after 6.0.0); one version with
+# blake3. Remove when totp-rs releases it.
+[patch.crates-io]
+totp-rs = { git = "https://github.com/constantoine/totp-rs", branch = "master" }

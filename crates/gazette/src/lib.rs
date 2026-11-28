@@ -283,6 +283,9 @@ pub fn with_test_fetch_import_override<T>(
 }
 
 fn fetch_document_from_endpoint(endpoint: &url::Url) -> Result<WebFingerDocument, String> {
+    // reqwest's `rustls-no-provider` needs a process-wide provider; ring is the
+    // stack's only one. Already-installed is fine.
+    let _ = rustls::crypto::ring::default_provider().install_default();
     let client = reqwest::blocking::Client::builder()
         .timeout(WEBFINGER_TIMEOUT)
         .build()

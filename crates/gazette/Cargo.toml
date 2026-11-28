@@ -18,7 +18,8 @@ gaz.workspace = true
 iri-string = { version = "0.7", default-features = false }
 serde.workspace = true
 serde_json.workspace = true
-reqwest = { version = "0.12", default-features = false, features = ["blocking", "rustls-tls"] }
+reqwest = { version = ">=0.13", default-features = false, features = ["blocking", "rustls-no-provider"] }
+rustls = { version = ">=0.23.46", default-features = false, features = ["ring", "std"] }
 url = "2.5"
 
 [lints]

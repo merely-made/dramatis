@@ -20,8 +20,7 @@ wildcards = "allow"
 # the holder that keeps it and what would remove it.
 skip = [
   { crate = "getrandom@0.2.17", reason = "ring 0.17.14 (latest; castellan, and rustls) requires it; goes when ring moves on" },
-  { crate = "windows-sys@0.52.0", reason = "ring 0.17.14 (latest; castellan, and rustls under gazette's reqwest 0.12) requires it; goes when ring moves to windows-sys 0.61" },
-  { crate = "base64@0.22.1", reason = "reqwest 0.12.28 (gazette) requires it; goes when gazette takes reqwest 0.13, which swaps rustls-tls for aws-lc-rs and the platform verifier, a TLS backend choice" },
+  { crate = "windows-sys@0.52.0", reason = "ring 0.17.14 (latest; castellan, and rustls under gazette's reqwest 0.13) requires it; goes when ring moves to windows-sys 0.61" },
   { crate = "hashbrown@0.15.5", reason = "petgraph 0.8.3 (latest) requires it, under chartulary (eidetic); goes when petgraph moves to hashbrown 0.17" },
   { crate = "syn@2.0.119", reason = "most proc-macros (zeroize_derive, zerocopy-derive, tracing-attributes, enumflags2_derive, curve25519-dalek-derive, windows-implement, munge_macro) still require syn 2; goes as they move to syn 3" },
 ]
